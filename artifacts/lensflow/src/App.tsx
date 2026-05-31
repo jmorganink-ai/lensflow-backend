@@ -13,6 +13,7 @@ import JobDetail from "@/pages/job-detail";
 import Webhooks from "@/pages/webhooks";
 import Settings from "@/pages/settings";
 import JobsList from "@/pages/jobs";
+import Recorder from "@/pages/recorder";
 import MorganChat from "@/components/MorganChat";
 import { PendingJobHandler } from "@/components/PendingJobHandler";
 import { useServiceWorker } from "@/hooks/use-service-worker";
@@ -96,19 +97,24 @@ function Router() {
   return (
     <>
       <PendingJobHandler />
-      <Layout>
-        <Switch>
-          <Route path="/" component={Dashboard} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/jobs/new" component={NewJob} />
-          <Route path="/jobs/:id" component={JobDetail} />
-          <Route path="/jobs" component={JobsList} />
-          <Route path="/webhooks" component={Webhooks} />
-          <Route path="/settings" component={Settings} />
-          <Route component={NotFound} />
-        </Switch>
-      </Layout>
-      <MorganChat />
+      <Switch>
+        <Route path="/jobs/:id/record" component={Recorder} />
+        <Route>
+          <Layout>
+            <Switch>
+              <Route path="/" component={Dashboard} />
+              <Route path="/dashboard" component={Dashboard} />
+              <Route path="/jobs/new" component={NewJob} />
+              <Route path="/jobs/:id" component={JobDetail} />
+              <Route path="/jobs" component={JobsList} />
+              <Route path="/webhooks" component={Webhooks} />
+              <Route path="/settings" component={Settings} />
+              <Route component={NotFound} />
+            </Switch>
+          </Layout>
+          <MorganChat />
+        </Route>
+      </Switch>
     </>
   );
 }

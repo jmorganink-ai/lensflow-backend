@@ -2,7 +2,7 @@ import { useParams, useLocation } from "wouter";
 import { useGetJob, useDeleteJob, useSimulateJob, getGetJobQueryKey, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic, Copy, Check, Download, Plus, Share2 } from "lucide-react";
+import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic, Copy, Check, Download, Plus, Share2, Video } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -290,7 +290,7 @@ export default function JobDetail() {
                     </div>
                   )}
                   {step.name === "generate_script" && step.outputData && step.status === "complete" && (
-                    <ScriptPanel script={step.outputData} jobTitle={job.listingTitle ?? undefined} />
+                    <ScriptPanel script={step.outputData} jobTitle={job.listingTitle ?? undefined} jobId={id!} />
                   )}
                   {step.name === "create_voiceover" && step.outputUrl && step.status === "complete" && (
                     <div className="mt-3 p-3 bg-primary/5 border border-primary/15 rounded-lg space-y-2">
@@ -403,7 +403,7 @@ export default function JobDetail() {
   );
 }
 
-function ScriptPanel({ script, jobTitle }: { script: string; jobTitle?: string }) {
+function ScriptPanel({ script, jobTitle, jobId }: { script: string; jobTitle?: string; jobId: string }) {
   const { copied, copy } = useCopyToClipboard();
 
   function downloadScript() {
@@ -418,11 +418,20 @@ function ScriptPanel({ script, jobTitle }: { script: string; jobTitle?: string }
 
   return (
     <div className="mt-3 p-3 bg-primary/5 border border-primary/15 rounded-lg space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2 text-[11px] font-mono text-primary uppercase tracking-wider">
           <Mic className="w-3.5 h-3.5" /> AI-Generated Script
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <Link href={`/jobs/${jobId}/record`}>
+            <button
+              type="button"
+              className="flex items-center gap-1.5 text-[10px] font-mono text-primary hover:text-primary/80 transition-colors border border-primary/40 hover:border-primary px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20"
+              title="Open teleprompter recorder"
+            >
+              <Video className="w-3 h-3" /> Record Yourself
+            </button>
+          </Link>
           <button
             type="button"
             onClick={downloadScript}
