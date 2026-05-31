@@ -112,9 +112,9 @@ function Router() {
               <Route component={NotFound} />
             </Switch>
           </Layout>
-          <MorganChat />
         </Route>
       </Switch>
+      <MorganChat />
     </>
   );
 }
