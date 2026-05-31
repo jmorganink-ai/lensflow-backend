@@ -292,7 +292,7 @@ export default function Home() {
           >
             <video
               ref={featuredVideoRef}
-              src="/videos/oliver-featured.mp4"
+              src="/videos/lensflow-reel-creator-v1.mp4"
               autoPlay
               muted
               loop
@@ -302,7 +302,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
             <div className="absolute bottom-4 left-4 flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs font-mono text-white/80 uppercase tracking-widest">Oliver · Williamstown, VIC · LensFlow AI</span>
+              <span className="text-xs font-mono text-white/80 uppercase tracking-widest">Made with LensFlow AI</span>
             </div>
             <div className="absolute top-3 right-3 flex items-center gap-2">
               <button
