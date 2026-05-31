@@ -1,7 +1,8 @@
 import { useParams, useLocation } from "wouter";
 import { useGetJob, useDeleteJob, useSimulateJob, getGetJobQueryKey, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic, Copy, Check, Download, Plus, Share2 } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -17,18 +18,32 @@ const STEP_LABELS: Record<string, string> = {
 };
 
 const STEP_DESCRIPTIONS: Record<string, string> = {
-  scrape_listing: "Extract property data, images, and metadata from the listing URL.",
-  generate_script: "Generate a compelling AI-written video script from listing data.",
+  scrape_listing: "Extract property data and metadata from the listing URL.",
+  generate_script: "Generate a compelling AI-written presenter script from listing data.",
   create_voiceover: "Synthesize professional voiceover audio from the script.",
-  presenter_video: "Render a presenter avatar delivering the voiceover.",
-  compose_video: "Combine all elements into the final video output.",
+  presenter_video: "Render a photoreal AI presenter avatar delivering the voiceover.",
+  compose_video: "Composite all elements into a single shareable 4K video file.",
 };
+
+// Steps that are currently simulated (not yet live in production)
+const SIMULATED_STEPS = new Set(["presenter_video", "compose_video"]);
 
 function StepIcon({ status }: { status: string }) {
   if (status === "complete") return <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />;
   if (status === "running") return <Loader2 className="w-5 h-5 text-blue-400 shrink-0 animate-spin" />;
   if (status === "failed") return <XCircle className="w-5 h-5 text-destructive shrink-0" />;
   return <Circle className="w-5 h-5 text-muted-foreground/30 shrink-0" />;
+}
+
+function useCopyToClipboard(timeout = 1500) {
+  const [copied, setCopied] = useState(false);
+  function copy(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), timeout);
+    });
+  }
+  return { copied, copy };
 }
 
 export default function JobDetail() {
@@ -147,7 +162,8 @@ export default function JobDetail() {
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <ShareButton jobId={job.id} />
             <Button
               size="sm"
               onClick={handleSimulate}
@@ -254,13 +270,34 @@ export default function JobDetail() {
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                    {STEP_DESCRIPTIONS[step.name]}
-                  </p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {STEP_DESCRIPTIONS[step.name]}
+                    </p>
+                    {SIMULATED_STEPS.has(step.name) && (
+                      <span className="shrink-0 text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border border-border text-muted-foreground/50">
+                        Simulated
+                      </span>
+                    )}
+                  </div>
                   {step.errorMessage && (
                     <p className="text-xs text-destructive mt-2 font-mono bg-destructive/5 p-2 rounded border border-destructive/20">
                       {step.errorMessage}
                     </p>
+                  )}
+                  {step.name === "scrape_listing" && step.outputData && step.status === "complete" && (
+                    <div className="mt-3 p-3 bg-card border border-border rounded-lg space-y-1.5">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Extracted Metadata</div>
+                      {step.outputData.split("\n").filter(Boolean).map((line, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs">
+                          <span className="text-primary mt-0.5">▸</span>
+                          <span className="text-foreground/80">{line}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {step.name === "generate_script" && step.outputData && step.status === "complete" && (
+                    <ScriptPanel script={step.outputData} jobTitle={job.listingTitle ?? undefined} />
                   )}
                   {step.name === "create_voiceover" && step.outputUrl && step.status === "complete" && (
                     <div className="mt-3 p-3 bg-primary/5 border border-primary/15 rounded-lg space-y-2">
@@ -306,11 +343,34 @@ export default function JobDetail() {
 
       {/* Completion Banner */}
       {job.status === "complete" && (
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-5 flex items-center gap-4">
-          <CheckCircle2 className="w-6 h-6 text-primary shrink-0" />
-          <div>
-            <p className="text-sm font-semibold text-primary">Pipeline Complete</p>
-            <p className="text-xs text-muted-foreground mt-0.5">All 5 stages finished successfully. You can re-run the simulation at any time.</p>
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-5 space-y-4">
+          <div className="flex items-start gap-4">
+            <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-primary">Pipeline Complete</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Script generated, voiceover synthesised, and video composition finished. Ready to share.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap border-t border-primary/10 pt-4">
+            <Link
+              href="/jobs/new"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded text-xs font-mono font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" /> New Listing
+            </Link>
+            <button
+              type="button"
+              onClick={() => simulateJob.mutate({ id: job.id })}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-border text-foreground rounded text-xs font-mono hover:border-primary/40 hover:text-primary transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Re-run Pipeline
+            </button>
+            <Link
+              href="/jobs"
+              className="inline-flex items-center gap-2 px-4 py-2 text-muted-foreground text-xs font-mono hover:text-primary transition-colors"
+            >
+              View All Videos <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+            </Link>
           </div>
         </div>
       )}
@@ -322,6 +382,67 @@ export default function JobDetail() {
         <MetaCard label="Last Updated" value={formatDistanceToNow(new Date(job.updatedAt), { addSuffix: true })} />
       </div>
     </div>
+  );
+}
+
+function ScriptPanel({ script, jobTitle }: { script: string; jobTitle?: string }) {
+  const { copied, copy } = useCopyToClipboard();
+
+  function downloadScript() {
+    const blob = new Blob([script], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(jobTitle ?? "listing-script").replace(/[^a-z0-9-_ ]/gi, "").toLowerCase().replace(/\s+/g, "-")}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <div className="mt-3 p-3 bg-primary/5 border border-primary/15 rounded-lg space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-[11px] font-mono text-primary uppercase tracking-wider">
+          <Mic className="w-3.5 h-3.5" /> AI-Generated Script
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={downloadScript}
+            className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground hover:text-primary transition-colors border border-border/50 hover:border-primary/40 px-2 py-0.5 rounded"
+            title="Download script as .txt"
+          >
+            <Download className="w-3 h-3" /> .txt
+          </button>
+          <button
+            type="button"
+            onClick={() => copy(script)}
+            className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground hover:text-primary transition-colors border border-border/50 hover:border-primary/40 px-2 py-0.5 rounded"
+          >
+            {copied ? <Check className="w-3 h-3 text-primary" /> : <Copy className="w-3 h-3" />}
+            {copied ? "Copied!" : "Copy"}
+          </button>
+        </div>
+      </div>
+      <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-wrap font-sans italic">
+        {script}
+      </p>
+    </div>
+  );
+}
+
+function ShareButton({ jobId }: { jobId: string }) {
+  const { copied, copy } = useCopyToClipboard();
+  const shareUrl = `${window.location.origin}/pipeline/jobs/${jobId}`;
+  return (
+    <button
+      type="button"
+      onClick={() => copy(shareUrl)}
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border hover:border-primary/40 hover:text-primary text-muted-foreground rounded text-xs font-mono transition-colors"
+      title="Copy link to this job"
+    >
+      {copied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Share2 className="w-3.5 h-3.5" />}
+      {copied ? "Copied!" : "Share"}
+    </button>
   );
 }
 

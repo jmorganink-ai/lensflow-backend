@@ -73,56 +73,57 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  --background: 228 20% 6%;
-  --foreground: 220 10% 90%;
+  --background: 225 44% 5%;
+  --foreground: 39 41% 95%;
   
-  --border: 228 15% 15%;
+  --border: 225 40% 14%;
   
-  --card: 228 20% 8%;
-  --card-foreground: 220 10% 90%;
-  --card-border: 228 15% 15%;
+  --card: 225 44% 7%;
+  --card-foreground: 39 41% 95%;
+  --card-border: 225 40% 14%;
 
-  --sidebar: 228 20% 6%;
-  --sidebar-foreground: 220 10% 90%;
-  --sidebar-border: 228 15% 15%;
-  --sidebar-primary: 74 100% 50%;
-  --sidebar-primary-foreground: 228 30% 10%;
-  --sidebar-accent: 228 15% 15%;
-  --sidebar-accent-foreground: 220 10% 90%;
-  --sidebar-ring: 74 100% 50%;
+  --sidebar: 225 44% 5%;
+  --sidebar-foreground: 39 41% 95%;
+  --sidebar-border: 225 40% 14%;
+  --sidebar-primary: 42 63% 48%;
+  --sidebar-primary-foreground: 225 44% 7%;
+  --sidebar-accent: 225 40% 12%;
+  --sidebar-accent-foreground: 39 41% 95%;
+  --sidebar-ring: 42 63% 48%;
 
-  --popover: 228 20% 8%;
-  --popover-foreground: 220 10% 90%;
-  --popover-border: 228 15% 15%;
+  --popover: 225 44% 7%;
+  --popover-foreground: 39 41% 95%;
+  --popover-border: 225 40% 14%;
 
-  --primary: 74 100% 50%;
-  --primary-foreground: 228 30% 10%;
+  /* LensFlow Gold */
+  --primary: 42 63% 48%;
+  --primary-foreground: 225 44% 7%;
   
-  --secondary: 228 15% 15%;
-  --secondary-foreground: 220 10% 90%;
+  --secondary: 225 40% 12%;
+  --secondary-foreground: 39 41% 95%;
 
-  --muted: 228 15% 15%;
-  --muted-foreground: 220 10% 60%;
+  --muted: 225 40% 12%;
+  --muted-foreground: 225 20% 58%;
 
-  --accent: 74 100% 50%;
-  --accent-foreground: 228 30% 10%;
+  --accent: 42 63% 48%;
+  --accent-foreground: 225 44% 7%;
 
-  --destructive: 0 84% 60%;
+  --destructive: 0 70% 50%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 228 15% 15%;
-  --ring: 74 100% 50%;
+  --input: 225 40% 12%;
+  --ring: 42 63% 48%;
   
-  --chart-1: 74 100% 50%;
-  --chart-2: 180 100% 50%;
-  --chart-3: 280 100% 50%;
-  --chart-4: 320 100% 50%;
-  --chart-5: 40 100% 50%;
+  --chart-1: 42 63% 48%;
+  --chart-2: 168 60% 45%;
+  --chart-3: 270 55% 60%;
+  --chart-4: 320 55% 55%;
+  --chart-5: 200 60% 50%;
 
   --app-font-sans: 'Inter', sans-serif;
-  --app-font-serif: Georgia, serif;
+  --app-font-serif: 'Playfair Display', Georgia, serif;
   --app-font-mono: 'Space Mono', Menlo, monospace;
-  --radius: 0.25rem;
+  --radius: 0.375rem;
   
   --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.5);
   --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.5);

@@ -22,7 +22,6 @@ export function LeadCapture({ source = "website" }: { source?: string }) {
           toast({
             title: data.success ? "You're on the list!" : "Welcome back!",
             description: data.message,
-            icon: <CheckCircle2 className="w-4 h-4 text-green-500" />
           });
         },
         onError: () => {

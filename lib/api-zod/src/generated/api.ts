@@ -116,6 +116,8 @@ export const GetJobStatsResponse = zod.object({
   "processing": zod.number(),
   "complete": zod.number(),
   "failed": zod.number(),
+  "scriptsGenerated": zod.number().describe('Number of AI scripts successfully generated'),
+  "timeSavedHours": zod.number().describe('Estimated hours saved vs. manual filming and editing'),
   "recentJobs": zod.array(zod.object({
   "id": zod.string(),
   "listingUrl": zod.string(),
@@ -163,7 +165,8 @@ export const GetJobResponse = zod.object({
   "startedAt": zod.coerce.date().nullish(),
   "completedAt": zod.coerce.date().nullish(),
   "errorMessage": zod.string().nullish(),
-  "outputUrl": zod.string().nullish()
+  "outputUrl": zod.string().nullish(),
+  "outputData": zod.string().nullish()
 })),
   "videoUrl": zod.string().nullish(),
   "createdAt": zod.coerce.date(),

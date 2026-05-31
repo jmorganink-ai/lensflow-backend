@@ -13,5 +13,9 @@ export interface JobStats {
   processing: number;
   complete: number;
   failed: number;
+  /** Number of AI scripts successfully generated */
+  scriptsGenerated: number;
+  /** Estimated hours saved vs. manual filming and editing */
+  timeSavedHours: number;
   recentJobs: Job[];
 }

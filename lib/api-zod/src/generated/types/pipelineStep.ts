@@ -22,4 +22,6 @@ export interface PipelineStep {
   errorMessage?: string | null;
   /** @nullable */
   outputUrl?: string | null;
+  /** @nullable */
+  outputData?: string | null;
 }

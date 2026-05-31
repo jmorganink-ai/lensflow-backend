@@ -18,6 +18,7 @@ import {
   ISSUER_URL,
   type SessionData,
 } from "../lib/auth";
+import { syncUserToHubSpot } from "../lib/hubspot";
 
 const OIDC_COOKIE_TTL = 10 * 60 * 1000;
 
@@ -79,6 +80,10 @@ async function upsertUser(claims: Record<string, unknown>) {
       },
     })
     .returning();
+
+  // Sync to HubSpot — fire and forget, never block login
+  void syncUserToHubSpot(user);
+
   return user;
 }
 

@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 
 export const jobsTable = pgTable("jobs", {
   id: text("id").primaryKey(),
+  userId: text("user_id"),
   listingUrl: text("listing_url").notNull(),
   listingTitle: text("listing_title"),
   status: text("status").notNull().default("queued"),
@@ -29,6 +30,7 @@ export const pipelineStepsTable = pgTable("pipeline_steps", {
   completedAt: timestamp("completed_at", { withTimezone: true }),
   errorMessage: text("error_message"),
   outputUrl: text("output_url"),
+  outputData: text("output_data"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -1,12 +1,22 @@
+import React, { useState } from "react";
 import { useGetJobStats } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { Activity, Clock, CheckCircle2, XCircle, ArrowRight, Play, ChevronDown } from "lucide-react";
+import { FileText, CheckCircle2, XCircle, ArrowRight, Play, ChevronDown, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { useState } from "react";
 import buildKitImage from "@assets/LensFlow-The-Build-Kit-every-tool-you-need_1780215479239.png";
+import { useAuth } from "@workspace/replit-auth-web";
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
 
 export default function Dashboard() {
   const { data: stats, isLoading } = useGetJobStats();
+  const { user } = useAuth();
+  const firstName = user?.firstName ?? user?.email?.split("@")[0] ?? null;
 
   if (isLoading) {
     return <div className="space-y-6 animate-pulse">
@@ -21,30 +31,61 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Pipeline Overview</h1>
-        <p className="text-muted-foreground">Monitor real estate video generation jobs across all stages.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-1">
+          {firstName ? `${getGreeting()}, ${firstName}.` : "Pipeline Overview"}
+        </h1>
+        <p className="text-muted-foreground">
+          {stats?.total === 0
+            ? "No videos yet — paste your first listing URL to get started."
+            : `${stats?.complete ?? 0} video${(stats?.complete ?? 0) !== 1 ? "s" : ""} completed · ${stats?.processing ?? 0} running · ${stats?.queued ?? 0} queued.`}
+        </p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Processing" value={stats?.processing ?? 0} icon={Activity} color="text-blue-500" />
-        <StatCard title="Queued" value={stats?.queued ?? 0} icon={Clock} color="text-yellow-500" />
-        <StatCard title="Completed" value={stats?.complete ?? 0} icon={CheckCircle2} color="text-primary" />
+        <StatCard title="Videos Completed" value={stats?.complete ?? 0} icon={CheckCircle2} color="text-primary" />
+        <StatCard title="Scripts Generated" value={stats?.scriptsGenerated ?? 0} icon={FileText} color="text-blue-400" />
+        <StatCard
+          title="Hours Saved"
+          value={stats?.timeSavedHours ?? 0}
+          icon={Clock}
+          color="text-emerald-400"
+          suffix="h"
+          tooltip="Estimated vs. manual filming & editing (~4 hrs/video)"
+        />
         <StatCard title="Failed" value={stats?.failed ?? 0} icon={XCircle} color="text-destructive" />
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Recent Jobs</h2>
-          <Link href="/jobs/new" className="text-sm text-primary hover:underline font-mono flex items-center gap-1">
-            Start New <ArrowRight className="w-4 h-4" />
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/jobs" className="text-xs text-muted-foreground font-mono hover:text-primary transition-colors">
+              View all
+            </Link>
+            <Link href="/jobs/new" className="text-sm text-primary hover:underline font-mono flex items-center gap-1">
+              Start New <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
 
         <div className="border border-border rounded-lg bg-card overflow-hidden">
           {stats?.recentJobs?.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
-              <Play className="w-8 h-8 mb-3 opacity-20" />
-              <p>No jobs in the pipeline yet.</p>
+            <div className="py-14 px-8 flex flex-col items-center justify-center text-center space-y-5">
+              <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Play className="w-6 h-6 text-primary ml-0.5" />
+              </div>
+              <div className="space-y-1.5">
+                <p className="font-semibold text-foreground">No videos yet</p>
+                <p className="text-sm text-muted-foreground max-w-xs">
+                  Paste a property listing URL and LensFlow will automatically write the script, record the voiceover, and render a presenter video.
+                </p>
+              </div>
+              <Link
+                href="/jobs/new"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded text-sm font-mono font-medium hover:bg-primary/90 transition-colors"
+              >
+                Generate Your First Video <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           ) : (
             <div className="divide-y divide-border">
@@ -111,17 +152,26 @@ function RoadmapCard() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: string }) {
+function StatCard({ title, value, icon: Icon, color, suffix, tooltip }: {
+  title: string;
+  value: number;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  suffix?: string;
+  tooltip?: string;
+}) {
   return (
-    <div className="bg-card border border-border p-4 rounded-lg flex flex-col gap-2 relative overflow-hidden group">
+    <div className="bg-card border border-border p-4 rounded-lg flex flex-col gap-2 relative overflow-hidden group" title={tooltip}>
       <div className="absolute -right-4 -top-4 opacity-5 group-hover:scale-110 transition-transform duration-500">
         <Icon className={`w-24 h-24 ${color}`} />
       </div>
       <div className="flex items-center gap-2 text-muted-foreground">
         <Icon className={`w-4 h-4 ${color}`} />
-        <span className="text-sm font-medium uppercase tracking-wider">{title}</span>
+        <span className="text-xs font-mono uppercase tracking-wider">{title}</span>
       </div>
-      <div className="text-3xl font-bold font-mono">{value}</div>
+      <div className="text-3xl font-bold font-mono">
+        {value}{suffix && <span className="text-xl ml-0.5 text-muted-foreground">{suffix}</span>}
+      </div>
     </div>
   );
 }

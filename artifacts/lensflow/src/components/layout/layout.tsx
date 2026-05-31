@@ -1,15 +1,20 @@
 import { Link, useLocation } from "wouter";
-import { Film, LayoutDashboard, Webhook, Plus, LogOut } from "lucide-react";
+import { Film, LayoutDashboard, Webhook, Plus, LogOut, Settings, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@workspace/replit-auth-web";
+import { useGetJobStats } from "@workspace/api-client-react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, logout } = useAuth();
+  const { data: stats } = useGetJobStats();
+  const runningCount = (stats?.processing ?? 0) + (stats?.queued ?? 0);
 
   const navItems = [
-    { href: "/", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/webhooks", label: "Webhooks", icon: Webhook },
+    { href: "/", label: "Dashboard", icon: LayoutDashboard, badge: null },
+    { href: "/jobs", label: "My Videos", icon: Video, badge: runningCount > 0 ? runningCount : null },
+    { href: "/webhooks", label: "Webhooks", icon: Webhook, badge: null },
+    { href: "/settings", label: "Settings", icon: Settings, badge: null },
   ];
 
   return (
@@ -31,7 +36,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <nav className="flex flex-col gap-1">
             <div className="text-xs font-mono text-muted-foreground px-2 mb-2 uppercase tracking-wider">Menu</div>
             {navItems.map((item) => {
-              const isActive = location === item.href || (location.startsWith("/jobs") && item.href === "/");
+              const isActive = item.href === "/"
+              ? location === "/"
+              : location === item.href || location.startsWith(item.href + "/");
               return (
                 <Link
                   key={item.href}
@@ -82,12 +89,44 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Film className="w-5 h-5" />
             <span>LENSFLOW</span>
           </div>
+          <Link
+            href="/jobs/new"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs font-mono font-medium hover:bg-primary/90 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" /> New
+          </Link>
         </header>
-        <div className="flex-1 p-6 lg:p-10 overflow-auto">
+        <div className="flex-1 p-4 md:p-6 lg:p-10 overflow-auto pb-20 md:pb-6">
           <div className="max-w-6xl mx-auto">
             {children}
           </div>
         </div>
+        {/* Mobile Bottom Nav */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+          <div className="flex">
+            {[
+              { href: "/", label: "Dashboard", icon: LayoutDashboard },
+              { href: "/jobs", label: "Videos", icon: Video },
+              { href: "/webhooks", label: "Webhooks", icon: Webhook },
+              { href: "/settings", label: "Settings", icon: Settings },
+            ].map((item) => {
+              const isActive = item.href === "/" ? location === "/" : location === item.href || location.startsWith(item.href + "/");
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex-1 flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-mono uppercase tracking-wider transition-colors",
+                    isActive ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
       </main>
     </div>
   );

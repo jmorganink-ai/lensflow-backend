@@ -115,6 +115,8 @@ export interface PipelineStep {
   errorMessage?: string | null;
   /** @nullable */
   outputUrl?: string | null;
+  /** @nullable */
+  outputData?: string | null;
 }
 
 export interface JobDetail {
@@ -143,6 +145,10 @@ export interface JobStats {
   processing: number;
   complete: number;
   failed: number;
+  /** Number of AI scripts successfully generated */
+  scriptsGenerated: number;
+  /** Estimated hours saved vs. manual filming and editing */
+  timeSavedHours: number;
   recentJobs: Job[];
 }
 

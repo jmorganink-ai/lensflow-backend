@@ -2,12 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLocation } from "wouter";
-import { useCreateJob, useListElevenLabsVoices, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
+import { useCreateJob, useSimulateJob, useListElevenLabsVoices, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown } from "lucide-react";
+import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect } from "react";
 
@@ -38,6 +38,34 @@ const PRESENTER_PRESETS = [
   },
 ];
 
+const PLATFORM_LABELS: Record<string, string> = {
+  "realestate.com.au": "REA",
+  "domain.com.au": "Domain",
+  "onthehouse.com.au": "OnTheHouse",
+  "allhomes.com.au": "AllHomes",
+  "raywhite.com": "Ray White",
+  "ljhooker.com": "LJ Hooker",
+  "harcourts.com.au": "Harcourts",
+  "mcgrath.com.au": "McGrath",
+  "barryproperty.com.au": "Barry Plant",
+};
+
+function detectPlatform(url: string): { label: string; domain: string } | null {
+  if (!url) return null;
+  try {
+    const host = new URL(url).hostname.replace("www.", "");
+    for (const [domain, label] of Object.entries(PLATFORM_LABELS)) {
+      if (host === domain || host.endsWith("." + domain)) {
+        return { label, domain };
+      }
+    }
+    if (host) return { label: host, domain: host };
+  } catch {
+    // not yet a valid URL
+  }
+  return null;
+}
+
 const formSchema = z.object({
   listingUrl: z.string().url("Please enter a valid URL"),
   voiceId: z.string().optional(),
@@ -49,6 +77,7 @@ export default function NewJob() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const createJob = useCreateJob();
+  const simulateJob = useSimulateJob();
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -63,6 +92,8 @@ export default function NewJob() {
 
   const selectedVoiceName = form.watch("voiceName");
   const selectedVoiceId = form.watch("voiceId");
+  const watchedUrl = form.watch("listingUrl");
+  const detectedPlatform = detectPlatform(watchedUrl);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -94,7 +125,12 @@ export default function NewJob() {
         onSuccess: (job) => {
           queryClient.invalidateQueries({ queryKey: getGetJobStatsQueryKey() });
           queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
-          toast({ title: "Pipeline Initiated", description: "Job successfully queued for processing." });
+          // Auto-start the pipeline immediately — no extra click needed
+          simulateJob.mutate({ id: job.id }, {
+            onSuccess: () => {
+              toast({ title: "Pipeline Running", description: "All 5 stages are now processing automatically." });
+            },
+          });
           setLocation(`/jobs/${job.id}`);
         },
         onError: () => {
@@ -129,14 +165,34 @@ export default function NewJob() {
                   <FormLabel className="text-xs uppercase tracking-wider font-mono text-muted-foreground">Target URL</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Link2 className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                      <Link2 className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
                       <Input
                         placeholder="https://realestate.com.au/property/..."
                         className="pl-10 h-12 bg-background border-border font-mono text-sm"
                         {...field}
                       />
+                      {detectedPlatform && (
+                        <div className="absolute right-3 top-0 bottom-0 flex items-center pointer-events-none">
+                          <span className="flex items-center gap-1.5 text-[10px] font-mono text-primary border border-primary/30 bg-primary/5 px-2 py-0.5 rounded">
+                            <CheckCircle2 className="w-3 h-3" />
+                            {detectedPlatform.label}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </FormControl>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {["realestate.com.au", "domain.com.au", "onthehouse.com.au", "allhomes.com.au"].map((site) => (
+                      <button
+                        key={site}
+                        type="button"
+                        onClick={() => form.setValue("listingUrl", `https://${site}/property/`)}
+                        className="text-[10px] font-mono text-muted-foreground border border-border/50 px-2 py-0.5 rounded hover:border-primary/50 hover:text-primary transition-colors"
+                      >
+                        {site}
+                      </button>
+                    ))}
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -286,7 +342,7 @@ export default function NewJob() {
                 disabled={createJob.isPending}
                 className="font-mono uppercase tracking-wider h-12 px-8"
               >
-                {createJob.isPending ? "Initializing..." : "Engage Pipeline"}
+                {createJob.isPending ? "Starting pipeline..." : "Generate Video"}
                 {!createJob.isPending && <ArrowRight className="w-4 h-4 ml-2" />}
               </Button>
             </div>
@@ -297,17 +353,33 @@ export default function NewJob() {
       {/* Hidden audio player for previews */}
       {previewSrc && <audio ref={audioRef} src={previewSrc} className="hidden" />}
 
-      <div className="text-xs text-muted-foreground font-mono space-y-2">
-        <div className="uppercase tracking-widest text-foreground mb-4">Pipeline Stages:</div>
-        <div className="flex items-center gap-4 opacity-50"><span className="text-primary">01</span> Scrape Listing Data</div>
-        <div className="flex items-center gap-4 opacity-50"><span className="text-primary">02</span> Generate AI Script</div>
-        <div className="flex items-center gap-4">
-          <span className="text-primary">03</span>
-          <span className={selectedVoiceId ? "text-primary" : ""}>Synthesize Voiceover</span>
-          {selectedVoiceId && <span className="text-primary text-[10px] border border-primary/30 px-1.5 py-0.5 rounded">LIVE · ElevenLabs</span>}
+      {/* What happens next */}
+      <div className="bg-card border border-border rounded-lg p-5 space-y-4">
+        <div className="text-xs font-mono uppercase tracking-widest text-muted-foreground">What happens next</div>
+        <div className="space-y-3">
+          {[
+            { n: "01", label: "Scrape Listing Data", desc: "LensFlow reads your listing URL to extract property details.", live: false },
+            { n: "02", label: "Generate AI Script", desc: "Claude AI writes a professional 45-second presenter script.", live: true, badge: "LIVE · Claude AI" },
+            { n: "03", label: "Synthesize Voiceover", desc: "Your chosen presenter's voice records the script.", live: !!selectedVoiceId, badge: selectedVoiceId ? "LIVE · ElevenLabs" : "Simulated" },
+            { n: "04", label: "Render Presenter Avatar", desc: "A photoreal AI avatar presents your listing on camera.", live: false },
+            { n: "05", label: "Final Video Composition", desc: "All elements are composited into a single shareable video file.", live: false },
+          ].map((step) => (
+            <div key={step.n} className="flex items-start gap-3">
+              <span className="text-primary font-mono text-xs w-5 shrink-0 pt-0.5">{step.n}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-medium text-foreground">{step.label}</span>
+                  {step.badge && (
+                    <span className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border ${step.live ? "text-primary border-primary/30 bg-primary/5" : "text-muted-foreground border-border"}`}>
+                      {step.badge}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">{step.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="flex items-center gap-4 opacity-50"><span className="text-primary">04</span> Render Presenter Avatar</div>
-        <div className="flex items-center gap-4 opacity-50"><span className="text-primary">05</span> Final Video Composition</div>
       </div>
     </div>
   );

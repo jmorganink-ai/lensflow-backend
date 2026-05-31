@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, count } from "drizzle-orm";
+import { eq, desc, count, and } from "drizzle-orm";
 import { db, jobsTable, pipelineStepsTable } from "@workspace/db";
 import {
   CreateJobBody,
@@ -9,6 +9,8 @@ import {
 import { randomUUID } from "crypto";
 import { logger } from "../lib/logger";
 import { generateVoiceover } from "./elevenlabs";
+import { generateListingScript } from "../lib/generate-script";
+import { parseListingUrl } from "../lib/parse-listing-url";
 
 const router: IRouter = Router();
 
@@ -63,6 +65,9 @@ async function runSimulation(jobId: string): Promise<void> {
       .where(eq(pipelineStepsTable.jobId, jobId))
       .orderBy(pipelineStepsTable.order);
 
+    let generatedScript: string | null = null;
+    const listingContext = parseListingUrl(job.listingUrl);
+
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
       const baseDuration = STEP_DURATIONS[i] ?? 2500;
@@ -73,12 +78,48 @@ async function runSimulation(jobId: string): Promise<void> {
         .where(eq(pipelineStepsTable.id, step.id));
 
       let outputUrl: string | null = null;
+      let outputData: string | null = null;
 
-      if (step.name === "create_voiceover" && job?.voiceId) {
-        // Real ElevenLabs call
+      if (step.name === "scrape_listing") {
+        // Parse URL metadata — lightweight, no external request needed
+        const scraped = [
+          listingContext.summary,
+          listingContext.suburb ? `Suburb: ${listingContext.suburb}` : null,
+          listingContext.state ? `State: ${listingContext.state}` : null,
+          listingContext.propertyType ? `Type: ${listingContext.propertyType}` : null,
+          listingContext.bedrooms ? `Bedrooms: ${listingContext.bedrooms}` : null,
+          `Platform: ${listingContext.platform}`,
+        ].filter(Boolean).join("\n");
+        outputData = scraped;
+        await new Promise((resolve) => setTimeout(resolve, baseDuration));
+      } else if (step.name === "generate_script") {
+        // Real Anthropic call to generate a listing script
+        try {
+          logger.info({ jobId }, "Generating script with Anthropic");
+          const result = await generateListingScript(job.listingUrl, listingContext);
+          outputData = result.script;
+          generatedScript = result.script;
+          // Use AI title if available; else fall back to URL-parsed summary
+          if (!result.title && listingContext.summary) {
+            await db.update(jobsTable).set({ listingTitle: listingContext.summary }).where(eq(jobsTable.id, jobId));
+          }
+          // Update listing title on the job if we got one
+          if (result.title) {
+            await db
+              .update(jobsTable)
+              .set({ listingTitle: result.title })
+              .where(eq(jobsTable.id, jobId));
+          }
+        } catch (err) {
+          logger.error({ err, jobId }, "Script generation failed — continuing");
+        }
+        // Small delay to feel realistic regardless
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+      } else if (step.name === "create_voiceover" && job?.voiceId) {
+        // Real ElevenLabs call — use AI-generated script if available
         try {
           logger.info({ jobId, voiceId: job.voiceId }, "Generating voiceover with ElevenLabs");
-          const script = buildVoiceoverScript(job.listingUrl);
+          const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
           const audioBuffer = await generateVoiceover(script, job.voiceId);
           const base64 = audioBuffer.toString("base64");
           outputUrl = `data:audio/mpeg;base64,${base64}`;
@@ -93,7 +134,12 @@ async function runSimulation(jobId: string): Promise<void> {
 
       await db
         .update(pipelineStepsTable)
-        .set({ status: "complete", completedAt: new Date(), ...(outputUrl ? { outputUrl } : {}) })
+        .set({
+          status: "complete",
+          completedAt: new Date(),
+          ...(outputUrl ? { outputUrl } : {}),
+          ...(outputData ? { outputData } : {}),
+        })
         .where(eq(pipelineStepsTable.id, step.id));
 
       logger.info({ jobId, step: step.name, order: i + 1 }, "Pipeline step complete");
@@ -116,15 +162,22 @@ async function runSimulation(jobId: string): Promise<void> {
   }
 }
 
-router.get("/jobs", async (_req, res): Promise<void> => {
+router.get("/jobs", async (req, res): Promise<void> => {
+  const userId = req.isAuthenticated() ? req.user.id : null;
   const jobs = await db
     .select()
     .from(jobsTable)
+    .where(userId ? eq(jobsTable.userId, userId) : eq(jobsTable.userId, "__none__"))
     .orderBy(desc(jobsTable.createdAt));
   res.json(jobs);
 });
 
 router.post("/jobs", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
   const parsed = CreateJobBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -136,6 +189,7 @@ router.post("/jobs", async (req, res): Promise<void> => {
     .insert(jobsTable)
     .values({
       id,
+      userId: req.user.id,
       listingUrl: parsed.data.listingUrl,
       voiceId: parsed.data.voiceId ?? null,
       voiceName: parsed.data.voiceName ?? null,
@@ -156,13 +210,17 @@ router.post("/jobs", async (req, res): Promise<void> => {
   res.status(201).json(job);
 });
 
-router.get("/jobs/stats", async (_req, res): Promise<void> => {
+router.get("/jobs/stats", async (req, res): Promise<void> => {
+  const userId = req.isAuthenticated() ? req.user.id : null;
+  const whereClause = userId ? eq(jobsTable.userId, userId) : eq(jobsTable.userId, "__none__");
+
   const statsRows = await db
     .select({
       status: jobsTable.status,
       count: count(),
     })
     .from(jobsTable)
+    .where(whereClause)
     .groupBy(jobsTable.status);
 
   const stats = { total: 0, queued: 0, processing: 0, complete: 0, failed: 0 };
@@ -178,19 +236,42 @@ router.get("/jobs/stats", async (_req, res): Promise<void> => {
   const recentJobs = await db
     .select()
     .from(jobsTable)
+    .where(whereClause)
     .orderBy(desc(jobsTable.createdAt))
     .limit(5);
 
-  res.json({ ...stats, recentJobs });
+  // Count completed script generation steps (= scripts generated)
+  const scriptRows = await db
+    .select({ count: count() })
+    .from(pipelineStepsTable)
+    .innerJoin(jobsTable, eq(pipelineStepsTable.jobId, jobsTable.id))
+    .where(
+      and(
+        eq(pipelineStepsTable.name, "generate_script"),
+        eq(pipelineStepsTable.status, "complete"),
+        userId ? eq(jobsTable.userId, userId) : eq(jobsTable.userId, "__none__"),
+      )
+    );
+  const scriptsGenerated = Number(scriptRows[0]?.count ?? 0);
+
+  // Estimate time saved: each complete video saves ~4 hours vs manual filming/editing
+  const timeSavedHours = stats.complete * 4;
+
+  res.json({ ...stats, recentJobs, scriptsGenerated, timeSavedHours });
 });
 
 router.post("/jobs/:id/simulate", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
   const [job] = await db
     .select()
     .from(jobsTable)
-    .where(eq(jobsTable.id, raw));
+    .where(and(eq(jobsTable.id, raw), eq(jobsTable.userId, req.user.id)));
 
   if (!job) {
     res.status(404).json({ error: "Job not found" });
@@ -230,11 +311,16 @@ router.get("/jobs/:id", async (req, res): Promise<void> => {
     return;
   }
 
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const [job] = await db
     .select()
     .from(jobsTable)
-    .where(eq(jobsTable.id, raw));
+    .where(and(eq(jobsTable.id, raw), eq(jobsTable.userId, req.user.id)));
 
   if (!job) {
     res.status(404).json({ error: "Job not found" });
@@ -257,10 +343,15 @@ router.delete("/jobs/:id", async (req, res): Promise<void> => {
     return;
   }
 
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const [job] = await db
     .delete(jobsTable)
-    .where(eq(jobsTable.id, raw))
+    .where(and(eq(jobsTable.id, raw), eq(jobsTable.userId, req.user.id)))
     .returning();
 
   if (!job) {

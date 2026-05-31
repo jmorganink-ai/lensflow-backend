@@ -603,6 +603,8 @@ components:
           type: ["string", "null"]
         outputUrl:
           type: ["string", "null"]
+        outputData:
+          type: ["string", "null"]
 
     JobInput:
       type: object
@@ -618,7 +620,7 @@ components:
 
     JobStats:
       type: object
-      required: [total, queued, processing, complete, failed, recentJobs]
+      required: [total, queued, processing, complete, failed, recentJobs, scriptsGenerated, timeSavedHours]
       properties:
         total:
           type: integer
@@ -630,6 +632,12 @@ components:
           type: integer
         failed:
           type: integer
+        scriptsGenerated:
+          type: integer
+          description: Number of AI scripts successfully generated
+        timeSavedHours:
+          type: integer
+          description: Estimated hours saved vs. manual filming and editing
         recentJobs:
           type: array
           items:
