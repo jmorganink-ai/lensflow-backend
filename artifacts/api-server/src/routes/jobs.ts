@@ -152,6 +152,7 @@ async function runSimulation(jobId: string): Promise<void> {
             presenterVideoUrl,
             job.listingTitle,
             job.listingUrl,
+            job.propertyImages ?? [],
           );
           outputUrl = result.videoUrl;
           logger.info({ jobId, renderId: result.renderId }, "Shotstack final video ready");
@@ -225,6 +226,7 @@ router.post("/jobs", async (req, res): Promise<void> => {
       listingUrl: parsed.data.listingUrl,
       voiceId: parsed.data.voiceId ?? null,
       voiceName: parsed.data.voiceName ?? null,
+      propertyImages: parsed.data.propertyImages ?? [],
       status: "queued",
     })
     .returning();

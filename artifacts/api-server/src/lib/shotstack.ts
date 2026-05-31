@@ -1,6 +1,5 @@
 import { logger } from "./logger";
 
-// Production endpoint — uses /v1/ not /stage/
 const SHOTSTACK_API_BASE = "https://api.shotstack.io/v1";
 
 export interface ShotstackResult {
@@ -8,10 +7,18 @@ export interface ShotstackResult {
   renderId: string;
 }
 
+/**
+ * Build a professional property showcase video:
+ * - Property photos as full-screen background slideshow with Ken Burns zoom
+ * - AI presenter in bottom-right picture-in-picture
+ * - Professional warm color grading on photos
+ * - Branded title card and watermark
+ */
 export async function composePresenterVideo(
   presenterVideoUrl: string,
   propertyTitle?: string | null,
   listingUrl?: string | null,
+  propertyImages?: string[] | null,
 ): Promise<ShotstackResult> {
   const apiKey = process.env.SHOTSTACK_API_KEY;
   if (!apiKey) throw new Error("SHOTSTACK_API_KEY not set");
@@ -21,65 +28,156 @@ export async function composePresenterVideo(
     ? (() => { try { return new URL(listingUrl).hostname.replace("www.", ""); } catch { return "lensflow.com.au"; } })()
     : "lensflow.com.au";
 
-  logger.info({ presenterVideoUrl, subtitle }, "Submitting Shotstack render job");
+  const images = (propertyImages ?? []).filter(Boolean);
+  const hasPhotos = images.length > 0;
+
+  logger.info({ presenterVideoUrl, subtitle, photoCount: images.length }, "Submitting Shotstack render job");
+
+  // Photo slideshow duration — each photo shown for 8 seconds, looped if needed
+  const PHOTO_DURATION = 8;
+  const TOTAL_DURATION = 60; // Shotstack trims to actual presenter video length
+
+  // Build photo background track — Ken Burns zoom effect on each image
+  const buildPhotoTrack = () => {
+    if (!hasPhotos) {
+      return {
+        clips: [
+          {
+            asset: { type: "colour", colour: "#0a0f1e" },
+            start: 0,
+            length: TOTAL_DURATION,
+          },
+        ],
+      };
+    }
+
+    const clips = images.map((src, i) => ({
+      asset: {
+        type: "image",
+        src,
+      },
+      start: i * PHOTO_DURATION,
+      length: PHOTO_DURATION,
+      fit: "cover",
+      scale: 1,
+      effect: i % 2 === 0 ? "zoomIn" : "zoomOut",
+      filter: "contrast",
+      opacity: 1,
+      transition: {
+        in: i === 0 ? "fade" : "fadeSlow",
+        out: "fadeSlow",
+      },
+    }));
+
+    // Loop photos if video is longer than photos * PHOTO_DURATION
+    const totalPhotoDuration = images.length * PHOTO_DURATION;
+    if (totalPhotoDuration < TOTAL_DURATION) {
+      const extraLoops = Math.ceil((TOTAL_DURATION - totalPhotoDuration) / totalPhotoDuration);
+      for (let loop = 0; loop < extraLoops; loop++) {
+        images.forEach((src, i) => {
+          const offset = totalPhotoDuration * (loop + 1);
+          clips.push({
+            asset: { type: "image", src },
+            start: offset + i * PHOTO_DURATION,
+            length: PHOTO_DURATION,
+            fit: "cover",
+            scale: 1,
+            effect: i % 2 === 0 ? "zoomIn" : "zoomOut",
+            filter: "contrast",
+            opacity: 1,
+            transition: { in: "fadeSlow", out: "fadeSlow" },
+          });
+        });
+      }
+    }
+
+    return { clips };
+  };
+
+  // Dark gradient overlay over photos — helps text/presenter legibility
+  const gradientOverlayTrack = hasPhotos
+    ? {
+        clips: [
+          {
+            asset: { type: "colour", colour: "#000000" },
+            start: 0,
+            length: TOTAL_DURATION,
+            opacity: 0.35,
+          },
+        ],
+      }
+    : null;
+
+  // Presenter video — bottom-right PiP when photos present, full-screen when no photos
+  const presenterClip = hasPhotos
+    ? {
+        asset: {
+          type: "video",
+          src: presenterVideoUrl,
+          volume: 1,
+        },
+        start: 0,
+        length: TOTAL_DURATION,
+        fit: "contain",
+        scale: 0.32,
+        position: "bottomRight",
+        offset: { x: -0.02, y: 0.04 },
+        transition: { in: "fade" },
+      }
+    : {
+        asset: {
+          type: "video",
+          src: presenterVideoUrl,
+          volume: 1,
+        },
+        start: 0,
+        length: TOTAL_DURATION,
+        fit: "contain",
+        scale: 1,
+      };
+
+  // Property title card — lower third, fades in at 1s
+  const titleClip = {
+    asset: {
+      type: "title",
+      text: subtitle,
+      style: "minimal",
+      color: "#F5E6C8",
+      size: "medium",
+    },
+    start: 1,
+    length: 5,
+    position: "bottomLeft",
+    offset: { x: 0.04, y: hasPhotos ? 0.35 : 0.12 },
+    transition: { in: "slideRight", out: "fadeOut" },
+  };
+
+  // LensFlow watermark — top-left, subtle
+  const watermarkClip = {
+    asset: {
+      type: "title",
+      text: `lensflow.com.au  ·  ${domain}`,
+      style: "minimal",
+      color: "#C9962A",
+      size: "x-small",
+    },
+    start: 0,
+    length: TOTAL_DURATION,
+    position: "topLeft",
+    offset: { x: 0.03, y: -0.04 },
+  };
+
+  const tracks = [
+    buildPhotoTrack(),
+    ...(gradientOverlayTrack ? [gradientOverlayTrack] : []),
+    { clips: [presenterClip] },
+    { clips: [titleClip] },
+    { clips: [watermarkClip] },
+  ];
 
   const timeline = {
     background: "#0a0f1e",
-    tracks: [
-      // Track 1: Presenter video (full duration)
-      {
-        clips: [
-          {
-            asset: {
-              type: "video",
-              src: presenterVideoUrl,
-              volume: 1,
-            },
-            start: 0,
-            length: 60, // Shotstack trims to actual video length
-            fit: "contain",
-            scale: 1,
-          },
-        ],
-      },
-      // Track 2: Property title — lower third, fades in at 1s
-      {
-        clips: [
-          {
-            asset: {
-              type: "title",
-              text: subtitle,
-              style: "minimal",
-              color: "#F5E6C8",
-              size: "medium",
-            },
-            start: 1,
-            length: 4,
-            position: "bottomLeft",
-            offset: { x: 0.05, y: 0.12 },
-            transition: { in: "fadeIn", out: "fadeOut" },
-          },
-        ],
-      },
-      // Track 3: LensFlow watermark — bottom right, full duration
-      {
-        clips: [
-          {
-            asset: {
-              type: "title",
-              text: `lensflow.com.au  ·  ${domain}`,
-              style: "minimal",
-              color: "#C9962A",
-              size: "x-small",
-            },
-            start: 0,
-            length: 60,
-            position: "bottomRight",
-            offset: { x: -0.03, y: 0.04 },
-          },
-        ],
-      },
-    ],
+    tracks,
   };
 
   const renderRes = await fetch(`${SHOTSTACK_API_BASE}/render`, {
@@ -116,7 +214,6 @@ export async function composePresenterVideo(
   const renderId = renderData.response.id;
   logger.info({ renderId }, "Shotstack render queued — polling for completion");
 
-  // Poll up to 6 minutes
   const POLL_INTERVAL_MS = 6_000;
   const MAX_ATTEMPTS = 60;
 

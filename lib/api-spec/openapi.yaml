@@ -398,6 +398,44 @@ paths:
           content:
             text/event-stream: {}
 
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [jobs]
+      summary: Request a presigned URL for uploading a property photo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, size, contentType]
+              properties:
+                name:
+                  type: string
+                size:
+                  type: integer
+                contentType:
+                  type: string
+      responses:
+        "200":
+          description: Presigned upload URL
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [uploadURL, objectPath, publicUrl]
+                properties:
+                  uploadURL:
+                    type: string
+                  objectPath:
+                    type: string
+                  publicUrl:
+                    type: string
+                    description: Fully-qualified HTTPS URL for accessing the uploaded file (usable by Shotstack)
+        "400":
+          description: Invalid request
+
   /leads:
     post:
       operationId: captureLead
@@ -544,6 +582,11 @@ components:
           type: ["string", "null"]
         voiceName:
           type: ["string", "null"]
+        propertyImages:
+          type: array
+          items:
+            type: string
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -570,6 +613,11 @@ components:
             $ref: "#/components/schemas/PipelineStep"
         videoUrl:
           type: ["string", "null"]
+        propertyImages:
+          type: array
+          items:
+            type: string
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -617,6 +665,11 @@ components:
           type: string
         voiceName:
           type: string
+        propertyImages:
+          type: array
+          items:
+            type: string
+          description: Public URLs of uploaded property photos
 
     JobStats:
       type: object

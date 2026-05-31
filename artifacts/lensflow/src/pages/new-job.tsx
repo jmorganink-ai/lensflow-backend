@@ -7,9 +7,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2 } from "lucide-react";
+import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2, ImagePlus, X, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useUpload } from "@workspace/object-storage-web";
 
 const PRESENTER_PRESETS = [
   {
@@ -72,6 +73,12 @@ const formSchema = z.object({
   voiceName: z.string().optional(),
 });
 
+interface UploadedPhoto {
+  publicUrl: string;
+  previewSrc: string;
+  name: string;
+}
+
 export default function NewJob() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -82,6 +89,44 @@ export default function NewJob() {
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Property photo uploads
+  const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
+  const [uploadingCount, setUploadingCount] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { uploadFile } = useUpload({
+    onError: (err) => {
+      toast({ title: "Upload Failed", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const handleFiles = useCallback(
+    async (files: FileList | File[]) => {
+      const imageFiles = Array.from(files).filter((f) => f.type.startsWith("image/"));
+      if (imageFiles.length === 0) return;
+
+      setUploadingCount((n) => n + imageFiles.length);
+
+      await Promise.all(
+        imageFiles.map(async (file) => {
+          const localPreview = URL.createObjectURL(file);
+          const result = await uploadFile(file);
+          if (result) {
+            setUploadedPhotos((prev) => [
+              ...prev,
+              { publicUrl: result.publicUrl, previewSrc: localPreview, name: file.name },
+            ]);
+          } else {
+            URL.revokeObjectURL(localPreview);
+          }
+          setUploadingCount((n) => n - 1);
+        })
+      );
+    },
+    [uploadFile]
+  );
 
   const { data: voices = [], isLoading: voicesLoading } = useListElevenLabsVoices();
 
@@ -119,6 +164,7 @@ export default function NewJob() {
           listingUrl: values.listingUrl,
           voiceId: values.voiceId || undefined,
           voiceName: values.voiceName || undefined,
+          propertyImages: uploadedPhotos.map((p) => p.publicUrl),
         },
       },
       {
@@ -347,14 +393,100 @@ export default function NewJob() {
               )}
             </div>
 
+            {/* Property Photos Upload */}
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
+                <ImagePlus className="w-3.5 h-3.5" />
+                Property Photos
+                <span className="text-[9px] text-muted-foreground/50 normal-case tracking-normal font-sans">(optional — used as background slideshow)</span>
+              </label>
+
+              {/* Drop zone */}
+              <div
+                className={`relative border-2 border-dashed rounded-lg transition-all cursor-pointer ${
+                  isDragging
+                    ? "border-primary bg-primary/5"
+                    : "border-border/60 hover:border-primary/40 hover:bg-muted/30"
+                }`}
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  handleFiles(e.dataTransfer.files);
+                }}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => e.target.files && handleFiles(e.target.files)}
+                />
+
+                {uploadedPhotos.length === 0 && uploadingCount === 0 ? (
+                  <div className="flex flex-col items-center justify-center gap-2 py-8 text-muted-foreground">
+                    <Upload className="w-7 h-7 opacity-40" />
+                    <span className="text-sm font-mono">Drop photos here or click to browse</span>
+                    <span className="text-[10px] opacity-60">JPG, PNG, WEBP · Up to 10 photos</span>
+                  </div>
+                ) : (
+                  <div className="p-3 grid grid-cols-5 gap-2">
+                    {uploadedPhotos.map((photo, i) => (
+                      <div key={i} className="relative aspect-square rounded overflow-hidden group">
+                        <img
+                          src={photo.previewSrc}
+                          alt={photo.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setUploadedPhotos((prev) => prev.filter((_, j) => j !== i));
+                              URL.revokeObjectURL(photo.previewSrc);
+                            }}
+                            className="w-6 h-6 rounded-full bg-destructive flex items-center justify-center"
+                          >
+                            <X className="w-3 h-3 text-white" />
+                          </button>
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-100" />
+                      </div>
+                    ))}
+                    {uploadingCount > 0 && Array.from({ length: uploadingCount }).map((_, i) => (
+                      <div key={`uploading-${i}`} className="relative aspect-square rounded bg-muted/50 flex items-center justify-center">
+                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                      </div>
+                    ))}
+                    {(uploadedPhotos.length + uploadingCount) < 10 && (
+                      <div className="aspect-square rounded border-2 border-dashed border-border/40 flex items-center justify-center text-muted-foreground/40 hover:border-primary/40 hover:text-primary/40 transition-colors">
+                        <ImagePlus className="w-4 h-4" />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {uploadedPhotos.length > 0 && (
+                <p className="text-[11px] text-primary font-mono">
+                  ✓ {uploadedPhotos.length} photo{uploadedPhotos.length !== 1 ? "s" : ""} ready — will be composed as a slideshow background
+                </p>
+              )}
+            </div>
+
             <div className="flex justify-end">
               <Button
                 type="submit"
-                disabled={createJob.isPending}
+                disabled={createJob.isPending || uploadingCount > 0}
                 className="font-mono uppercase tracking-wider h-12 px-8"
               >
-                {createJob.isPending ? "Starting pipeline..." : "Generate Video"}
-                {!createJob.isPending && <ArrowRight className="w-4 h-4 ml-2" />}
+                {createJob.isPending ? "Starting pipeline..." : uploadingCount > 0 ? `Uploading ${uploadingCount} photo${uploadingCount !== 1 ? "s" : ""}...` : "Generate Video"}
+                {!createJob.isPending && uploadingCount === 0 && <ArrowRight className="w-4 h-4 ml-2" />}
+                {uploadingCount > 0 && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
               </Button>
             </div>
           </form>

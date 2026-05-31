@@ -88,6 +88,7 @@ export const ListJobsResponseItem = zod.object({
   "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
   "voiceId": zod.string().nullish(),
   "voiceName": zod.string().nullish(),
+  "propertyImages": zod.array(zod.string()).nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -103,7 +104,8 @@ export const ListJobsResponse = zod.array(ListJobsResponseItem)
 export const CreateJobBody = zod.object({
   "listingUrl": zod.string().min(1),
   "voiceId": zod.string().optional(),
-  "voiceName": zod.string().optional()
+  "voiceName": zod.string().optional(),
+  "propertyImages": zod.array(zod.string()).optional().describe('Public URLs of uploaded property photos')
 })
 
 
@@ -125,6 +127,7 @@ export const GetJobStatsResponse = zod.object({
   "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
   "voiceId": zod.string().nullish(),
   "voiceName": zod.string().nullish(),
+  "propertyImages": zod.array(zod.string()).nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 }))
@@ -169,6 +172,7 @@ export const GetJobResponse = zod.object({
   "outputData": zod.string().nullish()
 })),
   "videoUrl": zod.string().nullish(),
+  "propertyImages": zod.array(zod.string()).nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -297,6 +301,22 @@ export const SendAnthropicMessageParams = zod.object({
 
 export const SendAnthropicMessageBody = zod.object({
   "content": zod.string()
+})
+
+
+/**
+ * @summary Request a presigned URL for uploading a property photo
+ */
+export const RequestUploadUrlBody = zod.object({
+  "name": zod.string(),
+  "size": zod.number(),
+  "contentType": zod.string()
+})
+
+export const RequestUploadUrlResponse = zod.object({
+  "uploadURL": zod.string(),
+  "objectPath": zod.string(),
+  "publicUrl": zod.string().describe('Fully-qualified HTTPS URL for accessing the uploaded file (usable by Shotstack)')
 })
 
 

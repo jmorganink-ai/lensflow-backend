@@ -66,6 +66,7 @@ export interface Job {
   voiceId?: string | null;
   /** @nullable */
   voiceName?: string | null;
+  propertyImages?: string[] | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -128,6 +129,7 @@ export interface JobDetail {
   steps: PipelineStep[];
   /** @nullable */
   videoUrl?: string | null;
+  propertyImages?: string[] | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -137,6 +139,8 @@ export interface JobInput {
   listingUrl: string;
   voiceId?: string;
   voiceName?: string;
+  /** Public URLs of uploaded property photos */
+  propertyImages?: string[];
 }
 
 export interface JobStats {
@@ -246,5 +250,18 @@ export type AuthorizationSessionHeaderParameter = string;
 
 export type BeginBrowserLoginParams = {
 returnTo?: string;
+};
+
+export type RequestUploadUrlBody = {
+  name: string;
+  size: number;
+  contentType: string;
+};
+
+export type RequestUploadUrl200 = {
+  uploadURL: string;
+  objectPath: string;
+  /** Fully-qualified HTTPS URL for accessing the uploaded file (usable by Shotstack) */
+  publicUrl: string;
 };
 

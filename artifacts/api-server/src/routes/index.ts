@@ -6,6 +6,7 @@ import webhooksRouter from "./webhooks";
 import leadsRouter from "./leads";
 import anthropicRouter from "./anthropic";
 import elevenlabsRouter from "./elevenlabs";
+import storageRouter from "./storage";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(webhooksRouter);
 router.use(leadsRouter);
 router.use(anthropicRouter);
 router.use(elevenlabsRouter);
+router.use(storageRouter);
 
 export default router;
