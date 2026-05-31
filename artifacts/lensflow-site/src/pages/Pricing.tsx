@@ -175,6 +175,10 @@ export default function Pricing() {
             ))}
           </div>
 
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            No credit card required · 7-day free trial · Cancel anytime
+          </p>
+
           {/* Enterprise Tier */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
