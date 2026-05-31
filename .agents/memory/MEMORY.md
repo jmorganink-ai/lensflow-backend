@@ -2,3 +2,4 @@
 - [HubSpot connector pattern](hubspot-connector.md) — Uses ReplitConnectors.proxy(), connection id conn_hubspot_01KSYB2VWDD2DRFF5DDN92TJ1X; search before create to avoid duplicates.
 - [DB table names](db-table-names.md) — Tables export as `conversations` and `messages` (not *Table suffix); always grep schema exports before using.
 - [Orval codegen collision fix](orval-codegen-fix.md) — Removed `schemas` option from orval zod config; hand-written types live in `lib/api-zod/src/types.ts`; patch-zod-index.mjs strips the stale types re-export after each codegen run.
+- [Pipeline degradation](pipeline-degradation.md) — runSimulation continues on step failure; job.status "complete" ≠ all steps succeeded; finished video must be persisted to job.videoUrl.
