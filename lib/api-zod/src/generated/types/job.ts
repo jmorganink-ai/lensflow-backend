@@ -13,6 +13,10 @@ export interface Job {
   /** @nullable */
   listingTitle: string | null;
   status: JobStatus;
+  /** @nullable */
+  voiceId?: string | null;
+  /** @nullable */
+  voiceName?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

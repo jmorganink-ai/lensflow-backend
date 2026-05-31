@@ -26,6 +26,8 @@ import type {
   AnthropicError,
   AnthropicMessage,
   AnthropicMessageInput,
+  ElevenLabsError,
+  ElevenLabsVoice,
   HealthStatus,
   Job,
   JobDetail,
@@ -718,6 +720,83 @@ export const useCreateWebhook = <TError = ErrorType<void>,
       > => {
       return useMutation(getCreateWebhookMutationOptions(options));
     }
+
+export const getListElevenLabsVoicesUrl = () => {
+
+
+
+
+  return `/api/elevenlabs/voices`
+}
+
+/**
+ * @summary List available ElevenLabs voices
+ */
+export const listElevenLabsVoices = async ( options?: RequestInit): Promise<ElevenLabsVoice[]> => {
+
+  return customFetch<ElevenLabsVoice[]>(getListElevenLabsVoicesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListElevenLabsVoicesQueryKey = () => {
+    return [
+    `/api/elevenlabs/voices`
+    ] as const;
+    }
+
+
+export const getListElevenLabsVoicesQueryOptions = <TData = Awaited<ReturnType<typeof listElevenLabsVoices>>, TError = ErrorType<ElevenLabsError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listElevenLabsVoices>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListElevenLabsVoicesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listElevenLabsVoices>>> = ({ signal }) => listElevenLabsVoices({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listElevenLabsVoices>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListElevenLabsVoicesQueryResult = NonNullable<Awaited<ReturnType<typeof listElevenLabsVoices>>>
+export type ListElevenLabsVoicesQueryError = ErrorType<ElevenLabsError>
+
+
+/**
+ * @summary List available ElevenLabs voices
+ */
+
+export function useListElevenLabsVoices<TData = Awaited<ReturnType<typeof listElevenLabsVoices>>, TError = ErrorType<ElevenLabsError>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listElevenLabsVoices>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListElevenLabsVoicesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getListAnthropicConversationsUrl = () => {
 

@@ -20,4 +20,6 @@ export interface PipelineStep {
   completedAt?: Date | null;
   /** @nullable */
   errorMessage?: string | null;
+  /** @nullable */
+  outputUrl?: string | null;
 }

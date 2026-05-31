@@ -25,6 +25,10 @@ export interface Job {
   /** @nullable */
   listingTitle: string | null;
   status: JobStatus;
+  /** @nullable */
+  voiceId?: string | null;
+  /** @nullable */
+  voiceName?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -72,6 +76,8 @@ export interface PipelineStep {
   completedAt?: string | null;
   /** @nullable */
   errorMessage?: string | null;
+  /** @nullable */
+  outputUrl?: string | null;
 }
 
 export interface JobDetail {
@@ -90,6 +96,8 @@ export interface JobDetail {
 export interface JobInput {
   /** @minLength 1 */
   listingUrl: string;
+  voiceId?: string;
+  voiceName?: string;
 }
 
 export interface JobStats {
@@ -150,6 +158,21 @@ export interface AnthropicConversationWithMessages {
   title: string;
   createdAt: string;
   messages: AnthropicMessage[];
+}
+
+export type ElevenLabsVoiceLabels = {[key: string]: string};
+
+export interface ElevenLabsVoice {
+  voice_id: string;
+  name: string;
+  category: string;
+  description?: string;
+  preview_url?: string;
+  labels?: ElevenLabsVoiceLabels;
+}
+
+export interface ElevenLabsError {
+  error: string;
 }
 
 export interface AnthropicError {

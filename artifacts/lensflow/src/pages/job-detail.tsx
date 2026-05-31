@@ -1,7 +1,7 @@
 import { useParams, useLocation } from "wouter";
 import { useGetJob, useDeleteJob, useSimulateJob, getGetJobQueryKey, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw } from "lucide-react";
+import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -261,6 +261,14 @@ export default function JobDetail() {
                     <p className="text-xs text-destructive mt-2 font-mono bg-destructive/5 p-2 rounded border border-destructive/20">
                       {step.errorMessage}
                     </p>
+                  )}
+                  {step.name === "create_voiceover" && step.outputUrl && step.status === "complete" && (
+                    <div className="mt-3 p-3 bg-primary/5 border border-primary/15 rounded-lg space-y-2">
+                      <div className="flex items-center gap-2 text-[11px] font-mono text-primary uppercase tracking-wider">
+                        <Volume2 className="w-3.5 h-3.5" /> ElevenLabs Voiceover
+                      </div>
+                      <audio controls src={step.outputUrl} className="w-full h-8" style={{ height: "32px" }} />
+                    </div>
                   )}
                   {(step.startedAt || step.completedAt) && (
                     <div className="flex items-center gap-4 mt-2 text-[10px] font-mono text-muted-foreground/60">

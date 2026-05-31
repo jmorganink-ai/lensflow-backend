@@ -8,6 +8,7 @@ import {
 } from "@workspace/api-zod";
 import { randomUUID } from "crypto";
 import { logger } from "../lib/logger";
+import { generateVoiceover } from "./elevenlabs";
 
 const router: IRouter = Router();
 
@@ -23,11 +24,34 @@ const PIPELINE_STEPS = [
 const activeSimulations = new Set<string>();
 
 // Step durations in ms — varied to feel realistic
-const STEP_DURATIONS = [2200, 3100, 2800, 3600, 2500];
+const STEP_DURATIONS = [2200, 3100, 0, 3600, 2500]; // 0 = real ElevenLabs call
+
+// Sample real estate script for voiceover (used when no real script yet)
+function buildVoiceoverScript(listingUrl: string): string {
+  try {
+    const url = new URL(listingUrl);
+    const domain = url.hostname.replace("www.", "");
+    return `Welcome to this stunning property, listed exclusively on ${domain}. ` +
+      `This exceptional home offers everything today's discerning buyer is looking for — ` +
+      `spacious living areas, premium finishes, and an enviable location. ` +
+      `From the moment you arrive, you'll appreciate the quality and attention to detail throughout. ` +
+      `Whether you're entertaining guests in the open-plan living space or enjoying the tranquility of the outdoor areas, ` +
+      `this property truly has it all. ` +
+      `Don't miss this rare opportunity — contact us today to arrange your private inspection.`;
+  } catch {
+    return `Welcome to this exceptional property. ` +
+      `This stunning home offers premium finishes, spacious living areas, and an unbeatable location. ` +
+      `Featuring open-plan living, beautifully appointed bedrooms, and impressive outdoor entertaining. ` +
+      `This is a rare opportunity you don't want to miss. ` +
+      `Contact us today to arrange your private inspection.`;
+  }
+}
 
 async function runSimulation(jobId: string): Promise<void> {
   try {
-    // Mark job as processing
+    // Fetch job to get voice details
+    const [job] = await db.select().from(jobsTable).where(eq(jobsTable.id, jobId));
+
     await db
       .update(jobsTable)
       .set({ status: "processing" })
@@ -41,35 +65,48 @@ async function runSimulation(jobId: string): Promise<void> {
 
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
-      const duration = STEP_DURATIONS[i] ?? 2500;
+      const baseDuration = STEP_DURATIONS[i] ?? 2500;
 
-      // Mark step as running
       await db
         .update(pipelineStepsTable)
         .set({ status: "running", startedAt: new Date() })
         .where(eq(pipelineStepsTable.id, step.id));
 
-      // Wait for the step duration
-      await new Promise((resolve) => setTimeout(resolve, duration));
+      let outputUrl: string | null = null;
 
-      // Mark step as complete
+      if (step.name === "create_voiceover" && job?.voiceId) {
+        // Real ElevenLabs call
+        try {
+          logger.info({ jobId, voiceId: job.voiceId }, "Generating voiceover with ElevenLabs");
+          const script = buildVoiceoverScript(job.listingUrl);
+          const audioBuffer = await generateVoiceover(script, job.voiceId);
+          const base64 = audioBuffer.toString("base64");
+          outputUrl = `data:audio/mpeg;base64,${base64}`;
+          logger.info({ jobId, bytes: audioBuffer.length }, "ElevenLabs voiceover generated");
+        } catch (err) {
+          logger.error({ err, jobId }, "ElevenLabs voiceover failed — continuing without audio");
+        }
+      } else {
+        // Simulated step
+        await new Promise((resolve) => setTimeout(resolve, baseDuration));
+      }
+
       await db
         .update(pipelineStepsTable)
-        .set({ status: "complete", completedAt: new Date() })
+        .set({ status: "complete", completedAt: new Date(), ...(outputUrl ? { outputUrl } : {}) })
         .where(eq(pipelineStepsTable.id, step.id));
 
       logger.info({ jobId, step: step.name, order: i + 1 }, "Pipeline step complete");
     }
 
-    // Mark job as complete
     await db
       .update(jobsTable)
       .set({ status: "complete" })
       .where(eq(jobsTable.id, jobId));
 
-    logger.info({ jobId }, "Pipeline simulation complete");
+    logger.info({ jobId }, "Pipeline complete");
   } catch (err) {
-    logger.error({ err, jobId }, "Pipeline simulation failed");
+    logger.error({ err, jobId }, "Pipeline failed");
     await db
       .update(jobsTable)
       .set({ status: "failed" })
@@ -79,7 +116,7 @@ async function runSimulation(jobId: string): Promise<void> {
   }
 }
 
-router.get("/jobs", async (req, res): Promise<void> => {
+router.get("/jobs", async (_req, res): Promise<void> => {
   const jobs = await db
     .select()
     .from(jobsTable)
@@ -100,6 +137,8 @@ router.post("/jobs", async (req, res): Promise<void> => {
     .values({
       id,
       listingUrl: parsed.data.listingUrl,
+      voiceId: parsed.data.voiceId ?? null,
+      voiceName: parsed.data.voiceName ?? null,
       status: "queued",
     })
     .returning();
@@ -117,7 +156,7 @@ router.post("/jobs", async (req, res): Promise<void> => {
   res.status(201).json(job);
 });
 
-router.get("/jobs/stats", async (req, res): Promise<void> => {
+router.get("/jobs/stats", async (_req, res): Promise<void> => {
   const statsRows = await db
     .select({
       status: jobsTable.status,
@@ -168,11 +207,10 @@ router.post("/jobs/:id/simulate", async (req, res): Promise<void> => {
     return;
   }
 
-  // Reset all steps to pending if re-running
   if (job.status === "complete" || job.status === "failed") {
     await db
       .update(pipelineStepsTable)
-      .set({ status: "pending", startedAt: null, completedAt: null, errorMessage: null })
+      .set({ status: "pending", startedAt: null, completedAt: null, errorMessage: null, outputUrl: null })
       .where(eq(pipelineStepsTable.jobId, raw));
     await db
       .update(jobsTable)
@@ -181,10 +219,7 @@ router.post("/jobs/:id/simulate", async (req, res): Promise<void> => {
   }
 
   activeSimulations.add(raw);
-
-  // Fire-and-forget — simulation runs in background
   runSimulation(raw);
-
   res.json({ message: "Simulation started", jobId: raw });
 });
 

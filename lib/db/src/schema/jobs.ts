@@ -8,6 +8,8 @@ export const jobsTable = pgTable("jobs", {
   listingTitle: text("listing_title"),
   status: text("status").notNull().default("queued"),
   videoUrl: text("video_url"),
+  voiceId: text("voice_id"),
+  voiceName: text("voice_name"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
@@ -26,6 +28,7 @@ export const pipelineStepsTable = pgTable("pipeline_steps", {
   startedAt: timestamp("started_at", { withTimezone: true }),
   completedAt: timestamp("completed_at", { withTimezone: true }),
   errorMessage: text("error_message"),
+  outputUrl: text("output_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

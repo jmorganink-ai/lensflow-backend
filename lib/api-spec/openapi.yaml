@@ -18,6 +18,8 @@ tags:
     description: Lead capture operations
   - name: anthropic
     description: Anthropic AI chat operations (Morgan assistant)
+  - name: elevenlabs
+    description: ElevenLabs voice and TTS operations
 paths:
   /healthz:
     get:
@@ -172,6 +174,27 @@ paths:
                 $ref: "#/components/schemas/Webhook"
         "400":
           description: Invalid input
+
+  /elevenlabs/voices:
+    get:
+      operationId: listElevenLabsVoices
+      tags: [elevenlabs]
+      summary: List available ElevenLabs voices
+      responses:
+        "200":
+          description: List of voices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ElevenLabsVoice"
+        "500":
+          description: ElevenLabs API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ElevenLabsError"
 
   /anthropic/conversations:
     get:
@@ -363,6 +386,10 @@ components:
         status:
           type: string
           enum: [queued, processing, complete, failed]
+        voiceId:
+          type: ["string", "null"]
+        voiceName:
+          type: ["string", "null"]
         createdAt:
           type: string
           format: date-time
@@ -420,6 +447,8 @@ components:
           format: date-time
         errorMessage:
           type: ["string", "null"]
+        outputUrl:
+          type: ["string", "null"]
 
     JobInput:
       type: object
@@ -428,6 +457,10 @@ components:
         listingUrl:
           type: string
           minLength: 1
+        voiceId:
+          type: string
+        voiceName:
+          type: string
 
     JobStats:
       type: object
@@ -544,6 +577,31 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AnthropicMessage"
+    ElevenLabsVoice:
+      type: object
+      required: [voice_id, name, category]
+      properties:
+        voice_id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        preview_url:
+          type: string
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+    ElevenLabsError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
     AnthropicError:
       type: object
       required: [error]

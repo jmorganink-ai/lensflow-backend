@@ -6,9 +6,4 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface JobInput {
-  /** @minLength 1 */
-  listingUrl: string;
-  voiceId?: string;
-  voiceName?: string;
-}
+export type ElevenLabsVoiceLabels = {[key: string]: string};

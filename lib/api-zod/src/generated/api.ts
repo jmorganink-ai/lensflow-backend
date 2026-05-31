@@ -25,6 +25,8 @@ export const ListJobsResponseItem = zod.object({
   "listingUrl": zod.string(),
   "listingTitle": zod.string().nullable(),
   "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
+  "voiceId": zod.string().nullish(),
+  "voiceName": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -38,7 +40,9 @@ export const ListJobsResponse = zod.array(ListJobsResponseItem)
 
 
 export const CreateJobBody = zod.object({
-  "listingUrl": zod.string().min(1)
+  "listingUrl": zod.string().min(1),
+  "voiceId": zod.string().optional(),
+  "voiceName": zod.string().optional()
 })
 
 
@@ -56,6 +60,8 @@ export const GetJobStatsResponse = zod.object({
   "listingUrl": zod.string(),
   "listingTitle": zod.string().nullable(),
   "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
+  "voiceId": zod.string().nullish(),
+  "voiceName": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 }))
@@ -95,7 +101,8 @@ export const GetJobResponse = zod.object({
   "order": zod.number(),
   "startedAt": zod.coerce.date().nullish(),
   "completedAt": zod.coerce.date().nullish(),
-  "errorMessage": zod.string().nullish()
+  "errorMessage": zod.string().nullish(),
+  "outputUrl": zod.string().nullish()
 })),
   "videoUrl": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
@@ -136,6 +143,20 @@ export const CreateWebhookBody = zod.object({
   "events": zod.array(zod.string()),
   "secret": zod.string().optional()
 })
+
+
+/**
+ * @summary List available ElevenLabs voices
+ */
+export const ListElevenLabsVoicesResponseItem = zod.object({
+  "voice_id": zod.string(),
+  "name": zod.string(),
+  "category": zod.string(),
+  "description": zod.string().optional(),
+  "preview_url": zod.string().optional(),
+  "labels": zod.record(zod.string(), zod.string()).optional()
+})
+export const ListElevenLabsVoicesResponse = zod.array(ListElevenLabsVoicesResponseItem)
 
 
 /**
