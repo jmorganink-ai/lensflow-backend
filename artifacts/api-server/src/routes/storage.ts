@@ -34,8 +34,8 @@ router.post("/storage/uploads/request-url", async (req: Request, res: Response) 
     // (e.g. Shotstack) can access the image without going through localhost.
     const domain = (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim();
     const publicUrl = domain
-      ? `https://${domain}/api${objectPath}`
-      : `http://localhost:80/api${objectPath}`;
+      ? `https://${domain}/api/storage${objectPath}`
+      : `http://localhost:80/api/storage${objectPath}`;
 
     res.json(
       RequestUploadUrlResponse.parse({
