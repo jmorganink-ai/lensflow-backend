@@ -760,6 +760,9 @@ export default function Home() {
                 Start Creating Videos Now
               </Button>
             </a>
+            <p className="mt-5 text-sm opacity-80">
+              No credit card required · Cancel anytime
+            </p>
           </motion.div>
         </div>
       </section>
