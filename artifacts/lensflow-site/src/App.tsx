@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
+import MorganChat from "@/components/MorganChat";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ function App() {
           <Router />
         </WouterRouter>
         <Toaster />
+        <MorganChat />
       </TooltipProvider>
     </QueryClientProvider>
   );

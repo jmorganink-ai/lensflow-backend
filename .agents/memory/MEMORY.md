@@ -1,0 +1,3 @@
+- [Morgan AI setup](morgan-ai-setup.md) — Anthropic SDK used directly with ANTHROPIC_API_KEY, not via integrations proxy; model is claude-sonnet-4-6.
+- [HubSpot connector pattern](hubspot-connector.md) — Uses ReplitConnectors.proxy(), connection id conn_hubspot_01KSYB2VWDD2DRFF5DDN92TJ1X; search before create to avoid duplicates.
+- [DB table names](db-table-names.md) — Tables export as `conversations` and `messages` (not *Table suffix); always grep schema exports before using.
