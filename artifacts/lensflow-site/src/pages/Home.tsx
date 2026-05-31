@@ -18,9 +18,10 @@ const PRESENTERS = [
     name: "Mia",
     tagline: "Waterfront & Lifestyle Specialist",
     specialty: "Coastal · Prestige · Instagram-first",
-    photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400&h=533",
+    photo: "/presenters/mia-poster.jpg",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/f7c7da45b9a6460583b70fafd2405651/voices/x3PfG9wL6FOEApZ1VJ9H/92204d06-e00b-4d09-bbfc-3903c47a4c57.mp3",
-    videoUrl: null as string | null,
+    videoUrl: "/presenters/mia.mp4" as string | null,
+    smileTimestamp: 1.0,
     badge: "Most Popular",
   },
   {
@@ -31,6 +32,7 @@ const PRESENTERS = [
     photo: "/presenters/oliver-poster.jpg",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/yXFr3XVHzrViCIHi1yoc/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzZlNTZjZDctMTIwZC00MjM4LWFhYWUtZWZkNTRhNWI0YzM2Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
     videoUrl: "/presenters/oliver.mp4" as string | null,
+    smileTimestamp: 0,
     badge: null,
   },
   {
@@ -41,6 +43,7 @@ const PRESENTERS = [
     photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=400&h=533",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/69h9o7wh5u0isWHzdogD/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzBlMWJmMjUtZDEwNC00ZjY1LTg1ZTctNjE3ZDU5MjhmMDk5Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
     videoUrl: null as string | null,
+    smileTimestamp: 0,
     badge: "New",
   },
   {
@@ -51,6 +54,7 @@ const PRESENTERS = [
     photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400&h=533",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/IKne3meq5aSn9XLyUdCD/102de6f2-22ed-43e0-a1f1-111fa75c5481.mp3",
     videoUrl: null as string | null,
+    smileTimestamp: 0,
     badge: null,
   },
 ];
@@ -73,17 +77,22 @@ function PresenterCard({ presenter }: { presenter: typeof PRESENTERS[0] }) {
     }
   };
 
+  const resetToSmile = () => {
+    if (presenter.videoUrl && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = presenter.smileTimestamp ?? 0;
+    }
+  };
+
   const handleMouseEnter = () => {
     if (presenter.videoUrl && videoRef.current) {
+      videoRef.current.currentTime = presenter.smileTimestamp ?? 0;
       videoRef.current.play().catch(() => {});
     }
   };
 
   const handleMouseLeave = () => {
-    if (presenter.videoUrl && videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
+    resetToSmile();
   };
 
   return (
@@ -99,8 +108,8 @@ function PresenterCard({ presenter }: { presenter: typeof PRESENTERS[0] }) {
           src={presenter.videoUrl}
           poster={presenter.photo}
           muted
-          loop
           playsInline
+          onEnded={resetToSmile}
           className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
         />
       ) : (
