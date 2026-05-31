@@ -25,6 +25,9 @@ import type {
   JobDetail,
   JobInput,
   JobStats,
+  LeadCount,
+  LeadInput,
+  LeadResult,
   SimulateResult,
   Webhook,
   WebhookInput
@@ -709,6 +712,154 @@ export const useCreateWebhook = <TError = ErrorType<void>,
       > => {
       return useMutation(getCreateWebhookMutationOptions(options));
     }
+
+export const getCaptureLeadUrl = () => {
+
+
+
+
+  return `/api/leads`
+}
+
+/**
+ * @summary Capture a new lead email
+ */
+export const captureLead = async (leadInput: LeadInput, options?: RequestInit): Promise<LeadResult> => {
+
+  return customFetch<LeadResult>(getCaptureLeadUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      leadInput,)
+  }
+);}
+
+
+
+
+export const getCaptureLeadMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof captureLead>>, TError,{data: BodyType<LeadInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof captureLead>>, TError,{data: BodyType<LeadInput>}, TContext> => {
+
+const mutationKey = ['captureLead'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof captureLead>>, {data: BodyType<LeadInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  captureLead(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CaptureLeadMutationResult = NonNullable<Awaited<ReturnType<typeof captureLead>>>
+    export type CaptureLeadMutationBody = BodyType<LeadInput>
+    export type CaptureLeadMutationError = ErrorType<void>
+
+    /**
+ * @summary Capture a new lead email
+ */
+export const useCaptureLead = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof captureLead>>, TError,{data: BodyType<LeadInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof captureLead>>,
+        TError,
+        {data: BodyType<LeadInput>},
+        TContext
+      > => {
+      return useMutation(getCaptureLeadMutationOptions(options));
+    }
+
+export const getGetLeadCountUrl = () => {
+
+
+
+
+  return `/api/leads/count`
+}
+
+/**
+ * @summary Get total lead count for urgency display
+ */
+export const getLeadCount = async ( options?: RequestInit): Promise<LeadCount> => {
+
+  return customFetch<LeadCount>(getGetLeadCountUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLeadCountQueryKey = () => {
+    return [
+    `/api/leads/count`
+    ] as const;
+    }
+
+
+export const getGetLeadCountQueryOptions = <TData = Awaited<ReturnType<typeof getLeadCount>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLeadCount>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLeadCountQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLeadCount>>> = ({ signal }) => getLeadCount({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLeadCount>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLeadCountQueryResult = NonNullable<Awaited<ReturnType<typeof getLeadCount>>>
+export type GetLeadCountQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get total lead count for urgency display
+ */
+
+export function useGetLeadCount<TData = Awaited<ReturnType<typeof getLeadCount>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLeadCount>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLeadCountQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getDeleteWebhookUrl = (id: string,) => {
 

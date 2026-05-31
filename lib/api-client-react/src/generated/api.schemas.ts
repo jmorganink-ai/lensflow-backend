@@ -123,3 +123,20 @@ export interface WebhookInput {
   secret?: string;
 }
 
+export interface LeadInput {
+  /** @minLength 1 */
+  email: string;
+  name?: string;
+  source?: string;
+}
+
+export interface LeadResult {
+  success: boolean;
+  message: string;
+}
+
+export interface LeadCount {
+  count: number;
+  displayCount: number;
+}
+

@@ -1,12 +1,15 @@
 import React from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ChevronRight, PlayCircle, Star, Shield, TrendingUp, Sparkles, Building, Video, CheckCircle2, XCircle, Users, Zap, Globe, Clock } from "lucide-react";
+import { ChevronRight, PlayCircle, Star, Shield, TrendingUp, Sparkles, Building, Video, CheckCircle2, XCircle, Users, Zap, Globe, Clock, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { LeadCapture } from "@/components/LeadCapture";
+import { UrgencyCounter } from "@/components/UrgencyCounter";
 
 // Assets
 import ogImage from "@assets/lensflow-brand/og-image.png";
-import favicon from "@assets/lensflow-brand/favicon.png";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -26,36 +29,7 @@ const staggerContainer = {
 export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground overflow-hidden font-sans">
-      {/* Navigation */}
-      <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-            <img src={favicon} alt="LensFlow Logo" className="w-8 h-8" />
-            <span className="font-serif font-semibold text-xl tracking-wide group-hover:text-primary transition-colors">LensFlow<span className="text-primary">.</span></span>
-          </Link>
-          
-          <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <a href="#presenters" className="hover:text-foreground transition-colors">Presenters</a>
-            <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
-            <a href="#compare" className="hover:text-foreground transition-colors">Compare</a>
-            <a href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
-            <a href="#studio" className="hover:text-foreground transition-colors">Studio</a>
-            <a href="#enhance" className="hover:text-foreground transition-colors">Enhance</a>
-            <a href="#concierge" className="hover:text-foreground transition-colors">Concierge</a>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Link href="/pipeline/" className="hidden md:block text-sm font-medium hover:text-primary transition-colors">
-              Dashboard
-            </Link>
-            <Link href="/pipeline/">
-              <Button data-testid="nav-btn-start" className="rounded-full px-6 bg-primary text-primary-foreground hover:bg-primary/90 font-medium">
-                Open AI Studio <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* 1. Hero Section */}
       <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-32 overflow-hidden">
@@ -86,15 +60,24 @@ export default function Home() {
                 Professional 4K listing videos with photoreal AI presenters. No filming required.
               </motion.p>
               
-              <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
-                <Link href="/pipeline/">
-                  <Button size="lg" data-testid="hero-btn-start" className="w-full sm:w-auto text-lg h-14 px-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform font-medium">
-                    Start Creating Videos Now
-                  </Button>
-                </Link>
+              <motion.div variants={fadeInUp} className="flex flex-col gap-6 mb-8">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link href="/pipeline/">
+                    <Button size="lg" data-testid="hero-btn-start" className="w-full sm:w-auto text-lg h-14 px-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform font-medium">
+                      Start Creating Videos Now
+                    </Button>
+                  </Link>
+                </div>
+                
+                <div className="pt-2">
+                  <p className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-primary" /> Join <UrgencyCounter /> real estate agents already generating reels
+                  </p>
+                  <LeadCapture source="hero" />
+                </div>
               </motion.div>
 
-              <motion.div variants={fadeInUp} className="mt-12 flex items-center gap-4 text-sm text-muted-foreground">
+              <motion.div variants={fadeInUp} className="mt-8 flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex -space-x-2">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="w-8 h-8 rounded-full border-2 border-background bg-secondary flex items-center justify-center overflow-hidden">
@@ -142,7 +125,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. Trends Section (Verbatim from prompt) */}
+      {/* 2. Trends Section */}
       <section id="trends" className="py-24 bg-card border-y border-white/5 relative">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div 
@@ -308,7 +291,7 @@ export default function Home() {
       </section>
 
       {/* 6. Cinematic Section */}
-      <section className="py-32 relative overflow-hidden bg-card">
+      <section className="py-32 relative overflow-hidden bg-card border-y border-white/5">
         <div className="absolute inset-0 bg-background" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
         
@@ -380,8 +363,72 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-3xl md:text-5xl font-bold mb-4">Trusted by industry leaders</h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                name: "Sarah Mitchell",
+                agency: "Ray White Bondi",
+                quote: "Cut our listing video time from 2 days to 15 minutes. It's completely transformed our marketing workflow.",
+                img: "https://i.pravatar.cc/150?img=47"
+              },
+              {
+                name: "James Okafor",
+                agency: "McGrath Mosman",
+                quote: "Vendors love the AI presenter — looks completely real. They are amazed at how quickly we can get campaigns live.",
+                img: "https://i.pravatar.cc/150?img=11"
+              },
+              {
+                name: "Priya Sharma",
+                agency: "Barry Plant",
+                quote: "The lip-sync is flawless. I use LensFlow for every single listing now, and the engagement on socials is through the roof.",
+                img: "https://i.pravatar.cc/150?img=44"
+              },
+              {
+                name: "Tom Hennessy",
+                agency: "LJ Hooker",
+                quote: "No more awkward reshoots or coordinating with videographers. Just perfect pitch delivery every time.",
+                img: "https://i.pravatar.cc/150?img=33"
+              }
+            ].map((testimonial, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-card border border-white/5 p-8 rounded-3xl flex flex-col justify-between"
+              >
+                <div>
+                  <Quote className="w-8 h-8 text-primary/40 mb-6" />
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(5)].map((_, j) => (
+                      <Star key={j} className="w-4 h-4 fill-primary text-primary" />
+                    ))}
+                  </div>
+                  <p className="text-lg text-foreground mb-8">"{testimonial.quote}"</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <img src={testimonial.img} alt={testimonial.name} className="w-12 h-12 rounded-full object-cover border border-white/10" />
+                  <div>
+                    <div className="font-semibold">{testimonial.name}</div>
+                    <div className="text-sm text-muted-foreground">{testimonial.agency}</div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 7. Stats/Trust Section */}
-      <section className="py-20 border-y border-white/5">
+      <section className="py-20 border-y border-white/5 bg-card/30">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/5 text-center">
             <div>
@@ -404,7 +451,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. CTA Section (Verbatim from prompt) */}
+      {/* Early Access / Velvet Rope Section */}
+      <section className="py-32 relative overflow-hidden bg-background">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+        <div className="max-w-3xl mx-auto px-6 text-center relative z-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-8 border border-primary/20 shadow-[0_0_30px_rgba(201,154,46,0.3)]">
+            <Shield className="w-8 h-8" />
+          </div>
+          <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6">Gain the unfair advantage.</h2>
+          <p className="text-xl text-muted-foreground mb-12">
+            LensFlow is currently in an exclusive early-access phase for top-performing Australian agencies. Request access below to secure your spot.
+          </p>
+          <div className="flex justify-center">
+            <LeadCapture source="velvet-rope" />
+          </div>
+        </div>
+      </section>
+
+      {/* 8. CTA Section */}
       <section className="py-32 relative overflow-hidden bg-primary text-primary-foreground">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2000&auto=format&fit=crop')] opacity-10 mix-blend-multiply object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent" />
@@ -432,23 +496,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 9. Footer */}
-      <footer className="bg-background py-12">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <img src={favicon} alt="LensFlow Logo" className="w-6 h-6 grayscale opacity-50" />
-            <span className="font-serif font-semibold text-lg text-muted-foreground">LensFlow.</span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            © 2026 LensFlow AI. All rights reserved.
-          </p>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground">Privacy</a>
-            <a href="#" className="hover:text-foreground">Terms</a>
-            <a href="#" className="hover:text-foreground">Support</a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

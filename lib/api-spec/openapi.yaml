@@ -14,6 +14,8 @@ tags:
     description: Pipeline job operations
   - name: webhooks
     description: Webhook operations
+  - name: leads
+    description: Lead capture operations
 paths:
   /healthz:
     get:
@@ -168,6 +170,40 @@ paths:
                 $ref: "#/components/schemas/Webhook"
         "400":
           description: Invalid input
+
+  /leads:
+    post:
+      operationId: captureLead
+      tags: [leads]
+      summary: Capture a new lead email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadInput"
+      responses:
+        "201":
+          description: Lead captured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadResult"
+        "400":
+          description: Invalid input
+
+  /leads/count:
+    get:
+      operationId: getLeadCount
+      tags: [leads]
+      summary: Get total lead count for urgency display
+      responses:
+        "200":
+          description: Lead count
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadCount"
 
   /webhooks/{id}:
     delete:
@@ -336,3 +372,33 @@ components:
             type: string
         secret:
           type: string
+
+    LeadInput:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          minLength: 1
+        name:
+          type: string
+        source:
+          type: string
+
+    LeadResult:
+      type: object
+      required: [success, message]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+
+    LeadCount:
+      type: object
+      required: [count, displayCount]
+      properties:
+        count:
+          type: integer
+        displayCount:
+          type: integer

@@ -1,0 +1,179 @@
+import React, { useState } from "react";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { CheckCircle2, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+
+export default function Pricing() {
+  const [isAnnual, setIsAnnual] = useState(true);
+
+  const tiers = [
+    {
+      name: "Starter",
+      price: isAnnual ? "79" : "89",
+      description: "Perfect for solo agents starting with AI video.",
+      features: [
+        "20 AI Videos per month",
+        "Mia & Oliver presenters",
+        "Basic lip sync",
+        "Teleprompter",
+        "720p & 1080p rendering"
+      ],
+      cta: "Start 14-day Free Trial",
+      link: "https://buy.stripe.com/bJe00jc29bWsa6r2eX2go04",
+      highlight: false
+    },
+    {
+      name: "Elite",
+      price: isAnnual ? "199" : "219",
+      description: "For top-producing agents who want maximum impact.",
+      features: [
+        "Unlimited AI Videos",
+        "Custom Avatar Training",
+        "Advanced Phoneme Lip Sync",
+        "Priority Rendering",
+        "REA/Domain Export",
+        "4K resolution output"
+      ],
+      cta: "Start 14-day Free Trial",
+      link: "https://buy.stripe.com/cNi14n1nv2lSemHbPx2go05",
+      highlight: true
+    },
+    {
+      name: "Concierge",
+      price: isAnnual ? "399" : "449",
+      description: "White-glove service for luxury agencies.",
+      features: [
+        "Everything in Elite",
+        "White Glove Service",
+        "Dedicated Account Manager",
+        "Voice Cloning",
+        "24hr Turnaround",
+        "Custom branding & intros"
+      ],
+      cta: "Book a Call",
+      link: "https://buy.stripe.com/8x27sLfel8Kgcez8Dl2go06",
+      highlight: false
+    }
+  ];
+
+  const faqs = [
+    {
+      q: "Do I need any special equipment to film?",
+      a: "None at all. LensFlow uses your existing property photos to generate the video, and our AI presenters deliver your script. You don't even need a microphone."
+    },
+    {
+      q: "Can I train my own custom avatar?",
+      a: "Yes! On the Elite and Concierge plans, you can submit a 2-minute video of yourself, and we'll train a custom digital twin that looks and sounds exactly like you."
+    },
+    {
+      q: "Are the videos compatible with REA and Domain?",
+      a: "Absolutely. Our export formats are specifically tailored to meet the exact specifications required by major Australian real estate portals."
+    },
+    {
+      q: "What languages do the AI presenters speak?",
+      a: "Our presenters natively support over 40 languages with perfect lip-sync, allowing you to market your listings to international buyers effortlessly."
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground">
+      <Navbar />
+
+      <main className="pt-32 pb-24 lg:pt-48">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h1 className="font-serif text-4xl lg:text-6xl font-bold mb-6">
+              Pricing that scales with your <span className="text-primary italic">listings</span>
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8">
+              Generate endless marketing collateral without the camera crew. Choose the plan that fits your agency.
+            </p>
+
+            <div className="flex items-center justify-center gap-4">
+              <span className={`text-sm font-medium ${!isAnnual ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
+              <Switch 
+                checked={isAnnual} 
+                onCheckedChange={setIsAnnual} 
+                data-testid="switch-billing-cycle"
+                className="data-[state=checked]:bg-primary"
+              />
+              <span className={`text-sm font-medium flex items-center gap-2 ${isAnnual ? "text-foreground" : "text-muted-foreground"}`}>
+                Annually
+                <span className="bg-primary/20 text-primary text-xs px-2 py-0.5 rounded-full">Save 10%</span>
+              </span>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {tiers.map((tier, i) => (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                key={tier.name}
+                className={`relative rounded-3xl p-8 border ${
+                  tier.highlight 
+                    ? "bg-primary/5 border-primary/50 shadow-2xl shadow-primary/10" 
+                    : "bg-card border-white/5"
+                }`}
+              >
+                {tier.highlight && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-sm font-bold px-4 py-1 rounded-full">
+                    Most Popular
+                  </div>
+                )}
+                <h3 className="font-serif text-2xl font-bold mb-2">{tier.name}</h3>
+                <p className="text-sm text-muted-foreground mb-6 h-10">{tier.description}</p>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold">${tier.price}</span>
+                  <span className="text-muted-foreground">/mo</span>
+                </div>
+                
+                <a href={tier.link} target="_blank" rel="noopener noreferrer" className="block mb-8">
+                  <Button 
+                    className={`w-full rounded-full h-12 text-base font-medium ${
+                      tier.highlight ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-white/10 hover:bg-white/20 text-foreground"
+                    }`}
+                    data-testid={`btn-pricing-${tier.name.toLowerCase()}`}
+                  >
+                    {tier.cta}
+                  </Button>
+                </a>
+
+                <div className="space-y-4">
+                  {tier.features.map((feature, j) => (
+                    <div key={j} className="flex items-start gap-3 text-sm">
+                      <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                      <span className="text-foreground/90">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </main>
+
+      <section className="py-24 bg-card border-t border-white/5">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+          </div>
+          <div className="grid gap-6">
+            {faqs.map((faq, i) => (
+              <div key={i} className="p-6 rounded-2xl bg-background border border-white/5">
+                <h3 className="text-lg font-semibold mb-2">{faq.q}</h3>
+                <p className="text-muted-foreground leading-relaxed">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
+}

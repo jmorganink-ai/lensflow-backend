@@ -139,6 +139,28 @@ export const CreateWebhookBody = zod.object({
 
 
 /**
+ * @summary Capture a new lead email
+ */
+
+
+
+export const CaptureLeadBody = zod.object({
+  "email": zod.string().min(1),
+  "name": zod.string().optional(),
+  "source": zod.string().optional()
+})
+
+
+/**
+ * @summary Get total lead count for urgency display
+ */
+export const GetLeadCountResponse = zod.object({
+  "count": zod.number(),
+  "displayCount": zod.number()
+})
+
+
+/**
  * @summary Delete a webhook
  */
 export const DeleteWebhookParams = zod.object({
