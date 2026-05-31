@@ -25,8 +25,6 @@ const STEP_DESCRIPTIONS: Record<string, string> = {
   compose_video: "Composite all elements into a single shareable 4K video file.",
 };
 
-// Steps that are currently simulated (not yet live in production)
-const SIMULATED_STEPS = new Set(["presenter_video", "compose_video"]);
 
 function StepIcon({ status }: { status: string }) {
   if (status === "complete") return <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />;
@@ -274,11 +272,6 @@ export default function JobDetail() {
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       {STEP_DESCRIPTIONS[step.name]}
                     </p>
-                    {SIMULATED_STEPS.has(step.name) && (
-                      <span className="shrink-0 text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border border-border text-muted-foreground/50">
-                        Simulated
-                      </span>
-                    )}
                   </div>
                   {step.errorMessage && (
                     <p className="text-xs text-destructive mt-2 font-mono bg-destructive/5 p-2 rounded border border-destructive/20">
@@ -305,6 +298,31 @@ export default function JobDetail() {
                         <Volume2 className="w-3.5 h-3.5" /> ElevenLabs Voiceover
                       </div>
                       <audio controls src={step.outputUrl} className="w-full h-8" style={{ height: "32px" }} />
+                    </div>
+                  )}
+                  {step.name === "presenter_video" && step.outputUrl && step.status === "complete" && (
+                    <div className="mt-3 p-3 bg-primary/5 border border-primary/15 rounded-lg space-y-2">
+                      <div className="flex items-center gap-2 text-[11px] font-mono text-primary uppercase tracking-wider">
+                        <Play className="w-3.5 h-3.5" /> HeyGen Presenter Video
+                      </div>
+                      <video controls src={step.outputUrl} className="w-full rounded" style={{ maxHeight: "320px" }} />
+                    </div>
+                  )}
+                  {step.name === "compose_video" && step.outputUrl && step.status === "complete" && (
+                    <div className="mt-3 p-3 bg-primary/5 border border-primary/15 rounded-lg space-y-2">
+                      <div className="flex items-center gap-2 text-[11px] font-mono text-primary uppercase tracking-wider">
+                        <Play className="w-3.5 h-3.5" /> Final Video — Ready to Publish
+                      </div>
+                      <video controls src={step.outputUrl} className="w-full rounded" style={{ maxHeight: "360px" }} />
+                      <a
+                        href={step.outputUrl}
+                        download
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-[11px] font-mono text-primary hover:underline"
+                      >
+                        <Download className="w-3 h-3" /> Download MP4
+                      </a>
                     </div>
                   )}
                   {(step.startedAt || step.completedAt) && (

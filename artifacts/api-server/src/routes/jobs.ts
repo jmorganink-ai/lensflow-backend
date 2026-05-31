@@ -11,6 +11,8 @@ import { logger } from "../lib/logger";
 import { generateVoiceover } from "./elevenlabs";
 import { generateListingScript } from "../lib/generate-script";
 import { parseListingUrl } from "../lib/parse-listing-url";
+import { generatePresenterVideo } from "../lib/heygen";
+import { composePresenterVideo } from "../lib/shotstack";
 
 const router: IRouter = Router();
 
@@ -66,6 +68,7 @@ async function runSimulation(jobId: string): Promise<void> {
       .orderBy(pipelineStepsTable.order);
 
     let generatedScript: string | null = null;
+    let presenterVideoUrl: string | null = null;
     const listingContext = parseListingUrl(job.listingUrl);
 
     for (let i = 0; i < steps.length; i++) {
@@ -127,8 +130,37 @@ async function runSimulation(jobId: string): Promise<void> {
         } catch (err) {
           logger.error({ err, jobId }, "ElevenLabs voiceover failed — continuing without audio");
         }
+      } else if (step.name === "presenter_video") {
+        // Real HeyGen call — generate AI presenter video from script
+        try {
+          const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
+          logger.info({ jobId, voiceName: job.voiceName }, "Generating presenter video with HeyGen");
+          const result = await generatePresenterVideo(script, job.voiceName);
+          presenterVideoUrl = result.videoUrl;
+          outputUrl = result.videoUrl;
+          logger.info({ jobId, videoId: result.videoId }, "HeyGen presenter video ready");
+        } catch (err) {
+          logger.error({ err, jobId }, "HeyGen presenter video failed — continuing");
+          await new Promise((resolve) => setTimeout(resolve, baseDuration));
+        }
+      } else if (step.name === "compose_video") {
+        // Real Shotstack call — compose final branded video from presenter clip
+        try {
+          if (!presenterVideoUrl) throw new Error("No presenter video URL from step 4");
+          logger.info({ jobId, presenterVideoUrl }, "Composing final video with Shotstack");
+          const result = await composePresenterVideo(
+            presenterVideoUrl,
+            job.listingTitle,
+            job.listingUrl,
+          );
+          outputUrl = result.videoUrl;
+          logger.info({ jobId, renderId: result.renderId }, "Shotstack final video ready");
+        } catch (err) {
+          logger.error({ err, jobId }, "Shotstack compose failed — continuing");
+          await new Promise((resolve) => setTimeout(resolve, baseDuration));
+        }
       } else {
-        // Simulated step
+        // Fallback simulated step
         await new Promise((resolve) => setTimeout(resolve, baseDuration));
       }
 
