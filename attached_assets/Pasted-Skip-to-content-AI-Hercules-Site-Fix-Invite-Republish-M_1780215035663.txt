@@ -1,0 +1,332 @@
+Skip to content
+
+AI
+
+Hercules Site Fix
+
+
+Invite
+
+Republish
+
+
+
+
+Main version
+Hercules Site Fix
+
+New task
+
+Filters
+
+Plans
+
+Tasks
+
+ME
+Created by me
+
+
+Open task board
+Library
+
+File tree
+Search
+
+New
+Apps
+LensFlow AI
+LensFlow AI
+Website
+
+LensFlow Marketing Site
+LensFlow Marketing Site
+Website
+
+
+
+Overview
+
+Logs
+
+Analytics
+
+Resources
+
+Domains
+
+Manage
+Search
+
+
+Errors only
+
+Date
+Time
+Deployment
+Source
+Log
+2026-05-31 13:50:24.56
+2d44aba9
+System
+waiting for runnable artifact ports ports=[8080]
+2026-05-31 14:07:02.76
+887f4b0c
+User
+{"level":30,"time":1780207622764,"pid":20,"hostname":"localhost","req":{"id":1,"method":"GET","url":"/api/healthz"},"res":{"statusCode":200},"responseTime":43,"msg":"request completed"}
+2026-05-31 14:07:06.82
+2d44aba9
+System
+received signal, shutting down artifact processes signal=terminated
+2026-05-31 14:07:06.82
+2d44aba9
+System
+sending SIGTERM to artifact process artifact=artifacts/api-server
+2026-05-31 14:07:06.83
+2d44aba9
+System
+main done, exiting
+2026-05-31 14:07:06.83
+2d44aba9
+System
+artifact process exited with error error=signal: terminated artifact=artifacts/api-server
+2026-05-31 14:07:06.83
+2d44aba9
+System
+all artifact processes stopped
+2026-05-31 16:08:35.99
+a71453de
+System
+starting up user application
+2026-05-31 16:08:35.99
+a71453de
+System
+artifact mode enabled runnable=1 static=2
+2026-05-31 16:08:35.99
+a71453de
+System
+starting artifact processes for monorepo deployment
+2026-05-31 16:08:35.99
+a71453de
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2026-05-31 16:08:35.99
+a71453de
+System
+registered static handler for artifact path=/ publicDir=artifacts/lensflow-site/dist/public
+2026-05-31 16:08:35.99
+a71453de
+System
+waiting for runnable artifact ports ports=[8080]
+2026-05-31 16:08:35.99
+a71453de
+System
+forwarding local port 0 to external port 80 (mapped as 1104)
+2026-05-31 16:08:35.99
+a71453de
+System
+registered static handler for artifact path=/pipeline/ publicDir=artifacts/lensflow/dist/public
+2026-05-31 16:08:36.00
+a71453de
+System
+baseline ports snapshot before artifact start ports=[1104 1106 1105]
+2026-05-31 16:08:36.00
+a71453de
+System
+starting artifact process port=8080 artifact=artifacts/api-server args=[node --enable-source-maps artifacts/api-server/dist/index.mjs]
+
+2026-05-31 16:08:36.00
+a71453de
+System
+starting artifact processes count=1
+2026-05-31 16:08:36.00
+a71453de
+System
+artifact process started artifact=artifacts/api-server pid=19
+2026-05-31 16:08:36.66
+a71453de
+System
+artifact port detected expected=1 port=8080 detected=1
+2026-05-31 16:08:36.66
+a71453de
+System
+all artifact ports detected
+2026-05-31 16:08:36.66
+a71453de
+System
+artifact processes running, waiting for signal or process exit
+2026-05-31 16:08:36.66
+a71453de
+User
+{"level":30,"time":1780214916665,"pid":19,"hostname":"localhost","port":8080,"msg":"Server listening"}
+2026-05-31 16:08:37.03
+a71453de
+User
+{"level":30,"time":1780214917035,"pid":19,"hostname":"localhost","req":{"id":1,"method":"GET","url":"/api/healthz"},"res":{"statusCode":200},"responseTime":20,"msg":"request completed"}
+2026-05-31 16:08:39.96
+a71453de
+System
+sending SIGTERM to artifact process artifact=artifacts/api-server
+2026-05-31 16:08:39.96
+a71453de
+System
+received signal, shutting down artifact processes signal=terminated
+2026-05-31 16:08:39.97
+a71453de
+System
+artifact process exited with error error=signal: terminated artifact=artifacts/api-server
+2026-05-31 16:08:40.07
+887f4b0c
+System
+received signal, shutting down artifact processes signal=terminated
+2026-05-31 16:08:40.07
+887f4b0c
+System
+sending SIGTERM to artifact process artifact=artifacts/api-server
+2026-05-31 16:08:40.08
+887f4b0c
+System
+artifact process exited with error error=signal: terminated artifact=artifacts/api-server
+2026-05-31 16:08:40.08
+887f4b0c
+System
+all artifact processes stopped
+2026-05-31 16:08:40.08
+887f4b0c
+System
+main done, exiting
+2026-05-31 16:08:45.55
+a71453de
+System
+artifact mode enabled runnable=1 static=2
+2026-05-31 16:08:45.55
+a71453de
+System
+starting up user application
+2026-05-31 16:08:45.55
+a71453de
+System
+starting artifact processes for monorepo deployment
+2026-05-31 16:08:45.55
+a71453de
+System
+registered static handler for artifact publicDir=artifacts/lensflow/dist/public path=/pipeline/
+2026-05-31 16:08:45.55
+a71453de
+System
+forwarding local port 0 to external port 80 (mapped as 1104)
+2026-05-31 16:08:45.55
+a71453de
+System
+waiting for runnable artifact ports ports=[8080]
+2026-05-31 16:08:45.55
+a71453de
+System
+registered static handler for artifact path=/ publicDir=artifacts/lensflow-site/dist/public
+2026-05-31 16:08:45.55
+a71453de
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+
+Collapse
+
+Wrap
+
+Colors
+
+Live
+Published your App
+
+
+Show previous messages
+
+3 messages & 14 actions
+
+Checkpoint made
+59 minutes ago
+
+Worked for 8 minutes
+can you send me again the secret key to add my voice from elevenlab
+
+58 minutes ago
+
+1 message & 1 action
+no you send me a box to add the api key
+
+57 minutes ago
+
+1 message & 3 actions
+
+Worked for 9 seconds
+
+21 messages & 61 actions
+
+Checkpoint made
+50 minutes ago
+
+Worked for 6 minutes
+i just did my voice it wont be ready for 2 hours
+
+50 minutes ago
+
+2 messages & 1 action
+
+Worked for 17 seconds
+
+3 messages & 2 actions
+
+Worked for 24 seconds
+yes emma is linked tov MIA VOICE And the other female on the lensflow is australian real estate agent and oliver should be there is olivers voice on the website working
+
+44 minutes ago
+
+12 messages & 34 actions
+
+Checkpoint made
+39 minutes ago
+Add presenter previews and voice selection options to website
+3:31 pm, May 31, 2026
+
+Rollback here
+
+Changes
+
+Preview
+
+Worked for 4 minutes
+where is the button to connect you yo github
+
+2 minutes ago
+
+Planning GitHub connection integration
+In Replit, GitHub connection is in the Version Control panel:
+
+Look at the left sidebar — click the branch/git icon (looks like a branching diagram)
+From there you'll see a "Connect to GitHub" option to link your repo
+Alternatively, go to the Tools menu at the bottom of the left sidebar → Git → connect your GitHub account from there.
+
+Once connected you can push commits, create branches, and sync your code directly to a GitHub repo from within Replit.
+
+
+Published your app
+2 minutes ago
+
+Published your app
+just now
+
+Scroll to latest
+
+
+Attached Image
+
+
+Attached Image
+
+
+
+
+Economy
+
+
+
+Hercules Site Fix - Replit
