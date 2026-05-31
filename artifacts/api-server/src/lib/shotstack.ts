@@ -1,6 +1,19 @@
 import { logger } from "./logger";
 
-const SHOTSTACK_API_BASE = "https://api.shotstack.io/v1";
+// Use production key + endpoint when available, fall back to sandbox/staging
+function getShotstackConfig(): { apiKey: string; baseUrl: string } {
+  const prodKey = process.env.SHOTSTACK_PROD_API_KEY ?? process.env.SHOTSTACK_PRODUCTION_API_KEY;
+  const sandboxKey = process.env.SHOTSTACK_API_KEY ?? process.env.SHOTSTACK_SANDBOX_API_KEY;
+
+  if (prodKey) {
+    return { apiKey: prodKey, baseUrl: "https://api.shotstack.io/v1" };
+  }
+  if (sandboxKey) {
+    logger.warn("Using Shotstack sandbox/staging — set SHOTSTACK_PROD_API_KEY for production renders");
+    return { apiKey: sandboxKey, baseUrl: "https://api.shotstack.io/stage/v1" };
+  }
+  throw new Error("No Shotstack API key set (SHOTSTACK_PROD_API_KEY or SHOTSTACK_API_KEY)");
+}
 
 export interface ShotstackResult {
   videoUrl: string;
@@ -20,8 +33,7 @@ export async function composePresenterVideo(
   listingUrl?: string | null,
   propertyImages?: string[] | null,
 ): Promise<ShotstackResult> {
-  const apiKey = process.env.SHOTSTACK_API_KEY;
-  if (!apiKey) throw new Error("SHOTSTACK_API_KEY not set");
+  const { apiKey, baseUrl: SHOTSTACK_API_BASE } = getShotstackConfig();
 
   const subtitle = propertyTitle ?? "Premium Property Listing";
   const domain = listingUrl
@@ -31,7 +43,7 @@ export async function composePresenterVideo(
   const images = (propertyImages ?? []).filter(Boolean);
   const hasPhotos = images.length > 0;
 
-  logger.info({ presenterVideoUrl, subtitle, photoCount: images.length }, "Submitting Shotstack render job");
+  logger.info({ presenterVideoUrl, subtitle, photoCount: images.length, env: process.env.SHOTSTACK_PROD_API_KEY ? "production" : "sandbox" }, "Submitting Shotstack render job");
 
   // Photo slideshow duration — each photo shown for 8 seconds, looped if needed
   const PHOTO_DURATION = 8;

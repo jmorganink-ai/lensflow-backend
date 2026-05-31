@@ -13,6 +13,7 @@ import { generateListingScript } from "../lib/generate-script";
 import { parseListingUrl } from "../lib/parse-listing-url";
 import { generatePresenterVideo } from "../lib/heygen";
 import { composePresenterVideo } from "../lib/shotstack";
+import { scrapeListing } from "../lib/apify";
 
 const router: IRouter = Router();
 
@@ -69,6 +70,7 @@ async function runSimulation(jobId: string): Promise<void> {
 
     let generatedScript: string | null = null;
     let presenterVideoUrl: string | null = null;
+    let scrapedImages: string[] = [];
     const listingContext = parseListingUrl(job.listingUrl);
 
     for (let i = 0; i < steps.length; i++) {
@@ -84,17 +86,68 @@ async function runSimulation(jobId: string): Promise<void> {
       let outputData: string | null = null;
 
       if (step.name === "scrape_listing") {
-        // Parse URL metadata — lightweight, no external request needed
-        const scraped = [
-          listingContext.summary,
-          listingContext.suburb ? `Suburb: ${listingContext.suburb}` : null,
-          listingContext.state ? `State: ${listingContext.state}` : null,
-          listingContext.propertyType ? `Type: ${listingContext.propertyType}` : null,
-          listingContext.bedrooms ? `Bedrooms: ${listingContext.bedrooms}` : null,
-          `Platform: ${listingContext.platform}`,
-        ].filter(Boolean).join("\n");
-        outputData = scraped;
-        await new Promise((resolve) => setTimeout(resolve, baseDuration));
+        // Real Apify scrape — falls back to URL parsing if Apify unavailable
+        try {
+          logger.info({ jobId, listingUrl: job.listingUrl }, "Scraping listing with Apify");
+          const apifyResult = await scrapeListing(job.listingUrl);
+          scrapedImages = apifyResult.images;
+
+          // If agent uploaded manual photos, keep those — otherwise use scraped photos
+          const hasManualPhotos = (job.propertyImages ?? []).length > 0;
+          if (!hasManualPhotos && scrapedImages.length > 0) {
+            await db.update(jobsTable)
+              .set({ propertyImages: scrapedImages })
+              .where(eq(jobsTable.id, jobId));
+            // Reload job so downstream steps see the scraped images
+            const [updated] = await db.select().from(jobsTable).where(eq(jobsTable.id, jobId));
+            if (updated) Object.assign(job, updated);
+            logger.info({ jobId, count: scrapedImages.length }, "Saved scraped property images to job");
+          }
+
+          // Merge Apify data into listingContext for script generation
+          Object.assign(listingContext, {
+            address: apifyResult.address,
+            price: apifyResult.price,
+            bathrooms: apifyResult.bathrooms,
+            carSpaces: apifyResult.carSpaces,
+            scrapedDescription: apifyResult.description,
+            bedrooms: apifyResult.bedrooms?.toString() ?? listingContext.bedrooms,
+            suburb: listingContext.suburb ?? (apifyResult.address?.split(",")[1]?.trim() ?? null),
+          });
+
+          // Update listing title if we got a better one from Apify
+          if (apifyResult.title && !job.listingTitle) {
+            await db.update(jobsTable)
+              .set({ listingTitle: apifyResult.title })
+              .where(eq(jobsTable.id, jobId));
+          }
+
+          const scraped = [
+            apifyResult.title ? `Title: ${apifyResult.title}` : listingContext.summary,
+            apifyResult.address ? `Address: ${apifyResult.address}` : null,
+            apifyResult.price ? `Price: ${apifyResult.price}` : null,
+            apifyResult.bedrooms ? `Bedrooms: ${apifyResult.bedrooms}` : null,
+            apifyResult.bathrooms ? `Bathrooms: ${apifyResult.bathrooms}` : null,
+            apifyResult.carSpaces ? `Car spaces: ${apifyResult.carSpaces}` : null,
+            `Platform: ${listingContext.platform}`,
+            `Photos found: ${scrapedImages.length}`,
+          ].filter(Boolean).join("\n");
+          outputData = scraped;
+          logger.info({ jobId, imageCount: scrapedImages.length, hasManualPhotos }, "Apify scrape complete");
+        } catch (err) {
+          logger.warn({ err, jobId }, "Apify scrape failed — falling back to URL parsing");
+          // Graceful fallback to URL metadata only
+          const scraped = [
+            listingContext.summary,
+            listingContext.suburb ? `Suburb: ${listingContext.suburb}` : null,
+            listingContext.state ? `State: ${listingContext.state}` : null,
+            listingContext.propertyType ? `Type: ${listingContext.propertyType}` : null,
+            listingContext.bedrooms ? `Bedrooms: ${listingContext.bedrooms}` : null,
+            `Platform: ${listingContext.platform}`,
+          ].filter(Boolean).join("\n");
+          outputData = scraped;
+          await new Promise((resolve) => setTimeout(resolve, baseDuration));
+        }
       } else if (step.name === "generate_script") {
         // Real Anthropic call to generate a listing script
         try {

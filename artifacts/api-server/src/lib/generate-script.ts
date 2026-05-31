@@ -15,6 +15,12 @@ export interface ListingContext {
   bedrooms?: string | null;
   platform?: string;
   summary?: string;
+  // Enriched from Apify scrape
+  address?: string | null;
+  price?: string | null;
+  bathrooms?: number | null;
+  carSpaces?: number | null;
+  scrapedDescription?: string | null;
 }
 
 export async function generateListingScript(listingUrl: string, context?: ListingContext): Promise<ScriptResult> {
@@ -27,10 +33,15 @@ export async function generateListingScript(listingUrl: string, context?: Listin
 
   const contextLines: string[] = [];
   if (context?.summary) contextLines.push(`Property: ${context.summary}`);
+  if (context?.address) contextLines.push(`Address: ${context.address}`);
   if (context?.suburb) contextLines.push(`Suburb: ${context.suburb}`);
   if (context?.state) contextLines.push(`State: ${context.state}`);
   if (context?.propertyType) contextLines.push(`Property type: ${context.propertyType}`);
   if (context?.bedrooms) contextLines.push(`Bedrooms: ${context.bedrooms}`);
+  if (context?.bathrooms) contextLines.push(`Bathrooms: ${context.bathrooms}`);
+  if (context?.carSpaces) contextLines.push(`Car spaces: ${context.carSpaces}`);
+  if (context?.price) contextLines.push(`Price: ${context.price}`);
+  if (context?.scrapedDescription) contextLines.push(`Listing description: ${context.scrapedDescription}`);
 
   const prompt = `You are a professional real estate video scriptwriter for Australia's top agencies. Write a compelling 45-second presenter video script for a property listing.
 
