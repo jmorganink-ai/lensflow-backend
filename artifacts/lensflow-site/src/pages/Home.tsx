@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ChevronRight, PlayCircle, Star, Shield, TrendingUp, Sparkles, Building, Video, CheckCircle2, XCircle, Users, Zap, Globe, Clock, Quote, Play, Pause } from "lucide-react";
+import { ChevronRight, PlayCircle, Star, Shield, TrendingUp, Sparkles, Building, Video, CheckCircle2, XCircle, Users, Zap, Globe, Clock, Quote, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -168,6 +168,16 @@ const staggerContainer = {
 };
 
 export default function Home() {
+  const featuredVideoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState(true);
+
+  const toggleMute = () => {
+    if (featuredVideoRef.current) {
+      featuredVideoRef.current.muted = !featuredVideoRef.current.muted;
+      setIsMuted(featuredVideoRef.current.muted);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground overflow-hidden font-sans">
       <Navbar />
@@ -281,6 +291,7 @@ export default function Home() {
             className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl mb-8 aspect-video max-w-4xl mx-auto bg-black group"
           >
             <video
+              ref={featuredVideoRef}
               src="/videos/oliver-featured.mp4"
               autoPlay
               muted
@@ -293,8 +304,18 @@ export default function Home() {
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-xs font-mono text-white/80 uppercase tracking-widest">Oliver · Williamstown, VIC · LensFlow AI</span>
             </div>
-            <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-primary/90 text-[10px] font-mono text-primary-foreground uppercase tracking-widest">
-              AI Generated
+            <div className="absolute top-3 right-3 flex items-center gap-2">
+              <button
+                onClick={toggleMute}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 text-white transition-all backdrop-blur-sm"
+                title={isMuted ? "Unmute" : "Mute"}
+              >
+                {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                <span className="text-[10px] font-mono uppercase tracking-widest">{isMuted ? "Unmute" : "Mute"}</span>
+              </button>
+              <div className="px-2 py-1 rounded-full bg-primary/90 text-[10px] font-mono text-primary-foreground uppercase tracking-widest">
+                AI Generated
+              </div>
             </div>
           </motion.div>
 
