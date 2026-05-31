@@ -1,0 +1,7 @@
+Two things to act on this week, regardless of who builds it:
+
+Apply to PropTrack and Domain Group partner APIs immediately. Approval is 4–8 weeks. Everything else can be built in parallel; these two are the long pole. Without them you're stuck on free ABS data (still useful, just less impressive than "median sold price last 90 days").
+Audit your existing ElevenLabs setup. You already have Mia's voice working. Find out what plan you're on, what the voice ID is, and whether the clone is on the Creator ($22) or Pro ($99) tier — that decides whether scaling past a few hundred videos/month needs a plan bump.
+One honest caveat: prices are from my knowledge as of May 2026. Before anyone signs a contract or commits to a vendor, your dev should pull current pricing pages — SaaS pricing shifts every quarter, and Hedra/Cartesia in particular are new enough that their pricing is still moving.
+
+You've now got both halves: the wow (the URL→Video mockup) to sell the vision, and the engine (this build kit) to scope the build. Take both screenshots, walk into a dev meeting, and you'll skip 4 weeks of "what should we use" discovery.

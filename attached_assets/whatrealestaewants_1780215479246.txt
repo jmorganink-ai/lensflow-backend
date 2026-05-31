@@ -1,0 +1,42 @@
+Tier 1 — Genuine differentiators (pick ONE)
+1. "Property URL → Finished Video in 60 seconds" — the magic moment
+Agent pastes a Domain or REA URL. LensFlow auto-pulls the photos, address, beds/baths, suburb stats, school zones, and price guide. Mia writes the script. Video renders. Done — no typing, no uploading, no scripting.
+Why it wows: This is the single demo that makes an agent's jaw drop. Every competitor still makes you write the script and upload assets. If you nail this one workflow, you have a viral demo video that sells the product for you.
+
+2. "Suburb Expert" mode — local market data baked in
+Mia doesn't just read your script — she opens with "Mosman had a median sale price increase of 8.2% last quarter, and properties on this street have averaged 23 days on market." Pull from CoreLogic / PriceFinder / public sales data.
+Why it wows: Turns the video from a glossy listing into a positioning piece. Agents look like market experts, not just performers. This is the kind of thing that gets them a vendor meeting.
+
+3. "Vendor Update" videos
+After listing, every Friday Mia auto-generates a 30-second video for the vendor: "This week your property had 47 enquiries, 12 inspections, and 3 second-look bookings. Here's what we're planning for next week." Agent edits if needed, sends with one tap.
+Why it wows: Solves the #1 vendor complaint in real estate — "my agent never updates me." Agents would pay for this alone. And it's a recurring use case, not just listing day, which means they use the product weekly.
+
+Tier 2 — Strong adds (cheaper to build)
+4. "Stage the photos" — AI photo enhancement built in
+Drag in a phone photo of an empty room → AI virtual-stages it with furniture, fixes lighting, removes clutter. Already shown in your marketing as "Glamour Studio" — make it the opening step of the flow so every video benefits.
+
+5. Auto-caption + auto-platform-resize
+One video uploaded → exports as vertical (Instagram/TikTok), square (Facebook), and 16:9 (YouTube/Domain) with platform-correct captions, hooks, and CTAs. Agents hate doing this manually.
+
+6. "Voice clone in 60 seconds of audio"
+Already in your Concierge tier — but consider making a limited version (3 videos/month with your own voice) available in Elite. Agents love hearing themselves. This is the upsell hook.
+
+Tier 3 — Wow for marketing, not for product
+7. Live "render counter" on homepage
+"3,847 videos created this month. Average render time 47s." Real numbers, updating live. Builds trust + social proof.
+
+8. "Compare your listing video to a top agent's" — diagnostic tool
+Agent pastes their existing video URL → LensFlow scores it on hook strength, pacing, CTAs, vs top performers. Then offers to rebuild it. Lead magnet of the year.
+
+My honest recommendation
+Pick #1 (URL → Video). Here's why:
+
+It's a single, demo-able moment — you can film it in 30 seconds and that clip becomes your hero ad, your sales-call demo, your LinkedIn post, your TikTok hook
+It's the thing agents will say to each other: "Mate, you just paste the Domain link and it makes the video. I'm not joking."
+It removes the #1 churn driver: blank-page paralysis. Right now, even your existing flow requires the agent to think. URL-to-video means zero thinking
+Every competitor (BIGVU, Synthesia, HeyGen) requires script input. None of them are real-estate-native. This is your moat
+Bundle it with #3 (Vendor Update videos) as the "recurring use case" hook and you've got both the acquisition wow and the retention wow. One gets them in, the other keeps them paying.
+
+What I'd avoid adding: more AI presenters, more languages, more video lengths, more templates. Those feel like progress but they're feature bloat. The product wins by being unreasonably good at one workflow, not okay at twenty.
+
+Want me to mock up what the "Paste URL → Video" homepage section would look like? I could put a variant on the canvas so you can see how it'd land before pitching it to your dev team.
