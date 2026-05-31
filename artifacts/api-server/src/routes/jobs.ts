@@ -135,7 +135,7 @@ async function runSimulation(jobId: string): Promise<void> {
         try {
           const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
           logger.info({ jobId, voiceName: job.voiceName }, "Generating presenter video with HeyGen");
-          const result = await generatePresenterVideo(script, job.voiceName);
+          const result = await generatePresenterVideo(script, job.voiceName, job.voiceId);
           presenterVideoUrl = result.videoUrl;
           outputUrl = result.videoUrl;
           logger.info({ jobId, videoId: result.videoId }, "HeyGen presenter video ready");

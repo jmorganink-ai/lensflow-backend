@@ -11,9 +11,13 @@ const AVATAR_MALE   = process.env.HEYGEN_AVATAR_MALE   ?? "Shawn_Business_Front_
 const VOICE_FEMALE = process.env.HEYGEN_VOICE_FEMALE ?? "f8c69e517f424cafaecde32dde57096b";
 const VOICE_MALE   = process.env.HEYGEN_VOICE_MALE   ?? "6539347d386844db8516f1d3828938f0";
 
-function getAvatarConfig(voiceName?: string | null): { avatarId: string; voiceId: string } {
+// Oliver's ElevenLabs voice ID — used to detect male presenter
+const ELEVENLABS_OLIVER_VOICE_ID = "yXFr3XVHzrViCIHi1yoc";
+
+function getAvatarConfig(voiceName?: string | null, elevenLabsVoiceId?: string | null): { avatarId: string; voiceId: string } {
   const name = (voiceName ?? "").toLowerCase();
-  if (name === "oliver") {
+  const isMale = name === "oliver" || elevenLabsVoiceId === ELEVENLABS_OLIVER_VOICE_ID;
+  if (isMale) {
     return { avatarId: AVATAR_MALE, voiceId: VOICE_MALE };
   }
   return { avatarId: AVATAR_FEMALE, voiceId: VOICE_FEMALE };
@@ -27,11 +31,12 @@ export interface HeyGenResult {
 export async function generatePresenterVideo(
   script: string,
   voiceName?: string | null,
+  elevenLabsVoiceId?: string | null,
 ): Promise<HeyGenResult> {
   const apiKey = process.env.HEYGEN_API_KEY;
   if (!apiKey) throw new Error("HEYGEN_API_KEY not set");
 
-  const { avatarId, voiceId } = getAvatarConfig(voiceName);
+  const { avatarId, voiceId } = getAvatarConfig(voiceName, elevenLabsVoiceId);
 
   logger.info({ avatarId, voiceId }, "Submitting HeyGen video generation job");
 
