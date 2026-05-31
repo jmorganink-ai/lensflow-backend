@@ -288,15 +288,15 @@ export default function Home() {
             className="text-center mb-20"
           >
             <h2 className="font-serif text-3xl md:text-[34px] font-bold mb-6">Create listing videos in minutes</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">No cameras, no lighting setup, no awkward retakes. Just upload your assets and let AI do the heavy lifting.</p>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">No cameras, no lighting setup, no awkward retakes. Paste a URL and let Claude AI and ElevenLabs do the heavy lifting.</p>
           </motion.div>
 
           <div className="grid md:grid-cols-4 gap-8">
             {[
-              { step: "01", title: "Upload Photos", desc: "Drag and drop your high-res property photos into the studio." },
-              { step: "02", title: "Paste Script", desc: "Add your property description or let our AI write it for you." },
-              { step: "03", title: "Choose Presenter", desc: "Select a professional AI avatar or use your custom digital twin." },
-              { step: "04", title: "Generate Video", desc: "Download your 4K video formatted perfectly for every social platform." }
+              { step: "01", title: "Paste the URL", desc: "Drop any realestate.com.au, Domain, or agent website listing URL into LensFlow." },
+              { step: "02", title: "Claude Writes the Script", desc: "Our AI reads the listing and generates a property-specific 45-second presenter script in seconds." },
+              { step: "03", title: "ElevenLabs Records It", desc: "Your chosen AI presenter's voice narrates the script with natural intonation and Australian accent." },
+              { step: "04", title: "Video Delivered", desc: "A ready-to-publish presenter video lands in your dashboard — download or share the link instantly." }
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -426,7 +426,7 @@ export default function Home() {
                 <span className="text-primary italic">Without the camera crew.</span>
               </h2>
               <p className="text-xl text-muted-foreground mb-8">
-                In a market where every agent has an iPhone, professional production value is your unfair advantage. LensFlow generates studio-quality listing videos from photos and a script in minutes.
+                In a market where every agent has an iPhone, professional production value is your unfair advantage. LensFlow turns a listing URL into a studio-quality presenter video in under 3 minutes — no filming, no editing, no crew.
               </p>
               <ul className="space-y-4 mb-10">
                 {[

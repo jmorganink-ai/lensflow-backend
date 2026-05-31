@@ -44,14 +44,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium transition-colors",
-                    isActive 
-                      ? "bg-secondary text-foreground" 
+                    "flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium transition-colors relative",
+                    isActive
+                      ? "bg-secondary text-foreground"
                       : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
                   )}
                 >
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-full" />
+                  )}
                   <item.icon className="w-4 h-4" />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {item.badge !== null && (
+                    <span className="text-[10px] font-mono bg-primary/15 text-primary border border-primary/25 px-1.5 py-0.5 rounded-full leading-none animate-pulse">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}

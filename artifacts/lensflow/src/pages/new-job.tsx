@@ -181,8 +181,19 @@ export default function NewJob() {
                       )}
                     </div>
                   </FormControl>
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {["realestate.com.au", "domain.com.au", "onthehouse.com.au", "allhomes.com.au"].map((site) => (
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        form.setValue("listingUrl", "https://www.realestate.com.au/property/4-bed-house-in-mosman-nsw-2088-145832674");
+                        form.trigger("listingUrl");
+                      }}
+                      className="text-[10px] font-mono text-primary border border-primary/30 bg-primary/5 px-2 py-0.5 rounded hover:bg-primary/10 transition-colors"
+                    >
+                      ✦ Try sample listing
+                    </button>
+                    <span className="text-muted-foreground/30 text-[10px]">or quick-fill:</span>
+                    {["realestate.com.au", "domain.com.au", "allhomes.com.au"].map((site) => (
                       <button
                         key={site}
                         type="button"
