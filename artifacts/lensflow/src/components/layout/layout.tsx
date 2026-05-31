@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Film, LayoutDashboard, Webhook, Plus, LogOut, Settings, Video } from "lucide-react";
+import { Film, LayoutDashboard, Webhook, Plus, LogOut, Settings, Video, ArrowUpLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@workspace/replit-auth-web";
 import { useGetJobStats } from "@workspace/api-client-react";
@@ -22,10 +22,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className="w-64 flex-col hidden md:flex border-r border-border bg-card/50">
         <div className="h-16 flex items-center px-6 border-b border-border">
-          <div className="flex items-center gap-2 font-mono font-bold tracking-tight text-lg text-primary">
+          <a
+            href="/"
+            className="flex items-center gap-2 font-mono font-bold tracking-tight text-lg text-primary hover:opacity-80 transition-opacity"
+            title="Back to lensflow.com.au"
+          >
             <Film className="w-5 h-5" />
             <span>LENSFLOW_AI</span>
-          </div>
+          </a>
         </div>
 
         <div className="flex-1 py-6 px-4 flex flex-col gap-2">
@@ -66,7 +70,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
         
-        <div className="p-4 border-t border-border mt-auto">
+        <div className="px-4 pb-3">
+          <a
+            href="/"
+            className="flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-mono text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
+          >
+            <ArrowUpLeft className="w-3.5 h-3.5" />
+            <span>lensflow.com.au</span>
+          </a>
+        </div>
+
+        <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3">
             {user?.profileImageUrl ? (
               <img src={user.profileImageUrl} alt="" className="w-8 h-8 rounded border border-border object-cover" />

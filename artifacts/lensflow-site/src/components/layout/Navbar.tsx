@@ -20,14 +20,14 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href="/pipeline/" className="hidden md:block text-sm font-medium hover:text-primary transition-colors">
+          <a href="/pipeline/" className="hidden md:block text-sm font-medium hover:text-primary transition-colors">
             Dashboard
-          </Link>
-          <Link href="/pipeline/">
+          </a>
+          <a href="/pipeline/">
             <Button data-testid="nav-btn-start" className="rounded-full px-6 bg-primary text-primary-foreground hover:bg-primary/90 font-medium">
               Open AI Studio <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
-          </Link>
+          </a>
         </div>
       </div>
     </nav>
