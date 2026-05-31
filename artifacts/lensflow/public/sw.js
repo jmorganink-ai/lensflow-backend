@@ -1,5 +1,5 @@
 const CACHE_NAME = "lensflow-v1";
-const PRECACHE_URLS = ["/", "/favicon.svg"];
+const PRECACHE_URLS = ["/", "/favicon.svg", "/offline.html"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -26,20 +26,32 @@ self.addEventListener("fetch", (event) => {
 
   if (url.origin !== self.location.origin) return;
 
-  event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        if (
-          networkResponse.ok &&
-          (url.pathname === "/" ||
-            url.pathname.startsWith("/icons") ||
-            url.pathname === "/favicon.svg")
-        ) {
-          const clone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return networkResponse;
-      })
-      .catch(() => caches.match(event.request))
-  );
+  // Navigation requests (HTML pages) — network-first, offline fallback
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        caches.match("/offline.html")
+      )
+    );
+    return;
+  }
+
+  // Static assets (icons, SVG) — network-first, cache fallback
+  if (
+    url.pathname === "/favicon.svg" ||
+    url.pathname.startsWith("/icons")
+  ) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse.ok) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
 });
