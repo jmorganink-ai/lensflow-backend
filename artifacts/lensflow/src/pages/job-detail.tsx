@@ -1,8 +1,8 @@
 import { useParams, useLocation } from "wouter";
-import { useGetJob, useDeleteJob, useSimulateJob, getGetJobQueryKey, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
+import { useGetJob, useDeleteJob, useSimulateJob, useSendJobToCrm, getGetJobQueryKey, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic, Copy, Check, Download, Plus, Share2, Video } from "lucide-react";
+import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic, Copy, Check, Download, Plus, Share2, Video, Camera, Send } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { JobStatusBadge } from "@/pages/dashboard";
 
 const STEP_LABELS: Record<string, string> = {
+  analyse_photos: "Analyse Photos",
   scrape_listing: "Scrape Listing",
   generate_script: "Generate Script",
   create_voiceover: "Create Voiceover",
@@ -18,6 +19,7 @@ const STEP_LABELS: Record<string, string> = {
 };
 
 const STEP_DESCRIPTIONS: Record<string, string> = {
+  analyse_photos: "Claude Vision analyses your uploaded photos to identify the property type, features, and selling points.",
   scrape_listing: "Extract property data and metadata from the listing URL.",
   generate_script: "Generate a compelling AI-written presenter script from listing data.",
   create_voiceover: "Synthesize professional voiceover audio from the script.",
@@ -137,19 +139,26 @@ export default function JobDetail() {
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-1.5">
             <h1 className="text-2xl font-bold tracking-tight truncate max-w-xl">
-              {job.listingTitle || job.listingUrl}
+              {job.listingTitle || job.propertyAddress || job.listingUrl || "Property Video"}
             </h1>
             <div className="flex items-center gap-3 flex-wrap">
-              <a
-                href={job.listingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-muted-foreground font-mono hover:text-primary transition-colors flex items-center gap-1 truncate max-w-xs"
-                data-testid="link-listing-url"
-              >
-                {job.listingUrl}
-                <ExternalLink className="w-3 h-3 shrink-0" />
-              </a>
+              {job.listingUrl ? (
+                <a
+                  href={job.listingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-muted-foreground font-mono hover:text-primary transition-colors flex items-center gap-1 truncate max-w-xs"
+                  data-testid="link-listing-url"
+                >
+                  {job.listingUrl}
+                  <ExternalLink className="w-3 h-3 shrink-0" />
+                </a>
+              ) : (
+                <span className="text-xs text-muted-foreground font-mono flex items-center gap-1.5">
+                  <Camera className="w-3 h-3 shrink-0" />
+                  {job.propertyAddress || "From property photos"}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-3 pt-1">
               <JobStatusBadge status={job.status} />
@@ -278,6 +287,19 @@ export default function JobDetail() {
                       {step.errorMessage}
                     </p>
                   )}
+                  {step.name === "analyse_photos" && step.outputData && step.status === "complete" && (
+                    <div className="mt-3 p-3 bg-card border border-border rounded-lg space-y-1.5">
+                      <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
+                        <Camera className="w-3 h-3" /> Vision Analysis
+                      </div>
+                      {step.outputData.split("\n").filter(Boolean).map((line, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs">
+                          <span className="text-primary mt-0.5">▸</span>
+                          <span className="text-foreground/80">{line}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {step.name === "scrape_listing" && step.outputData && step.status === "complete" && (
                     <div className="mt-3 p-3 bg-card border border-border rounded-lg space-y-1.5">
                       <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Extracted Metadata</div>
@@ -376,6 +398,10 @@ export default function JobDetail() {
             >
               <Plus className="w-3.5 h-3.5" /> New Listing
             </Link>
+            {job.videoUrl && (
+              <NativeShareButton videoUrl={job.videoUrl} title={job.listingTitle || job.propertyAddress || "LensFlow video"} />
+            )}
+            <SendToCrmButton jobId={job.id} />
             <button
               type="button"
               onClick={() => simulateJob.mutate({ id: job.id })}
@@ -469,6 +495,86 @@ function ShareButton({ jobId }: { jobId: string }) {
     >
       {copied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Share2 className="w-3.5 h-3.5" />}
       {copied ? "Copied!" : "Share"}
+    </button>
+  );
+}
+
+function NativeShareButton({ videoUrl, title }: { videoUrl: string; title: string }) {
+  const { toast } = useToast();
+  const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
+
+  async function handleShare() {
+    const shareData = {
+      title: `${title} — LensFlow AI`,
+      text: `Check out this property video: ${title}`,
+      url: videoUrl,
+    };
+    if (canNativeShare) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // user cancelled or share failed — no-op
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(videoUrl);
+        toast({ title: "Link Copied", description: "Video link copied to your clipboard." });
+      } catch {
+        toast({ title: "Could not share", description: "Please copy the link manually.", variant: "destructive" });
+      }
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleShare}
+      className="inline-flex items-center gap-2 px-4 py-2 border border-border text-foreground rounded text-xs font-mono hover:border-primary/40 hover:text-primary transition-colors"
+    >
+      <Share2 className="w-3.5 h-3.5" /> {canNativeShare ? "Share Video" : "Copy Video Link"}
+    </button>
+  );
+}
+
+function SendToCrmButton({ jobId }: { jobId: string }) {
+  const { toast } = useToast();
+  const sendToCrm = useSendJobToCrm();
+  const [sent, setSent] = useState(false);
+
+  function handleSend() {
+    sendToCrm.mutate(
+      { id: jobId, data: {} },
+      {
+        onSuccess: (result) => {
+          setSent(true);
+          toast({ title: "Sent to HubSpot", description: result.message });
+        },
+        onError: () => {
+          toast({
+            title: "CRM Delivery Failed",
+            description: "Could not reach HubSpot. Please try again.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleSend}
+      disabled={sendToCrm.isPending || sent}
+      className="inline-flex items-center gap-2 px-4 py-2 border border-border text-foreground rounded text-xs font-mono hover:border-primary/40 hover:text-primary transition-colors disabled:opacity-60"
+    >
+      {sendToCrm.isPending ? (
+        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+      ) : sent ? (
+        <Check className="w-3.5 h-3.5 text-primary" />
+      ) : (
+        <Send className="w-3.5 h-3.5" />
+      )}
+      {sent ? "Sent to CRM" : "Send to HubSpot"}
     </button>
   );
 }

@@ -21,6 +21,9 @@ export interface ListingContext {
   bathrooms?: number | null;
   carSpaces?: number | null;
   scrapedDescription?: string | null;
+  // Enriched from photo (Claude Vision) analysis
+  features?: string[] | null;
+  inputMode?: "url" | "photos";
 }
 
 export async function generateListingScript(listingUrl: string, context?: ListingContext): Promise<ScriptResult> {
@@ -42,11 +45,16 @@ export async function generateListingScript(listingUrl: string, context?: Listin
   if (context?.carSpaces) contextLines.push(`Car spaces: ${context.carSpaces}`);
   if (context?.price) contextLines.push(`Price: ${context.price}`);
   if (context?.scrapedDescription) contextLines.push(`Listing description: ${context.scrapedDescription}`);
+  if (context?.features && context.features.length > 0) contextLines.push(`Visible features (from photos): ${context.features.join(", ")}`);
+
+  const isPhotoMode = context?.inputMode === "photos";
+  const sourceLine = isPhotoMode
+    ? `Source: agent-uploaded property photos${context?.address ? ` for ${context.address}` : ""} (analysed with AI vision)`
+    : `Listing URL: ${listingUrl}\nPlatform: ${context?.platform ?? domain}`;
 
   const prompt = `You are a professional real estate video scriptwriter for Australia's top agencies. Write a compelling 45-second presenter video script for a property listing.
 
-Listing URL: ${listingUrl}
-Platform: ${context?.platform ?? domain}
+${sourceLine}
 ${contextLines.length > 0 ? contextLines.join("\n") : ""}
 
 Respond with a JSON object with exactly two fields:

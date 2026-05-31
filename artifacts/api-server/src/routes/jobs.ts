@@ -5,20 +5,33 @@ import {
   CreateJobBody,
   GetJobParams,
   DeleteJobParams,
+  SendJobToCrmBody,
 } from "@workspace/api-zod";
+import { ReplitConnectors } from "@replit/connectors-sdk";
 import { randomUUID } from "crypto";
 import { logger } from "../lib/logger";
 import { generateVoiceover } from "./elevenlabs";
-import { generateListingScript } from "../lib/generate-script";
+import { generateListingScript, type ListingContext } from "../lib/generate-script";
 import { parseListingUrl } from "../lib/parse-listing-url";
 import { generatePresenterVideo } from "../lib/heygen";
 import { composePresenterVideo } from "../lib/shotstack";
 import { scrapeListing } from "../lib/apify";
+import { analysePropertyPhotos } from "../lib/analyse-photos";
 
 const router: IRouter = Router();
 
-const PIPELINE_STEPS = [
+const connectors = new ReplitConnectors();
+
+const PIPELINE_STEPS_URL = [
   { name: "scrape_listing", label: "Scrape Listing", order: 1 },
+  { name: "generate_script", label: "Generate Script", order: 2 },
+  { name: "create_voiceover", label: "Create Voiceover", order: 3 },
+  { name: "presenter_video", label: "Presenter Video", order: 4 },
+  { name: "compose_video", label: "Compose Video", order: 5 },
+];
+
+const PIPELINE_STEPS_PHOTOS = [
+  { name: "analyse_photos", label: "Analyse Photos", order: 1 },
   { name: "generate_script", label: "Generate Script", order: 2 },
   { name: "create_voiceover", label: "Create Voiceover", order: 3 },
   { name: "presenter_video", label: "Presenter Video", order: 4 },
@@ -71,7 +84,10 @@ async function runSimulation(jobId: string): Promise<void> {
     let generatedScript: string | null = null;
     let presenterVideoUrl: string | null = null;
     let scrapedImages: string[] = [];
-    const listingContext = parseListingUrl(job.listingUrl);
+    const isPhotoMode = job.inputMode === "photos";
+    const listingContext: ListingContext = parseListingUrl(job.listingUrl);
+    listingContext.inputMode = isPhotoMode ? "photos" : "url";
+    if (job.propertyAddress) listingContext.address = job.propertyAddress;
 
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
@@ -85,7 +101,48 @@ async function runSimulation(jobId: string): Promise<void> {
       let outputUrl: string | null = null;
       let outputData: string | null = null;
 
-      if (step.name === "scrape_listing") {
+      if (step.name === "analyse_photos") {
+        // Real Claude Vision analysis of agent-uploaded photos
+        try {
+          const photos = job.propertyImages ?? [];
+          logger.info({ jobId, count: photos.length }, "Analysing property photos with Claude Vision");
+          const analysis = await analysePropertyPhotos(photos, job.propertyAddress);
+
+          Object.assign(listingContext, {
+            summary: analysis.summary || listingContext.summary,
+            propertyType: analysis.propertyType ?? listingContext.propertyType,
+            bedrooms: analysis.bedrooms ?? listingContext.bedrooms,
+            bathrooms: analysis.bathrooms ?? listingContext.bathrooms,
+            features: analysis.features,
+          });
+
+          // Use the address as the listing title if we don't have one
+          if (job.propertyAddress && !job.listingTitle) {
+            await db.update(jobsTable)
+              .set({ listingTitle: job.propertyAddress })
+              .where(eq(jobsTable.id, jobId));
+          }
+
+          outputData = [
+            analysis.summary ? `Summary: ${analysis.summary}` : null,
+            job.propertyAddress ? `Address: ${job.propertyAddress}` : null,
+            analysis.propertyType ? `Type: ${analysis.propertyType}` : null,
+            analysis.bedrooms ? `Bedrooms: ${analysis.bedrooms}` : null,
+            analysis.bathrooms ? `Bathrooms: ${analysis.bathrooms}` : null,
+            analysis.features.length > 0 ? `Features: ${analysis.features.join(", ")}` : null,
+            `Photos analysed: ${photos.length}`,
+          ].filter(Boolean).join("\n");
+          logger.info({ jobId, featureCount: analysis.features.length }, "Claude Vision analysis complete");
+        } catch (err) {
+          logger.error({ err, jobId }, "Photo analysis failed — continuing with address only");
+          outputData = [
+            job.propertyAddress ? `Address: ${job.propertyAddress}` : null,
+            `Photos provided: ${(job.propertyImages ?? []).length}`,
+            "Note: AI vision analysis was unavailable; script generated from address.",
+          ].filter(Boolean).join("\n");
+          await new Promise((resolve) => setTimeout(resolve, baseDuration));
+        }
+      } else if (step.name === "scrape_listing") {
         // Real Apify scrape — falls back to URL parsing if Apify unavailable
         try {
           logger.info({ jobId, listingUrl: job.listingUrl }, "Scraping listing with Apify");
@@ -270,21 +327,26 @@ router.post("/jobs", async (req, res): Promise<void> => {
     return;
   }
 
+  const inputMode = parsed.data.inputMode === "photos" ? "photos" : "url";
+
   const id = randomUUID();
   const [job] = await db
     .insert(jobsTable)
     .values({
       id,
       userId: req.user.id,
-      listingUrl: parsed.data.listingUrl,
+      listingUrl: parsed.data.listingUrl ?? "",
       voiceId: parsed.data.voiceId ?? null,
       voiceName: parsed.data.voiceName ?? null,
       propertyImages: parsed.data.propertyImages ?? [],
+      inputMode,
+      propertyAddress: parsed.data.propertyAddress ?? null,
       status: "queued",
     })
     .returning();
 
-  const stepRows = PIPELINE_STEPS.map((step) => ({
+  const pipelineSteps = inputMode === "photos" ? PIPELINE_STEPS_PHOTOS : PIPELINE_STEPS_URL;
+  const stepRows = pipelineSteps.map((step) => ({
     id: randomUUID(),
     jobId: id,
     name: step.name,
@@ -389,6 +451,110 @@ router.post("/jobs/:id/simulate", async (req, res): Promise<void> => {
   activeSimulations.add(raw);
   runSimulation(raw);
   res.json({ message: "Simulation started", jobId: raw });
+});
+
+router.post("/jobs/:id/send-to-crm", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const bodyParsed = SendJobToCrmBody.safeParse(req.body ?? {});
+  if (!bodyParsed.success) {
+    res.status(400).json({ error: bodyParsed.error.message });
+    return;
+  }
+
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const [job] = await db
+    .select()
+    .from(jobsTable)
+    .where(and(eq(jobsTable.id, raw), eq(jobsTable.userId, req.user.id)));
+
+  if (!job) {
+    res.status(404).json({ error: "Job not found" });
+    return;
+  }
+
+  if (job.status !== "complete") {
+    res.status(400).json({ error: "Job must be complete before sending to CRM" });
+    return;
+  }
+
+  const videoUrl = job.videoUrl ?? "";
+  const title = job.listingTitle || job.propertyAddress || job.listingUrl || "Property listing";
+  const email = bodyParsed.data.email || req.user.email || null;
+
+  const noteBody = [
+    `🎬 LensFlow AI video ready: ${title}`,
+    videoUrl ? `Video: ${videoUrl}` : "Video link unavailable",
+    job.listingUrl ? `Listing: ${job.listingUrl}` : null,
+    job.propertyAddress ? `Address: ${job.propertyAddress}` : null,
+  ].filter(Boolean).join("\n");
+
+  try {
+    let contactId: string | null = null;
+    if (email) {
+      const searchRes = await connectors.proxy("hubspot", "/crm/v3/objects/contacts/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filterGroups: [{ filters: [{ propertyName: "email", operator: "EQ", value: email }] }],
+        }),
+      });
+      const searchData = (await searchRes.json()) as { results?: Array<{ id: string }> };
+      contactId = searchData.results?.[0]?.id ?? null;
+
+      if (!contactId) {
+        const createRes = await connectors.proxy("hubspot", "/crm/v3/objects/contacts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            properties: { email, lifecyclestage: "lead", lead_source: "LensFlow Pipeline" },
+          }),
+        });
+        const created = (await createRes.json()) as { id?: string };
+        contactId = created.id ?? null;
+      }
+    }
+
+    const noteRes = await connectors.proxy("hubspot", "/crm/v3/objects/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        properties: {
+          hs_note_body: noteBody,
+          hs_timestamp: Date.now(),
+        },
+        ...(contactId
+          ? {
+              associations: [
+                {
+                  to: { id: contactId },
+                  types: [{ associationCategory: "HUBSPOT_DEFINED", associationTypeId: 202 }],
+                },
+              ],
+            }
+          : {}),
+      }),
+    });
+
+    if (!noteRes.ok) {
+      const errText = await noteRes.text();
+      throw new Error(`HubSpot note creation failed: ${noteRes.status} ${errText}`);
+    }
+
+    logger.info({ jobId: raw, contactId, hasEmail: !!email }, "Job video sent to HubSpot CRM");
+    res.json({
+      success: true,
+      message: contactId
+        ? `Video sent to HubSpot and linked to ${email}.`
+        : "Video logged in HubSpot as a note.",
+    });
+  } catch (err) {
+    logger.error({ err, jobId: raw }, "Failed to send job to HubSpot CRM");
+    res.status(502).json({ success: false, message: "Could not reach HubSpot. Please try again." });
+  }
 });
 
 router.get("/jobs/:id", async (req, res): Promise<void> => {

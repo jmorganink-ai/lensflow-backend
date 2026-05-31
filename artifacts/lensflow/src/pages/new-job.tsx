@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2, ImagePlus, X, Upload } from "lucide-react";
+import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2, ImagePlus, X, Upload, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useUpload } from "@workspace/object-storage-web";
@@ -67,11 +67,33 @@ function detectPlatform(url: string): { label: string; domain: string } | null {
   return null;
 }
 
-const formSchema = z.object({
-  listingUrl: z.string().url("Please enter a valid URL"),
-  voiceId: z.string().optional(),
-  voiceName: z.string().optional(),
-});
+const formSchema = z
+  .object({
+    inputMode: z.enum(["url", "photos"]),
+    listingUrl: z.string().optional(),
+    propertyAddress: z.string().optional(),
+    voiceId: z.string().optional(),
+    voiceName: z.string().optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.inputMode === "url") {
+      const url = val.listingUrl?.trim() ?? "";
+      let valid = false;
+      try {
+        const u = new URL(url);
+        valid = u.protocol === "http:" || u.protocol === "https:";
+      } catch {
+        valid = false;
+      }
+      if (!valid) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Please enter a valid URL",
+          path: ["listingUrl"],
+        });
+      }
+    }
+  });
 
 interface UploadedPhoto {
   publicUrl: string;
@@ -95,6 +117,7 @@ export default function NewJob() {
   const [uploadingCount, setUploadingCount] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const { uploadFile } = useUpload({
     onError: (err) => {
@@ -132,13 +155,14 @@ export default function NewJob() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { listingUrl: "", voiceId: "", voiceName: "" },
+    defaultValues: { inputMode: "url", listingUrl: "", propertyAddress: "", voiceId: "", voiceName: "" },
   });
 
   const selectedVoiceName = form.watch("voiceName");
   const selectedVoiceId = form.watch("voiceId");
   const watchedUrl = form.watch("listingUrl");
-  const detectedPlatform = detectPlatform(watchedUrl);
+  const inputMode = form.watch("inputMode");
+  const detectedPlatform = detectPlatform(watchedUrl ?? "");
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -158,10 +182,20 @@ export default function NewJob() {
   }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (values.inputMode === "photos" && uploadedPhotos.length === 0) {
+      toast({
+        title: "Add Photos",
+        description: "Upload at least one property photo to generate a video from photos.",
+        variant: "destructive",
+      });
+      return;
+    }
     createJob.mutate(
       {
         data: {
-          listingUrl: values.listingUrl,
+          inputMode: values.inputMode,
+          listingUrl: values.inputMode === "url" ? values.listingUrl : undefined,
+          propertyAddress: values.propertyAddress?.trim() || undefined,
           voiceId: values.voiceId || undefined,
           voiceName: values.voiceName || undefined,
           propertyImages: uploadedPhotos.map((p) => p.publicUrl),
@@ -202,7 +236,68 @@ export default function NewJob() {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Input mode toggle */}
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground">Source</label>
+              <div className="grid grid-cols-2 gap-2 p-1 bg-background border border-border rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => form.setValue("inputMode", "url")}
+                  className={`flex items-center justify-center gap-2 h-10 rounded-md text-sm font-mono transition-all ${
+                    inputMode === "url"
+                      ? "bg-primary text-primary-foreground shadow"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Link2 className="w-4 h-4" />
+                  Listing URL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => form.setValue("inputMode", "photos")}
+                  className={`flex items-center justify-center gap-2 h-10 rounded-md text-sm font-mono transition-all ${
+                    inputMode === "photos"
+                      ? "bg-primary text-primary-foreground shadow"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <ImagePlus className="w-4 h-4" />
+                  Property Photos
+                </button>
+              </div>
+              <p className="text-[11px] text-muted-foreground font-mono">
+                {inputMode === "url"
+                  ? "Paste a listing link — we'll scrape the details automatically."
+                  : "Upload 5–10 photos — Claude Vision analyses them to write your script."}
+              </p>
+            </div>
+
+            {/* Property Address (photo mode) */}
+            {inputMode === "photos" && (
+              <FormField
+                control={form.control}
+                name="propertyAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs uppercase tracking-wider font-mono text-muted-foreground">
+                      Property Address <span className="normal-case tracking-normal text-muted-foreground/50">(optional)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="12 Ocean View Rd, Mosman NSW 2088"
+                        className="h-12 bg-background border-border text-sm"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             {/* Listing URL */}
+            {inputMode === "url" && (
             <FormField
               control={form.control}
               name="listingUrl"
@@ -254,6 +349,7 @@ export default function NewJob() {
                 </FormItem>
               )}
             />
+            )}
 
             {/* Presenter Presets */}
             <div className="space-y-2">
@@ -398,8 +494,28 @@ export default function NewJob() {
               <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
                 <ImagePlus className="w-3.5 h-3.5" />
                 Property Photos
-                <span className="text-[9px] text-muted-foreground/50 normal-case tracking-normal font-sans">(optional — used as background slideshow)</span>
+                <span className="text-[9px] text-muted-foreground/50 normal-case tracking-normal font-sans">
+                  {inputMode === "photos" ? "(required — analysed by Claude Vision)" : "(optional — used as background slideshow)"}
+                </span>
               </label>
+
+              {/* Mobile camera capture */}
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={(e) => e.target.files && handleFiles(e.target.files)}
+              />
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current?.click()}
+                className="sm:hidden w-full h-11 flex items-center justify-center gap-2 mb-1 bg-background border border-border rounded-md font-mono text-sm hover:border-primary/50 transition-colors"
+              >
+                <Camera className="w-4 h-4" />
+                Take a Photo
+              </button>
 
               {/* Drop zone */}
               <div

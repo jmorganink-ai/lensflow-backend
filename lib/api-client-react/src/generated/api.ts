@@ -43,6 +43,8 @@ import type {
   MobileTokenExchangeSuccess,
   RequestUploadUrl200,
   RequestUploadUrlBody,
+  SendToCrmBody,
+  SendToCrmResult,
   SimulateResult,
   Webhook,
   WebhookInput
@@ -887,6 +889,78 @@ export const useSimulateJob = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getSimulateJobMutationOptions(options));
+    }
+
+export const getSendJobToCrmUrl = (id: string,) => {
+
+
+
+
+  return `/api/jobs/${id}/send-to-crm`
+}
+
+/**
+ * @summary Send a completed job's video to the HubSpot CRM
+ */
+export const sendJobToCrm = async (id: string,
+    sendToCrmBody?: SendToCrmBody, options?: RequestInit): Promise<SendToCrmResult> => {
+
+  return customFetch<SendToCrmResult>(getSendJobToCrmUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      sendToCrmBody,)
+  }
+);}
+
+
+
+
+export const getSendJobToCrmMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendJobToCrm>>, TError,{id: string;data?: BodyType<SendToCrmBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof sendJobToCrm>>, TError,{id: string;data?: BodyType<SendToCrmBody>}, TContext> => {
+
+const mutationKey = ['sendJobToCrm'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendJobToCrm>>, {id: string;data?: BodyType<SendToCrmBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  sendJobToCrm(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SendJobToCrmMutationResult = NonNullable<Awaited<ReturnType<typeof sendJobToCrm>>>
+    export type SendJobToCrmMutationBody = BodyType<SendToCrmBody> | undefined
+    export type SendJobToCrmMutationError = ErrorType<void>
+
+    /**
+ * @summary Send a completed job's video to the HubSpot CRM
+ */
+export const useSendJobToCrm = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendJobToCrm>>, TError,{id: string;data?: BodyType<SendToCrmBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof sendJobToCrm>>,
+        TError,
+        {id: string;data?: BodyType<SendToCrmBody>},
+        TContext
+      > => {
+      return useMutation(getSendJobToCrmMutationOptions(options));
     }
 
 export const getGetJobUrl = (id: string,) => {

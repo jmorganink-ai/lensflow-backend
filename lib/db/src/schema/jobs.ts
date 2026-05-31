@@ -5,13 +5,15 @@ import { z } from "zod/v4";
 export const jobsTable = pgTable("jobs", {
   id: text("id").primaryKey(),
   userId: text("user_id"),
-  listingUrl: text("listing_url").notNull(),
+  listingUrl: text("listing_url").notNull().default(""),
   listingTitle: text("listing_title"),
   status: text("status").notNull().default("queued"),
   videoUrl: text("video_url"),
   voiceId: text("voice_id"),
   voiceName: text("voice_name"),
   propertyImages: jsonb("property_images").$type<string[]>().default([]),
+  inputMode: text("input_mode").default("url"),
+  propertyAddress: text("property_address"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

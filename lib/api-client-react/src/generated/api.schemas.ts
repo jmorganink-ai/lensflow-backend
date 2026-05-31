@@ -56,6 +56,17 @@ export const JobStatus = {
   failed: 'failed',
 } as const;
 
+/**
+ * @nullable
+ */
+export type JobInputMode = typeof JobInputMode[keyof typeof JobInputMode] | null;
+
+
+export const JobInputMode = {
+  url: 'url',
+  photos: 'photos',
+} as const;
+
 export interface Job {
   id: string;
   listingUrl: string;
@@ -66,6 +77,10 @@ export interface Job {
   voiceId?: string | null;
   /** @nullable */
   voiceName?: string | null;
+  /** @nullable */
+  inputMode?: JobInputMode;
+  /** @nullable */
+  propertyAddress?: string | null;
   propertyImages?: string[] | null;
   createdAt: string;
   updatedAt: string;
@@ -81,10 +96,22 @@ export const JobDetailStatus = {
   failed: 'failed',
 } as const;
 
+/**
+ * @nullable
+ */
+export type JobDetailInputMode = typeof JobDetailInputMode[keyof typeof JobDetailInputMode] | null;
+
+
+export const JobDetailInputMode = {
+  url: 'url',
+  photos: 'photos',
+} as const;
+
 export type PipelineStepName = typeof PipelineStepName[keyof typeof PipelineStepName];
 
 
 export const PipelineStepName = {
+  analyse_photos: 'analyse_photos',
   scrape_listing: 'scrape_listing',
   generate_script: 'generate_script',
   create_voiceover: 'create_voiceover',
@@ -129,18 +156,46 @@ export interface JobDetail {
   steps: PipelineStep[];
   /** @nullable */
   videoUrl?: string | null;
+  /** @nullable */
+  inputMode?: JobDetailInputMode;
+  /** @nullable */
+  propertyAddress?: string | null;
   propertyImages?: string[] | null;
   createdAt: string;
   updatedAt: string;
 }
 
+/**
+ * Whether job was created from a URL or uploaded photos
+ */
+export type JobInputInputMode = typeof JobInputInputMode[keyof typeof JobInputInputMode];
+
+
+export const JobInputInputMode = {
+  url: 'url',
+  photos: 'photos',
+} as const;
+
 export interface JobInput {
-  /** @minLength 1 */
-  listingUrl: string;
+  listingUrl?: string;
   voiceId?: string;
   voiceName?: string;
   /** Public URLs of uploaded property photos */
   propertyImages?: string[];
+  /** Whether job was created from a URL or uploaded photos */
+  inputMode?: JobInputInputMode;
+  /** Property address entered manually (used in photo mode) */
+  propertyAddress?: string;
+}
+
+export interface SendToCrmBody {
+  /** Optional contact email to attach the video note to in HubSpot */
+  email?: string;
+}
+
+export interface SendToCrmResult {
+  success: boolean;
+  message?: string;
 }
 
 export interface JobStats {

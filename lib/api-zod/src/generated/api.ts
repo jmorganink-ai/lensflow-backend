@@ -88,6 +88,8 @@ export const ListJobsResponseItem = zod.object({
   "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
   "voiceId": zod.string().nullish(),
   "voiceName": zod.string().nullish(),
+  "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal(null)]).nullish(),
+  "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -98,14 +100,13 @@ export const ListJobsResponse = zod.array(ListJobsResponseItem)
 /**
  * @summary Create a new pipeline job
  */
-
-
-
 export const CreateJobBody = zod.object({
-  "listingUrl": zod.string().min(1),
+  "listingUrl": zod.string().optional(),
   "voiceId": zod.string().optional(),
   "voiceName": zod.string().optional(),
-  "propertyImages": zod.array(zod.string()).optional().describe('Public URLs of uploaded property photos')
+  "propertyImages": zod.array(zod.string()).optional().describe('Public URLs of uploaded property photos'),
+  "inputMode": zod.enum(['url', 'photos']).optional().describe('Whether job was created from a URL or uploaded photos'),
+  "propertyAddress": zod.string().optional().describe('Property address entered manually (used in photo mode)')
 })
 
 
@@ -127,6 +128,8 @@ export const GetJobStatsResponse = zod.object({
   "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
   "voiceId": zod.string().nullish(),
   "voiceName": zod.string().nullish(),
+  "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal(null)]).nullish(),
+  "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -148,6 +151,23 @@ export const SimulateJobResponse = zod.object({
 
 
 /**
+ * @summary Send a completed job's video to the HubSpot CRM
+ */
+export const SendJobToCrmParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const SendJobToCrmBody = zod.object({
+  "email": zod.string().optional().describe('Optional contact email to attach the video note to in HubSpot')
+})
+
+export const SendJobToCrmResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().optional()
+})
+
+
+/**
  * @summary Get job with pipeline step details
  */
 export const GetJobParams = zod.object({
@@ -161,7 +181,7 @@ export const GetJobResponse = zod.object({
   "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
   "steps": zod.array(zod.object({
   "id": zod.string(),
-  "name": zod.enum(['scrape_listing', 'generate_script', 'create_voiceover', 'presenter_video', 'compose_video']),
+  "name": zod.enum(['analyse_photos', 'scrape_listing', 'generate_script', 'create_voiceover', 'presenter_video', 'compose_video']),
   "label": zod.string().optional(),
   "status": zod.enum(['pending', 'running', 'complete', 'failed']),
   "order": zod.number(),
@@ -172,6 +192,8 @@ export const GetJobResponse = zod.object({
   "outputData": zod.string().nullish()
 })),
   "videoUrl": zod.string().nullish(),
+  "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal(null)]).nullish(),
+  "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()

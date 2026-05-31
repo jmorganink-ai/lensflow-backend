@@ -191,6 +191,35 @@ paths:
         "404":
           description: Job not found
 
+  /jobs/{id}/send-to-crm:
+    post:
+      operationId: sendJobToCrm
+      tags: [jobs]
+      summary: Send a completed job's video to the HubSpot CRM
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendToCrmBody"
+      responses:
+        "200":
+          description: Sent to CRM
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendToCrmResult"
+        "400":
+          description: Job not complete or invalid input
+        "404":
+          description: Job not found
+
   /jobs/{id}:
     get:
       operationId: getJob
@@ -582,6 +611,11 @@ components:
           type: ["string", "null"]
         voiceName:
           type: ["string", "null"]
+        inputMode:
+          type: ["string", "null"]
+          enum: [url, photos, null]
+        propertyAddress:
+          type: ["string", "null"]
         propertyImages:
           type: array
           items:
@@ -613,6 +647,11 @@ components:
             $ref: "#/components/schemas/PipelineStep"
         videoUrl:
           type: ["string", "null"]
+        inputMode:
+          type: ["string", "null"]
+          enum: [url, photos, null]
+        propertyAddress:
+          type: ["string", "null"]
         propertyImages:
           type: array
           items:
@@ -633,7 +672,7 @@ components:
           type: string
         name:
           type: string
-          enum: [scrape_listing, generate_script, create_voiceover, presenter_video, compose_video]
+          enum: [analyse_photos, scrape_listing, generate_script, create_voiceover, presenter_video, compose_video]
         label:
           type: string
         status:
@@ -656,11 +695,9 @@ components:
 
     JobInput:
       type: object
-      required: [listingUrl]
       properties:
         listingUrl:
           type: string
-          minLength: 1
         voiceId:
           type: string
         voiceName:
@@ -670,6 +707,29 @@ components:
           items:
             type: string
           description: Public URLs of uploaded property photos
+        inputMode:
+          type: string
+          enum: [url, photos]
+          description: Whether job was created from a URL or uploaded photos
+        propertyAddress:
+          type: string
+          description: Property address entered manually (used in photo mode)
+
+    SendToCrmBody:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Optional contact email to attach the video note to in HubSpot
+
+    SendToCrmResult:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
 
     JobStats:
       type: object
