@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
+import authRouter from "./auth";
 import jobsRouter from "./jobs";
 import webhooksRouter from "./webhooks";
 import leadsRouter from "./leads";
@@ -9,6 +10,7 @@ import elevenlabsRouter from "./elevenlabs";
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(authRouter);
 router.use(jobsRouter);
 router.use(webhooksRouter);
 router.use(leadsRouter);

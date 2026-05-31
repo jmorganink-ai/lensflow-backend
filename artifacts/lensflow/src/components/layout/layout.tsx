@@ -1,9 +1,11 @@
 import { Link, useLocation } from "wouter";
-import { Film, LayoutDashboard, Webhook, Plus } from "lucide-react";
+import { Film, LayoutDashboard, Webhook, Plus, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@workspace/replit-auth-web";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const { user, logout } = useAuth();
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -51,13 +53,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
         
         <div className="p-4 border-t border-border mt-auto">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-secondary flex items-center justify-center text-xs font-mono border border-border">
-              AG
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xs font-medium">Agent 01</span>
+            {user?.profileImageUrl ? (
+              <img src={user.profileImageUrl} alt="" className="w-8 h-8 rounded border border-border object-cover" />
+            ) : (
+              <div className="w-8 h-8 rounded bg-secondary flex items-center justify-center text-xs font-mono border border-border text-primary font-bold">
+                {(user?.firstName?.[0] ?? user?.email?.[0] ?? "?").toUpperCase()}
+              </div>
+            )}
+            <div className="flex flex-col flex-1 min-w-0">
+              <span className="text-xs font-medium truncate">{user?.firstName ? `${user.firstName} ${user.lastName ?? ""}`.trim() : (user?.email ?? "Agent")}</span>
               <span className="text-[10px] text-muted-foreground font-mono">System Active</span>
             </div>
+            <button
+              onClick={logout}
+              title="Sign out"
+              className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>
