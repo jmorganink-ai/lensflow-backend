@@ -10,6 +10,7 @@ import { UrgencyCounter } from "@/components/UrgencyCounter";
 
 // Assets
 import ogImage from "@assets/lensflow-brand/og-image.png";
+import buildKitImage from "@assets/LensFlow-The-Build-Kit-every-tool-you-need_1780215479239.png";
 
 const PRESENTERS = [
   {
@@ -373,6 +374,36 @@ export default function Home() {
             {PRESENTERS.map((p) => (
               <PresenterCard key={p.id} presenter={p} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5b. The Engine Section */}
+      <section className="py-24 relative bg-card/30 border-y border-white/5">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+            <div>
+              <div className="text-xs font-mono uppercase tracking-widest text-primary mb-3">Built for scale</div>
+              <h2 className="font-serif text-3xl md:text-[34px] font-bold">Paste URL → Video.<br/><span className="text-primary italic">Here's the engine.</span></h2>
+            </div>
+            <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">Every step is modular, monitored, and production-hardened. From scraping the listing to delivering a finished MP4 — no human in the loop.</p>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
+          >
+            <img
+              src={buildKitImage}
+              alt="LensFlow pipeline architecture — full vendor map from URL scrape to MP4 delivery"
+              className="w-full"
+            />
+          </motion.div>
+          <div className="flex items-center justify-center mt-6 gap-2 text-xs text-muted-foreground font-mono">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            Build window 4–8 weeks · Cost per 60s video ~$2.54 · Margin $3.95/vid at 20 vids/mo
           </div>
         </div>
       </section>

@@ -1,7 +1,9 @@
 import { useGetJobStats } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { Activity, Clock, CheckCircle2, XCircle, ArrowRight, Play } from "lucide-react";
+import { Activity, Clock, CheckCircle2, XCircle, ArrowRight, Play, ChevronDown } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
+import buildKitImage from "@assets/LensFlow-The-Build-Kit-every-tool-you-need_1780215479239.png";
 
 export default function Dashboard() {
   const { data: stats, isLoading } = useGetJobStats();
@@ -70,6 +72,41 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      <RoadmapCard />
+    </div>
+  );
+}
+
+function RoadmapCard() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-border rounded-lg bg-card overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          <span className="text-sm font-mono font-medium uppercase tracking-wider">Production Roadmap</span>
+          <span className="text-[10px] font-mono text-muted-foreground border border-border px-1.5 py-0.5 rounded">URL → VIDEO ENGINE</span>
+        </div>
+        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="border-t border-border">
+          <img
+            src={buildKitImage}
+            alt="LensFlow full pipeline architecture — vendor map from URL scrape to MP4 delivery"
+            className="w-full"
+          />
+          <div className="p-4 flex items-center gap-2 text-xs text-muted-foreground font-mono border-t border-border">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            Build window 4–8 weeks · ~$2.54 cost/video · $3.95/vid margin at 20 vids/mo
+          </div>
+        </div>
+      )}
     </div>
   );
 }
