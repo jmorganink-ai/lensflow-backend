@@ -114,8 +114,6 @@ export default function CreateScreen() {
       queryClient.invalidateQueries({ queryKey: getGetJobStatsQueryKey() });
       queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
 
-      simulateJob.mutate({ id: job.id });
-
       // Reset for the next run.
       setListingUrl("");
       setPropertyAddress("");
@@ -124,8 +122,19 @@ export default function CreateScreen() {
       setVoiceName("");
 
       router.push(`/job/${job.id}`);
+
+      // Kick off the server-side pipeline. The job already exists, so navigate
+      // first, then surface a failure if the pipeline can't be started.
+      try {
+        await simulateJob.mutateAsync({ id: job.id });
+      } catch {
+        Alert.alert(
+          "Pipeline didn’t start",
+          "Your video was created but processing couldn’t be started. Pull down to refresh on the job screen, or try again.",
+        );
+      }
     } catch {
-      Alert.alert("Could not start", "Something went wrong starting the pipeline. Please try again.");
+      Alert.alert("Could not start", "Something went wrong creating the video. Please try again.");
     } finally {
       setSubmitting(false);
     }

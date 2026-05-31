@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
-import * as SecureStore from "expo-secure-store";
+
+import { deleteStoredItem, getStoredItem, setStoredItem } from "@/lib/storage";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -63,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUser = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
+      const token = await getStoredItem(AUTH_TOKEN_KEY);
       if (!token) {
         setUser(null);
         setIsLoading(false);
@@ -79,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.user) {
         setUser(data.user);
       } else {
-        await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+        await deleteStoredItem(AUTH_TOKEN_KEY);
         setUser(null);
       }
     } catch {
@@ -125,7 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const data = await exchangeRes.json();
         if (data.token) {
-          await SecureStore.setItemAsync(AUTH_TOKEN_KEY, data.token);
+          await setStoredItem(AUTH_TOKEN_KEY, data.token);
           setIsLoading(true);
           await fetchUser();
         }
@@ -146,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      const token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
+      const token = await getStoredItem(AUTH_TOKEN_KEY);
       if (token) {
         const apiBase = getApiBaseUrl();
         await fetch(`${apiBase}/api/mobile-auth/logout`, {
@@ -156,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch {
     } finally {
-      await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+      await deleteStoredItem(AUTH_TOKEN_KEY);
       setUser(null);
     }
   }, []);

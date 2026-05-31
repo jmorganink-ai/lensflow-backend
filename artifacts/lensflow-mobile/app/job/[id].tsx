@@ -56,7 +56,7 @@ export default function JobDetailScreen() {
   const script = scriptStep?.outputData ?? null;
   const videoUrl = job?.videoUrl ?? null;
 
-  const player = useVideoPlayer(videoUrl ?? "", (p) => {
+  const player = useVideoPlayer(videoUrl, (p) => {
     p.loop = false;
   });
 

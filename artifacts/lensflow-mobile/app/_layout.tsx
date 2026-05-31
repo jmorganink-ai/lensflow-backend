@@ -8,7 +8,6 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { setBaseUrl, setAuthTokenGetter } from "@workspace/api-client-react";
 import { Stack } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
@@ -19,12 +18,13 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthGate } from "@/components/AuthGate";
 import { AuthProvider } from "@/lib/auth";
+import { getStoredItem } from "@/lib/storage";
 
 // Point the generated API client at the remote API server and attach the
 // stored bearer token to every request.
 const domain = process.env.EXPO_PUBLIC_DOMAIN;
 if (domain) setBaseUrl(`https://${domain}`);
-setAuthTokenGetter(() => SecureStore.getItemAsync("auth_session_token"));
+setAuthTokenGetter(() => getStoredItem("auth_session_token"));
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

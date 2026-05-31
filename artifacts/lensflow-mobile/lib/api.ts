@@ -1,5 +1,6 @@
-import * as SecureStore from "expo-secure-store";
 import { fetch as expoFetch } from "expo/fetch";
+
+import { getStoredItem } from "@/lib/storage";
 
 const AUTH_TOKEN_KEY = "auth_session_token";
 
@@ -9,7 +10,7 @@ export function getApiBaseUrl(): string {
 }
 
 async function authHeaders(extra?: Record<string, string>): Promise<Record<string, string>> {
-  const token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
+  const token = await getStoredItem(AUTH_TOKEN_KEY);
   return {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(extra ?? {}),
