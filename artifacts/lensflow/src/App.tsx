@@ -14,6 +14,7 @@ import Webhooks from "@/pages/webhooks";
 import Settings from "@/pages/settings";
 import JobsList from "@/pages/jobs";
 import MorganChat from "@/components/MorganChat";
+import { PendingJobHandler } from "@/components/PendingJobHandler";
 import { useServiceWorker } from "@/hooks/use-service-worker";
 import { Film, Loader2, Sparkles, Mic2, Video } from "lucide-react";
 
@@ -94,6 +95,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 function Router() {
   return (
     <>
+      <PendingJobHandler />
       <Layout>
         <Switch>
           <Route path="/" component={Dashboard} />

@@ -7,6 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { LeadCapture } from "@/components/LeadCapture";
 import { UrgencyCounter } from "@/components/UrgencyCounter";
+import { SubmitForm } from "@/components/SubmitForm";
 
 // Assets
 import ogImage from "@assets/lensflow-brand/og-image.png";
@@ -181,7 +182,8 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div 
+            {/* Left — headline copy */}
+            <motion.div
               initial="hidden"
               animate="visible"
               variants={staggerContainer}
@@ -191,74 +193,59 @@ export default function Home() {
                 <Sparkles className="w-4 h-4" />
                 <span>The Future of Proptech</span>
               </motion.div>
-              
-              <motion.h1 variants={fadeInUp} className="font-serif text-5xl lg:text-[78px] leading-[1.1] font-bold text-foreground mb-6">
+
+              <motion.h1 variants={fadeInUp} className="font-serif text-5xl lg:text-[72px] leading-[1.1] font-bold text-foreground mb-6">
                 AI Videos That Sell Properties <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-amber-200">Faster in 2026</span>
               </motion.h1>
-              
-              <motion.p variants={fadeInUp} className="text-xl lg:text-[21px] text-muted-foreground leading-relaxed mb-10 max-w-xl">
-                Professional 4K listing videos with photoreal AI presenters. No filming required.
-              </motion.p>
-              
-              <motion.div variants={fadeInUp} className="flex flex-col gap-6 mb-8">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/pipeline/">
-                    <Button size="lg" data-testid="hero-btn-start" className="w-full sm:w-auto text-lg h-14 px-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform font-medium">
-                      Start Creating Videos Now
-                    </Button>
-                  </Link>
-                </div>
-                
-                <div className="pt-2">
-                  <p className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-primary" /> Join <UrgencyCounter /> real estate agents already generating reels
-                  </p>
-                  <LeadCapture source="hero" />
-                </div>
-              </motion.div>
 
-              <motion.div variants={fadeInUp} className="mt-8 flex items-center gap-4 text-sm text-muted-foreground">
+              <motion.p variants={fadeInUp} className="text-xl lg:text-[21px] text-muted-foreground leading-relaxed mb-8 max-w-xl">
+                Paste a listing URL, upload your photos, pick a presenter — your professional video is ready in minutes.
+              </motion.p>
+
+              <motion.div variants={fadeInUp} className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
                 <div className="flex -space-x-2">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="w-8 h-8 rounded-full border-2 border-background bg-secondary flex items-center justify-center overflow-hidden">
-                      <img src={`https://i.pravatar.cc/100?img=${i+15}`} alt="Agent" className="w-full h-full object-cover" />
+                      <img src={`https://i.pravatar.cc/100?img=${i + 15}`} alt="Agent" className="w-full h-full object-cover" />
                     </div>
                   ))}
                 </div>
                 <div>
                   <div className="flex items-center text-primary">
-                    <Star className="w-4 h-4 fill-current" />
-                    <Star className="w-4 h-4 fill-current" />
-                    <Star className="w-4 h-4 fill-current" />
-                    <Star className="w-4 h-4 fill-current" />
-                    <Star className="w-4 h-4 fill-current" />
+                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                   </div>
-                  <span className="mt-1 block">Trusted by Australia's top agencies</span>
+                  <span className="mt-0.5 block text-xs">
+                    <UrgencyCounter /> agents already generating reels
+                  </span>
                 </div>
+              </motion.div>
+
+              {/* Trust badges */}
+              <motion.div variants={fadeInUp} className="flex flex-wrap gap-3 text-[11px] font-mono text-muted-foreground">
+                {["Claude AI Scripts", "ElevenLabs Voice", "HeyGen Avatar", "Shotstack Compose"].map((t) => (
+                  <span key={t} className="flex items-center gap-1 px-2 py-1 rounded border border-white/10 bg-white/[0.03]">
+                    <CheckCircle2 className="w-3 h-3 text-primary" /> {t}
+                  </span>
+                ))}
               </motion.div>
             </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, delay: 0.4 }}
-              className="relative hidden lg:block"
+            {/* Right — unified submission form */}
+            <motion.div
+              id="hero-form"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="relative"
             >
-              <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-3xl" />
-              <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-card">
-                <img src={ogImage} alt="LensFlow Interface" className="w-full h-auto object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
-                  <div className="bg-background/80 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                      <span className="font-mono text-sm tracking-wider">GENERATING_REEL</span>
-                    </div>
-                  </div>
-                  <Button size="icon" className="w-14 h-14 rounded-full bg-primary/90 text-primary-foreground backdrop-blur hover:bg-primary">
-                    <PlayCircle className="w-6 h-6" />
-                  </Button>
+              {/* Glow */}
+              <div className="absolute -inset-4 bg-primary/10 rounded-[2rem] blur-2xl pointer-events-none" />
+              <div className="relative bg-card/80 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl">
+                <div className="flex items-center gap-2 mb-5">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Create your listing video</span>
                 </div>
+                <SubmitForm />
               </div>
             </motion.div>
           </div>
@@ -484,11 +471,11 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <Link href="/pipeline/">
+              <a href="#hero-form">
                 <Button data-testid="cta-btn-generate" size="lg" className="rounded-full h-14 px-8 bg-primary text-primary-foreground hover:bg-primary/90 text-lg font-medium">
                   Generate Your Reel Free
                 </Button>
-              </Link>
+              </a>
             </motion.div>
 
             <motion.div 
@@ -646,11 +633,11 @@ export default function Home() {
             <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto">
               Join the top 1% of agents using LensFlow AI to scale their listing marketing infinitely.
             </p>
-            <Link href="/pipeline/">
+            <a href="#hero-form">
               <Button size="lg" className="h-16 px-10 rounded-full bg-background text-foreground hover:bg-background/90 text-xl font-semibold hover:scale-105 transition-transform shadow-xl">
                 Start Creating Videos Now
               </Button>
-            </Link>
+            </a>
           </motion.div>
         </div>
       </section>
