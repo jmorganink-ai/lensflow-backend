@@ -12,6 +12,7 @@ export const jobsTable = pgTable("jobs", {
   voiceId: text("voice_id"),
   voiceName: text("voice_name"),
   propertyImages: jsonb("property_images").$type<string[]>().default([]),
+  enhancedImages: jsonb("enhanced_images").$type<string[]>().default([]),
   inputMode: text("input_mode").default("url"),
   propertyAddress: text("property_address"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

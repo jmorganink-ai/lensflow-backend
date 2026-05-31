@@ -91,6 +91,7 @@ export const ListJobsResponseItem = zod.object({
   "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal(null)]).nullish(),
   "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
+  "enhancedImages": zod.array(zod.string()).nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -131,6 +132,7 @@ export const GetJobStatsResponse = zod.object({
   "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal(null)]).nullish(),
   "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
+  "enhancedImages": zod.array(zod.string()).nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 }))
@@ -181,7 +183,7 @@ export const GetJobResponse = zod.object({
   "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
   "steps": zod.array(zod.object({
   "id": zod.string(),
-  "name": zod.enum(['analyse_photos', 'scrape_listing', 'generate_script', 'create_voiceover', 'presenter_video', 'compose_video']),
+  "name": zod.enum(['enhance_photos', 'analyse_photos', 'scrape_listing', 'generate_script', 'create_voiceover', 'presenter_video', 'compose_video']),
   "label": zod.string().optional(),
   "status": zod.enum(['pending', 'running', 'complete', 'failed']),
   "order": zod.number(),
@@ -195,6 +197,7 @@ export const GetJobResponse = zod.object({
   "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal(null)]).nullish(),
   "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
+  "enhancedImages": zod.array(zod.string()).nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })

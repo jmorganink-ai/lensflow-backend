@@ -12,7 +12,7 @@ export interface PhotoAnalysisResult {
   rawText: string;
 }
 
-type SupportedMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
+export type SupportedMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
 function mediaTypeFromUrl(url: string): SupportedMediaType {
   const lower = url.split("?")[0].toLowerCase();
@@ -28,7 +28,7 @@ function mediaTypeFromUrl(url: string): SupportedMediaType {
  * URLs that match that shape so a malicious `propertyImages` payload cannot make
  * the server fetch arbitrary internal addresses.
  */
-function isAllowedImageUrl(url: string): boolean {
+export function isAllowedImageUrl(url: string): boolean {
   let parsed: URL;
   try {
     parsed = new URL(url);
@@ -56,7 +56,7 @@ function isAllowedImageUrl(url: string): boolean {
   return isLocalhost || isAllowedDomain;
 }
 
-async function fetchImageAsBase64(
+export async function fetchImageAsBase64(
   url: string,
 ): Promise<{ data: string; mediaType: SupportedMediaType } | null> {
   if (!isAllowedImageUrl(url)) {

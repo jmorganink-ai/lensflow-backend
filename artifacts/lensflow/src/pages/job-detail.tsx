@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { JobStatusBadge } from "@/pages/dashboard";
 
 const STEP_LABELS: Record<string, string> = {
+  enhance_photos: "AI Photo Glow-up",
   analyse_photos: "Analyse Photos",
   scrape_listing: "Scrape Listing",
   generate_script: "Generate Script",
@@ -19,6 +20,7 @@ const STEP_LABELS: Record<string, string> = {
 };
 
 const STEP_DESCRIPTIONS: Record<string, string> = {
+  enhance_photos: "AI relights, colour-balances, declutters and sky-replaces your photos for a premium magazine-listing look.",
   analyse_photos: "Claude Vision analyses your uploaded photos to identify the property type, features, and selling points.",
   scrape_listing: "Extract property data and metadata from the listing URL.",
   generate_script: "Generate a compelling AI-written presenter script from listing data.",
@@ -365,6 +367,14 @@ export default function JobDetail() {
         </div>
       </div>
 
+      {/* AI Photo Glow-up: before / after */}
+      {job.inputMode === "photos" && (job.propertyImages?.length ?? 0) > 0 && (
+        <PhotoGlowUp
+          originals={job.propertyImages ?? []}
+          enhanced={job.enhancedImages ?? []}
+        />
+      )}
+
       {/* Video Output */}
       {job.status === "complete" && job.videoUrl && (
         <div className="bg-card border border-border rounded-lg p-5 space-y-3">
@@ -584,6 +594,69 @@ function MetaCard({ label, value }: { label: string; value: string }) {
     <div className="bg-card border border-border rounded-lg p-4">
       <div className="text-[10px] uppercase tracking-wider font-mono text-muted-foreground mb-1">{label}</div>
       <div className="text-sm font-mono text-foreground truncate">{value}</div>
+    </div>
+  );
+}
+
+function PhotoGlowUp({ originals, enhanced }: { originals: string[]; enhanced: string[] }) {
+  const hasEnhanced = enhanced.length > 0;
+  return (
+    <div className="bg-card border border-border rounded-lg p-5 space-y-4">
+      <div className="flex items-center gap-2">
+        <Camera className="w-4 h-4 text-primary" />
+        <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+          AI Photo Glow-up
+        </span>
+        {hasEnhanced && (
+          <span className="text-[10px] font-mono text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5">
+            {enhanced.length} enhanced
+          </span>
+        )}
+      </div>
+      {!hasEnhanced && (
+        <p className="text-xs text-muted-foreground">
+          Enhancing your photos… the AI-improved versions will appear here once the glow-up step completes.
+        </p>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {originals.map((orig, i) => {
+          const after = enhanced[i];
+          return (
+            <div key={i} className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <figure className="space-y-1">
+                  <img
+                    src={orig}
+                    alt={`Original photo ${i + 1}`}
+                    loading="lazy"
+                    className="w-full aspect-[4/3] object-cover rounded border border-border"
+                  />
+                  <figcaption className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground/70 text-center">
+                    Before
+                  </figcaption>
+                </figure>
+                <figure className="space-y-1">
+                  {after ? (
+                    <img
+                      src={after}
+                      alt={`Enhanced photo ${i + 1}`}
+                      loading="lazy"
+                      className="w-full aspect-[4/3] object-cover rounded border border-primary/30 ring-1 ring-primary/20"
+                    />
+                  ) : (
+                    <div className="w-full aspect-[4/3] rounded border border-dashed border-border flex items-center justify-center bg-muted/30">
+                      <Loader2 className="w-4 h-4 text-muted-foreground/50 animate-spin" />
+                    </div>
+                  )}
+                  <figcaption className="text-[9px] font-mono uppercase tracking-wider text-primary text-center">
+                    After
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -82,6 +82,7 @@ export interface Job {
   /** @nullable */
   propertyAddress?: string | null;
   propertyImages?: string[] | null;
+  enhancedImages?: string[] | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -111,6 +112,7 @@ export type PipelineStepName = typeof PipelineStepName[keyof typeof PipelineStep
 
 
 export const PipelineStepName = {
+  enhance_photos: 'enhance_photos',
   analyse_photos: 'analyse_photos',
   scrape_listing: 'scrape_listing',
   generate_script: 'generate_script',
@@ -161,6 +163,7 @@ export interface JobDetail {
   /** @nullable */
   propertyAddress?: string | null;
   propertyImages?: string[] | null;
+  enhancedImages?: string[] | null;
   createdAt: string;
   updatedAt: string;
 }

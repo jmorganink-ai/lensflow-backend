@@ -17,6 +17,7 @@ import { generatePresenterVideo } from "../lib/heygen";
 import { composePresenterVideo } from "../lib/shotstack";
 import { scrapeListing } from "../lib/apify";
 import { analysePropertyPhotos } from "../lib/analyse-photos";
+import { enhancePropertyPhotos } from "../lib/enhance-photos";
 
 const router: IRouter = Router();
 
@@ -31,11 +32,12 @@ const PIPELINE_STEPS_URL = [
 ];
 
 const PIPELINE_STEPS_PHOTOS = [
-  { name: "analyse_photos", label: "Analyse Photos", order: 1 },
-  { name: "generate_script", label: "Generate Script", order: 2 },
-  { name: "create_voiceover", label: "Create Voiceover", order: 3 },
-  { name: "presenter_video", label: "Presenter Video", order: 4 },
-  { name: "compose_video", label: "Compose Video", order: 5 },
+  { name: "enhance_photos", label: "AI Photo Glow-up", order: 1 },
+  { name: "analyse_photos", label: "Analyse Photos", order: 2 },
+  { name: "generate_script", label: "Generate Script", order: 3 },
+  { name: "create_voiceover", label: "Create Voiceover", order: 4 },
+  { name: "presenter_video", label: "Presenter Video", order: 5 },
+  { name: "compose_video", label: "Compose Video", order: 6 },
 ];
 
 // Track in-progress simulations to prevent double-starts
@@ -85,6 +87,9 @@ async function runSimulation(jobId: string): Promise<void> {
     let presenterVideoUrl: string | null = null;
     let finalVideoUrl: string | null = null;
     let scrapedImages: string[] = [];
+    // Photos used by downstream steps (analysis, video). Starts as the originals
+    // and is replaced by the AI-enhanced versions once the glow-up step runs.
+    let effectivePhotos: string[] = job.propertyImages ?? [];
     const isPhotoMode = job.inputMode === "photos";
     const listingContext: ListingContext = parseListingUrl(job.listingUrl);
     listingContext.inputMode = isPhotoMode ? "photos" : "url";
@@ -102,10 +107,38 @@ async function runSimulation(jobId: string): Promise<void> {
       let outputUrl: string | null = null;
       let outputData: string | null = null;
 
-      if (step.name === "analyse_photos") {
+      if (step.name === "enhance_photos") {
+        // AI "Glow-up" — relight / declutter / sky-replace each uploaded photo
+        try {
+          const originals = job.propertyImages ?? [];
+          logger.info({ jobId, count: originals.length }, "Enhancing property photos with Gemini");
+          const { enhanced, enhancedCount } = await enhancePropertyPhotos(originals);
+          effectivePhotos = enhanced;
+          await db.update(jobsTable)
+            .set({ enhancedImages: enhanced })
+            .where(eq(jobsTable.id, jobId));
+          outputData = [
+            `Photos enhanced: ${enhancedCount} of ${originals.length}`,
+            enhancedCount > 0
+              ? "AI relit, colour-balanced and decluttered your photos for a premium listing look."
+              : "Enhancement unavailable — original photos used.",
+          ].join("\n");
+          logger.info({ jobId, enhancedCount }, "AI photo glow-up complete");
+        } catch (err) {
+          logger.error({ err, jobId }, "Photo enhancement failed — continuing with originals");
+          effectivePhotos = job.propertyImages ?? [];
+          // Persist the fallback so the UI shows the (un-enhanced) photos rather
+          // than a perpetual "enhancing…" spinner or stale prior-run results.
+          await db.update(jobsTable)
+            .set({ enhancedImages: effectivePhotos })
+            .where(eq(jobsTable.id, jobId));
+          outputData = "Enhancement unavailable — original photos used.";
+          await new Promise((resolve) => setTimeout(resolve, baseDuration));
+        }
+      } else if (step.name === "analyse_photos") {
         // Real Claude Vision analysis of agent-uploaded photos
         try {
-          const photos = job.propertyImages ?? [];
+          const photos = effectivePhotos.length > 0 ? effectivePhotos : (job.propertyImages ?? []);
           logger.info({ jobId, count: photos.length }, "Analysing property photos with Claude Vision");
           const analysis = await analysePropertyPhotos(photos, job.propertyAddress);
 
@@ -264,7 +297,7 @@ async function runSimulation(jobId: string): Promise<void> {
             presenterVideoUrl,
             job.listingTitle,
             job.listingUrl,
-            job.propertyImages ?? [],
+            effectivePhotos.length > 0 ? effectivePhotos : (job.propertyImages ?? []),
           );
           outputUrl = result.videoUrl;
           finalVideoUrl = result.videoUrl;
@@ -456,7 +489,7 @@ router.post("/jobs/:id/simulate", async (req, res): Promise<void> => {
       .where(eq(pipelineStepsTable.jobId, raw));
     await db
       .update(jobsTable)
-      .set({ status: "queued" })
+      .set({ status: "queued", enhancedImages: [] })
       .where(eq(jobsTable.id, raw));
   }
 
