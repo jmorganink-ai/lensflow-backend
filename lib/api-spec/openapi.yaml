@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: LensFlow AI - Real estate video pipeline API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: jobs
+    description: Pipeline job operations
+  - name: webhooks
+    description: Webhook operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,141 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List all jobs
+      responses:
+        "200":
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Create a new pipeline job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobInput"
+      responses:
+        "201":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "400":
+          description: Invalid input
+
+  /jobs/stats:
+    get:
+      operationId: getJobStats
+      tags: [jobs]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Job statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobStats"
+
+  /jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get job with pipeline step details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobDetail"
+        "404":
+          description: Job not found
+    delete:
+      operationId: deleteJob
+      tags: [jobs]
+      summary: Delete a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Job deleted
+        "404":
+          description: Job not found
+
+  /webhooks:
+    get:
+      operationId: listWebhooks
+      tags: [webhooks]
+      summary: List all webhooks
+      responses:
+        "200":
+          description: List of webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Webhook"
+    post:
+      operationId: createWebhook
+      tags: [webhooks]
+      summary: Create a new webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookInput"
+      responses:
+        "201":
+          description: Webhook created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Webhook"
+        "400":
+          description: Invalid input
+
+  /webhooks/{id}:
+    delete:
+      operationId: deleteWebhook
+      tags: [webhooks]
+      summary: Delete a webhook
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Webhook deleted
+        "404":
+          description: Webhook not found
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +173,134 @@ components:
       required:
         - status
 
+    Job:
+      type: object
+      required: [id, listingUrl, listingTitle, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        listingUrl:
+          type: string
+        listingTitle:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [queued, processing, complete, failed]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    JobDetail:
+      type: object
+      required: [id, listingUrl, listingTitle, status, steps, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        listingUrl:
+          type: string
+        listingTitle:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [queued, processing, complete, failed]
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/PipelineStep"
+        videoUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PipelineStep:
+      type: object
+      required: [id, name, status, order]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          enum: [scrape_listing, generate_script, create_voiceover, presenter_video, compose_video]
+        label:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, complete, failed]
+        order:
+          type: integer
+        startedAt:
+          type: ["string", "null"]
+          format: date-time
+        completedAt:
+          type: ["string", "null"]
+          format: date-time
+        errorMessage:
+          type: ["string", "null"]
+
+    JobInput:
+      type: object
+      required: [listingUrl]
+      properties:
+        listingUrl:
+          type: string
+          minLength: 1
+
+    JobStats:
+      type: object
+      required: [total, queued, processing, complete, failed, recentJobs]
+      properties:
+        total:
+          type: integer
+        queued:
+          type: integer
+        processing:
+          type: integer
+        complete:
+          type: integer
+        failed:
+          type: integer
+        recentJobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Job"
+
+    Webhook:
+      type: object
+      required: [id, url, events, isActive, createdAt]
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        events:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        secret:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    WebhookInput:
+      type: object
+      required: [url, events]
+      properties:
+        url:
+          type: string
+          minLength: 1
+        events:
+          type: array
+          items:
+            type: string
+        secret:
+          type: string
