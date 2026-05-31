@@ -17,3 +17,9 @@ id = "n_GiFcQk7hq_C-Aos1yVa"
 uri = "file://exports/james-hq.jpg"
 type = "image"
 title = "James — high quality"
+
+[[outputs]]
+id = "K0t4gLBlZen0Aw0xRYgiH"
+uri = "file://attached_assets/lensflow-expo-qr.png"
+type = "image"
+title = "LensFlow — Expo Go QR code"
