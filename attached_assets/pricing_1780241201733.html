@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LENSFLOW Pricing</title>
+<style>
+  :root { --gold: #c99a2e; --dark: #0a0e1a; }
+  body { font-family: system-ui, sans-serif; background: var(--dark); color: #f8f3ea; margin:0; }
+  .container { max-width: 1100px; margin:0 auto; padding:60px 24px; }
+  .plan { background:#1e2533; border:1px solid #444; border-radius:20px; padding:40px; text-align:center; transition:0.3s; }
+  .plan.popular { border:2px solid var(--gold); transform:scale(1.05); }
+  .btn { padding:16px 32px; border-radius:9999px; font-weight:600; cursor:pointer; background:var(--gold); color:#0a0a0a; border:none; width:100%; margin-top:20px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1 style="text-align:center; font-size:42px; margin-bottom:20px">Simple, Powerful Pricing</h1>
+  <p style="text-align:center; color:#aaa; max-width:600px; margin:0 auto 60px">Choose the plan that fits your business. All plans include unlimited AI script generation.</p>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px,1fr)); gap:32px">
+    
+    <div class="plan">
+      <h3>Starter</h3>
+      <p style="font-size:48px; font-weight:800; color:var(--gold)">$79<span style="font-size:18px;color:#aaa">/mo</span></p>
+      <ul style="text-align:left; line-height:2.2; margin:30px 0">
+        <li>✓ 20 AI Videos per month</li>
+        <li>✓ Mia & Oliver presenters</li>
+        <li>✓ Basic lip sync</li>
+        <li>✓ Teleprompter</li>
+      </ul>
+      <button class="btn">Start 14-day Free Trial</button>
+    </div>
+
+    <div class="plan popular">
+      <h3 style="color:var(--gold)">Elite <span style="font-size:14px;background:#c99a2e;color:#0a0a0a;padding:2px 10px;border-radius:999px">Most Popular</span></h3>
+      <p style="font-size:48px; font-weight:800; color:var(--gold)">$199<span style="font-size:18px;color:#aaa">/mo</span></p>
+      <ul style="text-align:left; line-height:2.2; margin:30px 0">
+        <li>✓ Unlimited AI Videos</li>
+        <li>✓ Custom Avatar Training</li>
+        <li>✓ Advanced Phoneme Lip Sync</li>
+        <li>✓ Priority Rendering</li>
+        <li>✓ REA/Domain Export</li>
+      </ul>
+      <button class="btn">Start 14-day Free Trial</button>
+    </div>
+
+    <div class="plan">
+      <h3>Concierge</h3>
+      <p style="font-size:48px; font-weight:800; color:var(--gold)">$399<span style="font-size:18px;color:#aaa">/mo</span></p>
+      <ul style="text-align:left; line-height:2.2; margin:30px 0">
+        <li>✓ Everything in Elite</li>
+        <li>✓ White Glove Service</li>
+        <li>✓ Dedicated Account Manager</li>
+        <li>✓ Voice Cloning</li>
+        <li>✓ 24hr Turnaround</li>
+      </ul>
+      <button onclick="alert('Concierge team will contact you shortly')" class="btn">Book a Call</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

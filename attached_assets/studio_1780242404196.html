@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LENSFLOW | AI Studio Brain</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;700&display=swap">
+    <style>
+        :root { --brand: #ff6b00; --dark: #0a0a0a; --gold: #c9a84c; --glass: rgba(255, 255, 255, 0.05); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: #fff; height: 100vh; overflow: hidden; display: flex; }
+
+        /* SIDEBAR SELECTION */
+        .sidebar { width: 320px; background: #000; border-right: 1px solid rgba(255,255,255,0.1); padding: 30px; display: flex; flex-direction: column; }
+        .logo { font-family: 'Bebas Neue'; font-size: 28px; color: var(--brand); margin-bottom: 40px; text-decoration: none; }
+        
+        .persona-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; margin-bottom: 20px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 15px; }
+        .persona-card:hover { border-color: var(--gold); background: rgba(201, 168, 76, 0.1); }
+        .persona-card.active { border-color: var(--gold); background: rgba(201, 168, 76, 0.2); }
+        .persona-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); }
+        .persona-info h3 { font-size: 14px; text-transform: uppercase; color: var(--gold); }
+        .persona-info p { font-size: 11px; opacity: 0.6; }
+
+        /* MAIN STUDIO AREA */
+        .studio-main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; position: relative; }
+        .preview-window { width: 100%; max-width: 900px; aspect-ratio: 16/9; background: #000; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.8); }
+        
+        #avatar-video { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; }
+        
+        /* OVERLAY CONTROLS */
+        .input-area { position: absolute; bottom: 60px; width: 80%; max-width: 600px; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); padding: 25px; border-radius: 20px; border: 1px solid var(--gold); }
+        textarea { width: 100%; background: transparent; border: none; color: #fff; font-size: 16px; font-family: inherit; resize: none; outline: none; margin-bottom: 15px; height: 60px; }
+        .gen-btn { width: 100%; background: var(--gold); color: #000; border: none; padding: 15px; border-radius: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
+        
+        .status-tag { position: absolute; top: 30px; left: 30px; font-family: 'Bebas Neue'; letter-spacing: 2px; color: var(--gold); font-size: 14px; display: flex; align-items: center; gap: 10px; }
+        .status-tag::before { content: ''; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 10px var(--gold); }
+
+        .back-home { position: absolute; top: 30px; right: 30px; color: #fff; text-decoration: none; font-size: 12px; opacity: 0.5; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="index.html" class="logo">LENSFLOW STUDIO</a>
+        
+        <p style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.4; margin-bottom: 20px;">Select Persona</p>
+        
+        <div class="persona-card active" onclick="selectPersona('Oliver')">
+            <img src="Oliver_Headshot.jpg" class="persona-img" alt="Oliver">
+            <div class="persona-info">
+                <h3>OLIVER</h3>
+                <p>Corporate Elite · Authoritative</p>
+            </div>
+        </div>
+
+        <div class="persona-card" onclick="selectPersona('Mia')">
+            <img src="Mia_Headshot.jpg" class="persona-img" alt="Mia">
+            <div class="persona-info">
+                <h3>MIA</h3>
+                <p>Luxury Residential · Warm</p>
+            </div>
+        </div>
+
+        <div style="margin-top: auto;">
+            <p style="font-size: 11px; opacity: 0.4; line-height: 1.5;">Connected to D-ID Engine<br>API Status: <span style="color: #00ff00;">Active</span></p>
+        </div>
+    </div>
+
+    <div class="studio-main">
+        <div class="status-tag">AI BRAIN ACTIVE</div>
+        <a href="index.html" class="back-home">✕ EXIT STUDIO</a>
+
+        <div class="preview-window">
+            <video id="avatar-video" autoplay playsinline poster="Oliver_Headshot.jpg"></video>
+        </div>
+
+        <div class="input-area">
+            <textarea id="script-input" placeholder="What should your AI Partner say about this property?"></textarea>
+            <button class="gen-btn" id="generate-btn">GENERATE AI VIDEO</button>
+        </div>
+    </div>
+
+    <script>
+        function selectPersona(name) {
+            // Update UI
+            document.querySelectorAll('.persona-card').forEach(card => card.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // Update preview poster
+            const video = document.getElementById('avatar-video');
+            video.setAttribute('poster', name + '_Headshot.jpg');
+            
+            console.log("Persona switched to:", name);
+        }
+
+        document.getElementById('generate-btn').addEventListener('click', () => {
+            const script = document.getElementById('script-input').value;
+            if(!script) return alert("Please enter a script first.");
+            
+            alert("Connecting to D-ID Engine... Processing high-fidelity render.");
+            // D-ID API integration logic goes here
+        });
+    </script>
+</body>
+</html>

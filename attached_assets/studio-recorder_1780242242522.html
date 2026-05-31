@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LensFlow Studio - Video Recorder</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0a0a0f;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #818cf8;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .recorder-box {
+      background: #1a1d2e;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 1px solid #1e2230;
+    }
+    video {
+      width: 100%;
+      max-height: 500px;
+      background: #000;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    button {
+      padding: 14px 28px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-record {
+      background: #ef4444;
+      color: white;
+    }
+    .btn-stop {
+      background: #22c55e;
+      color: white;
+    }
+    .status {
+      text-align: center;
+      padding: 12px;
+      background: #1e2230;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .teleprompter {
+      background: #11141f;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      min-height: 120px;
+      border: 1px solid #1e2230;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>LensFlow AI Studio</h1>
+    <p style="text-align:center; color:#94a3b8;">Real Estate Video Recorder + Teleprompter</p>
+
+    <div class="recorder-box">
+      <video id="preview" autoplay playsinline muted></video>
+
+      <div class="controls">
+        <button class="btn-record" onclick="startRecording()">● Start Recording</button>
+        <button class="btn-stop" onclick="stopRecording()">■ Stop Recording</button>
+      </div>
+
+      <div class="status" id="status">Ready — Click Start Recording</div>
+    </div>
+
+    <div class="teleprompter">
+      <h3>Teleprompter Script</h3>
+      <p id="prompter-text" style="font-size:18px; line-height:1.6;">
+        Welcome to this stunning property... [Your script will appear here]
+      </p>
+    </div>
+  </div>
+
+  <script>
+    let mediaRecorder;
+    let recordedChunks = [];
+    let stream;
+
+    async function startRecording() {
+      const status = document.getElementById('status');
+      const video = document.getElementById('preview');
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: "user" }, 
+          audio: true 
+        });
+        video.srcObject = stream;
+
+        mediaRecorder = new MediaRecorder(stream);
+        recordedChunks = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: 'video/mp4' });
+          const url = URL.createObjectURL(blob);
+          console.log("✅ Recording saved:", url);
+          status.textContent = "Recording saved! You can download or upload it.";
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        status.textContent = "🔴 Recording in progress...";
+      } catch (err) {
+        status.textContent = "❌ Error: " + err.message;
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+        document.getElementById('status').textContent = "Stopping recording...";
+      }
+    }
+  </script>
+</body>
+</html>
