@@ -2,15 +2,14 @@ import { logger } from "./logger";
 
 const HEYGEN_API_BASE = "https://api.heygen.com";
 
-// Default avatar IDs — override via env vars if you have custom avatars
-// Get your avatar IDs from app.heygen.com → Avatars
-const AVATAR_FEMALE = process.env.HEYGEN_AVATAR_FEMALE ?? "Daisy-inskirt-20220818";
-const AVATAR_MALE   = process.env.HEYGEN_AVATAR_MALE   ?? "Josh_Chipmunk_public";
+// Default avatar IDs — professional business attire, front-facing
+// Override via env vars to use custom avatars
+const AVATAR_FEMALE = process.env.HEYGEN_AVATAR_FEMALE ?? "Abigail_standing_office_front";
+const AVATAR_MALE   = process.env.HEYGEN_AVATAR_MALE   ?? "Shawn_Business_Front_public";
 
-// HeyGen voice IDs for Australian-adjacent English accents
-// Get yours from app.heygen.com → Voices
-const VOICE_FEMALE = process.env.HEYGEN_VOICE_FEMALE ?? "2d5b0e6cf36f460aa7fc47e3eee4ba54";
-const VOICE_MALE   = process.env.HEYGEN_VOICE_MALE   ?? "ad7dc22ff5884b9f84c06bb77e1ca1ec";
+// HeyGen voice IDs — first female/male from the account's voice list
+const VOICE_FEMALE = process.env.HEYGEN_VOICE_FEMALE ?? "f8c69e517f424cafaecde32dde57096b";
+const VOICE_MALE   = process.env.HEYGEN_VOICE_MALE   ?? "6539347d386844db8516f1d3828938f0";
 
 function getAvatarConfig(voiceName?: string | null): { avatarId: string; voiceId: string } {
   const name = (voiceName ?? "").toLowerCase();
