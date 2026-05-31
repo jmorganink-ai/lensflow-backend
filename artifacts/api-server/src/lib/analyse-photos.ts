@@ -22,9 +22,47 @@ function mediaTypeFromUrl(url: string): SupportedMediaType {
   return "image/jpeg";
 }
 
+/**
+ * SSRF guard: property photos are always served through our own object-storage
+ * route (`/api/storage/...`) on a Replit dev/prod domain or localhost. Only fetch
+ * URLs that match that shape so a malicious `propertyImages` payload cannot make
+ * the server fetch arbitrary internal addresses.
+ */
+function isAllowedImageUrl(url: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
+  if (!parsed.pathname.startsWith("/api/storage/")) return false;
+
+  const host = parsed.hostname.toLowerCase();
+  const allowedDomains = (process.env.REPLIT_DOMAINS ?? "")
+    .split(",")
+    .map((d) => d.trim().toLowerCase())
+    .filter(Boolean);
+
+  const isLocalhost = host === "localhost" || host === "127.0.0.1";
+  const isAllowedDomain =
+    allowedDomains.includes(host) ||
+    host === "lensflow.com.au" ||
+    host === "www.lensflow.com.au" ||
+    host.endsWith(".replit.dev") ||
+    host.endsWith(".replit.app") ||
+    host.endsWith(".repl.co");
+
+  return isLocalhost || isAllowedDomain;
+}
+
 async function fetchImageAsBase64(
   url: string,
 ): Promise<{ data: string; mediaType: SupportedMediaType } | null> {
+  if (!isAllowedImageUrl(url)) {
+    logger.warn({ url }, "Rejected non-allowlisted property photo URL (SSRF guard)");
+    return null;
+  }
   try {
     const res = await fetch(url);
     if (!res.ok) {

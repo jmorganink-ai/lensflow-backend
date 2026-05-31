@@ -83,6 +83,7 @@ async function runSimulation(jobId: string): Promise<void> {
 
     let generatedScript: string | null = null;
     let presenterVideoUrl: string | null = null;
+    let finalVideoUrl: string | null = null;
     let scrapedImages: string[] = [];
     const isPhotoMode = job.inputMode === "photos";
     const listingContext: ListingContext = parseListingUrl(job.listingUrl);
@@ -247,6 +248,7 @@ async function runSimulation(jobId: string): Promise<void> {
           logger.info({ jobId, voiceName: job.voiceName }, "Generating presenter video with HeyGen");
           const result = await generatePresenterVideo(script, job.voiceName, job.voiceId);
           presenterVideoUrl = result.videoUrl;
+          finalVideoUrl = result.videoUrl;
           outputUrl = result.videoUrl;
           logger.info({ jobId, videoId: result.videoId }, "HeyGen presenter video ready");
         } catch (err) {
@@ -265,6 +267,7 @@ async function runSimulation(jobId: string): Promise<void> {
             job.propertyImages ?? [],
           );
           outputUrl = result.videoUrl;
+          finalVideoUrl = result.videoUrl;
           logger.info({ jobId, renderId: result.renderId }, "Shotstack final video ready");
         } catch (err) {
           logger.error({ err, jobId }, "Shotstack compose failed — continuing");
@@ -290,10 +293,10 @@ async function runSimulation(jobId: string): Promise<void> {
 
     await db
       .update(jobsTable)
-      .set({ status: "complete" })
+      .set({ status: "complete", ...(finalVideoUrl ? { videoUrl: finalVideoUrl } : {}) })
       .where(eq(jobsTable.id, jobId));
 
-    logger.info({ jobId }, "Pipeline complete");
+    logger.info({ jobId, hasVideo: !!finalVideoUrl }, "Pipeline complete");
   } catch (err) {
     logger.error({ err, jobId }, "Pipeline failed");
     await db
@@ -328,6 +331,15 @@ router.post("/jobs", async (req, res): Promise<void> => {
   }
 
   const inputMode = parsed.data.inputMode === "photos" ? "photos" : "url";
+
+  if (inputMode === "url" && !parsed.data.listingUrl?.trim()) {
+    res.status(400).json({ error: "A listing URL is required for URL mode" });
+    return;
+  }
+  if (inputMode === "photos" && (parsed.data.propertyImages ?? []).length === 0) {
+    res.status(400).json({ error: "At least one property photo is required for photo mode" });
+    return;
+  }
 
   const id = randomUUID();
   const [job] = await db
@@ -502,8 +514,15 @@ router.post("/jobs/:id/send-to-crm", async (req, res): Promise<void> => {
           filterGroups: [{ filters: [{ propertyName: "email", operator: "EQ", value: email }] }],
         }),
       });
-      const searchData = (await searchRes.json()) as { results?: Array<{ id: string }> };
-      contactId = searchData.results?.[0]?.id ?? null;
+      if (searchRes.ok) {
+        const searchData = (await searchRes.json()) as { results?: Array<{ id: string }> };
+        contactId = searchData.results?.[0]?.id ?? null;
+      } else {
+        logger.warn(
+          { jobId: raw, status: searchRes.status },
+          "HubSpot contact search failed — will attempt to create contact",
+        );
+      }
 
       if (!contactId) {
         const createRes = await connectors.proxy("hubspot", "/crm/v3/objects/contacts", {
@@ -513,8 +532,15 @@ router.post("/jobs/:id/send-to-crm", async (req, res): Promise<void> => {
             properties: { email, lifecyclestage: "lead", lead_source: "LensFlow Pipeline" },
           }),
         });
-        const created = (await createRes.json()) as { id?: string };
-        contactId = created.id ?? null;
+        if (createRes.ok) {
+          const created = (await createRes.json()) as { id?: string };
+          contactId = created.id ?? null;
+        } else {
+          logger.warn(
+            { jobId: raw, status: createRes.status },
+            "HubSpot contact create failed — note will be logged without association",
+          );
+        }
       }
     }
 

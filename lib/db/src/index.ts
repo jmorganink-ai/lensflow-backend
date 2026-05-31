@@ -10,8 +10,21 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
+// We control SSL explicitly via the `ssl` option below, so strip any `sslmode`
+// query param from the connection string. Newer `pg` versions emit a noisy
+// deprecation warning when `sslmode=prefer|require|verify-ca` is present.
+function buildConnectionString(raw: string): string {
+  try {
+    const url = new URL(raw);
+    url.searchParams.delete("sslmode");
+    return url.toString();
+  } catch {
+    return raw;
+  }
+}
+
 export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: buildConnectionString(process.env.DATABASE_URL),
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 });
 export const db = drizzle(pool, { schema });
