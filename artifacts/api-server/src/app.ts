@@ -12,6 +12,8 @@ const app: Express = express();
 const CUSTOM_DOMAINS = [
   "https://www.lensflow.com.au",
   "https://lensflow.com.au",
+  "https://www.lensflowpipeline.com.au",
+  "https://lensflowpipeline.com.au",
 ];
 
 const replitDomains = (process.env["REPLIT_DOMAINS"] ?? "")
