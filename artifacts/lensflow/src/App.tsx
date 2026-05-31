@@ -17,7 +17,7 @@ import Recorder from "@/pages/recorder";
 import MorganChat from "@/components/MorganChat";
 import { PendingJobHandler } from "@/components/PendingJobHandler";
 import { useServiceWorker } from "@/hooks/use-service-worker";
-import { Film, Loader2, Sparkles, Mic2, Video } from "lucide-react";
+import { Film, Loader2, Sparkles, Mic2, Video, Check } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -79,11 +79,26 @@ function AuthGate({ children }: { children: React.ReactNode }) {
               onClick={login}
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-mono font-medium py-3 px-6 rounded-sm transition-colors text-sm uppercase tracking-wider"
             >
-              Sign In to Continue
+              Start 7-day Free Trial
             </button>
             <p className="text-xs text-muted-foreground">
               Don't have an account? Signing in will create one automatically.
             </p>
+
+            {/* Trust signals — mirrors pricing page guarantees */}
+            <div className="flex items-center justify-center flex-wrap gap-x-2 gap-y-1 text-[11px] font-mono text-muted-foreground border-t border-border pt-4">
+              <span className="flex items-center gap-1">
+                <Check className="w-3 h-3 text-primary" /> No credit card required
+              </span>
+              <span className="text-border">·</span>
+              <span className="flex items-center gap-1">
+                <Check className="w-3 h-3 text-primary" /> 7-day free trial
+              </span>
+              <span className="text-border">·</span>
+              <span className="flex items-center gap-1">
+                <Check className="w-3 h-3 text-primary" /> Cancel anytime
+              </span>
+            </div>
           </div>
         </div>
       </div>
