@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, MessageCircle, Send, Loader2, Bot, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { X, MessageCircle, Send, Loader2, Bot, Mic, MicOff, Volume2, VolumeX, Mail, Check, ArrowLeft } from "lucide-react";
 
 interface Message {
   id: string;
@@ -41,12 +41,22 @@ export default function MorganChat() {
   const [autoSpeak, setAutoSpeak] = useState(true);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [listening, setListening] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
+  const [showTicket, setShowTicket] = useState(false);
+  const [ticketName, setTicketName] = useState("");
+  const [ticketEmail, setTicketEmail] = useState("");
+  const [ticketMessage, setTicketMessage] = useState("");
+  const [ticketSubmitting, setTicketSubmitting] = useState(false);
+  const [ticketSubmitted, setTicketSubmitted] = useState(false);
+  const [ticketError, setTicketError] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     if (open && conversationId === null && !initError) {
@@ -174,26 +184,106 @@ export default function MorganChat() {
 
   function toggleMic() {
     if (listening) {
-      recognitionRef.current?.stop();
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      } else if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
       setListening(false);
       return;
     }
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
-    const rec = new SpeechRecognition();
-    rec.lang = "en-AU";
-    rec.interimResults = false;
-    rec.maxAlternatives = 1;
-    rec.onresult = (e: any) => {
-      const transcript: string = e.results[0][0].transcript;
+    if (SpeechRecognition) {
+      const rec = new SpeechRecognition();
+      rec.lang = "en-AU";
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.onresult = (e: any) => {
+        const transcript: string = e.results[0][0].transcript;
+        setListening(false);
+        void sendMessage(transcript);
+      };
+      rec.onerror = () => { setListening(false); recognitionRef.current = null; };
+      rec.onend = () => { setListening(false); recognitionRef.current = null; };
+      recognitionRef.current = rec;
+      rec.start();
+      setListening(true);
+    } else {
+      void startMediaRecording();
+    }
+  }
+
+  async function startMediaRecording() {
+    if (typeof MediaRecorder === "undefined") { setListening(false); return; }
+    let stream: MediaStream | null = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const activeStream = stream;
+      const mr = new MediaRecorder(activeStream);
+      audioChunksRef.current = [];
+      mr.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        activeStream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(audioChunksRef.current, { type: mr.mimeType || "audio/webm" });
+        mediaRecorderRef.current = null;
+        void transcribeAudio(blob);
+      };
+      mediaRecorderRef.current = mr;
+      mr.start();
+      setListening(true);
+    } catch {
+      stream?.getTracks().forEach((t) => t.stop());
       setListening(false);
-      void sendMessage(transcript);
-    };
-    rec.onerror = () => setListening(false);
-    rec.onend = () => setListening(false);
-    recognitionRef.current = rec;
-    rec.start();
-    setListening(true);
+    }
+  }
+
+  async function transcribeAudio(blob: Blob) {
+    setTranscribing(true);
+    try {
+      const res = await fetch(`${BASE}/api/elevenlabs/stt`, {
+        method: "POST",
+        headers: { "Content-Type": blob.type || "audio/webm" },
+        body: blob,
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { text?: string };
+        const text = (data.text ?? "").trim();
+        if (text) void sendMessage(text);
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setTranscribing(false);
+    }
+  }
+
+  async function submitTicket() {
+    const email = ticketEmail.trim();
+    const message = ticketMessage.trim();
+    if (!email || !message || ticketSubmitting) return;
+    setTicketSubmitting(true);
+    setTicketError(false);
+    try {
+      const res = await fetch(`${BASE}/api/support/tickets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          message,
+          name: ticketName.trim() || undefined,
+          conversationId: conversationId ?? undefined,
+        }),
+      });
+      if (!res.ok) throw new Error("failed");
+      setTicketSubmitted(true);
+      setTicketName("");
+      setTicketEmail("");
+      setTicketMessage("");
+    } catch {
+      setTicketError(true);
+    } finally {
+      setTicketSubmitting(false);
+    }
   }
 
   function renderMessage(content: string) {
@@ -207,7 +297,7 @@ export default function MorganChat() {
     });
   }
 
-  const hasSpeechAPI = typeof window !== "undefined" && !!(((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition));
+  const hasVoiceInput = typeof window !== "undefined" && (!!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition) || (typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia));
 
   return (
     <>
@@ -233,6 +323,13 @@ export default function MorganChat() {
               <p className="text-[11px] text-violet-300">LensFlow AI · Pipeline Assistant</p>
             </div>
             <button
+              onClick={() => setShowTicket(true)}
+              className="text-white/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+              title="Leave a message"
+            >
+              <Mail size={16} />
+            </button>
+            <button
               onClick={() => { setAutoSpeak((s) => { if (s) stopAudio(); return !s; }); }}
               className="text-white/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
               title={autoSpeak ? "Mute Morgan's voice" : "Unmute Morgan's voice"}
@@ -243,6 +340,66 @@ export default function MorganChat() {
               <X size={18} />
             </button>
           </div>
+
+          {showTicket && (
+            <div className="absolute inset-0 z-20 bg-[#0f0f1a] flex flex-col">
+              <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-violet-900/80 to-indigo-900/80 border-b border-white/10 shrink-0">
+                <button onClick={() => setShowTicket(false)} className="text-white/60 hover:text-white p-1 rounded-lg hover:bg-white/10" aria-label="Back to chat">
+                  <ArrowLeft size={18} />
+                </button>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white">Leave a message</p>
+                  <p className="text-[11px] text-violet-300">Our team will email you back</p>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4">
+                {ticketSubmitted ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-violet-600/20 flex items-center justify-center">
+                      <Check size={24} className="text-violet-400" />
+                    </div>
+                    <p className="text-white font-semibold">Message sent!</p>
+                    <p className="text-white/50 text-sm max-w-[260px]">Thanks — our support team has your message and will email you back, usually within one business day.</p>
+                    <button onClick={() => { setShowTicket(false); setTicketSubmitted(false); }} className="mt-2 text-violet-400 underline text-sm">Back to chat</button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-white/60 text-sm">Can't find what you need? Leave your details and our team will get back to you by email.</p>
+                    <input
+                      type="text"
+                      value={ticketName}
+                      onChange={(e) => setTicketName(e.target.value)}
+                      placeholder="Your name (optional)"
+                      className="w-full bg-white/6 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-violet-500/50"
+                    />
+                    <input
+                      type="email"
+                      value={ticketEmail}
+                      onChange={(e) => setTicketEmail(e.target.value)}
+                      placeholder="Your email *"
+                      className="w-full bg-white/6 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-violet-500/50"
+                    />
+                    <textarea
+                      value={ticketMessage}
+                      onChange={(e) => setTicketMessage(e.target.value)}
+                      placeholder="How can we help? *"
+                      rows={5}
+                      className="w-full bg-white/6 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-violet-500/50 resize-none"
+                    />
+                    {ticketError && <p className="text-red-400 text-xs">Something went wrong. Please try again.</p>}
+                    <button
+                      onClick={() => void submitTicket()}
+                      disabled={ticketSubmitting || !ticketEmail.trim() || !ticketMessage.trim()}
+                      className="w-full flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl py-2.5 text-sm font-semibold transition-colors"
+                    >
+                      {ticketSubmitting ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+                      Send message
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10">
             {initError ? (
@@ -303,13 +460,14 @@ export default function MorganChat() {
 
           <div className="px-3 pb-3 pt-2 border-t border-white/8 shrink-0">
             <div className="flex items-center gap-2 bg-white/6 rounded-xl border border-white/10 px-3 py-2">
-              {hasSpeechAPI && (
+              {hasVoiceInput && (
                 <button
                   onClick={toggleMic}
-                  className={`shrink-0 w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${listening ? "bg-red-600 hover:bg-red-500" : "hover:bg-white/10 text-white/40 hover:text-violet-400"}`}
+                  disabled={transcribing}
+                  className={`shrink-0 w-7 h-7 flex items-center justify-center rounded-lg transition-colors disabled:opacity-50 ${listening ? "bg-red-600 hover:bg-red-500" : "hover:bg-white/10 text-white/40 hover:text-violet-400"}`}
                   title={listening ? "Stop listening" : "Speak to Morgan"}
                 >
-                  {listening ? <MicOff size={13} className="text-white animate-pulse" /> : <Mic size={13} />}
+                  {transcribing ? <Loader2 size={13} className="text-violet-400 animate-spin" /> : listening ? <MicOff size={13} className="text-white animate-pulse" /> : <Mic size={13} />}
                 </button>
               )}
               <input
@@ -318,8 +476,8 @@ export default function MorganChat() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={listening ? "Listening…" : "Ask Morgan anything…"}
-                disabled={streaming || !conversationId || initError || listening}
+                placeholder={transcribing ? "Transcribing…" : listening ? "Listening…" : "Ask Morgan anything…"}
+                disabled={streaming || !conversationId || initError || listening || transcribing}
                 className="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none min-w-0 disabled:opacity-50"
               />
               <button

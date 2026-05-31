@@ -368,6 +368,29 @@ export const GetLeadCountResponse = zod.object({
 
 
 /**
+ * @summary Create a support ticket from the Morgan chat widget
+ */
+export const createSupportTicketBodyEmailMin = 3;
+export const createSupportTicketBodyEmailMax = 254;
+
+export const createSupportTicketBodyMessageMax = 5000;
+
+export const createSupportTicketBodyNameMax = 120;
+
+export const createSupportTicketBodySubjectMax = 200;
+
+
+
+export const CreateSupportTicketBody = zod.object({
+  "email": zod.string().email().min(createSupportTicketBodyEmailMin).max(createSupportTicketBodyEmailMax),
+  "message": zod.string().min(1).max(createSupportTicketBodyMessageMax),
+  "name": zod.string().max(createSupportTicketBodyNameMax).optional(),
+  "subject": zod.string().max(createSupportTicketBodySubjectMax).optional(),
+  "conversationId": zod.number().nullish()
+})
+
+
+/**
  * @summary Delete a webhook
  */
 export const DeleteWebhookParams = zod.object({

@@ -46,6 +46,8 @@ import type {
   SendToCrmBody,
   SendToCrmResult,
   SimulateResult,
+  SupportTicketInput,
+  SupportTicketResult,
   Webhook,
   WebhookInput
 } from './api.schemas';
@@ -1997,6 +1999,77 @@ export function useGetLeadCount<TData = Awaited<ReturnType<typeof getLeadCount>>
 
 
 
+
+export const getCreateSupportTicketUrl = () => {
+
+
+
+
+  return `/api/support/tickets`
+}
+
+/**
+ * @summary Create a support ticket from the Morgan chat widget
+ */
+export const createSupportTicket = async (supportTicketInput: SupportTicketInput, options?: RequestInit): Promise<SupportTicketResult> => {
+
+  return customFetch<SupportTicketResult>(getCreateSupportTicketUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      supportTicketInput,)
+  }
+);}
+
+
+
+
+export const getCreateSupportTicketMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSupportTicket>>, TError,{data: BodyType<SupportTicketInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSupportTicket>>, TError,{data: BodyType<SupportTicketInput>}, TContext> => {
+
+const mutationKey = ['createSupportTicket'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSupportTicket>>, {data: BodyType<SupportTicketInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSupportTicket(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSupportTicketMutationResult = NonNullable<Awaited<ReturnType<typeof createSupportTicket>>>
+    export type CreateSupportTicketMutationBody = BodyType<SupportTicketInput>
+    export type CreateSupportTicketMutationError = ErrorType<void>
+
+    /**
+ * @summary Create a support ticket from the Morgan chat widget
+ */
+export const useCreateSupportTicket = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSupportTicket>>, TError,{data: BodyType<SupportTicketInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createSupportTicket>>,
+        TError,
+        {data: BodyType<SupportTicketInput>},
+        TContext
+      > => {
+      return useMutation(getCreateSupportTicketMutationOptions(options));
+    }
 
 export const getDeleteWebhookUrl = (id: string,) => {
 

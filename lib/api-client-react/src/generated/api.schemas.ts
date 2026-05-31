@@ -301,6 +301,30 @@ export interface LeadCount {
   displayCount: number;
 }
 
+export interface SupportTicketInput {
+  /**
+     * @minLength 3
+     * @maxLength 254
+     */
+  email: string;
+  /**
+     * @minLength 1
+     * @maxLength 5000
+     */
+  message: string;
+  /** @maxLength 120 */
+  name?: string;
+  /** @maxLength 200 */
+  subject?: string;
+  conversationId?: number | null;
+}
+
+export interface SupportTicketResult {
+  success: boolean;
+  ticketId: number;
+  message: string;
+}
+
 /**
  * Opaque session token — Bearer <sid>.
  */

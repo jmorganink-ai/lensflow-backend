@@ -16,6 +16,8 @@ tags:
     description: Webhook operations
   - name: leads
     description: Lead capture operations
+  - name: support
+    description: Customer support ticket operations
   - name: anthropic
     description: Anthropic AI chat operations (Morgan assistant)
   - name: elevenlabs
@@ -499,6 +501,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/LeadCount"
 
+  /support/tickets:
+    post:
+      operationId: createSupportTicket
+      tags: [support]
+      summary: Create a support ticket from the Morgan chat widget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupportTicketInput"
+      responses:
+        "201":
+          description: Ticket created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportTicketResult"
+        "400":
+          description: Invalid input
+
   /webhooks/{id}:
     delete:
       operationId: deleteWebhook
@@ -923,3 +946,37 @@ components:
           type: integer
         displayCount:
           type: integer
+
+    SupportTicketInput:
+      type: object
+      required: [email, message]
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 3
+          maxLength: 254
+        message:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        name:
+          type: string
+          maxLength: 120
+        subject:
+          type: string
+          maxLength: 200
+        conversationId:
+          type: integer
+          nullable: true
+
+    SupportTicketResult:
+      type: object
+      required: [success, ticketId, message]
+      properties:
+        success:
+          type: boolean
+        ticketId:
+          type: integer
+        message:
+          type: string

@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, raw } from "express";
 import { ElevenLabsClient } from "elevenlabs";
 import { logger } from "../lib/logger";
 
@@ -9,6 +9,34 @@ const MORGAN_VOICE_ID = "cgSgspJ2msm6clMCkdW9"; // Jessica — natural, warm, Au
 function getClient(): ElevenLabsClient {
   return new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY });
 }
+
+// POST /api/elevenlabs/stt — transcribe a recorded audio blob (cross-browser
+// voice input fallback for browsers without the Web Speech API)
+router.post(
+  "/elevenlabs/stt",
+  raw({ type: ["audio/*", "application/octet-stream"], limit: "25mb" }),
+  async (req, res) => {
+    const audio = req.body as Buffer;
+    if (!Buffer.isBuffer(audio) || audio.length === 0) {
+      res.status(400).json({ error: "audio body is required" });
+      return;
+    }
+    try {
+      const client = getClient();
+      const contentType = req.headers["content-type"] || "audio/webm";
+      const ext = contentType.includes("mp4") ? "mp4" : contentType.includes("mpeg") ? "mp3" : "webm";
+      const file = new File([new Uint8Array(audio)], `speech.${ext}`, { type: contentType });
+      const result = await client.speechToText.convert({
+        file,
+        model_id: "scribe_v1",
+      });
+      res.json({ text: (result as { text?: string }).text ?? "" });
+    } catch (err) {
+      logger.error({ err }, "Morgan STT failed");
+      res.status(500).json({ error: "Speech recognition unavailable" });
+    }
+  },
+);
 
 // POST /api/elevenlabs/tts — Morgan voice synthesis
 router.post("/elevenlabs/tts", async (req, res) => {
