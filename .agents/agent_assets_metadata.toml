@@ -6,3 +6,9 @@ id = "GJSJTvrQG8OqI7nTZIiR7"
 uri = "file://exports/sophie-hq.jpg"
 type = "image"
 title = "Sophie — high quality"
+
+[[outputs]]
+id = "n_GiFcQk7hq_C-Aos1yVa"
+uri = "file://exports/james-hq.jpg"
+type = "image"
+title = "James — high quality"
