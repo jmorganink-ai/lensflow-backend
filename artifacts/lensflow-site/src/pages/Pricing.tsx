@@ -59,6 +59,26 @@ export default function Pricing() {
     }
   ];
 
+  const enterpriseTier = {
+    name: "Enterprise",
+    price: isAnnual ? "1,799" : "1,999",
+    description: "Full-agency rollout with dedicated infrastructure, multi-seat access, and a bespoke AI pipeline built around your brand.",
+    features: [
+      "Unlimited videos across unlimited agents",
+      "Up to 20 custom AI presenter avatars",
+      "Full white-label platform (your brand, your domain)",
+      "Dedicated rendering infrastructure",
+      "API access for CRM & portal integrations",
+      "Custom voice cloning for every agent",
+      "Franchise & multi-office management dashboard",
+      "SLA-backed 4hr turnaround guarantee",
+      "Quarterly strategy sessions with LensFlow team",
+      "Priority onboarding & migration support"
+    ],
+    cta: "Contact Sales",
+    link: "mailto:sales@lensflow.com.au"
+  };
+
   const faqs = [
     {
       q: "Do I need any special equipment to film?",
@@ -154,6 +174,45 @@ export default function Pricing() {
               </motion.div>
             ))}
           </div>
+
+          {/* Enterprise Tier */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="max-w-6xl mx-auto mt-8"
+          >
+            <div className="relative rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-8 md:p-12 overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -top-4 left-8 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground text-sm font-bold px-4 py-1 rounded-full">
+                Enterprise
+              </div>
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h3 className="font-serif text-3xl font-bold mb-3">Full Agency Rollout</h3>
+                  <p className="text-muted-foreground mb-6">{enterpriseTier.description}</p>
+                  <div className="mb-8">
+                    <span className="text-5xl font-bold">${enterpriseTier.price}</span>
+                    <span className="text-muted-foreground">/mo</span>
+                    <span className="ml-3 text-sm text-muted-foreground">{isAnnual ? "billed annually" : "billed monthly"}</span>
+                  </div>
+                  <a href={enterpriseTier.link}>
+                    <Button className="rounded-full h-12 px-8 text-base font-medium bg-primary text-primary-foreground hover:bg-primary/90" data-testid="btn-pricing-enterprise">
+                      {enterpriseTier.cta} <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </a>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {enterpriseTier.features.map((feature, j) => (
+                    <div key={j} className="flex items-start gap-3 text-sm">
+                      <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                      <span className="text-foreground/90">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </main>
 
