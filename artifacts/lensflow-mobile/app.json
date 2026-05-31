@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "LensFlow Mobile",
+    "name": "LensFlow",
     "slug": "lensflow-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,15 +8,17 @@
     "scheme": "lensflow-mobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/images/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "au.com.lensflow.app"
     },
-    "android": {},
+    "android": {
+      "package": "au.com.lensflow.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#070a12"
+      }
+    },
     "web": {
       "favicon": "./assets/images/icon.png"
     },
@@ -28,7 +30,23 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "LensFlow needs access to your photos so you can add property images to your listing videos."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#070a12"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
