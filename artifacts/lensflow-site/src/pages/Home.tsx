@@ -20,6 +20,7 @@ const PRESENTERS = [
     specialty: "Coastal · Prestige · Instagram-first",
     photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400&h=533",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/f7c7da45b9a6460583b70fafd2405651/voices/x3PfG9wL6FOEApZ1VJ9H/92204d06-e00b-4d09-bbfc-3903c47a4c57.mp3",
+    videoUrl: null as string | null,
     badge: "Most Popular",
   },
   {
@@ -27,8 +28,9 @@ const PRESENTERS = [
     name: "Oliver",
     tagline: "Inner-City & Investment Authority",
     specialty: "Urban · Off-the-plan · High-net-worth",
-    photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400&h=533",
+    photo: "/presenters/oliver-poster.jpg",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/yXFr3XVHzrViCIHi1yoc/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzZlNTZjZDctMTIwZC00MjM4LWFhYWUtZWZkNTRhNWI0YzM2Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
+    videoUrl: "/presenters/oliver.mp4" as string | null,
     badge: null,
   },
   {
@@ -38,6 +40,7 @@ const PRESENTERS = [
     specialty: "Family · Acreage · Off-market",
     photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=400&h=533",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/69h9o7wh5u0isWHzdogD/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzBlMWJmMjUtZDEwNC00ZjY1LTg1ZTctNjE3ZDU5MjhmMDk5Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
+    videoUrl: null as string | null,
     badge: "New",
   },
   {
@@ -47,6 +50,7 @@ const PRESENTERS = [
     specialty: "Commercial · Rural · Development",
     photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400&h=533",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/IKne3meq5aSn9XLyUdCD/102de6f2-22ed-43e0-a1f1-111fa75c5481.mp3",
+    videoUrl: null as string | null,
     badge: null,
   },
 ];
@@ -54,6 +58,7 @@ const PRESENTERS = [
 function PresenterCard({ presenter }: { presenter: typeof PRESENTERS[0] }) {
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const togglePlay = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -68,16 +73,43 @@ function PresenterCard({ presenter }: { presenter: typeof PRESENTERS[0] }) {
     }
   };
 
+  const handleMouseEnter = () => {
+    if (presenter.videoUrl && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (presenter.videoUrl && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ y: -5 }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className="rounded-2xl overflow-hidden aspect-[3/4] relative group bg-card cursor-pointer"
     >
-      <img
-        src={presenter.photo}
-        alt={presenter.name}
-        className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-      />
+      {presenter.videoUrl ? (
+        <video
+          ref={videoRef}
+          src={presenter.videoUrl}
+          poster={presenter.photo}
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+        />
+      ) : (
+        <img
+          src={presenter.photo}
+          alt={presenter.name}
+          className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+        />
+      )}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
       {presenter.badge && (
         <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded-full">
