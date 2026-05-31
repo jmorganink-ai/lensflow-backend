@@ -4,9 +4,29 @@ import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
+const MORGAN_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"; // Rachel — warm, professional
+
 function getClient(): ElevenLabsClient {
   return new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY });
 }
+
+// POST /api/elevenlabs/tts — Morgan voice synthesis
+router.post("/elevenlabs/tts", async (req, res) => {
+  const { text } = req.body as { text?: string };
+  if (!text || typeof text !== "string") {
+    res.status(400).json({ error: "text is required" });
+    return;
+  }
+  try {
+    const audio = await generateVoiceover(text.slice(0, 1500), MORGAN_VOICE_ID);
+    res.setHeader("Content-Type", "audio/mpeg");
+    res.setHeader("Content-Length", audio.length.toString());
+    res.send(audio);
+  } catch (err) {
+    logger.error({ err }, "Morgan TTS failed");
+    res.status(500).json({ error: "TTS unavailable" });
+  }
+});
 
 // GET /api/elevenlabs/voices — list all voices in the user's account
 router.get("/elevenlabs/voices", async (_req, res) => {
