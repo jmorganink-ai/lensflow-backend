@@ -54,7 +54,7 @@ const PRESENTERS = [
     specialty: "Commercial · Rural · Development",
     photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400&h=533",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/IKne3meq5aSn9XLyUdCD/102de6f2-22ed-43e0-a1f1-111fa75c5481.mp3",
-    videoUrl: null as string | null,
+    videoUrl: "/presenters/james.mp4" as string | null,
     smileTimestamp: 0,
     badge: null,
   },
