@@ -23,3 +23,9 @@ id = "K0t4gLBlZen0Aw0xRYgiH"
 uri = "file://attached_assets/lensflow-expo-qr.png"
 type = "image"
 title = "LensFlow — Expo Go QR code"
+
+[[outputs]]
+id = "UkGgJGUFwMZXGFQ5zvXlU"
+uri = "file://attached_assets/lensflow-web-qr.png"
+type = "image"
+title = "LensFlow — scan to open in phone browser"
