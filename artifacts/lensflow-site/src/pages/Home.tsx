@@ -252,6 +252,107 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 1b. Real Results Video Showcase */}
+      <section id="results" className="py-24 relative overflow-hidden bg-background">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeInUp}
+            className="text-center mb-14"
+          >
+            <div className="text-xs font-mono uppercase tracking-widest text-primary mb-3">Real output · No CGI</div>
+            <h2 className="font-serif text-3xl md:text-[42px] font-bold mb-4">
+              This is what we deliver.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              Every video below was made by LensFlow — real listings, real AI presenters, real results in under 5 minutes.
+            </p>
+          </motion.div>
+
+          {/* Featured Oliver Video */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl mb-8 aspect-video max-w-4xl mx-auto bg-black group"
+          >
+            <video
+              src="/videos/oliver-featured.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-xs font-mono text-white/80 uppercase tracking-widest">Oliver · Williamstown, VIC · LensFlow AI</span>
+            </div>
+            <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-primary/90 text-[10px] font-mono text-primary-foreground uppercase tracking-widest">
+              AI Generated
+            </div>
+          </motion.div>
+
+          {/* Sample Video Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { src: "/videos/sample-v1.mp4", label: "Mia · Mosman, NSW" },
+              { src: "/videos/sample-v2.mp4", label: "Oliver · South Yarra, VIC" },
+              { src: "/videos/sample-v3.mp4", label: "Sophie · Brighton, VIC" },
+              { src: "/videos/sample-v4.mp4", label: "Mia · Bondi, NSW" },
+            ].map((v, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, duration: 0.5 }}
+                className="relative rounded-xl overflow-hidden border border-white/8 aspect-video bg-black group cursor-pointer"
+              >
+                <video
+                  src={v.src}
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play()}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLVideoElement).pause(); (e.currentTarget as HTMLVideoElement).currentTime = 0; }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                  <span className="text-[9px] font-mono text-white/70 uppercase tracking-widest truncate">{v.label}</span>
+                  <div className="w-5 h-5 rounded-full bg-white/10 group-hover:bg-primary/80 flex items-center justify-center transition-colors shrink-0">
+                    <Play className="w-2.5 h-2.5 text-white ml-0.5" />
+                  </div>
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-0 transition-opacity">
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="text-center mt-8"
+          >
+            <a href="#hero-form">
+              <Button size="lg" className="rounded-full h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 font-medium">
+                Create Your Listing Video <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </a>
+            <p className="mt-3 text-xs text-muted-foreground font-mono">Upload 5–7 photos · Pick a presenter · Done in minutes</p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* 2. Trends Section */}
       <section id="trends" className="py-24 bg-card border-y border-white/5 relative">
         <div className="max-w-7xl mx-auto px-6">

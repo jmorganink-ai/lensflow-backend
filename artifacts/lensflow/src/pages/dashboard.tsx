@@ -114,7 +114,91 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Example Videos */}
+      <SampleVideos />
+
       <RoadmapCard />
+    </div>
+  );
+}
+
+const SAMPLE_VIDEOS = [
+  { src: "/videos/oliver-featured.mp4", label: "Oliver · Williamstown, VIC", featured: true },
+  { src: "/videos/sample-v1.mp4", label: "Mia · Mosman, NSW", featured: false },
+  { src: "/videos/sample-v2.mp4", label: "Oliver · South Yarra, VIC", featured: false },
+  { src: "/videos/sample-v3.mp4", label: "Sophie · Brighton, VIC", featured: false },
+  { src: "/videos/sample-v4.mp4", label: "Mia · Bondi, NSW", featured: false },
+  { src: "/videos/sample-v5.mp4", label: "Sophie · Toorak, VIC", featured: false },
+];
+
+function SampleVideos() {
+  const [expanded, setExpanded] = useState(false);
+  const featured = SAMPLE_VIDEOS[0];
+  const grid = SAMPLE_VIDEOS.slice(1);
+
+  return (
+    <div className="border border-border rounded-lg bg-card overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setExpanded((o) => !o)}
+        className="w-full flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-primary" />
+          <span className="text-sm font-mono font-medium uppercase tracking-wider">Example Output Videos</span>
+          <span className="text-[10px] font-mono text-muted-foreground border border-border px-1.5 py-0.5 rounded">
+            {SAMPLE_VIDEOS.length} reels
+          </span>
+        </div>
+        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+      </button>
+      {expanded && (
+        <div className="border-t border-border p-4 space-y-3">
+          <p className="text-xs text-muted-foreground font-mono mb-4">Real LensFlow output — hover to preview, click to play with sound.</p>
+          {/* Featured */}
+          <div className="relative rounded-xl overflow-hidden border border-white/10 aspect-video bg-black group">
+            <video
+              src={featured.src}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-3 left-3 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <span className="text-[10px] font-mono text-white/80 uppercase tracking-widest">{featured.label}</span>
+            </div>
+            <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-primary/90 text-[9px] font-mono text-primary-foreground uppercase tracking-widest">
+              AI Generated
+            </div>
+          </div>
+          {/* Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+            {grid.map((v, i) => (
+              <div
+                key={i}
+                className="relative rounded-lg overflow-hidden border border-white/8 aspect-video bg-black group cursor-pointer"
+              >
+                <video
+                  src={v.src}
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play()}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLVideoElement).pause(); (e.currentTarget as HTMLVideoElement).currentTime = 0; }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center gap-1">
+                  <span className="text-[8px] font-mono text-white/60 uppercase tracking-widest truncate">{v.label}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
