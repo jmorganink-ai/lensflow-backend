@@ -1,0 +1,15 @@
+{
+  "name": "lensflow-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "start": "node --no-warnings test-runner.js",
+    "test": "node --no-warnings test-runner.js"
+  },
+  "dependencies": {
+    "openai": "^4.0.0",
+    "dotenv": "^16.4.5",
+    "apify-client": "^2.0.0"
+  }
+}
