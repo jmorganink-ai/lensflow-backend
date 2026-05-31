@@ -30,6 +30,8 @@ import type {
   BeginBrowserLoginParams,
   ElevenLabsError,
   ElevenLabsVoice,
+  GenerateScriptInput,
+  GenerateScriptResult,
   HealthStatus,
   Job,
   JobDetail,
@@ -43,6 +45,7 @@ import type {
   MobileTokenExchangeSuccess,
   RequestUploadUrl200,
   RequestUploadUrlBody,
+  SelfRecordedJobInput,
   SendToCrmBody,
   SendToCrmResult,
   SimulateResult,
@@ -744,6 +747,148 @@ export const useCreateJob = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getCreateJobMutationOptions(options));
+    }
+
+export const getGenerateScriptUrl = () => {
+
+
+
+
+  return `/api/jobs/generate-script`
+}
+
+/**
+ * @summary Generate an AI listing script without running the pipeline
+ */
+export const generateScript = async (generateScriptInput: GenerateScriptInput, options?: RequestInit): Promise<GenerateScriptResult> => {
+
+  return customFetch<GenerateScriptResult>(getGenerateScriptUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      generateScriptInput,)
+  }
+);}
+
+
+
+
+export const getGenerateScriptMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateScript>>, TError,{data: BodyType<GenerateScriptInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateScript>>, TError,{data: BodyType<GenerateScriptInput>}, TContext> => {
+
+const mutationKey = ['generateScript'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateScript>>, {data: BodyType<GenerateScriptInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  generateScript(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateScriptMutationResult = NonNullable<Awaited<ReturnType<typeof generateScript>>>
+    export type GenerateScriptMutationBody = BodyType<GenerateScriptInput>
+    export type GenerateScriptMutationError = ErrorType<void>
+
+    /**
+ * @summary Generate an AI listing script without running the pipeline
+ */
+export const useGenerateScript = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateScript>>, TError,{data: BodyType<GenerateScriptInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateScript>>,
+        TError,
+        {data: BodyType<GenerateScriptInput>},
+        TContext
+      > => {
+      return useMutation(getGenerateScriptMutationOptions(options));
+    }
+
+export const getCreateSelfRecordedJobUrl = () => {
+
+
+
+
+  return `/api/jobs/self-recorded`
+}
+
+/**
+ * @summary Save a self-recorded video as a completed job
+ */
+export const createSelfRecordedJob = async (selfRecordedJobInput: SelfRecordedJobInput, options?: RequestInit): Promise<Job> => {
+
+  return customFetch<Job>(getCreateSelfRecordedJobUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      selfRecordedJobInput,)
+  }
+);}
+
+
+
+
+export const getCreateSelfRecordedJobMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSelfRecordedJob>>, TError,{data: BodyType<SelfRecordedJobInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSelfRecordedJob>>, TError,{data: BodyType<SelfRecordedJobInput>}, TContext> => {
+
+const mutationKey = ['createSelfRecordedJob'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSelfRecordedJob>>, {data: BodyType<SelfRecordedJobInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSelfRecordedJob(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSelfRecordedJobMutationResult = NonNullable<Awaited<ReturnType<typeof createSelfRecordedJob>>>
+    export type CreateSelfRecordedJobMutationBody = BodyType<SelfRecordedJobInput>
+    export type CreateSelfRecordedJobMutationError = ErrorType<void>
+
+    /**
+ * @summary Save a self-recorded video as a completed job
+ */
+export const useCreateSelfRecordedJob = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSelfRecordedJob>>, TError,{data: BodyType<SelfRecordedJobInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createSelfRecordedJob>>,
+        TError,
+        {data: BodyType<SelfRecordedJobInput>},
+        TContext
+      > => {
+      return useMutation(getCreateSelfRecordedJobMutationOptions(options));
     }
 
 export const getGetJobStatsUrl = () => {

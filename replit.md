@@ -55,6 +55,9 @@ _Populate as you build — explicit user instructions worth remembering across s
 ## Gotchas
 
 - Never call `pnpm dev` at workspace root — run via workflow restart
+- Mobile "Create" flow branches into self-record (agent films with scrolling teleprompter) vs AI presenter; self-record uses `POST /jobs/generate-script` (script only, no job) then `POST /jobs/self-recorded` (completed job, `inputMode "selfie"`)
+- `inputMode "selfie"` is free-text (no DB migration); Job/JobDetail openapi enums include `selfie`; job detail hides the pipeline timeline for selfie jobs
+- `POST /storage/uploads/request-url` requires auth; `/jobs/self-recorded` validates `videoUrl` is an `/api/storage/` URL
 - `pipelineStepsTable` has `outputData text` column (added manually, not from original scaffold)
 - `generate_script` step stores the raw script in `outputData`; downstream `create_voiceover` uses it
 - `generatedScript` local variable carries script across steps in `runSimulation()` without DB re-fetch

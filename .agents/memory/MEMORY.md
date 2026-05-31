@@ -4,3 +4,4 @@
 - [Orval codegen collision fix](orval-codegen-fix.md) — Removed `schemas` option from orval zod config; hand-written types live in `lib/api-zod/src/types.ts`; patch-zod-index.mjs strips the stale types re-export after each codegen run.
 - [Pipeline degradation](pipeline-degradation.md) — runSimulation continues on step failure; job.status "complete" ≠ all steps succeeded; finished video must be persisted to job.videoUrl.
 - [ElevenLabs STT](elevenlabs-stt.md) — speechToText.convert({file,model_id:"scribe_v1"}); route uses express.raw (not multipart); browser falls back from Web Speech API to MediaRecorder.
+- [Storage upload auth](storage-upload-auth.md) — presigned upload endpoint must require auth; validate client-supplied videoUrl is our /api/storage/ URL before persisting.

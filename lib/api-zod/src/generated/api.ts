@@ -88,7 +88,7 @@ export const ListJobsResponseItem = zod.object({
   "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
   "voiceId": zod.string().nullish(),
   "voiceName": zod.string().nullish(),
-  "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal(null)]).nullish(),
+  "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal('selfie'),zod.literal(null)]).nullish(),
   "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
   "enhancedImages": zod.array(zod.string()).nullish(),
@@ -112,6 +112,36 @@ export const CreateJobBody = zod.object({
 
 
 /**
+ * @summary Generate an AI listing script without running the pipeline
+ */
+export const GenerateScriptBody = zod.object({
+  "inputMode": zod.enum(['url', 'photos']).optional(),
+  "listingUrl": zod.string().optional(),
+  "propertyAddress": zod.string().optional(),
+  "propertyImages": zod.array(zod.string()).optional()
+})
+
+export const GenerateScriptResponse = zod.object({
+  "script": zod.string(),
+  "title": zod.string()
+})
+
+
+/**
+ * @summary Save a self-recorded video as a completed job
+ */
+export const CreateSelfRecordedJobBody = zod.object({
+  "videoUrl": zod.string().describe('Public URL of the uploaded self-recorded video'),
+  "script": zod.string(),
+  "title": zod.string().optional(),
+  "inputMode": zod.enum(['url', 'photos']).optional(),
+  "listingUrl": zod.string().optional(),
+  "propertyAddress": zod.string().optional(),
+  "propertyImages": zod.array(zod.string()).optional()
+})
+
+
+/**
  * @summary Get dashboard statistics
  */
 export const GetJobStatsResponse = zod.object({
@@ -129,7 +159,7 @@ export const GetJobStatsResponse = zod.object({
   "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
   "voiceId": zod.string().nullish(),
   "voiceName": zod.string().nullish(),
-  "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal(null)]).nullish(),
+  "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal('selfie'),zod.literal(null)]).nullish(),
   "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
   "enhancedImages": zod.array(zod.string()).nullish(),
@@ -194,7 +224,7 @@ export const GetJobResponse = zod.object({
   "outputData": zod.string().nullish()
 })),
   "videoUrl": zod.string().nullish(),
-  "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal(null)]).nullish(),
+  "inputMode": zod.union([zod.literal('url'),zod.literal('photos'),zod.literal('selfie'),zod.literal(null)]).nullish(),
   "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
   "enhancedImages": zod.array(zod.string()).nullish(),

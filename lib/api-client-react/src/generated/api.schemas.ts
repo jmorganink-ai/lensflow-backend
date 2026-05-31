@@ -65,6 +65,7 @@ export type JobInputMode = typeof JobInputMode[keyof typeof JobInputMode] | null
 export const JobInputMode = {
   url: 'url',
   photos: 'photos',
+  selfie: 'selfie',
 } as const;
 
 export interface Job {
@@ -106,6 +107,7 @@ export type JobDetailInputMode = typeof JobDetailInputMode[keyof typeof JobDetai
 export const JobDetailInputMode = {
   url: 'url',
   photos: 'photos',
+  selfie: 'selfie',
 } as const;
 
 export type PipelineStepName = typeof PipelineStepName[keyof typeof PipelineStepName];
@@ -189,6 +191,45 @@ export interface JobInput {
   inputMode?: JobInputInputMode;
   /** Property address entered manually (used in photo mode) */
   propertyAddress?: string;
+}
+
+export type GenerateScriptInputInputMode = typeof GenerateScriptInputInputMode[keyof typeof GenerateScriptInputInputMode];
+
+
+export const GenerateScriptInputInputMode = {
+  url: 'url',
+  photos: 'photos',
+} as const;
+
+export interface GenerateScriptInput {
+  inputMode?: GenerateScriptInputInputMode;
+  listingUrl?: string;
+  propertyAddress?: string;
+  propertyImages?: string[];
+}
+
+export interface GenerateScriptResult {
+  script: string;
+  title: string;
+}
+
+export type SelfRecordedJobInputInputMode = typeof SelfRecordedJobInputInputMode[keyof typeof SelfRecordedJobInputInputMode];
+
+
+export const SelfRecordedJobInputInputMode = {
+  url: 'url',
+  photos: 'photos',
+} as const;
+
+export interface SelfRecordedJobInput {
+  /** Public URL of the uploaded self-recorded video */
+  videoUrl: string;
+  script: string;
+  title?: string;
+  inputMode?: SelfRecordedJobInputInputMode;
+  listingUrl?: string;
+  propertyAddress?: string;
+  propertyImages?: string[];
 }
 
 export interface SendToCrmBody {

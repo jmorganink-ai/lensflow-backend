@@ -157,6 +157,48 @@ paths:
         "400":
           description: Invalid input
 
+  /jobs/generate-script:
+    post:
+      operationId: generateScript
+      tags: [jobs]
+      summary: Generate an AI listing script without running the pipeline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateScriptInput"
+      responses:
+        "200":
+          description: Generated script
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateScriptResult"
+        "400":
+          description: Invalid input
+
+  /jobs/self-recorded:
+    post:
+      operationId: createSelfRecordedJob
+      tags: [jobs]
+      summary: Save a self-recorded video as a completed job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SelfRecordedJobInput"
+      responses:
+        "201":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "400":
+          description: Invalid input
+
   /jobs/stats:
     get:
       operationId: getJobStats
@@ -636,7 +678,7 @@ components:
           type: ["string", "null"]
         inputMode:
           type: ["string", "null"]
-          enum: [url, photos, null]
+          enum: [url, photos, selfie, null]
         propertyAddress:
           type: ["string", "null"]
         propertyImages:
@@ -677,7 +719,7 @@ components:
           type: ["string", "null"]
         inputMode:
           type: ["string", "null"]
-          enum: [url, photos, null]
+          enum: [url, photos, selfie, null]
         propertyAddress:
           type: ["string", "null"]
         propertyImages:
@@ -747,6 +789,53 @@ components:
         propertyAddress:
           type: string
           description: Property address entered manually (used in photo mode)
+
+    GenerateScriptInput:
+      type: object
+      properties:
+        inputMode:
+          type: string
+          enum: [url, photos]
+        listingUrl:
+          type: string
+        propertyAddress:
+          type: string
+        propertyImages:
+          type: array
+          items:
+            type: string
+
+    GenerateScriptResult:
+      type: object
+      required: [script, title]
+      properties:
+        script:
+          type: string
+        title:
+          type: string
+
+    SelfRecordedJobInput:
+      type: object
+      required: [videoUrl, script]
+      properties:
+        videoUrl:
+          type: string
+          description: Public URL of the uploaded self-recorded video
+        script:
+          type: string
+        title:
+          type: string
+        inputMode:
+          type: string
+          enum: [url, photos]
+        listingUrl:
+          type: string
+        propertyAddress:
+          type: string
+        propertyImages:
+          type: array
+          items:
+            type: string
 
     SendToCrmBody:
       type: object

@@ -3,6 +3,7 @@ import {
   getListJobsQueryKey,
   useCreateJob,
   useSimulateJob,
+  useGenerateScript,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
@@ -27,6 +28,7 @@ import { uploadPhoto } from "@/lib/api";
 import { useColors } from "@/hooks/useColors";
 
 type Mode = "url" | "photos";
+type Path = "self" | "ai";
 interface Photo {
   uri: string;
   publicUrl: string;
@@ -40,8 +42,10 @@ export default function CreateScreen() {
 
   const createJob = useCreateJob();
   const simulateJob = useSimulateJob();
+  const generateScript = useGenerateScript();
 
   const [mode, setMode] = useState<Mode>("url");
+  const [path, setPath] = useState<Path>("self");
   const [listingUrl, setListingUrl] = useState("");
   const [propertyAddress, setPropertyAddress] = useState("");
   const [voiceId, setVoiceId] = useState("");
@@ -49,8 +53,21 @@ export default function CreateScreen() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [uploading, setUploading] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [preparing, setPreparing] = useState(false);
 
   const platform = detectPlatform(listingUrl);
+
+  function validateProperty(): boolean {
+    if (mode === "url" && !isValidUrl(listingUrl)) {
+      Alert.alert("Invalid URL", "Please enter a valid listing URL (https://…).");
+      return false;
+    }
+    if (mode === "photos" && photos.length === 0) {
+      Alert.alert("Add photos", "Upload at least one property photo to continue.");
+      return false;
+    }
+    return true;
+  }
 
   async function pickPhotos() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -88,15 +105,45 @@ export default function CreateScreen() {
     setPhotos((prev) => prev.filter((p) => p.uri !== uri));
   }
 
+  // Film-myself path: generate the AI script up front, then open the
+  // teleprompter/record screen with it.
+  async function onContinueSelf() {
+    if (!validateProperty()) return;
+
+    setPreparing(true);
+    try {
+      const { script, title } = await generateScript.mutateAsync({
+        data: {
+          inputMode: mode,
+          listingUrl: mode === "url" ? listingUrl.trim() : undefined,
+          propertyAddress: propertyAddress.trim() || undefined,
+          propertyImages: photos.map((p) => p.publicUrl),
+        },
+      });
+
+      router.push({
+        pathname: "/record",
+        params: {
+          script,
+          title: title ?? "",
+          inputMode: mode,
+          listingUrl: mode === "url" ? listingUrl.trim() : "",
+          propertyAddress: propertyAddress.trim(),
+          propertyImages: JSON.stringify(photos.map((p) => p.publicUrl)),
+        },
+      });
+    } catch {
+      Alert.alert(
+        "Couldn’t write your script",
+        "Something went wrong preparing your teleprompter script. Please try again.",
+      );
+    } finally {
+      setPreparing(false);
+    }
+  }
+
   async function onSubmit() {
-    if (mode === "url" && !isValidUrl(listingUrl)) {
-      Alert.alert("Invalid URL", "Please enter a valid listing URL (https://…).");
-      return;
-    }
-    if (mode === "photos" && photos.length === 0) {
-      Alert.alert("Add photos", "Upload at least one property photo to continue.");
-      return;
-    }
+    if (!validateProperty()) return;
 
     setSubmitting(true);
     try {
@@ -252,7 +299,70 @@ export default function CreateScreen() {
           </View>
         )}
 
-        {/* Presenter picker */}
+        {/* Path choice */}
+        <View style={styles.field}>
+          {label("HOW DO YOU WANT TO MAKE IT?")}
+          <View style={styles.pathRow}>
+            <Pressable
+              onPress={() => setPath("self")}
+              style={[
+                styles.pathCard,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: path === "self" ? colors.primary : colors.border,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.pathIcon,
+                  { backgroundColor: path === "self" ? colors.primary : colors.secondary },
+                ]}
+              >
+                <Feather
+                  name="video"
+                  size={18}
+                  color={path === "self" ? colors.primaryForeground : colors.mutedForeground}
+                />
+              </View>
+              <Text style={[styles.pathTitle, { color: colors.foreground }]}>Film myself</Text>
+              <Text style={[styles.pathDesc, { color: colors.mutedForeground }]}>
+                Record on your phone while the script scrolls.
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setPath("ai")}
+              style={[
+                styles.pathCard,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: path === "ai" ? colors.primary : colors.border,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.pathIcon,
+                  { backgroundColor: path === "ai" ? colors.primary : colors.secondary },
+                ]}
+              >
+                <Feather
+                  name="zap"
+                  size={18}
+                  color={path === "ai" ? colors.primaryForeground : colors.mutedForeground}
+                />
+              </View>
+              <Text style={[styles.pathTitle, { color: colors.foreground }]}>Let AI do it</Text>
+              <Text style={[styles.pathDesc, { color: colors.mutedForeground }]}>
+                An AI presenter films and voices it for you.
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Presenter picker — AI path only */}
+        {path === "ai" && (
         <View style={styles.field}>
           {label("CHOOSE A PRESENTER")}
           <View style={styles.presenterRow}>
@@ -299,6 +409,7 @@ export default function CreateScreen() {
             </Text>
           )}
         </View>
+        )}
 
         {/* Photos */}
         <View style={styles.field}>
@@ -349,26 +460,38 @@ export default function CreateScreen() {
           </View>
         </View>
 
-        {/* Submit */}
+        {/* Action */}
         <Pressable
-          onPress={onSubmit}
-          disabled={submitting}
+          onPress={path === "self" ? onContinueSelf : onSubmit}
+          disabled={submitting || preparing}
           style={({ pressed }) => [
             styles.submit,
-            { backgroundColor: colors.primary, opacity: pressed || submitting ? 0.85 : 1 },
+            {
+              backgroundColor: colors.primary,
+              opacity: pressed || submitting || preparing ? 0.85 : 1,
+            },
           ]}
         >
-          {submitting ? (
+          {submitting || preparing ? (
             <ActivityIndicator color={colors.primaryForeground} />
           ) : (
             <>
-              <Feather name="zap" size={18} color={colors.primaryForeground} />
+              <Feather
+                name={path === "self" ? "video" : "zap"}
+                size={18}
+                color={colors.primaryForeground}
+              />
               <Text style={[styles.submitText, { color: colors.primaryForeground }]}>
-                Generate Video
+                {path === "self" ? "Start Recording" : "Generate Video"}
               </Text>
             </>
           )}
         </Pressable>
+        {path === "self" && (
+          <Text style={[styles.actionHint, { color: colors.mutedForeground }]}>
+            We’ll write your script, then you read it aloud while the camera rolls.
+          </Text>
+        )}
       </ScrollView>
     </View>
   );
@@ -435,6 +558,30 @@ const styles = StyleSheet.create({
   },
   tagText: { fontFamily: "Inter_600SemiBold", fontSize: 10 },
   sample: { fontFamily: "Inter_500Medium", fontSize: 12.5, marginTop: 10 },
+  pathRow: { flexDirection: "row", gap: 10 },
+  pathCard: {
+    flex: 1,
+    borderRadius: 14,
+    borderWidth: 2,
+    padding: 14,
+  },
+  pathIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  pathTitle: { fontFamily: "Inter_600SemiBold", fontSize: 14.5 },
+  pathDesc: { fontFamily: "Inter_400Regular", fontSize: 11.5, marginTop: 3, lineHeight: 16 },
+  actionHint: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    textAlign: "center",
+    marginTop: 12,
+    lineHeight: 17,
+  },
   presenterRow: { flexDirection: "row", gap: 10 },
   presenter: {
     flex: 1,

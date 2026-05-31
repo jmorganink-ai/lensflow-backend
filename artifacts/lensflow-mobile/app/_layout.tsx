@@ -36,6 +36,7 @@ function RootLayoutNav() {
     <Stack screenOptions={{ headerShown: false, headerBackTitle: "Back" }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="job/[id]" options={{ presentation: "card" }} />
+      <Stack.Screen name="record" options={{ presentation: "fullScreenModal" }} />
     </Stack>
   );
 }

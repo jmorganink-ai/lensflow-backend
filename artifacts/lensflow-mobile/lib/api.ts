@@ -107,3 +107,41 @@ export async function uploadPhoto(asset: PickedPhoto): Promise<string> {
 
   return publicUrl;
 }
+
+export interface RecordedVideo {
+  uri: string;
+  fileName?: string | null;
+  mimeType?: string | null;
+  fileSize?: number | null;
+}
+
+// Uploads a self-recorded video to object storage and returns its public URL.
+// Reuses the same presigned-URL flow as photo uploads.
+export async function uploadVideo(asset: RecordedVideo): Promise<string> {
+  const name = asset.fileName ?? `recording-${Date.now()}.mp4`;
+  const contentType = asset.mimeType ?? "video/mp4";
+
+  const fileResp = await fetch(asset.uri);
+  const blob = await fileResp.blob();
+  const size = asset.fileSize ?? blob.size;
+
+  const urlRes = await fetch(`${getApiBaseUrl()}/api/storage/uploads/request-url`, {
+    method: "POST",
+    headers: await authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ name, size, contentType }),
+  });
+  if (!urlRes.ok) throw new Error("Could not get upload URL");
+  const { uploadURL, publicUrl } = (await urlRes.json()) as {
+    uploadURL: string;
+    publicUrl: string;
+  };
+
+  const putRes = await fetch(uploadURL, {
+    method: "PUT",
+    headers: { "Content-Type": contentType },
+    body: blob,
+  });
+  if (!putRes.ok) throw new Error("Video upload failed");
+
+  return publicUrl;
+}

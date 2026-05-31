@@ -1,0 +1,15 @@
+{
+  "short_name": "LensFlow",
+  "name": "LensFlow: Professional 4K Studio",
+  "icons": [
+    {
+      "src": "Mia_Headshot.jpg",
+      "type": "image/jpeg",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#f8f3ea",
+  "display": "standalone",
+  "theme_color": "#c99a2e"
+}

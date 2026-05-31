@@ -126,7 +126,11 @@ export default function JobDetailScreen() {
           <View style={styles.statusRow}>
             <StatusBadge status={job.status} />
             <Text style={[styles.meta, { color: colors.mutedForeground }]}>
-              {job.inputMode === "photos" ? "From photos" : "From listing URL"}
+              {job.inputMode === "photos"
+                ? "From photos"
+                : job.inputMode === "selfie"
+                  ? "Filmed by you"
+                  : "From listing URL"}
             </Text>
           </View>
 
@@ -162,29 +166,31 @@ export default function JobDetailScreen() {
             )
           )}
 
-          {/* Pipeline timeline */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-              Pipeline
-            </Text>
-            <View style={styles.timeline}>
-              {steps.map((step, i) => (
-                <StepRow
-                  key={step.id}
-                  step={step}
-                  isLast={i === steps.length - 1}
-                  colors={colors}
-                />
-              ))}
+          {/* Pipeline timeline — hidden for self-recorded videos */}
+          {job.inputMode !== "selfie" && (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+                Pipeline
+              </Text>
+              <View style={styles.timeline}>
+                {steps.map((step, i) => (
+                  <StepRow
+                    key={step.id}
+                    step={step}
+                    isLast={i === steps.length - 1}
+                    colors={colors}
+                  />
+                ))}
+              </View>
             </View>
-          </View>
+          )}
 
           {/* Script */}
           {script && (
             <View style={styles.section}>
               <View style={styles.sectionHeadRow}>
                 <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-                  AI Script
+                  {job.inputMode === "selfie" ? "Your Script" : "AI Script"}
                 </Text>
                 <Pressable
                   onPress={copyScript}

@@ -6,6 +6,8 @@ import {
   GetJobParams,
   DeleteJobParams,
   SendJobToCrmBody,
+  GenerateScriptBody,
+  CreateSelfRecordedJobBody,
 } from "@workspace/api-zod";
 import { ReplitConnectors } from "@replit/connectors-sdk";
 import { randomUUID } from "crypto";
@@ -400,6 +402,130 @@ router.post("/jobs", async (req, res): Promise<void> => {
     order: step.order,
   }));
   await db.insert(pipelineStepsTable).values(stepRows);
+
+  res.status(201).json(job);
+});
+
+// Generate an AI listing script up front (for the teleprompter) without
+// persisting a job or running the pipeline.
+router.post("/jobs/generate-script", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const parsed = GenerateScriptBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const inputMode = parsed.data.inputMode === "photos" ? "photos" : "url";
+  const listingUrl = parsed.data.listingUrl?.trim() ?? "";
+  const propertyImages = parsed.data.propertyImages ?? [];
+  const propertyAddress = parsed.data.propertyAddress?.trim() || null;
+
+  if (inputMode === "url" && !listingUrl) {
+    res.status(400).json({ error: "A listing URL is required for URL mode" });
+    return;
+  }
+  if (inputMode === "photos" && propertyImages.length === 0) {
+    res.status(400).json({ error: "At least one property photo is required for photo mode" });
+    return;
+  }
+
+  const listingContext: ListingContext = parseListingUrl(listingUrl);
+  listingContext.inputMode = inputMode;
+  if (propertyAddress) listingContext.address = propertyAddress;
+
+  if (inputMode === "photos") {
+    try {
+      const analysis = await analysePropertyPhotos(propertyImages, propertyAddress);
+      Object.assign(listingContext, {
+        summary: analysis.summary || listingContext.summary,
+        propertyType: analysis.propertyType ?? listingContext.propertyType,
+        bedrooms: analysis.bedrooms ?? listingContext.bedrooms,
+        bathrooms: analysis.bathrooms ?? listingContext.bathrooms,
+        features: analysis.features,
+      });
+    } catch (err) {
+      req.log.warn({ err }, "Photo analysis failed during generate-script — using URL context only");
+    }
+  }
+
+  const result = await generateListingScript(listingUrl, listingContext);
+  res.json({ script: result.script, title: result.title });
+});
+
+// Save an agent's self-recorded video as a completed job. No pipeline runs —
+// the recording is already finished, so we store it directly and attach a
+// single script step so the job detail screen can show the read-along script.
+router.post("/jobs/self-recorded", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const parsed = CreateSelfRecordedJobBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const videoUrl = parsed.data.videoUrl?.trim();
+  const script = parsed.data.script?.trim();
+  if (!videoUrl || !script) {
+    res.status(400).json({ error: "A recorded videoUrl and script are required" });
+    return;
+  }
+
+  // The video must be one we issued an upload URL for — reject arbitrary/external
+  // URLs so callers can't persist links to anything other than our storage.
+  let parsedVideoUrl: URL;
+  try {
+    parsedVideoUrl = new URL(videoUrl);
+  } catch {
+    res.status(400).json({ error: "videoUrl must be a valid URL" });
+    return;
+  }
+  if (!parsedVideoUrl.pathname.includes("/api/storage/")) {
+    res.status(400).json({ error: "videoUrl must reference an uploaded recording" });
+    return;
+  }
+
+  const listingUrl = parsed.data.listingUrl?.trim() ?? "";
+  const propertyAddress = parsed.data.propertyAddress?.trim() || null;
+  const title =
+    parsed.data.title?.trim() || propertyAddress || "Self-recorded listing video";
+
+  const id = randomUUID();
+  const [job] = await db
+    .insert(jobsTable)
+    .values({
+      id,
+      userId: req.user.id,
+      listingUrl,
+      listingTitle: title,
+      videoUrl,
+      propertyImages: parsed.data.propertyImages ?? [],
+      inputMode: "selfie",
+      propertyAddress,
+      status: "complete",
+    })
+    .returning();
+
+  const now = new Date();
+  await db.insert(pipelineStepsTable).values({
+    id: randomUUID(),
+    jobId: id,
+    name: "generate_script",
+    label: "Your Script",
+    status: "complete",
+    order: 1,
+    startedAt: now,
+    completedAt: now,
+    outputData: script,
+  });
 
   res.status(201).json(job);
 });

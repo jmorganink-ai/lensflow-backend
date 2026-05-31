@@ -39,6 +39,14 @@
         }
       ],
       [
+        "expo-camera",
+        {
+          "cameraPermission": "LensFlow needs camera access so you can film yourself presenting your listing video.",
+          "microphonePermission": "LensFlow needs microphone access to record audio while you film your listing video.",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/icon.png",
