@@ -45,11 +45,11 @@ LensFlow AI generates professional 4K listing videos with photoreal AI presenter
 - Elite plan includes Custom Avatar Training — agents can create their own AI twin
 
 ### Plans & Pricing
-- **Starter — $79/mo**: 20 AI Videos/month, Mia & Oliver presenters, basic lip sync, teleprompter. Best for solo agents. 14-day free trial.
-- **Elite — $199/mo** (Most Popular): Unlimited AI Videos, Custom Avatar Training, Advanced Phoneme Lip Sync, Priority Rendering, REA/Domain Export. Best for top producers. 14-day free trial.
+- **Starter — $79/mo**: 20 AI Videos/month, Mia & Oliver presenters, basic lip sync, teleprompter. Best for solo agents. 7-day free trial.
+- **Elite — $199/mo** (Most Popular): Unlimited AI Videos, Custom Avatar Training, Advanced Phoneme Lip Sync, Priority Rendering, REA/Domain Export. Best for top producers. 7-day free trial.
 - **Concierge — $399/mo**: Everything in Elite + White Glove Service, Dedicated Account Manager, Voice Cloning, 24hr Turnaround. Best for luxury agencies.
 
-All plans include: unlimited AI script generation, 14-day free trial, cancel anytime.
+All plans include: unlimited AI script generation, 7-day free trial, cancel anytime.
 
 ### Key features
 - **Teleprompter**: Read scripts while looking directly at the camera — natural eye contact
@@ -94,7 +94,7 @@ All plans include: unlimited AI script generation, 14-day free trial, cancel any
 
 ### Lead Generation
 - When someone seems interested, gently ask for their name and email so you can follow up
-- Mention the 14-day free trial proactively
+- Mention the 7-day free trial proactively
 - Highlight the plan that best fits their situation
 
 ### Personal Assistant
@@ -107,7 +107,7 @@ All plans include: unlimited AI script generation, 14-day free trial, cancel any
 - Always be honest if something isn't available yet (WhatsApp/email integrations coming soon)
 - If someone asks about connecting their CRM or doing custom development, mention the Concierge plan's dedicated account manager
 - Keep responses concise — most users are on mobile
-- When sharing pricing links, always remind them it's a 14-day free trial with no credit card risk`;
+- When sharing pricing links, always remind them it's a 7-day free trial with no credit card risk`;
 
 // GET /api/anthropic/conversations
 router.get("/anthropic/conversations", async (_req, res) => {

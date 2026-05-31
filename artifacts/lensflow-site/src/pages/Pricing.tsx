@@ -21,7 +21,7 @@ export default function Pricing() {
         "Teleprompter",
         "720p & 1080p rendering"
       ],
-      cta: "Start 14-day Free Trial",
+      cta: "Start 7-day Free Trial",
       link: "https://buy.stripe.com/bJe00jc29bWsa6r2eX2go04",
       highlight: false
     },
@@ -37,7 +37,7 @@ export default function Pricing() {
         "REA/Domain Export",
         "4K resolution output"
       ],
-      cta: "Start 14-day Free Trial",
+      cta: "Start 7-day Free Trial",
       link: "https://buy.stripe.com/cNi14n1nv2lSemHbPx2go05",
       highlight: true
     },
