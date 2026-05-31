@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, count, sql } from "drizzle-orm";
+import { eq, desc, count } from "drizzle-orm";
 import { db, jobsTable, pipelineStepsTable } from "@workspace/db";
 import {
   CreateJobBody,
@@ -7,6 +7,7 @@ import {
   DeleteJobParams,
 } from "@workspace/api-zod";
 import { randomUUID } from "crypto";
+import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
@@ -17,6 +18,66 @@ const PIPELINE_STEPS = [
   { name: "presenter_video", label: "Presenter Video", order: 4 },
   { name: "compose_video", label: "Compose Video", order: 5 },
 ];
+
+// Track in-progress simulations to prevent double-starts
+const activeSimulations = new Set<string>();
+
+// Step durations in ms — varied to feel realistic
+const STEP_DURATIONS = [2200, 3100, 2800, 3600, 2500];
+
+async function runSimulation(jobId: string): Promise<void> {
+  try {
+    // Mark job as processing
+    await db
+      .update(jobsTable)
+      .set({ status: "processing" })
+      .where(eq(jobsTable.id, jobId));
+
+    const steps = await db
+      .select()
+      .from(pipelineStepsTable)
+      .where(eq(pipelineStepsTable.jobId, jobId))
+      .orderBy(pipelineStepsTable.order);
+
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      const duration = STEP_DURATIONS[i] ?? 2500;
+
+      // Mark step as running
+      await db
+        .update(pipelineStepsTable)
+        .set({ status: "running", startedAt: new Date() })
+        .where(eq(pipelineStepsTable.id, step.id));
+
+      // Wait for the step duration
+      await new Promise((resolve) => setTimeout(resolve, duration));
+
+      // Mark step as complete
+      await db
+        .update(pipelineStepsTable)
+        .set({ status: "complete", completedAt: new Date() })
+        .where(eq(pipelineStepsTable.id, step.id));
+
+      logger.info({ jobId, step: step.name, order: i + 1 }, "Pipeline step complete");
+    }
+
+    // Mark job as complete
+    await db
+      .update(jobsTable)
+      .set({ status: "complete" })
+      .where(eq(jobsTable.id, jobId));
+
+    logger.info({ jobId }, "Pipeline simulation complete");
+  } catch (err) {
+    logger.error({ err, jobId }, "Pipeline simulation failed");
+    await db
+      .update(jobsTable)
+      .set({ status: "failed" })
+      .where(eq(jobsTable.id, jobId));
+  } finally {
+    activeSimulations.delete(jobId);
+  }
+}
 
 router.get("/jobs", async (req, res): Promise<void> => {
   const jobs = await db
@@ -82,6 +143,49 @@ router.get("/jobs/stats", async (req, res): Promise<void> => {
     .limit(5);
 
   res.json({ ...stats, recentJobs });
+});
+
+router.post("/jobs/:id/simulate", async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+  const [job] = await db
+    .select()
+    .from(jobsTable)
+    .where(eq(jobsTable.id, raw));
+
+  if (!job) {
+    res.status(404).json({ error: "Job not found" });
+    return;
+  }
+
+  if (activeSimulations.has(raw)) {
+    res.status(400).json({ error: "Simulation already in progress for this job" });
+    return;
+  }
+
+  if (job.status === "processing") {
+    res.status(400).json({ error: "Job is already processing" });
+    return;
+  }
+
+  // Reset all steps to pending if re-running
+  if (job.status === "complete" || job.status === "failed") {
+    await db
+      .update(pipelineStepsTable)
+      .set({ status: "pending", startedAt: null, completedAt: null, errorMessage: null })
+      .where(eq(pipelineStepsTable.jobId, raw));
+    await db
+      .update(jobsTable)
+      .set({ status: "queued" })
+      .where(eq(jobsTable.id, raw));
+  }
+
+  activeSimulations.add(raw);
+
+  // Fire-and-forget — simulation runs in background
+  runSimulation(raw);
+
+  res.json({ message: "Simulation started", jobId: raw });
 });
 
 router.get("/jobs/:id", async (req, res): Promise<void> => {

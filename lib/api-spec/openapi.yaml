@@ -76,6 +76,29 @@ paths:
               schema:
                 $ref: "#/components/schemas/JobStats"
 
+  /jobs/{id}/simulate:
+    post:
+      operationId: simulateJob
+      tags: [jobs]
+      summary: Start pipeline simulation for a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Simulation started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulateResult"
+        "400":
+          description: Job already running or complete
+        "404":
+          description: Job not found
+
   /jobs/{id}:
     get:
       operationId: getJob
@@ -290,6 +313,15 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    SimulateResult:
+      type: object
+      required: [message, jobId]
+      properties:
+        message:
+          type: string
+        jobId:
+          type: string
 
     WebhookInput:
       type: object

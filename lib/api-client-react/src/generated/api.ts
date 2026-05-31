@@ -25,6 +25,7 @@ import type {
   JobDetail,
   JobInput,
   JobStats,
+  SimulateResult,
   Webhook,
   WebhookInput
 } from './api.schemas';
@@ -343,6 +344,76 @@ export function useGetJobStats<TData = Awaited<ReturnType<typeof getJobStats>>, 
 
 
 
+
+export const getSimulateJobUrl = (id: string,) => {
+
+
+
+
+  return `/api/jobs/${id}/simulate`
+}
+
+/**
+ * @summary Start pipeline simulation for a job
+ */
+export const simulateJob = async (id: string, options?: RequestInit): Promise<SimulateResult> => {
+
+  return customFetch<SimulateResult>(getSimulateJobUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getSimulateJobMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof simulateJob>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof simulateJob>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['simulateJob'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof simulateJob>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  simulateJob(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SimulateJobMutationResult = NonNullable<Awaited<ReturnType<typeof simulateJob>>>
+
+    export type SimulateJobMutationError = ErrorType<void>
+
+    /**
+ * @summary Start pipeline simulation for a job
+ */
+export const useSimulateJob = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof simulateJob>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof simulateJob>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getSimulateJobMutationOptions(options));
+    }
 
 export const getGetJobUrl = (id: string,) => {
 

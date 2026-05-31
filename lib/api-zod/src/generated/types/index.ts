@@ -16,5 +16,6 @@ export * from './jobStatus';
 export * from './pipelineStep';
 export * from './pipelineStepName';
 export * from './pipelineStepStatus';
+export * from './simulateResult';
 export * from './webhook';
 export * from './webhookInput';

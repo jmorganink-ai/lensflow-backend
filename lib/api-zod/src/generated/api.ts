@@ -63,6 +63,19 @@ export const GetJobStatsResponse = zod.object({
 
 
 /**
+ * @summary Start pipeline simulation for a job
+ */
+export const SimulateJobParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const SimulateJobResponse = zod.object({
+  "message": zod.string(),
+  "jobId": zod.string()
+})
+
+
+/**
  * @summary Get job with pipeline step details
  */
 export const GetJobParams = zod.object({

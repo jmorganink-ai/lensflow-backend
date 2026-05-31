@@ -111,6 +111,11 @@ export interface Webhook {
   createdAt: string;
 }
 
+export interface SimulateResult {
+  message: string;
+  jobId: string;
+}
+
 export interface WebhookInput {
   /** @minLength 1 */
   url: string;
