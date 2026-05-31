@@ -1,5 +1,10 @@
 uploads = []
-generated = []
+
+[[generated]]
+id = "09MJHR1kaUxLTU3OHPmvN"
+uri = "file://artifacts/lensflow-mobile/assets/images/icon.png"
+type = "image"
+title = "lensflow app icon"
 
 [[outputs]]
 id = "GJSJTvrQG8OqI7nTZIiR7"
