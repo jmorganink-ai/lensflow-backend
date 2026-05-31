@@ -11,6 +11,33 @@ import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown } from "lucide-react
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect } from "react";
 
+const PRESENTER_PRESETS = [
+  {
+    id: "mia",
+    name: "Mia",
+    specialty: "Waterfront · Lifestyle",
+    voiceId: "x3PfG9wL6FOEApZ1VJ9H",
+    voiceName: "emma",
+    photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300&h=400",
+  },
+  {
+    id: "oliver",
+    name: "Oliver",
+    specialty: "Inner-City · Investment",
+    voiceId: "yXFr3XVHzrViCIHi1yoc",
+    voiceName: "aussie voice",
+    photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300&h=400",
+  },
+  {
+    id: "sophie",
+    name: "Sophie",
+    specialty: "Family · Suburban",
+    voiceId: "69h9o7wh5u0isWHzdogD",
+    voiceName: "Australian real estate agent",
+    photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
+  },
+];
+
 const formSchema = z.object({
   listingUrl: z.string().url("Please enter a valid URL"),
   voiceId: z.string().optional(),
@@ -115,11 +142,49 @@ export default function NewJob() {
               )}
             />
 
+            {/* Presenter Presets */}
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
+                <Mic className="w-3.5 h-3.5" />
+                Choose Presenter
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {PRESENTER_PRESETS.map((p) => {
+                  const isSelected = selectedVoiceId === p.voiceId;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        form.setValue("voiceId", p.voiceId);
+                        form.setValue("voiceName", p.voiceName);
+                      }}
+                      className={`relative rounded-lg overflow-hidden aspect-[3/4] group border-2 transition-all ${
+                        isSelected ? "border-primary shadow-[0_0_12px_rgba(var(--primary),0.4)]" : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      <img src={p.photo} alt={p.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-2 left-2 right-2">
+                        <div className="text-xs font-semibold">{p.name}</div>
+                        <div className="text-[9px] text-primary font-mono leading-tight mt-0.5">{p.specialty}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Voice Picker */}
             <div className="space-y-2">
               <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
                 <Mic className="w-3.5 h-3.5" />
-                Voiceover Voice
+                Or Pick From Library
                 {voicesLoading && <Loader2 className="w-3 h-3 animate-spin" />}
               </label>
 

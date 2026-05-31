@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ChevronRight, PlayCircle, Star, Shield, TrendingUp, Sparkles, Building, Video, CheckCircle2, XCircle, Users, Zap, Globe, Clock, Quote } from "lucide-react";
+import { ChevronRight, PlayCircle, Star, Shield, TrendingUp, Sparkles, Building, Video, CheckCircle2, XCircle, Users, Zap, Globe, Clock, Quote, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -10,6 +10,104 @@ import { UrgencyCounter } from "@/components/UrgencyCounter";
 
 // Assets
 import ogImage from "@assets/lensflow-brand/og-image.png";
+
+const PRESENTERS = [
+  {
+    id: "mia",
+    name: "Mia",
+    tagline: "Waterfront & Lifestyle Specialist",
+    specialty: "Coastal · Prestige · Instagram-first",
+    photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400&h=533",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/f7c7da45b9a6460583b70fafd2405651/voices/x3PfG9wL6FOEApZ1VJ9H/92204d06-e00b-4d09-bbfc-3903c47a4c57.mp3",
+    badge: "Most Popular",
+  },
+  {
+    id: "oliver",
+    name: "Oliver",
+    tagline: "Inner-City & Investment Authority",
+    specialty: "Urban · Off-the-plan · High-net-worth",
+    photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400&h=533",
+    previewUrl: "https://api.us.elevenlabs.io/v1/voices/yXFr3XVHzrViCIHi1yoc/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzZlNTZjZDctMTIwZC00MjM4LWFhYWUtZWZkNTRhNWI0YzM2Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
+    badge: null,
+  },
+  {
+    id: "sophie",
+    name: "Sophie",
+    tagline: "Family Homes & Suburban Estates",
+    specialty: "Family · Acreage · Off-market",
+    photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=400&h=533",
+    previewUrl: "https://api.us.elevenlabs.io/v1/voices/69h9o7wh5u0isWHzdogD/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzBlMWJmMjUtZDEwNC00ZjY1LTg1ZTctNjE3ZDU5MjhmMDk5Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
+    badge: "New",
+  },
+  {
+    id: "james",
+    name: "James",
+    tagline: "Commercial & Rural Properties",
+    specialty: "Commercial · Rural · Development",
+    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400&h=533",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/IKne3meq5aSn9XLyUdCD/102de6f2-22ed-43e0-a1f1-111fa75c5481.mp3",
+    badge: null,
+  },
+];
+
+function PresenterCard({ presenter }: { presenter: typeof PRESENTERS[0] }) {
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const togglePlay = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!audioRef.current) return;
+    if (playing) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setPlaying(false);
+    } else {
+      audioRef.current.play().catch(() => {});
+      setPlaying(true);
+    }
+  };
+
+  return (
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="rounded-2xl overflow-hidden aspect-[3/4] relative group bg-card cursor-pointer"
+    >
+      <img
+        src={presenter.photo}
+        alt={presenter.name}
+        className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+      {presenter.badge && (
+        <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded-full">
+          {presenter.badge}
+        </div>
+      )}
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="flex items-end justify-between">
+          <div>
+            <div className="text-base font-semibold leading-tight">{presenter.name}</div>
+            <div className="text-xs text-primary mt-0.5">{presenter.tagline}</div>
+            <div className="text-[10px] text-muted-foreground mt-1 font-mono opacity-0 group-hover:opacity-100 transition-opacity">{presenter.specialty}</div>
+          </div>
+          <button
+            onClick={togglePlay}
+            className="w-9 h-9 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center flex-shrink-0 transition-colors shadow-lg opacity-0 group-hover:opacity-100"
+            title={playing ? "Stop preview" : "Hear voice"}
+          >
+            {playing ? <Pause className="w-4 h-4 text-primary-foreground" /> : <Play className="w-4 h-4 text-primary-foreground ml-0.5" />}
+          </button>
+        </div>
+      </div>
+      <audio
+        ref={audioRef}
+        src={presenter.previewUrl}
+        onEnded={() => setPlaying(false)}
+        preload="none"
+      />
+    </motion.div>
+  );
+}
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -266,25 +364,14 @@ export default function Home() {
             </div>
             <Link href="/pipeline/">
               <Button variant="outline" className="rounded-full border-primary/50 text-foreground hover:bg-primary/10">
-                View All Presenters
+                Try a Presenter
               </Button>
             </Link>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <motion.div 
-                key={i}
-                whileHover={{ y: -5 }}
-                className="rounded-2xl overflow-hidden aspect-[3/4] relative group bg-card"
-              >
-                <img src={`https://images.unsplash.com/photo-${1500000000000 + i * 1000000}?auto=format&fit=crop&q=80&w=400&h=533`} alt={`Presenter ${i}`} className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-4 left-4">
-                  <div className="text-sm font-medium">Presenter 0{i}</div>
-                  <div className="text-xs text-primary">Available</div>
-                </div>
-              </motion.div>
+            {PRESENTERS.map((p) => (
+              <PresenterCard key={p.id} presenter={p} />
             ))}
           </div>
         </div>
