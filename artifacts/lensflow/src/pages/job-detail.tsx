@@ -401,30 +401,32 @@ export default function JobDetail() {
               <p className="text-xs text-muted-foreground mt-0.5">Script generated, voiceover synthesised, and video composition finished. Ready to share.</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 flex-wrap border-t border-primary/10 pt-4">
-            <Link
-              href="/jobs/new"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded text-xs font-mono font-medium hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" /> New Listing
-            </Link>
+          <div className="flex flex-col gap-4 border-t border-primary/10 pt-4">
             {job.videoUrl && (
               <NativeShareButton videoUrl={job.videoUrl} title={job.listingTitle || job.propertyAddress || "LensFlow video"} />
             )}
-            <SendToCrmButton jobId={job.id} />
-            <button
-              type="button"
-              onClick={() => simulateJob.mutate({ id: job.id })}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-border text-foreground rounded text-xs font-mono hover:border-primary/40 hover:text-primary transition-colors"
-            >
-              <RotateCcw className="w-3.5 h-3.5" /> Re-run Pipeline
-            </button>
-            <Link
-              href="/jobs"
-              className="inline-flex items-center gap-2 px-4 py-2 text-muted-foreground text-xs font-mono hover:text-primary transition-colors"
-            >
-              View All Videos <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
-            </Link>
+            <div className="flex items-center gap-3 flex-wrap">
+              <Link
+                href="/jobs/new"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded text-xs font-mono font-medium hover:bg-primary/90 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> New Listing
+              </Link>
+              <SendToCrmButton jobId={job.id} />
+              <button
+                type="button"
+                onClick={() => simulateJob.mutate({ id: job.id })}
+                className="inline-flex items-center gap-2 px-4 py-2 border border-border text-foreground rounded text-xs font-mono hover:border-primary/40 hover:text-primary transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" /> Re-run Pipeline
+              </button>
+              <Link
+                href="/jobs"
+                className="inline-flex items-center gap-2 px-4 py-2 text-muted-foreground text-xs font-mono hover:text-primary transition-colors"
+              >
+                View All Videos <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+              </Link>
+            </div>
           </div>
         </div>
       )}
@@ -511,38 +513,79 @@ function ShareButton({ jobId }: { jobId: string }) {
 
 function NativeShareButton({ videoUrl, title }: { videoUrl: string; title: string }) {
   const { toast } = useToast();
-  const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
+  const { copied, copy } = useCopyToClipboard(2000);
 
-  async function handleShare() {
-    const shareData = {
-      title: `${title} — LensFlow AI`,
-      text: `Check out this property video: ${title}`,
-      url: videoUrl,
-    };
-    if (canNativeShare) {
-      try {
-        await navigator.share(shareData);
-      } catch {
-        // user cancelled or share failed — no-op
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(videoUrl);
-        toast({ title: "Link Copied", description: "Video link copied to your clipboard." });
-      } catch {
-        toast({ title: "Could not share", description: "Please copy the link manually.", variant: "destructive" });
-      }
+  const caption = `Just listed! ${title} — see this AI-powered property video 🏠✨\n\n#realestate #propertymarketing #lensflow`;
+
+  const platforms = [
+    {
+      label: "Facebook",
+      color: "#1877F2",
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(videoUrl)}&quote=${encodeURIComponent(caption)}`,
+    },
+    {
+      label: "LinkedIn",
+      color: "#0A66C2",
+      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(videoUrl)}`,
+    },
+    {
+      label: "WhatsApp",
+      color: "#25D366",
+      href: `https://wa.me/?text=${encodeURIComponent(`${caption}\n\n${videoUrl}`)}`,
+    },
+    {
+      label: "X / Twitter",
+      color: "#000",
+      href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}&url=${encodeURIComponent(videoUrl)}`,
+    },
+    {
+      label: "Instagram",
+      color: "#E1306C",
+      href: "https://www.instagram.com",
+      copyFirst: true,
+    },
+    {
+      label: "TikTok",
+      color: "#010101",
+      href: "https://www.tiktok.com",
+      copyFirst: true,
+    },
+  ] as const;
+
+  async function openPlatform(p: (typeof platforms)[number]) {
+    if ("copyFirst" in p && p.copyFirst) {
+      try { await navigator.clipboard.writeText(videoUrl); } catch { /* ok */ }
+      toast({ title: `Link copied!`, description: `Paste your video link when you open ${p.label}.` });
     }
+    window.open(p.href, "_blank", "noopener,noreferrer");
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleShare}
-      className="inline-flex items-center gap-2 px-4 py-2 border border-border text-foreground rounded text-xs font-mono hover:border-primary/40 hover:text-primary transition-colors"
-    >
-      <Share2 className="w-3.5 h-3.5" /> {canNativeShare ? "Share Video" : "Copy Video Link"}
-    </button>
+    <div className="flex flex-col gap-2 w-full">
+      <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">Share to</p>
+      <div className="flex flex-wrap gap-2">
+        {platforms.map((p) => (
+          <button
+            key={p.label}
+            type="button"
+            onClick={() => openPlatform(p)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono font-medium text-white transition-opacity hover:opacity-85"
+            style={{ backgroundColor: p.color }}
+          >
+            {"copyFirst" in p && p.copyFirst && <Copy className="w-3 h-3 opacity-70" />}
+            {p.label}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={() => copy(videoUrl)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded text-xs font-mono hover:border-primary/40 hover:text-primary text-muted-foreground transition-colors"
+        >
+          {copied ? <Check className="w-3 h-3 text-primary" /> : <Copy className="w-3 h-3" />}
+          {copied ? "Copied!" : "Copy Link"}
+        </button>
+      </div>
+    </div>
   );
 }
 

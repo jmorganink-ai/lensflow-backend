@@ -6,6 +6,7 @@ import { useVideoPlayer, VideoView } from "expo-video";
 import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   ScrollView,
   Share,
@@ -61,6 +62,10 @@ export default function JobDetailScreen() {
   });
 
   const [copied, setCopied] = useState(false);
+  const [copiedCaption, setCopiedCaption] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const shareCaption = `Just listed! ${job?.listingTitle || job?.propertyAddress || "stunning property"} — see this AI-powered property video 🏠✨\n\n#realestate #propertymarketing #lensflow`;
 
   async function copyScript() {
     if (!script) return;
@@ -69,15 +74,62 @@ export default function JobDetailScreen() {
     setTimeout(() => setCopied(false), 1800);
   }
 
+  async function copyLink() {
+    if (!videoUrl) return;
+    await Clipboard.setStringAsync(videoUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  }
+
+  async function copyCaption() {
+    await Clipboard.setStringAsync(shareCaption);
+    setCopiedCaption(true);
+    setTimeout(() => setCopiedCaption(false), 2000);
+  }
+
   async function shareJob() {
     const title = job?.listingTitle || job?.propertyAddress || "my LensFlow video";
     try {
       await Share.share({
-        message: `Check out ${title} — created with LensFlow AI. https://www.lensflow.com.au`,
+        message: `Check out ${title} — created with LensFlow AI. ${videoUrl ?? "https://www.lensflow.com.au"}`,
       });
     } catch {
       /* user cancelled */
     }
+  }
+
+  async function shareToInstagram() {
+    if (videoUrl) await Clipboard.setStringAsync(videoUrl);
+    const url = "instagram://app";
+    const canOpen = await Linking.canOpenURL(url);
+    await Linking.openURL(canOpen ? url : "https://www.instagram.com");
+  }
+
+  async function shareToTikTok() {
+    if (videoUrl) await Clipboard.setStringAsync(videoUrl);
+    const url = "tiktok://app";
+    const canOpen = await Linking.canOpenURL(url);
+    await Linking.openURL(canOpen ? url : "https://www.tiktok.com");
+  }
+
+  async function shareToFacebook() {
+    const msg = encodeURIComponent(shareCaption);
+    const url = videoUrl
+      ? `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(videoUrl)}&quote=${msg}`
+      : `https://www.facebook.com/sharer/sharer.php?quote=${msg}`;
+    await Linking.openURL(url);
+  }
+
+  async function shareToLinkedIn() {
+    const url = videoUrl
+      ? `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(videoUrl)}`
+      : "https://www.linkedin.com";
+    await Linking.openURL(url);
+  }
+
+  async function shareToWhatsApp() {
+    const text = `${shareCaption}${videoUrl ? `\n\n${videoUrl}` : ""}`;
+    await Linking.openURL(`https://wa.me/?text=${encodeURIComponent(text)}`);
   }
 
   const title =
@@ -148,6 +200,96 @@ export default function JobDetailScreen() {
                   allowsFullscreen
                   nativeControls
                 />
+              </View>
+
+              {/* Social sharing */}
+              <View style={[styles.shareCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Text style={[styles.shareHeading, { color: colors.foreground }]}>
+                  Share Your Video
+                </Text>
+                <Text style={[styles.shareSubtitle, { color: colors.mutedForeground }]}>
+                  Tap a platform to post. Link is auto-copied for Instagram & TikTok.
+                </Text>
+
+                {/* Platform row 1 */}
+                <View style={styles.platformRow}>
+                  <Pressable
+                    onPress={shareToInstagram}
+                    style={[styles.platformBtn, { backgroundColor: "#E1306C" }]}
+                  >
+                    <Feather name="instagram" size={15} color="#fff" />
+                    <Text style={styles.platformBtnText}>Instagram</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={shareToFacebook}
+                    style={[styles.platformBtn, { backgroundColor: "#1877F2" }]}
+                  >
+                    <Feather name="facebook" size={15} color="#fff" />
+                    <Text style={styles.platformBtnText}>Facebook</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={shareToTikTok}
+                    style={[styles.platformBtn, { backgroundColor: "#010101" }]}
+                  >
+                    <Feather name="music" size={15} color="#fff" />
+                    <Text style={styles.platformBtnText}>TikTok</Text>
+                  </Pressable>
+                </View>
+
+                {/* Platform row 2 */}
+                <View style={styles.platformRow}>
+                  <Pressable
+                    onPress={shareToLinkedIn}
+                    style={[styles.platformBtn, { backgroundColor: "#0A66C2" }]}
+                  >
+                    <Feather name="linkedin" size={15} color="#fff" />
+                    <Text style={styles.platformBtnText}>LinkedIn</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={shareToWhatsApp}
+                    style={[styles.platformBtn, { backgroundColor: "#25D366" }]}
+                  >
+                    <Feather name="message-circle" size={15} color="#fff" />
+                    <Text style={styles.platformBtnText}>WhatsApp</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={shareJob}
+                    style={[styles.platformBtn, { backgroundColor: colors.primary }]}
+                  >
+                    <Feather name="share-2" size={15} color="#fff" />
+                    <Text style={styles.platformBtnText}>More</Text>
+                  </Pressable>
+                </View>
+
+                {/* Copy actions */}
+                <View style={[styles.copyRow, { borderTopColor: colors.border }]}>
+                  <Pressable
+                    onPress={copyLink}
+                    style={[styles.copyAction, { borderColor: colors.border }]}
+                  >
+                    <Feather
+                      name={copiedLink ? "check" : "link"}
+                      size={13}
+                      color={copiedLink ? colors.primary : colors.mutedForeground}
+                    />
+                    <Text style={[styles.copyActionText, { color: copiedLink ? colors.primary : colors.mutedForeground }]}>
+                      {copiedLink ? "Copied!" : "Copy Link"}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={copyCaption}
+                    style={[styles.copyAction, { borderColor: colors.border }]}
+                  >
+                    <Feather
+                      name={copiedCaption ? "check" : "edit-3"}
+                      size={13}
+                      color={copiedCaption ? colors.primary : colors.mutedForeground}
+                    />
+                    <Text style={[styles.copyActionText, { color: copiedCaption ? colors.primary : colors.mutedForeground }]}>
+                      {copiedCaption ? "Copied!" : "Copy Caption"}
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
             </View>
           ) : (
@@ -397,4 +539,60 @@ const styles = StyleSheet.create({
     marginTop: 32,
   },
   newBtnText: { fontFamily: "Inter_700Bold", fontSize: 16 },
+  shareCard: {
+    marginTop: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    gap: 12,
+  },
+  shareHeading: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 15,
+  },
+  shareSubtitle: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    marginTop: -6,
+    lineHeight: 17,
+  },
+  platformRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  platformBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 11,
+  },
+  platformBtnText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 12.5,
+    color: "#fff",
+  },
+  copyRow: {
+    flexDirection: "row",
+    gap: 10,
+    borderTopWidth: 1,
+    paddingTop: 12,
+    marginTop: 2,
+  },
+  copyAction: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingVertical: 9,
+  },
+  copyActionText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 12.5,
+  },
 });
