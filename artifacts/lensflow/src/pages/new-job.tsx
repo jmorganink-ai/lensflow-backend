@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2, ImagePlus, X, Upload, Camera, Music2 } from "lucide-react";
+import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2, ImagePlus, X, Upload, Camera, Music2, Film } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useUpload } from "@workspace/object-storage-web";
@@ -135,6 +135,7 @@ export default function NewJob() {
   const [uploadingCount, setUploadingCount] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [enhancePhotos, setEnhancePhotos] = useState(false);
+  const [outputType, setOutputType] = useState<"presenter" | "voice_photos">("presenter");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -241,6 +242,7 @@ export default function NewJob() {
           propertyImages: readyPhotos.map((p) => p.publicUrl),
           musicTrack: values.musicTrack || undefined,
           enhancePhotos: inputMode === "photos" && enhancePhotos ? true : undefined,
+          outputType,
         },
       },
       {
@@ -400,8 +402,42 @@ export default function NewJob() {
             />
             )}
 
-            {/* Presenter Presets */}
+            {/* Output Type */}
             <div className="space-y-2">
+              <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
+                <Film className="w-3.5 h-3.5" />
+                Output Type
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOutputType("presenter")}
+                  className={`flex flex-col items-start gap-1 p-3 rounded-lg border text-left transition-all ${
+                    outputType === "presenter"
+                      ? "border-primary bg-primary/5 text-foreground"
+                      : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                  }`}
+                >
+                  <span className="text-xs font-mono font-semibold uppercase tracking-wider">AI Presenter</span>
+                  <span className="text-[11px] leading-tight">HeyGen avatar presents your listing</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOutputType("voice_photos")}
+                  className={`flex flex-col items-start gap-1 p-3 rounded-lg border text-left transition-all ${
+                    outputType === "voice_photos"
+                      ? "border-primary bg-primary/5 text-foreground"
+                      : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                  }`}
+                >
+                  <span className="text-xs font-mono font-semibold uppercase tracking-wider">Voice + Photos</span>
+                  <span className="text-[11px] leading-tight">AI narration over a photo slideshow</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Presenter Presets — only for AI Presenter output type */}
+            {outputType === "presenter" && <div className="space-y-2">
               <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
                 <Mic className="w-3.5 h-3.5" />
                 Choose Presenter
@@ -436,7 +472,7 @@ export default function NewJob() {
                   );
                 })}
               </div>
-            </div>
+            </div>}
 
             {/* Music Picker */}
             <div className="space-y-2">

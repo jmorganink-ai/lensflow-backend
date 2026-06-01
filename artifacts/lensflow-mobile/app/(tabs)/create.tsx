@@ -2,6 +2,7 @@ import {
   getGetJobStatsQueryKey,
   getListJobsQueryKey,
   useCreateJob,
+  useCreateSelfRecordedJob,
   useSimulateJob,
   useGenerateScript,
 } from "@workspace/api-client-react";
@@ -24,7 +25,7 @@ import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PRESENTERS, detectPlatform, isValidUrl } from "@/constants/presenters";
-import { uploadPhoto } from "@/lib/api";
+import { uploadPhoto, uploadVideo } from "@/lib/api";
 import { useColors } from "@/hooks/useColors";
 
 const MUSIC_PRESETS = [
@@ -57,11 +58,13 @@ export default function CreateScreen() {
   const queryClient = useQueryClient();
 
   const createJob = useCreateJob();
+  const createSelfRecordedJob = useCreateSelfRecordedJob();
   const simulateJob = useSimulateJob();
   const generateScript = useGenerateScript();
 
   const [mode, setMode] = useState<Mode>("url");
   const [path, setPath] = useState<Path>("self");
+  const [outputType, setOutputType] = useState<"presenter" | "voice_photos">("presenter");
   const [listingUrl, setListingUrl] = useState("");
   const [propertyAddress, setPropertyAddress] = useState("");
   const [voiceId, setVoiceId] = useState("");
@@ -73,6 +76,7 @@ export default function CreateScreen() {
   const [uploading, setUploading] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [preparing, setPreparing] = useState(false);
+  const [videoUploading, setVideoUploading] = useState(false);
 
   const platform = detectPlatform(listingUrl);
 
@@ -165,6 +169,62 @@ export default function CreateScreen() {
     }
   }
 
+  // Upload an existing video from the library, auto-generate the script, and
+  // submit it directly via the self-recorded endpoint — bypassing the record screen.
+  async function onPickVideo() {
+    if (!validateProperty()) return;
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert("Permission needed", "Please allow video library access to upload a recording.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["videos"],
+      allowsEditing: false,
+      quality: 1,
+    });
+    if (result.canceled || !result.assets?.[0]) return;
+    const asset = result.assets[0];
+    setVideoUploading(true);
+    try {
+      const publicUrl = await uploadVideo({
+        uri: asset.uri,
+        fileName: asset.fileName ?? `video-${Date.now()}.mp4`,
+        mimeType: asset.mimeType ?? "video/mp4",
+        fileSize: asset.fileSize ?? undefined,
+      });
+      const { script, title } = await generateScript.mutateAsync({
+        data: {
+          inputMode: mode,
+          listingUrl: mode === "url" ? listingUrl.trim() : undefined,
+          propertyAddress: propertyAddress.trim() || undefined,
+          propertyImages: photos.map((p) => p.publicUrl),
+        },
+      });
+      const job = await createSelfRecordedJob.mutateAsync({
+        data: {
+          videoUrl: publicUrl,
+          script,
+          title: title ?? undefined,
+          inputMode: mode,
+          listingUrl: mode === "url" ? listingUrl.trim() : undefined,
+          propertyAddress: propertyAddress.trim() || undefined,
+          propertyImages: photos.map((p) => p.publicUrl),
+          voiceId: voiceId || undefined,
+          voiceName: voiceName || undefined,
+          musicTrack: musicTrack || undefined,
+        },
+      });
+      queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getGetJobStatsQueryKey() });
+      router.push(`/job/${job.id}`);
+    } catch {
+      Alert.alert("Upload Failed", "Could not upload your video. Please try again.");
+    } finally {
+      setVideoUploading(false);
+    }
+  }
+
   async function onSubmit() {
     if (!validateProperty()) return;
 
@@ -180,6 +240,7 @@ export default function CreateScreen() {
           musicTrack: musicTrack || undefined,
           propertyImages: photos.map((p) => p.publicUrl),
           enhancePhotos: mode === "photos" && enhancePhotos ? true : undefined,
+          outputType,
         },
       });
 
@@ -527,8 +588,47 @@ export default function CreateScreen() {
           </View>
         )}
 
-        {/* Presenter picker — AI path only */}
+        {/* Output Type picker — AI path only */}
         {path === "ai" && (
+          <View style={styles.field}>
+            {label("OUTPUT TYPE")}
+            <View style={{ flexDirection: "row", gap: 8 }}>
+              <Pressable
+                onPress={() => setOutputType("presenter")}
+                style={[
+                  styles.pathCard,
+                  { flex: 1, backgroundColor: colors.card, borderColor: outputType === "presenter" ? colors.primary : colors.border },
+                ]}
+              >
+                <Feather name="user" size={18} color={outputType === "presenter" ? colors.primary : colors.mutedForeground} />
+                <Text style={[styles.pathTitle, { color: outputType === "presenter" ? colors.primary : colors.foreground }]}>
+                  AI Presenter
+                </Text>
+                <Text style={[styles.pathDesc, { color: colors.mutedForeground }]}>
+                  HeyGen avatar presents your listing
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setOutputType("voice_photos")}
+                style={[
+                  styles.pathCard,
+                  { flex: 1, backgroundColor: colors.card, borderColor: outputType === "voice_photos" ? colors.primary : colors.border },
+                ]}
+              >
+                <Feather name="mic" size={18} color={outputType === "voice_photos" ? colors.primary : colors.mutedForeground} />
+                <Text style={[styles.pathTitle, { color: outputType === "voice_photos" ? colors.primary : colors.foreground }]}>
+                  Voice + Photos
+                </Text>
+                <Text style={[styles.pathDesc, { color: colors.mutedForeground }]}>
+                  AI narration over photo slideshow
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+
+        {/* Presenter picker — AI path, presenter output type only */}
+        {path === "ai" && outputType === "presenter" && (
         <View style={styles.field}>
           {label("CHOOSE A PRESENTER")}
           <View style={styles.presenterRow}>
@@ -715,12 +815,12 @@ export default function CreateScreen() {
         {/* Action */}
         <Pressable
           onPress={path === "self" ? onContinueSelf : onSubmit}
-          disabled={submitting || preparing}
+          disabled={submitting || preparing || videoUploading}
           style={({ pressed }) => [
             styles.submit,
             {
               backgroundColor: colors.primary,
-              opacity: pressed || submitting || preparing ? 0.85 : 1,
+              opacity: pressed || submitting || preparing || videoUploading ? 0.85 : 1,
             },
           ]}
         >
@@ -743,6 +843,29 @@ export default function CreateScreen() {
           <Text style={[styles.actionHint, { color: colors.mutedForeground }]}>
             We’ll write your script, then you read it aloud while the camera rolls.
           </Text>
+        )}
+        {/* Upload existing video — self path only */}
+        {path === "self" && (
+          <View style={{ alignItems: "center", marginTop: 4 }}>
+            <Text style={[styles.voiceNote, { color: colors.mutedForeground, marginBottom: 10 }]}>— or —</Text>
+            <Pressable
+              onPress={onPickVideo}
+              disabled={videoUploading || preparing}
+              style={[
+                styles.uploadVideoBtn,
+                { borderColor: colors.border, backgroundColor: colors.card },
+              ]}
+            >
+              {videoUploading ? (
+                <ActivityIndicator color={colors.primary} size="small" />
+              ) : (
+                <Feather name="upload" size={16} color={colors.primary} />
+              )}
+              <Text style={[styles.uploadVideoBtnText, { color: colors.primary }]}>
+                {videoUploading ? "Uploading\u2026" : "Upload from Library"}
+              </Text>
+            </Pressable>
+          </View>
         )}
       </ScrollView>
     </View>
@@ -833,6 +956,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 12,
     lineHeight: 17,
+  },
+  uploadVideoBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  uploadVideoBtnText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 14,
   },
   presenterRow: { flexDirection: "row", gap: 10 },
   presenter: {

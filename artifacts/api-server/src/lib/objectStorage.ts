@@ -204,6 +204,23 @@ export class ObjectStorageService {
       requestedPermission: requestedPermission ?? ObjectPermission.READ,
     });
   }
+
+  /**
+   * Upload a Buffer to object storage and make it publicly readable.
+   * Returns the public URL via the REPLIT_DOMAINS proxy (for Shotstack etc).
+   * objectKey is relative to PRIVATE_OBJECT_DIR, e.g. "voiceovers/jobId.mp3"
+   */
+  async uploadPublicAudio(buffer: Buffer, objectKey: string): Promise<string> {
+    const privateDir = this.getPrivateObjectDir().replace(/\/$/, "");
+    const fullPath = `${privateDir}/${objectKey}`;
+    const { bucketName, objectName } = parseObjectPath(fullPath);
+    const file = objectStorageClient.bucket(bucketName).file(objectName);
+    await file.save(buffer, { contentType: "audio/mpeg", resumable: false });
+    await setObjectAclPolicy(file, { owner: "", visibility: "public" });
+    const domain =
+      (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim() || "localhost";
+    return `https://${domain}/api/storage/objects/${objectKey}`;
+  }
 }
 
 function parseObjectPath(path: string): {

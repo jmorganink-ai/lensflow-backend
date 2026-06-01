@@ -44,11 +44,16 @@ export async function generatePresenterVideo(
   script: string,
   voiceName?: string | null,
   elevenLabsVoiceId?: string | null,
+  customAvatarId?: string | null,
+  customHeygenVoiceId?: string | null,
 ): Promise<HeyGenResult> {
   const apiKey = process.env.HEYGEN_API_KEY;
   if (!apiKey) throw new Error("HEYGEN_API_KEY not set");
 
-  const { avatarId, voiceId } = getAvatarConfig(voiceName, elevenLabsVoiceId);
+  // Prefer custom digital-twin avatar saved in user settings over the defaults
+  const fallback = getAvatarConfig(voiceName, elevenLabsVoiceId);
+  const avatarId = customAvatarId ?? fallback.avatarId;
+  const voiceId = customHeygenVoiceId ?? fallback.voiceId;
 
   logger.info({ avatarId, voiceId }, "Submitting HeyGen video generation job");
 

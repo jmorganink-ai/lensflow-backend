@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, count, and } from "drizzle-orm";
-import { db, jobsTable, pipelineStepsTable } from "@workspace/db";
+import { db, jobsTable, pipelineStepsTable, usersTable } from "@workspace/db";
 import {
   CreateJobBody,
   GetJobParams,
@@ -16,7 +16,7 @@ import { generateVoiceover } from "./elevenlabs";
 import { generateListingScript, type ListingContext } from "../lib/generate-script";
 import { parseListingUrl } from "../lib/parse-listing-url";
 import { generatePresenterVideo } from "../lib/heygen";
-import { composePresenterVideo, composeSelfieVideo } from "../lib/shotstack";
+import { composePresenterVideo, composeSelfieVideo, composeVoicePhotosVideo } from "../lib/shotstack";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { scrapeListing } from "../lib/apify";
 import { analysePropertyPhotos } from "../lib/analyse-photos";
@@ -41,6 +41,22 @@ const PIPELINE_STEPS_PHOTOS = [
   { name: "create_voiceover", label: "Create Voiceover", order: 4 },
   { name: "presenter_video", label: "Presenter Video", order: 5 },
   { name: "compose_video", label: "Compose Video", order: 6 },
+];
+
+// Steps for "voice_photos" output type — no HeyGen presenter, Shotstack composes voice + slideshow
+const PIPELINE_STEPS_URL_VOICE_PHOTOS = [
+  { name: "scrape_listing", label: "Scrape Listing", order: 1 },
+  { name: "generate_script", label: "Generate Script", order: 2 },
+  { name: "create_voiceover", label: "Create Voiceover", order: 3 },
+  { name: "compose_video", label: "Compose Video", order: 4 },
+];
+
+const PIPELINE_STEPS_PHOTOS_VOICE_PHOTOS = [
+  { name: "enhance_photos", label: "AI Photo Glow-up", order: 1 },
+  { name: "analyse_photos", label: "Analyse Photos", order: 2 },
+  { name: "generate_script", label: "Generate Script", order: 3 },
+  { name: "create_voiceover", label: "Create Voiceover", order: 4 },
+  { name: "compose_video", label: "Compose Video", order: 5 },
 ];
 
 // Track in-progress simulations to prevent double-starts
@@ -75,6 +91,14 @@ async function runSimulation(jobId: string): Promise<void> {
     // Fetch job to get voice details
     const [job] = await db.select().from(jobsTable).where(eq(jobsTable.id, jobId));
 
+    // Load the user's saved HeyGen digital-twin avatar (if any) — used for presenter_video step
+    const [userSettings] = job.userId
+      ? await db
+          .select({ heygenAvatarId: usersTable.heygenAvatarId, heygenVoiceId: usersTable.heygenVoiceId })
+          .from(usersTable)
+          .where(eq(usersTable.id, job.userId))
+      : [null];
+
     await db
       .update(jobsTable)
       .set({ status: "processing" })
@@ -88,8 +112,10 @@ async function runSimulation(jobId: string): Promise<void> {
 
     let generatedScript: string | null = null;
     let presenterVideoUrl: string | null = null;
+    let voiceoverPublicUrl: string | null = null;
     let finalVideoUrl: string | null = null;
     let scrapedImages: string[] = [];
+    const isVoicePhotos = job.outputType === "voice_photos";
     // Photos used by downstream steps (analysis, video). Starts as the originals
     // and is replaced by the AI-enhanced versions once the glow-up step runs.
     let effectivePhotos: string[] = job.propertyImages ?? [];
@@ -276,38 +302,76 @@ async function runSimulation(jobId: string): Promise<void> {
           const base64 = audioBuffer.toString("base64");
           outputUrl = `data:audio/mpeg;base64,${base64}`;
           logger.info({ jobId, bytes: audioBuffer.length }, "ElevenLabs voiceover generated");
+          // For voice_photos mode: upload to object storage so Shotstack can fetch it
+          if (isVoicePhotos) {
+            try {
+              const storage = new ObjectStorageService();
+              voiceoverPublicUrl = await storage.uploadPublicAudio(audioBuffer, `voiceovers/${jobId}.mp3`);
+              logger.info({ jobId, voiceoverPublicUrl }, "Voiceover uploaded for Shotstack");
+            } catch (uploadErr) {
+              logger.error({ err: uploadErr, jobId }, "Voiceover upload failed — compose will proceed without audio");
+            }
+          }
         } catch (err) {
           logger.error({ err, jobId }, "ElevenLabs voiceover failed — continuing without audio");
         }
       } else if (step.name === "presenter_video") {
-        // Real HeyGen call — generate AI presenter video from script
-        try {
-          const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
-          logger.info({ jobId, voiceName: job.voiceName }, "Generating presenter video with HeyGen");
-          const result = await generatePresenterVideo(script, job.voiceName, job.voiceId);
-          presenterVideoUrl = result.videoUrl;
-          finalVideoUrl = result.videoUrl;
-          outputUrl = result.videoUrl;
-          logger.info({ jobId, videoId: result.videoId }, "HeyGen presenter video ready");
-        } catch (err) {
-          logger.error({ err, jobId }, "HeyGen presenter video failed — continuing");
+        if (isVoicePhotos) {
+          // Voice + Photos output type — no HeyGen avatar needed, skip this step
+          logger.info({ jobId }, "Skipping presenter_video — voice_photos output type");
           await new Promise((resolve) => setTimeout(resolve, baseDuration));
+        } else {
+          // AI Presenter — generate HeyGen avatar video, using user's saved twin if available
+          try {
+            const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
+            logger.info({ jobId, voiceName: job.voiceName, customAvatar: userSettings?.heygenAvatarId ?? null }, "Generating presenter video with HeyGen");
+            const result = await generatePresenterVideo(
+              script,
+              job.voiceName,
+              job.voiceId,
+              userSettings?.heygenAvatarId ?? null,
+              userSettings?.heygenVoiceId ?? null,
+            );
+            presenterVideoUrl = result.videoUrl;
+            finalVideoUrl = result.videoUrl;
+            outputUrl = result.videoUrl;
+            logger.info({ jobId, videoId: result.videoId }, "HeyGen presenter video ready");
+          } catch (err) {
+            logger.error({ err, jobId }, "HeyGen presenter video failed — continuing");
+            await new Promise((resolve) => setTimeout(resolve, baseDuration));
+          }
         }
       } else if (step.name === "compose_video") {
-        // Real Shotstack call — compose final branded video from presenter clip
+        const photos = effectivePhotos.length > 0 ? effectivePhotos : (job.propertyImages ?? []);
         try {
-          if (!presenterVideoUrl) throw new Error("No presenter video URL from step 4");
-          logger.info({ jobId, presenterVideoUrl }, "Composing final video with Shotstack");
-          const result = await composePresenterVideo(
-            presenterVideoUrl,
-            job.listingTitle,
-            job.listingUrl,
-            effectivePhotos.length > 0 ? effectivePhotos : (job.propertyImages ?? []),
-            job.musicTrack,
-          );
-          outputUrl = result.videoUrl;
-          finalVideoUrl = result.videoUrl;
-          logger.info({ jobId, renderId: result.renderId }, "Shotstack final video ready");
+          if (isVoicePhotos) {
+            // Option B: voiceover narration over photo slideshow — no presenter clip
+            logger.info({ jobId, voiceoverPublicUrl }, "Composing voice-photos video with Shotstack");
+            const result = await composeVoicePhotosVideo(
+              voiceoverPublicUrl,
+              job.listingTitle,
+              job.listingUrl,
+              photos,
+              job.musicTrack,
+            );
+            outputUrl = result.videoUrl;
+            finalVideoUrl = result.videoUrl;
+            logger.info({ jobId, renderId: result.renderId }, "Shotstack voice-photos video ready");
+          } else {
+            // Option A: AI presenter clip composed over photo slideshow
+            if (!presenterVideoUrl) throw new Error("No presenter video URL from presenter_video step");
+            logger.info({ jobId, presenterVideoUrl }, "Composing final video with Shotstack");
+            const result = await composePresenterVideo(
+              presenterVideoUrl,
+              job.listingTitle,
+              job.listingUrl,
+              photos,
+              job.musicTrack,
+            );
+            outputUrl = result.videoUrl;
+            finalVideoUrl = result.videoUrl;
+            logger.info({ jobId, renderId: result.renderId }, "Shotstack final video ready");
+          }
         } catch (err) {
           logger.error({ err, jobId }, "Shotstack compose failed — continuing");
           await new Promise((resolve) => setTimeout(resolve, baseDuration));
@@ -371,6 +435,7 @@ router.post("/jobs", async (req, res): Promise<void> => {
 
   const inputMode = parsed.data.inputMode === "photos" ? "photos" : "url";
   const enhancePhotos = parsed.data.enhancePhotos === true;
+  const outputType = parsed.data.outputType === "voice_photos" ? "voice_photos" : "presenter";
 
   if (inputMode === "url" && !parsed.data.listingUrl?.trim()) {
     res.status(400).json({ error: "A listing URL is required for URL mode" });
@@ -394,13 +459,23 @@ router.post("/jobs", async (req, res): Promise<void> => {
       inputMode,
       propertyAddress: parsed.data.propertyAddress ?? null,
       musicTrack: parsed.data.musicTrack ?? null,
+      outputType,
       status: "queued",
     })
     .returning();
 
   // Only include the AI photo enhancement step when the user explicitly opted in.
   // Skip it and re-sequence orders so the timeline is tight.
-  const basePipelineSteps = inputMode === "photos" ? PIPELINE_STEPS_PHOTOS : PIPELINE_STEPS_URL;
+  // Choose the right pipeline steps based on inputMode and outputType
+  const basePipelineSteps =
+    outputType === "voice_photos"
+      ? inputMode === "photos"
+        ? PIPELINE_STEPS_PHOTOS_VOICE_PHOTOS
+        : PIPELINE_STEPS_URL_VOICE_PHOTOS
+      : inputMode === "photos"
+      ? PIPELINE_STEPS_PHOTOS
+      : PIPELINE_STEPS_URL;
+
   const pipelineSteps =
     inputMode === "photos" && !enhancePhotos
       ? basePipelineSteps

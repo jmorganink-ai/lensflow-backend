@@ -24,6 +24,8 @@ tags:
     description: ElevenLabs voice and TTS operations
   - name: Auth
     description: Browser and mobile authentication endpoints.
+  - name: settings
+    description: User avatar and preferences settings
 paths:
   /auth/user:
     get:
@@ -607,6 +609,46 @@ paths:
         "404":
           description: Webhook not found
 
+  /settings/avatar:
+    get:
+      tags: [settings]
+      operationId: getAvatarSettings
+      summary: Get the current user's saved digital-twin avatar
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: Avatar settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvatarSettings'
+        '401':
+          description: Not authenticated
+    put:
+      tags: [settings]
+      operationId: updateAvatarSettings
+      summary: Save the current user's digital-twin avatar
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvatarSettings'
+      responses:
+        '200':
+          description: Avatar settings saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvatarSettings'
+        '401':
+          description: Not authenticated
+
 components:
   parameters:
     AuthorizationSessionHeader:
@@ -837,6 +879,10 @@ components:
         enhancePhotos:
           type: boolean
           description: Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos
+        outputType:
+          type: string
+          enum: [presenter, voice_photos]
+          description: "presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow"
 
     GenerateScriptInput:
       type: object
@@ -1165,3 +1211,16 @@ components:
           type: integer
         message:
           type: string
+
+    AvatarSettings:
+      type: object
+      properties:
+        heygenAvatarId:
+          type: string
+          description: HeyGen custom avatar ID (digital twin)
+        heygenAvatarName:
+          type: string
+          description: Display name for this avatar (e.g. "Sarah's Twin")
+        heygenVoiceId:
+          type: string
+          description: HeyGen voice ID to use with this avatar

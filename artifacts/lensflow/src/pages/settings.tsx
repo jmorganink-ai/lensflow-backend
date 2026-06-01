@@ -1,7 +1,8 @@
 import { useAuth } from "@workspace/replit-auth-web";
-import { LogOut, User, Mail, Shield, Film, Key, Copy, Check, Webhook, Link as LinkIcon } from "lucide-react";
-import { useState } from "react";
+import { LogOut, User, Mail, Shield, Film, Key, Copy, Check, Webhook, Link as LinkIcon, Bot, Save } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
+import { useGetAvatarSettings, useUpdateAvatarSettings } from "@workspace/api-client-react";
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -15,7 +16,6 @@ export default function Settings() {
     ? (user.firstName[0] + (user.lastName?.[0] ?? "")).toUpperCase()
     : (user?.email?.[0] ?? "?").toUpperCase();
 
-  // Deterministic mock API key derived from user ID
   const mockApiKey = user?.id
     ? `lf_live_${user.id.replace(/-/g, "").slice(0, 24)}`
     : "lf_live_••••••••••••••••••••••••";
@@ -25,6 +25,34 @@ export default function Settings() {
       setKeyCopied(true);
       setTimeout(() => setKeyCopied(false), 2000);
     });
+  }
+
+  // Digital twin avatar settings
+  const { data: avatarData, isLoading: avatarLoading } = useGetAvatarSettings();
+  const updateAvatar = useUpdateAvatarSettings();
+  const [heygenAvatarId, setHeygenAvatarId] = useState("");
+  const [heygenAvatarName, setHeygenAvatarName] = useState("");
+  const [heygenVoiceId, setHeygenVoiceId] = useState("");
+  const [avatarSaved, setAvatarSaved] = useState(false);
+
+  useEffect(() => {
+    if (avatarData) {
+      setHeygenAvatarId(avatarData.heygenAvatarId ?? "");
+      setHeygenAvatarName(avatarData.heygenAvatarName ?? "");
+      setHeygenVoiceId(avatarData.heygenVoiceId ?? "");
+    }
+  }, [avatarData]);
+
+  async function saveAvatarSettings() {
+    await updateAvatar.mutateAsync({
+      data: {
+        heygenAvatarId: heygenAvatarId.trim() || undefined,
+        heygenAvatarName: heygenAvatarName.trim() || undefined,
+        heygenVoiceId: heygenVoiceId.trim() || undefined,
+      },
+    });
+    setAvatarSaved(true);
+    setTimeout(() => setAvatarSaved(false), 2500);
   }
 
   return (
@@ -62,6 +90,72 @@ export default function Settings() {
             <InfoRow icon={Film} label="Account Type" value="LensFlow Agent" />
             <InfoRow icon={Shield} label="Session" value="Active · 7-day token" />
           </div>
+        </div>
+      </div>
+
+      {/* Digital Twin Avatar */}
+      <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-border flex items-center gap-2">
+          <Bot className="w-4 h-4 text-muted-foreground" />
+          <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground">My Digital Twin</h3>
+          <span className="ml-auto text-[10px] font-mono text-primary border border-primary/30 bg-primary/5 px-1.5 py-0.5 rounded">AI AVATAR</span>
+        </div>
+        <div className="px-6 py-5 space-y-4">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Save your HeyGen digital twin avatar ID so it's used automatically on all new AI Presenter videos.
+            Leave blank to use the default LensFlow presenters.
+          </p>
+          {avatarLoading ? (
+            <div className="h-24 flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">HeyGen Avatar ID</label>
+                <input
+                  type="text"
+                  value={heygenAvatarId}
+                  onChange={(e) => setHeygenAvatarId(e.target.value)}
+                  placeholder="e.g. d6009ad7f6234aa1b98565649f5ffd55"
+                  className="w-full h-10 bg-background border border-border rounded px-3 text-sm font-mono text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Display Name <span className="normal-case tracking-normal opacity-50">(optional)</span></label>
+                <input
+                  type="text"
+                  value={heygenAvatarName}
+                  onChange={(e) => setHeygenAvatarName(e.target.value)}
+                  placeholder="e.g. Sarah — Your Twin"
+                  className="w-full h-10 bg-background border border-border rounded px-3 text-sm font-mono text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">HeyGen Voice ID <span className="normal-case tracking-normal opacity-50">(optional)</span></label>
+                <input
+                  type="text"
+                  value={heygenVoiceId}
+                  onChange={(e) => setHeygenVoiceId(e.target.value)}
+                  placeholder="Leave blank to use ElevenLabs voice"
+                  className="w-full h-10 bg-background border border-border rounded px-3 text-sm font-mono text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/50"
+                />
+              </div>
+              <button
+                onClick={saveAvatarSettings}
+                disabled={updateAvatar.isPending}
+                className="flex items-center gap-1.5 text-[10px] font-mono border border-border hover:border-primary/40 hover:text-primary text-muted-foreground px-3 py-2 rounded transition-colors disabled:opacity-50"
+              >
+                {avatarSaved ? (
+                  <><Check className="w-3 h-3 text-primary" /> Saved!</>
+                ) : updateAvatar.isPending ? (
+                  <><div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" /> Saving…</>
+                ) : (
+                  <><Save className="w-3 h-3" /> Save Avatar Settings</>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

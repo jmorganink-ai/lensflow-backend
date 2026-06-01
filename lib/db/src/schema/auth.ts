@@ -19,6 +19,10 @@ export const usersTable = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  // Digital-twin / custom HeyGen avatar saved by the agent in Settings
+  heygenAvatarId: varchar("heygen_avatar_id"),
+  heygenAvatarName: varchar("heygen_avatar_name"),
+  heygenVoiceId: varchar("heygen_voice_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

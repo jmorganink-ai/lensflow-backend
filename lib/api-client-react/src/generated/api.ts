@@ -27,6 +27,7 @@ import type {
   AnthropicMessage,
   AnthropicMessageInput,
   AuthUserEnvelope,
+  AvatarSettings,
   BeginBrowserLoginParams,
   ElevenLabsError,
   ElevenLabsVoice,
@@ -2432,5 +2433,153 @@ export const useDeleteWebhook = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getDeleteWebhookMutationOptions(options));
+    }
+
+export const getGetAvatarSettingsUrl = () => {
+
+
+
+
+  return `/api/settings/avatar`
+}
+
+/**
+ * @summary Get the current user's saved digital-twin avatar
+ */
+export const getAvatarSettings = async ( options?: RequestInit): Promise<AvatarSettings> => {
+
+  return customFetch<AvatarSettings>(getGetAvatarSettingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAvatarSettingsQueryKey = () => {
+    return [
+    `/api/settings/avatar`
+    ] as const;
+    }
+
+
+export const getGetAvatarSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getAvatarSettings>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAvatarSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAvatarSettingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAvatarSettings>>> = ({ signal }) => getAvatarSettings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAvatarSettings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAvatarSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getAvatarSettings>>>
+export type GetAvatarSettingsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the current user's saved digital-twin avatar
+ */
+
+export function useGetAvatarSettings<TData = Awaited<ReturnType<typeof getAvatarSettings>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAvatarSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAvatarSettingsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateAvatarSettingsUrl = () => {
+
+
+
+
+  return `/api/settings/avatar`
+}
+
+/**
+ * @summary Save the current user's digital-twin avatar
+ */
+export const updateAvatarSettings = async (avatarSettings: AvatarSettings, options?: RequestInit): Promise<AvatarSettings> => {
+
+  return customFetch<AvatarSettings>(getUpdateAvatarSettingsUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      avatarSettings,)
+  }
+);}
+
+
+
+
+export const getUpdateAvatarSettingsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAvatarSettings>>, TError,{data: BodyType<AvatarSettings>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAvatarSettings>>, TError,{data: BodyType<AvatarSettings>}, TContext> => {
+
+const mutationKey = ['updateAvatarSettings'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAvatarSettings>>, {data: BodyType<AvatarSettings>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateAvatarSettings(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAvatarSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateAvatarSettings>>>
+    export type UpdateAvatarSettingsMutationBody = BodyType<AvatarSettings>
+    export type UpdateAvatarSettingsMutationError = ErrorType<void>
+
+    /**
+ * @summary Save the current user's digital-twin avatar
+ */
+export const useUpdateAvatarSettings = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAvatarSettings>>, TError,{data: BodyType<AvatarSettings>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateAvatarSettings>>,
+        TError,
+        {data: BodyType<AvatarSettings>},
+        TContext
+      > => {
+      return useMutation(getUpdateAvatarSettingsMutationOptions(options));
     }
 

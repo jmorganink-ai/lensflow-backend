@@ -483,3 +483,161 @@ export async function composeSelfieVideo(
 
   throw new Error(`Shotstack selfie timed out after ${MAX_ATTEMPTS} polls (render_id=${renderId})`);
 }
+
+/**
+ * Compose an Option B "voice + photos" video:
+ * - Property photos as full-screen background slideshow with Ken Burns zoom
+ * - ElevenLabs voiceover narration as an audio track (no HeyGen presenter)
+ * - Branded title card and watermark
+ * - Optional background music underneath the voiceover
+ */
+export async function composeVoicePhotosVideo(
+  voiceoverUrl: string | null | undefined,
+  propertyTitle?: string | null,
+  listingUrl?: string | null,
+  propertyImages?: string[] | null,
+  musicTrack?: string | null,
+): Promise<ShotstackResult> {
+  const { apiKey, baseUrl: SHOTSTACK_API_BASE } = getShotstackConfig();
+
+  const subtitle = propertyTitle ?? "Premium Property Listing";
+  const domain = listingUrl
+    ? (() => { try { return new URL(listingUrl).hostname.replace("www.", ""); } catch { return "lensflow.com.au"; } })()
+    : "lensflow.com.au";
+
+  const images = (propertyImages ?? []).filter(Boolean);
+  const hasPhotos = images.length > 0;
+  const PHOTO_DURATION = 8;
+  const TOTAL_DURATION = 90;
+
+  logger.info({ voiceoverUrl, subtitle, photoCount: images.length }, "Composing voice-photos video via Shotstack");
+
+  const buildPhotoTrack = () => {
+    if (!hasPhotos) {
+      return {
+        clips: [
+          { asset: { type: "colour", colour: "#0a0f1e" }, start: 0, length: TOTAL_DURATION },
+        ],
+      };
+    }
+    const clips = images.map((src, i) => ({
+      asset: { type: "image", src },
+      start: i * PHOTO_DURATION,
+      length: PHOTO_DURATION,
+      fit: "cover",
+      scale: 1,
+      effect: i % 2 === 0 ? "zoomIn" : "zoomOut",
+      filter: "contrast",
+      opacity: 1,
+      transition: { in: i === 0 ? "fade" : "fadeSlow", out: "fadeSlow" },
+    }));
+    const totalPhotoDuration = images.length * PHOTO_DURATION;
+    if (totalPhotoDuration < TOTAL_DURATION) {
+      const extraLoops = Math.ceil((TOTAL_DURATION - totalPhotoDuration) / totalPhotoDuration);
+      for (let loop = 0; loop < extraLoops; loop++) {
+        images.forEach((src, i) => {
+          clips.push({
+            asset: { type: "image", src },
+            start: totalPhotoDuration * (loop + 1) + i * PHOTO_DURATION,
+            length: PHOTO_DURATION,
+            fit: "cover",
+            scale: 1,
+            effect: i % 2 === 0 ? "zoomIn" : "zoomOut",
+            filter: "contrast",
+            opacity: 1,
+            transition: { in: "fadeSlow", out: "fadeSlow" },
+          });
+        });
+      }
+    }
+    return { clips };
+  };
+
+  const gradientOverlayTrack = hasPhotos
+    ? { clips: [{ asset: { type: "colour", colour: "#000000" }, start: 0, length: TOTAL_DURATION, opacity: 0.3 }] }
+    : null;
+
+  const voiceoverTrack = voiceoverUrl
+    ? { clips: [{ asset: { type: "audio", src: voiceoverUrl, volume: 1 }, start: 0, length: TOTAL_DURATION }] }
+    : null;
+
+  const titleClip = {
+    asset: { type: "title", text: subtitle, style: "minimal", color: "#F5E6C8", size: "large" },
+    start: 1,
+    length: 6,
+    position: "center",
+    offset: { x: 0, y: 0.1 },
+    transition: { in: "fadeIn", out: "fadeOut" },
+  };
+
+  const watermarkClip = {
+    asset: { type: "title", text: `lensflow.com.au  ·  ${domain}`, style: "minimal", color: "#C9962A", size: "x-small" },
+    start: 0,
+    length: TOTAL_DURATION,
+    position: "topLeft",
+    offset: { x: 0.03, y: -0.04 },
+  };
+
+  const tracks = [
+    buildPhotoTrack(),
+    ...(gradientOverlayTrack ? [gradientOverlayTrack] : []),
+    ...(voiceoverTrack ? [voiceoverTrack] : []),
+    { clips: [titleClip] },
+    { clips: [watermarkClip] },
+  ];
+
+  const musicUrl = musicTrack ? MUSIC_TRACK_URLS[musicTrack] : undefined;
+  const soundtrack = musicUrl
+    ? { src: musicUrl, effect: "fadeInFadeOut", volume: voiceoverUrl ? 0.2 : 0.5 }
+    : undefined;
+
+  const renderRes = await fetch(`${SHOTSTACK_API_BASE}/render`, {
+    method: "POST",
+    headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      timeline: { background: "#0a0f1e", ...(soundtrack ? { soundtrack } : {}), tracks },
+      output: { format: "mp4", resolution: "hd", fps: 25 },
+    }),
+  });
+
+  if (!renderRes.ok) {
+    const text = await renderRes.text();
+    throw new Error(`Shotstack voice-photos render submit failed (${renderRes.status}): ${text}`);
+  }
+
+  const renderData = (await renderRes.json()) as {
+    success: boolean;
+    response?: { id: string };
+    message?: string;
+  };
+
+  if (!renderData.success || !renderData.response?.id) {
+    throw new Error(`Shotstack voice-photos did not return a render id: ${JSON.stringify(renderData)}`);
+  }
+
+  const renderId = renderData.response.id;
+  logger.info({ renderId }, "Shotstack voice-photos render queued — polling");
+
+  const POLL_INTERVAL_MS = 6_000;
+  const MAX_ATTEMPTS = 60;
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+    const statusRes = await fetch(`${SHOTSTACK_API_BASE}/renders/${renderId}`, {
+      headers: { "x-api-key": apiKey },
+    });
+    if (!statusRes.ok) { logger.warn({ attempt }, "Shotstack voice-photos poll failed — retrying"); continue; }
+    const statusData = (await statusRes.json()) as { success: boolean; response?: { status: string; url?: string } };
+    const status = statusData.response?.status;
+    logger.info({ renderId, status, attempt }, "Shotstack voice-photos poll");
+    if (status === "done") {
+      const videoUrl = statusData.response?.url;
+      if (!videoUrl) throw new Error("Shotstack voice-photos done but no url returned");
+      logger.info({ renderId, videoUrl }, "Shotstack voice-photos render complete");
+      return { videoUrl, renderId };
+    }
+    if (status === "failed") throw new Error(`Shotstack voice-photos render failed (id=${renderId})`);
+  }
+
+  throw new Error(`Shotstack voice-photos timed out after ${MAX_ATTEMPTS} polls (render_id=${renderId})`);
+}

@@ -17,6 +17,8 @@ export const jobsTable = pgTable("jobs", {
   propertyAddress: text("property_address"),
   musicTrack: text("music_track"),
   backgroundImageUrl: text("background_image_url"),
+  // "presenter" = AI avatar video; "voice_photos" = voiceover + photo slideshow only
+  outputType: text("output_type").default("presenter"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

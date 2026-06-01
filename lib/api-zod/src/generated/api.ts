@@ -111,7 +111,8 @@ export const CreateJobBody = zod.object({
   "inputMode": zod.enum(['url', 'photos']).optional().describe('Whether job was created from a URL or uploaded photos'),
   "propertyAddress": zod.string().optional().describe('Property address entered manually (used in photo mode)'),
   "musicTrack": zod.string().optional().describe('Music preset ID for the final video (uplifting, cinematic, calm, corporate)'),
-  "enhancePhotos": zod.boolean().optional().describe('Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos')
+  "enhancePhotos": zod.boolean().optional().describe('Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos'),
+  "outputType": zod.enum(['presenter', 'voice_photos']).optional().describe('presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow')
 })
 
 
@@ -475,6 +476,40 @@ export const RefreshMarketBriefResponse = zod.object({
  */
 export const DeleteWebhookParams = zod.object({
   "id": zod.coerce.string()
+})
+
+
+/**
+ * @summary Get the current user's saved digital-twin avatar
+ */
+export const GetAvatarSettingsHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — Bearer <sid>.')
+})
+
+export const GetAvatarSettingsResponse = zod.object({
+  "heygenAvatarId": zod.string().optional().describe('HeyGen custom avatar ID (digital twin)'),
+  "heygenAvatarName": zod.string().optional().describe('Display name for this avatar (e.g. \"Sarah\'s Twin\")'),
+  "heygenVoiceId": zod.string().optional().describe('HeyGen voice ID to use with this avatar')
+})
+
+
+/**
+ * @summary Save the current user's digital-twin avatar
+ */
+export const UpdateAvatarSettingsHeader = zod.object({
+  "Authorization": zod.string().optional().describe('Opaque session token — Bearer <sid>.')
+})
+
+export const UpdateAvatarSettingsBody = zod.object({
+  "heygenAvatarId": zod.string().optional().describe('HeyGen custom avatar ID (digital twin)'),
+  "heygenAvatarName": zod.string().optional().describe('Display name for this avatar (e.g. \"Sarah\'s Twin\")'),
+  "heygenVoiceId": zod.string().optional().describe('HeyGen voice ID to use with this avatar')
+})
+
+export const UpdateAvatarSettingsResponse = zod.object({
+  "heygenAvatarId": zod.string().optional().describe('HeyGen custom avatar ID (digital twin)'),
+  "heygenAvatarName": zod.string().optional().describe('Display name for this avatar (e.g. \"Sarah\'s Twin\")'),
+  "heygenVoiceId": zod.string().optional().describe('HeyGen voice ID to use with this avatar')
 })
 
 

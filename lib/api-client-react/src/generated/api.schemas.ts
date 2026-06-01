@@ -205,6 +205,17 @@ export const JobInputInputMode = {
   photos: 'photos',
 } as const;
 
+/**
+ * presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow
+ */
+export type JobInputOutputType = typeof JobInputOutputType[keyof typeof JobInputOutputType];
+
+
+export const JobInputOutputType = {
+  presenter: 'presenter',
+  voice_photos: 'voice_photos',
+} as const;
+
 export interface JobInput {
   listingUrl?: string;
   voiceId?: string;
@@ -219,6 +230,8 @@ export interface JobInput {
   musicTrack?: string;
   /** Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos */
   enhancePhotos?: boolean;
+  /** presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow */
+  outputType?: JobInputOutputType;
 }
 
 export type GenerateScriptInputInputMode = typeof GenerateScriptInputInputMode[keyof typeof GenerateScriptInputInputMode];
@@ -424,6 +437,15 @@ export interface SupportTicketResult {
   success: boolean;
   ticketId: number;
   message: string;
+}
+
+export interface AvatarSettings {
+  /** HeyGen custom avatar ID (digital twin) */
+  heygenAvatarId?: string;
+  /** Display name for this avatar (e.g. "Sarah's Twin") */
+  heygenAvatarName?: string;
+  /** HeyGen voice ID to use with this avatar */
+  heygenVoiceId?: string;
 }
 
 /**

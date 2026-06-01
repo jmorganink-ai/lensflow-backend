@@ -9,6 +9,7 @@ import anthropicRouter from "./anthropic";
 import elevenlabsRouter from "./elevenlabs";
 import storageRouter from "./storage";
 import marketRouter from "./market";
+import settingsRouter from "./settings";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(anthropicRouter);
 router.use(elevenlabsRouter);
 router.use(storageRouter);
 router.use(marketRouter);
+router.use(settingsRouter);
 
 export default router;
