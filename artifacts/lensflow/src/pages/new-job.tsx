@@ -37,6 +37,14 @@ const PRESENTER_PRESETS = [
     voiceName: "Australian real estate agent",
     photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
   },
+  {
+    id: "james",
+    name: "James",
+    specialty: "Commercial · Rural · Development",
+    voiceId: "J5tYJbZpL62OrQsj70q6",
+    voiceName: "morgan voice",
+    photo: "/presenters/james-poster.jpg",
+  },
 ];
 
 const MUSIC_PRESETS = [

@@ -35,6 +35,15 @@ export const PRESENTERS: Presenter[] = [
     photo:
       "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
   },
+  {
+    id: "james",
+    name: "James",
+    specialty: "Commercial · Rural · Development",
+    voiceId: "J5tYJbZpL62OrQsj70q6",
+    voiceName: "morgan voice",
+    photo:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=400",
+  },
 ];
 
 const PLATFORM_LABELS: Record<string, string> = {
