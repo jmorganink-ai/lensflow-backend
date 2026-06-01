@@ -224,7 +224,9 @@ async function runSimulation(jobId: string): Promise<void> {
             apifyResult.bathrooms ? `Bathrooms: ${apifyResult.bathrooms}` : null,
             apifyResult.carSpaces ? `Car spaces: ${apifyResult.carSpaces}` : null,
             `Platform: ${listingContext.platform}`,
-            `Photos found: ${scrapedImages.length}`,
+            scrapedImages.length > 0
+              ? `Photos found: ${scrapedImages.length}`
+              : "⚠️ No photos found — paste the full listing URL (not a short/redirect link) to get property photos in your video",
           ].filter(Boolean).join("\n");
           outputData = scraped;
           logger.info({ jobId, imageCount: scrapedImages.length, hasManualPhotos }, "Apify scrape complete");

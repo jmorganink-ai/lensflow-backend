@@ -7,8 +7,8 @@ const HEYGEN_API_BASE = "https://api.heygen.com";
 const JOHN_MORGAN_AVATAR_ID = "d6009ad7f6234aa1b98565649f5ffd55";
 const JOHN_MORGAN_VOICE_ID  = "6539347d386844db8516f1d3828938f0"; // "John Morgan" HeyGen voice
 
-// Female presenters use Abigail (expressive, professional).
-const FEMALE_AVATAR_ID = process.env.HEYGEN_AVATAR_FEMALE ?? "Abigail_expressive_2024112501";
+// Female presenters use Adriana Business Front — professional, Western-looking.
+const FEMALE_AVATAR_ID = process.env.HEYGEN_AVATAR_FEMALE ?? "Adriana_Business_Front_public";
 const FEMALE_VOICE_ID  = process.env.HEYGEN_VOICE_FEMALE  ?? "f8c69e517f424cafaecde32dde57096b"; // Allison
 
 // ElevenLabs voice IDs that map to male presenters
