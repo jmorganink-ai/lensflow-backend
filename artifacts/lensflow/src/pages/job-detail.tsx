@@ -209,11 +209,15 @@ export default function JobDetail() {
               size="sm"
               onClick={handleDelete}
               disabled={deleteJob.isPending}
-              className="text-destructive hover:text-destructive hover:border-destructive/50 font-mono text-xs"
+              className={`font-mono text-xs transition-all ${confirmingDelete ? "bg-destructive text-white border-destructive hover:bg-destructive/90 hover:border-destructive" : "text-destructive hover:text-destructive hover:border-destructive/50"}`}
               data-testid="button-delete-job"
             >
-              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-              Delete
+              {deleteJob.isPending ? (
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+              )}
+              {confirmingDelete ? "Confirm Delete?" : "Delete"}
             </Button>
           </div>
         </div>
@@ -345,15 +349,7 @@ export default function JobDetail() {
                         <Play className="w-3.5 h-3.5" /> Final Video — Ready to Publish
                       </div>
                       <video controls src={step.outputUrl} className="w-full rounded" style={{ maxHeight: "360px" }} />
-                      <a
-                        href={step.outputUrl}
-                        download
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-[11px] font-mono text-primary hover:underline"
-                      >
-                        <Download className="w-3 h-3" /> Download MP4
-                      </a>
+                      <DownloadVideoButton url={step.outputUrl} />
                     </div>
                   )}
                   {(step.startedAt || step.completedAt) && (
@@ -448,6 +444,49 @@ export default function JobDetail() {
   );
 }
 
+function DownloadVideoButton({ url }: { url: string }) {
+  const { toast } = useToast();
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = useCallback(async () => {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Network error");
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = "lensflow-video.mp4";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      toast({
+        title: "Download Failed",
+        description: "Could not download the video. Try right-clicking the video player and selecting Save.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloading(false);
+    }
+  }, [url, downloading, toast]);
+
+  return (
+    <button
+      type="button"
+      onClick={handleDownload}
+      disabled={downloading}
+      className="inline-flex items-center gap-1.5 text-[11px] font-mono text-primary hover:text-primary/80 transition-colors disabled:opacity-50"
+    >
+      {downloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
+      {downloading ? "Downloading…" : "Download MP4"}
+    </button>
+  );
+}
+
 function ScriptPanel({ script, jobTitle, jobId }: { script: string; jobTitle?: string; jobId: string }) {
   const { copied, copy } = useCopyToClipboard();
 
@@ -457,7 +496,9 @@ function ScriptPanel({ script, jobTitle, jobId }: { script: string; jobTitle?: s
     const a = document.createElement("a");
     a.href = url;
     a.download = `${(jobTitle ?? "listing-script").replace(/[^a-z0-9-_ ]/gi, "").toLowerCase().replace(/\s+/g, "-")}.txt`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 
@@ -510,10 +551,10 @@ function ShareButton({ jobId }: { jobId: string }) {
       type="button"
       onClick={() => copy(shareUrl)}
       className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border hover:border-primary/40 hover:text-primary text-muted-foreground rounded text-xs font-mono transition-colors"
-      title="Copy link to this job"
+      title="Copy link to this job (requires login to view)"
     >
       {copied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Share2 className="w-3.5 h-3.5" />}
-      {copied ? "Copied!" : "Share"}
+      {copied ? "Link Copied" : "Copy Job Link"}
     </button>
   );
 }
