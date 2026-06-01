@@ -89,6 +89,11 @@ export interface Job {
      * @nullable
      */
   musicTrack?: string | null;
+  /**
+     * URL of the virtual background image or clip used in selfie job composition
+     * @nullable
+     */
+  backgroundImageUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -176,6 +181,15 @@ export interface JobDetail {
      * @nullable
      */
   musicTrack?: string | null;
+  /**
+     * URL of the virtual background image or clip used in selfie job composition
+     * @nullable
+     */
+  backgroundImageUrl?: string | null;
+  /** @nullable */
+  voiceId?: string | null;
+  /** @nullable */
+  voiceName?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -242,6 +256,13 @@ export interface SelfRecordedJobInput {
   listingUrl?: string;
   propertyAddress?: string;
   propertyImages?: string[];
+  /** ElevenLabs voice ID for script narration overlay in the composed video */
+  voiceId?: string;
+  voiceName?: string;
+  /** Background music preset (uplifting, cinematic, calm, corporate) */
+  musicTrack?: string;
+  /** URL of the virtual background image or video clip */
+  backgroundImageUrl?: string;
 }
 
 export interface SendToCrmBody {

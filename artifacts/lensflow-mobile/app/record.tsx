@@ -40,6 +40,10 @@ export default function RecordScreen() {
     listingUrl?: string;
     propertyAddress?: string;
     propertyImages?: string;
+    backgroundImageUrl?: string;
+    voiceId?: string;
+    voiceName?: string;
+    musicTrack?: string;
   }>();
 
   const script = params.script ?? "";
@@ -128,6 +132,10 @@ export default function RecordScreen() {
           listingUrl: params.listingUrl || undefined,
           propertyAddress: params.propertyAddress || undefined,
           propertyImages: images,
+          backgroundImageUrl: params.backgroundImageUrl || undefined,
+          voiceId: params.voiceId || undefined,
+          voiceName: params.voiceName || undefined,
+          musicTrack: params.musicTrack || undefined,
         },
       });
 
@@ -192,7 +200,10 @@ export default function RecordScreen() {
     return (
       <View style={[styles.center, { backgroundColor: "#000" }]}>
         <ActivityIndicator color="#fff" size="large" />
-        <Text style={styles.processingText}>Saving your video…</Text>
+        <Text style={styles.processingText}>Uploading your video…</Text>
+        <Text style={[styles.processingText, { fontSize: 12, opacity: 0.65, marginTop: -6 }]}>
+          We'll compose the final video in the background
+        </Text>
       </View>
     );
   }
@@ -221,6 +232,30 @@ export default function RecordScreen() {
           <Feather name="refresh-cw" size={20} color="#fff" />
         </Pressable>
       </View>
+
+      {/* Background + enhancements indicator chips */}
+      {(params.backgroundImageUrl || params.voiceId || params.musicTrack) && (
+        <View style={[styles.chipsRow, { top: insets.top + 62 }]}>
+          {!!params.backgroundImageUrl && (
+            <View style={styles.chip}>
+              <Feather name="image" size={11} color="#fff" />
+              <Text style={styles.chipText}>BG</Text>
+            </View>
+          )}
+          {!!params.voiceId && (
+            <View style={styles.chip}>
+              <Feather name="mic" size={11} color="#fff" />
+              <Text style={styles.chipText}>{params.voiceName || "Narration"}</Text>
+            </View>
+          )}
+          {!!params.musicTrack && (
+            <View style={styles.chip}>
+              <Feather name="music" size={11} color="#fff" />
+              <Text style={styles.chipText}>{params.musicTrack}</Text>
+            </View>
+          )}
+        </View>
+      )}
 
       {/* Teleprompter overlay */}
       <View style={styles.prompterWrap} pointerEvents="box-none">
@@ -405,5 +440,30 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_500Medium",
     fontSize: 12.5,
     marginTop: 12,
+  },
+  chipsRow: {
+    position: "absolute",
+    left: 14,
+    right: 14,
+    flexDirection: "row",
+    gap: 7,
+    zIndex: 10,
+  },
+  chip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    borderRadius: 10,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+  },
+  chipText: {
+    color: "#fff",
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 10.5,
+    textTransform: "capitalize",
   },
 });

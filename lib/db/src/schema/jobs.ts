@@ -16,6 +16,7 @@ export const jobsTable = pgTable("jobs", {
   inputMode: text("input_mode").default("url"),
   propertyAddress: text("property_address"),
   musicTrack: text("music_track"),
+  backgroundImageUrl: text("background_image_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

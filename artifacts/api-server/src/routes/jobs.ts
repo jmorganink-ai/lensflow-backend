@@ -16,7 +16,8 @@ import { generateVoiceover } from "./elevenlabs";
 import { generateListingScript, type ListingContext } from "../lib/generate-script";
 import { parseListingUrl } from "../lib/parse-listing-url";
 import { generatePresenterVideo } from "../lib/heygen";
-import { composePresenterVideo } from "../lib/shotstack";
+import { composePresenterVideo, composeSelfieVideo } from "../lib/shotstack";
+import { ObjectStorageService } from "../lib/objectStorage";
 import { scrapeListing } from "../lib/apify";
 import { analysePropertyPhotos } from "../lib/analyse-photos";
 import { enhancePropertyPhotos } from "../lib/enhance-photos";
@@ -459,9 +460,10 @@ router.post("/jobs/generate-script", async (req, res): Promise<void> => {
   res.json({ script: result.script, title: result.title });
 });
 
-// Save an agent's self-recorded video as a completed job. No pipeline runs —
-// the recording is already finished, so we store it directly and attach a
-// single script step so the job detail screen can show the read-along script.
+// Save an agent's self-recorded video and compose a final video via Shotstack.
+// The job is created immediately (status "queued"), the response is returned,
+// and composition runs in the background: optional ElevenLabs narration →
+// Shotstack (background + agent PiP + narration + music) → job marked "complete".
 router.post("/jobs/self-recorded", async (req, res): Promise<void> => {
   if (!req.isAuthenticated()) {
     res.status(401).json({ error: "Unauthorized" });
@@ -499,6 +501,10 @@ router.post("/jobs/self-recorded", async (req, res): Promise<void> => {
   const propertyAddress = parsed.data.propertyAddress?.trim() || null;
   const title =
     parsed.data.title?.trim() || propertyAddress || "Self-recorded listing video";
+  const voiceId = parsed.data.voiceId?.trim() || null;
+  const voiceName = parsed.data.voiceName?.trim() || null;
+  const musicTrack = parsed.data.musicTrack?.trim() || null;
+  const backgroundImageUrl = parsed.data.backgroundImageUrl?.trim() || null;
 
   const id = randomUUID();
   const [job] = await db
@@ -512,7 +518,11 @@ router.post("/jobs/self-recorded", async (req, res): Promise<void> => {
       propertyImages: parsed.data.propertyImages ?? [],
       inputMode: "selfie",
       propertyAddress,
-      status: "complete",
+      voiceId,
+      voiceName,
+      musicTrack,
+      backgroundImageUrl,
+      status: "queued",
     })
     .returning();
 
@@ -529,7 +539,65 @@ router.post("/jobs/self-recorded", async (req, res): Promise<void> => {
     outputData: script,
   });
 
+  // Respond immediately — Shotstack composition runs in the background.
   res.status(201).json(job);
+
+  // ── Async Shotstack composition ──────────────────────────────────────────
+  setImmediate(async () => {
+    try {
+      logger.info({ jobId: id, backgroundImageUrl, voiceId, musicTrack }, "Starting selfie composition");
+      await db.update(jobsTable).set({ status: "processing" }).where(eq(jobsTable.id, id));
+
+      // Step 1: Optional ElevenLabs narration of the script
+      let narrationUrl: string | null = null;
+      if (voiceId && script) {
+        try {
+          logger.info({ jobId: id, voiceId }, "Generating selfie script narration");
+          const audioBuffer = await generateVoiceover(script, voiceId);
+
+          const storageService = new ObjectStorageService();
+          const uploadURL = await storageService.getObjectEntityUploadURL();
+          const objectPath = storageService.normalizeObjectEntityPath(uploadURL);
+
+          await fetch(uploadURL, {
+            method: "PUT",
+            body: audioBuffer,
+            headers: { "Content-Type": "audio/mpeg" },
+          });
+
+          const prodDomain = (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim();
+          if (prodDomain) {
+            narrationUrl = `https://${prodDomain}/api/storage${objectPath}`;
+            logger.info({ jobId: id, narrationUrl }, "Narration uploaded to storage");
+          }
+        } catch (err) {
+          logger.warn({ err, jobId: id }, "Narration generation failed — composing without audio");
+        }
+      }
+
+      // Step 2: Shotstack composition — background fills frame, agent video PiP
+      const result = await composeSelfieVideo(
+        videoUrl,
+        backgroundImageUrl,
+        narrationUrl,
+        musicTrack,
+        title,
+        listingUrl || null,
+      );
+
+      await db.update(jobsTable).set({
+        status: "complete",
+        videoUrl: result.videoUrl,
+      }).where(eq(jobsTable.id, id));
+
+      logger.info({ jobId: id, videoUrl: result.videoUrl }, "Selfie job composition complete");
+    } catch (err) {
+      logger.error({ err, jobId: id }, "Selfie composition failed");
+      await db.update(jobsTable)
+        .set({ status: "failed" })
+        .where(eq(jobsTable.id, id));
+    }
+  });
 });
 
 router.get("/jobs/stats", async (req, res): Promise<void> => {

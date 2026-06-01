@@ -277,3 +277,209 @@ export async function composePresenterVideo(
 
   throw new Error(`Shotstack timed out after ${MAX_ATTEMPTS} polls (render_id=${renderId})`);
 }
+
+/**
+ * Compose a selfie (self-recorded) job video:
+ * - Virtual background image or clip fills the full frame
+ * - Agent's self-recorded video as a centred picture-in-picture
+ * - Optional ElevenLabs narration audio track
+ * - Optional background music soundtrack
+ * - Branded title card and watermark
+ */
+export async function composeSelfieVideo(
+  agentVideoUrl: string,
+  backgroundUrl?: string | null,
+  narrationUrl?: string | null,
+  musicTrack?: string | null,
+  propertyTitle?: string | null,
+  listingUrl?: string | null,
+): Promise<ShotstackResult> {
+  const { apiKey, baseUrl: SHOTSTACK_API_BASE } = getShotstackConfig();
+
+  const TOTAL_DURATION = 90;
+  const subtitle = propertyTitle ?? "Property Listing";
+  const domain = listingUrl
+    ? (() => { try { return new URL(listingUrl).hostname.replace("www.", ""); } catch { return "lensflow.com.au"; } })()
+    : "lensflow.com.au";
+
+  const isVideoBackground = !!backgroundUrl && backgroundUrl.toLowerCase().includes(".mp4");
+
+  logger.info(
+    { agentVideoUrl, backgroundUrl: backgroundUrl ?? "(none)", narration: !!narrationUrl, musicTrack, env: process.env.SHOTSTACK_PROD_API_KEY ? "production" : "sandbox" },
+    "Composing selfie video via Shotstack",
+  );
+
+  const backgroundTrack = backgroundUrl
+    ? {
+        clips: [
+          {
+            asset: isVideoBackground
+              ? { type: "video", src: backgroundUrl, volume: 0 }
+              : { type: "image", src: backgroundUrl },
+            start: 0,
+            length: TOTAL_DURATION,
+            fit: "cover",
+            position: "center",
+          },
+        ],
+      }
+    : {
+        clips: [
+          {
+            asset: { type: "colour", colour: "#0a0f1e" },
+            start: 0,
+            length: TOTAL_DURATION,
+          },
+        ],
+      };
+
+  const overlayTrack = {
+    clips: [
+      {
+        asset: { type: "colour", colour: "#000000" },
+        start: 0,
+        length: TOTAL_DURATION,
+        opacity: 0.4,
+      },
+    ],
+  };
+
+  const agentTrack = {
+    clips: [
+      {
+        asset: { type: "video", src: agentVideoUrl, volume: 1 },
+        start: 0,
+        length: TOTAL_DURATION,
+        fit: "contain",
+        scale: 0.75,
+        position: "center",
+        transition: { in: "fade", out: "fade" },
+      },
+    ],
+  };
+
+  const narrationTrack = narrationUrl
+    ? {
+        clips: [
+          {
+            asset: { type: "audio", src: narrationUrl, volume: 0.85 },
+            start: 0,
+            length: TOTAL_DURATION,
+          },
+        ],
+      }
+    : null;
+
+  const titleClip = {
+    asset: {
+      type: "title",
+      text: subtitle,
+      style: "minimal",
+      color: "#F5E6C8",
+      size: "medium",
+    },
+    start: 1,
+    length: 5,
+    position: "bottomLeft",
+    offset: { x: 0.04, y: 0.12 },
+    transition: { in: "slideRight", out: "fadeOut" },
+  };
+
+  const watermarkClip = {
+    asset: {
+      type: "title",
+      text: `lensflow.com.au  ·  ${domain}`,
+      style: "minimal",
+      color: "#C9962A",
+      size: "x-small",
+    },
+    start: 0,
+    length: TOTAL_DURATION,
+    position: "topLeft",
+    offset: { x: 0.03, y: -0.04 },
+  };
+
+  const musicUrl = musicTrack ? MUSIC_TRACK_URLS[musicTrack] : undefined;
+  const soundtrack = musicUrl
+    ? { src: musicUrl, effect: "fadeInFadeOut", volume: narrationUrl ? 0.2 : 0.4 }
+    : undefined;
+
+  const tracks = [
+    backgroundTrack,
+    overlayTrack,
+    agentTrack,
+    ...(narrationTrack ? [narrationTrack] : []),
+    { clips: [titleClip] },
+    { clips: [watermarkClip] },
+  ];
+
+  const timeline = {
+    background: "#0a0f1e",
+    ...(soundtrack ? { soundtrack } : {}),
+    tracks,
+  };
+
+  const renderRes = await fetch(`${SHOTSTACK_API_BASE}/render`, {
+    method: "POST",
+    headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      timeline,
+      output: { format: "mp4", resolution: "hd", fps: 25 },
+    }),
+  });
+
+  if (!renderRes.ok) {
+    const text = await renderRes.text();
+    throw new Error(`Shotstack selfie render submit failed (${renderRes.status}): ${text}`);
+  }
+
+  const renderData = (await renderRes.json()) as {
+    success: boolean;
+    response?: { id: string };
+    message?: string;
+  };
+
+  if (!renderData.success || !renderData.response?.id) {
+    throw new Error(`Shotstack did not return a render id: ${JSON.stringify(renderData)}`);
+  }
+
+  const renderId = renderData.response.id;
+  logger.info({ renderId }, "Shotstack selfie render queued — polling for completion");
+
+  const POLL_INTERVAL_MS = 6_000;
+  const MAX_ATTEMPTS = 60;
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+
+    const statusRes = await fetch(`${SHOTSTACK_API_BASE}/renders/${renderId}`, {
+      headers: { "x-api-key": apiKey },
+    });
+
+    if (!statusRes.ok) {
+      logger.warn({ attempt, status: statusRes.status }, "Shotstack selfie poll failed — retrying");
+      continue;
+    }
+
+    const statusData = (await statusRes.json()) as {
+      success: boolean;
+      response?: { status: string; url?: string };
+    };
+
+    const status = statusData.response?.status;
+    logger.info({ renderId, status, attempt }, "Shotstack selfie poll");
+
+    if (status === "done") {
+      const videoUrl = statusData.response?.url;
+      if (!videoUrl) throw new Error("Shotstack done but no url returned");
+      logger.info({ renderId, videoUrl }, "Shotstack selfie render complete");
+      return { videoUrl, renderId };
+    }
+
+    if (status === "failed") {
+      throw new Error(`Shotstack selfie render failed (id=${renderId})`);
+    }
+  }
+
+  throw new Error(`Shotstack selfie timed out after ${MAX_ATTEMPTS} polls (render_id=${renderId})`);
+}

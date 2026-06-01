@@ -34,6 +34,15 @@ const MUSIC_PRESETS = [
   { id: "corporate", label: "Corporate", emoji: "💼", desc: "Professional" },
 ] as const;
 
+const BG_BASE = "https://www.lensflow.com.au/api/backgrounds";
+const BACKGROUND_PRESETS = [
+  { id: "modern-living",    label: "Modern Living",  emoji: "🛋️", url: `${BG_BASE}/modern-living.jpg` },
+  { id: "city-view",        label: "City View",       emoji: "🌆", url: `${BG_BASE}/city-view.jpg` },
+  { id: "luxury-penthouse", label: "Penthouse",       emoji: "✨", url: `${BG_BASE}/luxury-penthouse.png` },
+  { id: "waterfront",       label: "Waterfront",      emoji: "🌊", url: `${BG_BASE}/waterfront.png` },
+  { id: "property-tour",    label: "Property Tour",   emoji: "▶️", url: `${BG_BASE}/property-tour.mp4` },
+] as const;
+
 type Mode = "url" | "photos";
 type Path = "self" | "ai";
 interface Photo {
@@ -58,6 +67,7 @@ export default function CreateScreen() {
   const [voiceId, setVoiceId] = useState("");
   const [voiceName, setVoiceName] = useState("");
   const [musicTrack, setMusicTrack] = useState("");
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState("");
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [uploading, setUploading] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -138,6 +148,10 @@ export default function CreateScreen() {
           listingUrl: mode === "url" ? listingUrl.trim() : "",
           propertyAddress: propertyAddress.trim(),
           propertyImages: JSON.stringify(photos.map((p) => p.publicUrl)),
+          backgroundImageUrl: backgroundImageUrl || "",
+          voiceId: voiceId || "",
+          voiceName: voiceName || "",
+          musicTrack: musicTrack || "",
         },
       });
     } catch {
@@ -177,6 +191,7 @@ export default function CreateScreen() {
       setVoiceId("");
       setVoiceName("");
       setMusicTrack("");
+      setBackgroundImageUrl("");
 
       router.push(`/job/${job.id}`);
 
@@ -371,6 +386,144 @@ export default function CreateScreen() {
           </View>
         </View>
 
+        {/* Background picker — self path only */}
+        {path === "self" && (
+          <View style={styles.field}>
+            {label("VIRTUAL BACKGROUND (OPTIONAL)")}
+            <View style={styles.musicGrid}>
+              {BACKGROUND_PRESETS.map((bg) => {
+                const selected = backgroundImageUrl === bg.url;
+                return (
+                  <Pressable
+                    key={bg.id}
+                    onPress={() => setBackgroundImageUrl(selected ? "" : bg.url)}
+                    style={[
+                      styles.musicCard,
+                      {
+                        backgroundColor: colors.card,
+                        borderColor: selected ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    {bg.url.endsWith(".mp4") ? (
+                      <Text style={styles.musicEmoji}>{bg.emoji}</Text>
+                    ) : (
+                      <Image
+                        source={{ uri: bg.url }}
+                        style={styles.bgThumb}
+                        contentFit="cover"
+                      />
+                    )}
+                    <Text style={[styles.musicLabel, { color: selected ? colors.primary : colors.foreground }]}>
+                      {bg.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            {backgroundImageUrl ? (
+              <Text style={[styles.voiceNote, { color: colors.primary }]}>
+                ✓ {BACKGROUND_PRESETS.find((b) => b.url === backgroundImageUrl)?.label} background selected
+              </Text>
+            ) : (
+              <Text style={[styles.voiceNote, { color: colors.mutedForeground }]}>
+                No background — solid dark backdrop
+              </Text>
+            )}
+          </View>
+        )}
+
+        {/* Narration voice picker — self path only */}
+        {path === "self" && (
+          <View style={styles.field}>
+            {label("AI NARRATION VOICE (OPTIONAL)")}
+            <Text style={[styles.pathDesc, { color: colors.mutedForeground, marginBottom: 10 }]}>
+              An AI voice narrates the script over your composed video.
+            </Text>
+            <View style={styles.presenterRow}>
+              {PRESENTERS.map((p) => {
+                const selected = voiceId === p.voiceId;
+                return (
+                  <Pressable
+                    key={p.id}
+                    onPress={() => {
+                      setVoiceId(selected ? "" : p.voiceId);
+                      setVoiceName(selected ? "" : p.voiceName);
+                    }}
+                    style={[
+                      styles.presenter,
+                      { borderColor: selected ? colors.primary : colors.border },
+                    ]}
+                  >
+                    <Image source={{ uri: p.photo }} style={styles.presenterImg} contentFit="cover" />
+                    <LinearOverlay />
+                    {selected && (
+                      <View style={[styles.check, { backgroundColor: colors.primary }]}>
+                        <Feather name="check" size={11} color={colors.primaryForeground} />
+                      </View>
+                    )}
+                    <View style={styles.presenterMeta}>
+                      <Text style={styles.presenterName}>{p.name}</Text>
+                      <Text style={[styles.presenterSpec, { color: colors.primary }]}>
+                        {p.specialty}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+            {voiceId ? (
+              <Text style={[styles.voiceNote, { color: colors.primary }]}>
+                ✓ {voiceName} narrates over your video
+              </Text>
+            ) : (
+              <Text style={[styles.voiceNote, { color: colors.mutedForeground }]}>
+                No narration — your recorded voice only
+              </Text>
+            )}
+          </View>
+        )}
+
+        {/* Music picker — self path */}
+        {path === "self" && (
+          <View style={styles.field}>
+            {label("BACKGROUND MUSIC (OPTIONAL)")}
+            <View style={styles.musicGrid}>
+              {MUSIC_PRESETS.map((m) => {
+                const selected = musicTrack === m.id;
+                return (
+                  <Pressable
+                    key={m.id}
+                    onPress={() => setMusicTrack(selected ? "" : m.id)}
+                    style={[
+                      styles.musicCard,
+                      {
+                        backgroundColor: colors.card,
+                        borderColor: selected ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.musicEmoji}>{m.emoji}</Text>
+                    <Text style={[styles.musicLabel, { color: selected ? colors.primary : colors.foreground }]}>
+                      {m.label}
+                    </Text>
+                    <Text style={[styles.musicDesc, { color: colors.mutedForeground }]}>{m.desc}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            {musicTrack ? (
+              <Text style={[styles.voiceNote, { color: colors.primary }]}>
+                ✓ {MUSIC_PRESETS.find((m) => m.id === musicTrack)?.label} music added to video
+              </Text>
+            ) : (
+              <Text style={[styles.voiceNote, { color: colors.mutedForeground }]}>
+                No music — audio from your recording only
+              </Text>
+            )}
+          </View>
+        )}
+
         {/* Presenter picker — AI path only */}
         {path === "ai" && (
         <View style={styles.field}>
@@ -421,7 +574,7 @@ export default function CreateScreen() {
         </View>
         )}
 
-        {/* Music picker — AI path only */}
+        {/* Music picker — AI path only (self path music picker is above) */}
         {path === "ai" && (
           <View style={styles.field}>
             {label("BACKGROUND MUSIC (OPTIONAL)")}
@@ -709,4 +862,5 @@ const styles = StyleSheet.create({
   musicEmoji: { fontSize: 20, lineHeight: 26 },
   musicLabel: { fontFamily: "Inter_600SemiBold", fontSize: 13.5, marginTop: 2 },
   musicDesc: { fontFamily: "Inter_400Regular", fontSize: 11, lineHeight: 15 },
+  bgThumb: { width: "100%", height: 54, borderRadius: 6, marginBottom: 4 },
 });

@@ -694,6 +694,9 @@ components:
         musicTrack:
           type: ["string", "null"]
           description: Music preset used in the final video (uplifting, cinematic, calm, corporate)
+        backgroundImageUrl:
+          type: ["string", "null"]
+          description: URL of the virtual background image or clip used in selfie job composition
         createdAt:
           type: string
           format: date-time
@@ -738,6 +741,13 @@ components:
         musicTrack:
           type: ["string", "null"]
           description: Music preset used in the final video (uplifting, cinematic, calm, corporate)
+        backgroundImageUrl:
+          type: ["string", "null"]
+          description: URL of the virtual background image or clip used in selfie job composition
+        voiceId:
+          type: ["string", "null"]
+        voiceName:
+          type: ["string", "null"]
         createdAt:
           type: string
           format: date-time
@@ -845,6 +855,17 @@ components:
           type: array
           items:
             type: string
+        voiceId:
+          type: string
+          description: ElevenLabs voice ID for script narration overlay in the composed video
+        voiceName:
+          type: string
+        musicTrack:
+          type: string
+          description: Background music preset (uplifting, cinematic, calm, corporate)
+        backgroundImageUrl:
+          type: string
+          description: URL of the virtual background image or video clip
 
     SendToCrmBody:
       type: object

@@ -93,6 +93,7 @@ export const ListJobsResponseItem = zod.object({
   "propertyImages": zod.array(zod.string()).nullish(),
   "enhancedImages": zod.array(zod.string()).nullish(),
   "musicTrack": zod.string().nullish().describe('Music preset used in the final video (uplifting, cinematic, calm, corporate)'),
+  "backgroundImageUrl": zod.string().nullish().describe('URL of the virtual background image or clip used in selfie job composition'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -139,7 +140,11 @@ export const CreateSelfRecordedJobBody = zod.object({
   "inputMode": zod.enum(['url', 'photos']).optional(),
   "listingUrl": zod.string().optional(),
   "propertyAddress": zod.string().optional(),
-  "propertyImages": zod.array(zod.string()).optional()
+  "propertyImages": zod.array(zod.string()).optional(),
+  "voiceId": zod.string().optional().describe('ElevenLabs voice ID for script narration overlay in the composed video'),
+  "voiceName": zod.string().optional(),
+  "musicTrack": zod.string().optional().describe('Background music preset (uplifting, cinematic, calm, corporate)'),
+  "backgroundImageUrl": zod.string().optional().describe('URL of the virtual background image or video clip')
 })
 
 
@@ -166,6 +171,7 @@ export const GetJobStatsResponse = zod.object({
   "propertyImages": zod.array(zod.string()).nullish(),
   "enhancedImages": zod.array(zod.string()).nullish(),
   "musicTrack": zod.string().nullish().describe('Music preset used in the final video (uplifting, cinematic, calm, corporate)'),
+  "backgroundImageUrl": zod.string().nullish().describe('URL of the virtual background image or clip used in selfie job composition'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 }))
@@ -232,6 +238,9 @@ export const GetJobResponse = zod.object({
   "propertyImages": zod.array(zod.string()).nullish(),
   "enhancedImages": zod.array(zod.string()).nullish(),
   "musicTrack": zod.string().nullish().describe('Music preset used in the final video (uplifting, cinematic, calm, corporate)'),
+  "backgroundImageUrl": zod.string().nullish().describe('URL of the virtual background image or clip used in selfie job composition'),
+  "voiceId": zod.string().nullish(),
+  "voiceName": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })

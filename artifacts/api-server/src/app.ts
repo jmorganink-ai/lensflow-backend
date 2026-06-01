@@ -2,6 +2,7 @@ import express, { type Express } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
+import path from "path";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { authMiddleware } from "./middlewares/authMiddleware";
@@ -61,6 +62,11 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(authMiddleware);
+
+// Serve background images/clips used in selfie video composition.
+// These are accessed by Shotstack via the public domain URL at render time.
+const backgroundsDir = path.join(process.cwd(), "artifacts/api-server/public/backgrounds");
+app.use("/api/backgrounds", express.static(backgroundsDir, { maxAge: "7d" }));
 
 app.use("/api", router);
 
