@@ -28,6 +28,8 @@ let cachedBrief: MarketBrief | null = null;
 let cacheExpiry = 0;
 const CACHE_TTL_MS = 4 * 60 * 60 * 1000;
 
+let cachedMorganBrief: { content: string; date: string } | null = null;
+
 async function generateBrief(force = false): Promise<MarketBrief> {
   const now = Date.now();
   if (!force && cachedBrief && now < cacheExpiry) return cachedBrief;
