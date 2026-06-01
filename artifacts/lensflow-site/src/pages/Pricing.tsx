@@ -16,10 +16,10 @@ export default function Pricing() {
       price: isAnnual ? "79" : "89",
       description: "Perfect for solo agents starting with AI video.",
       features: [
-        "20 AI Videos per month",
+        "0 AI videos per month",
+        "AI script & voiceover drafts",
         "All 4 AI presenters (Mia, Oliver, Sophie & James)",
-        "ElevenLabs voiceover",
-        "720p & 1080p rendering"
+        "720p rendering"
       ],
       cta: "Start 7-day Free Trial",
       link: "https://buy.stripe.com/bJe00jc29bWsa6r2eX2go04",
@@ -30,7 +30,7 @@ export default function Pricing() {
       price: isAnnual ? "199" : "219",
       description: "For top-producing agents who want maximum impact.",
       features: [
-        "Unlimited AI Videos",
+        "1 AI video per month",
         "Custom Avatar Training",
         "Advanced Phoneme Lip Sync",
         "Priority Rendering",
@@ -46,7 +46,7 @@ export default function Pricing() {
       price: isAnnual ? "399" : "449",
       description: "White-glove service for luxury agencies.",
       features: [
-        "Everything in Elite",
+        "2 AI videos per month",
         "White Glove Service",
         "Dedicated Account Manager",
         "Voice Cloning",

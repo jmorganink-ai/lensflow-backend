@@ -15,7 +15,8 @@ import { logger } from "../lib/logger";
 import { generateVoiceover } from "./elevenlabs";
 import { generateListingScript, type ListingContext } from "../lib/generate-script";
 import { parseListingUrl } from "../lib/parse-listing-url";
-import { generatePresenterVideo } from "../lib/heygen";
+import { generatePresenterVideo, HeyGenTimeoutError } from "../lib/heygen";
+import { generatePresenterVideoDID } from "../lib/did";
 import { composePresenterVideo, composeSelfieVideo, composeVoicePhotosVideo } from "../lib/shotstack";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { scrapeListing } from "../lib/apify";
@@ -321,24 +322,39 @@ async function runSimulation(jobId: string): Promise<void> {
           logger.info({ jobId }, "Skipping presenter_video — voice_photos output type");
           await new Promise((resolve) => setTimeout(resolve, baseDuration));
         } else {
-          // AI Presenter — generate HeyGen avatar video, using user's saved twin if available
+          // AI Presenter — generate HeyGen avatar video (60 s budget), with D-ID fallback
+          const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
           try {
-            const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
-            logger.info({ jobId, voiceName: job.voiceName, customAvatar: userSettings?.heygenAvatarId ?? null }, "Generating presenter video with HeyGen");
+            logger.info({ jobId, voiceName: job.voiceName, customAvatar: userSettings?.heygenAvatarId ?? null }, "Generating presenter video with HeyGen (60 s budget)");
             const result = await generatePresenterVideo(
               script,
               job.voiceName,
               job.voiceId,
               userSettings?.heygenAvatarId ?? null,
               userSettings?.heygenVoiceId ?? null,
+              60_000,
             );
             presenterVideoUrl = result.videoUrl;
             finalVideoUrl = result.videoUrl;
             outputUrl = result.videoUrl;
             logger.info({ jobId, videoId: result.videoId }, "HeyGen presenter video ready");
           } catch (err) {
-            logger.error({ err, jobId }, "HeyGen presenter video failed — continuing");
-            await new Promise((resolve) => setTimeout(resolve, baseDuration));
+            if (err instanceof HeyGenTimeoutError) {
+              logger.warn({ jobId }, "HeyGen timed out after 60 s — switching to D-ID fallback");
+              try {
+                const didResult = await generatePresenterVideoDID(script);
+                presenterVideoUrl = didResult.videoUrl;
+                finalVideoUrl = didResult.videoUrl;
+                outputUrl = didResult.videoUrl;
+                logger.info({ jobId, videoId: didResult.videoId }, "D-ID fallback presenter video ready");
+              } catch (didErr) {
+                logger.error({ didErr, jobId }, "D-ID fallback also failed — continuing without presenter video");
+                await new Promise((resolve) => setTimeout(resolve, baseDuration));
+              }
+            } else {
+              logger.error({ err, jobId }, "HeyGen presenter video failed — continuing");
+              await new Promise((resolve) => setTimeout(resolve, baseDuration));
+            }
           }
         }
       } else if (step.name === "compose_video") {

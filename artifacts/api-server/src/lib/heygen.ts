@@ -35,6 +35,13 @@ function getAvatarConfig(voiceName?: string | null, elevenLabsVoiceId?: string |
   return { avatarId: FEMALE_AVATAR_ID, voiceId: FEMALE_VOICE_ID };
 }
 
+export class HeyGenTimeoutError extends Error {
+  constructor(videoId: string) {
+    super(`HeyGen timed out waiting for video (video_id=${videoId})`);
+    this.name = "HeyGenTimeoutError";
+  }
+}
+
 export interface HeyGenResult {
   videoUrl: string;
   videoId: string;
@@ -46,6 +53,7 @@ export async function generatePresenterVideo(
   elevenLabsVoiceId?: string | null,
   customAvatarId?: string | null,
   customHeygenVoiceId?: string | null,
+  timeoutMs = 90_000,
 ): Promise<HeyGenResult> {
   const apiKey = process.env.HEYGEN_API_KEY;
   if (!apiKey) throw new Error("HEYGEN_API_KEY not set");
@@ -102,12 +110,10 @@ export async function generatePresenterVideo(
 
   logger.info({ videoId }, "HeyGen video queued — polling for completion");
 
-  // Poll up to 90 seconds (15 × 6s). HeyGen typically responds in 30-60s.
-  // Keeping this tight prevents the step from blocking the pipeline for minutes.
   const POLL_INTERVAL_MS = 6_000;
-  const MAX_ATTEMPTS = 15;
+  const deadline = Date.now() + timeoutMs;
 
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+  while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
 
     const statusRes = await fetch(
@@ -116,7 +122,7 @@ export async function generatePresenterVideo(
     );
 
     if (!statusRes.ok) {
-      logger.warn({ attempt, status: statusRes.status }, "HeyGen status poll failed — retrying");
+      logger.warn({ status: statusRes.status }, "HeyGen status poll failed — retrying");
       continue;
     }
 
@@ -125,7 +131,7 @@ export async function generatePresenterVideo(
     };
 
     const status = statusData.data?.status;
-    logger.info({ videoId, status, attempt }, "HeyGen poll");
+    logger.info({ videoId, status, elapsed: Date.now() - (deadline - timeoutMs) }, "HeyGen poll");
 
     if (status === "completed") {
       const videoUrl = statusData.data?.video_url;
@@ -139,5 +145,5 @@ export async function generatePresenterVideo(
     }
   }
 
-  throw new Error(`HeyGen timed out after ${MAX_ATTEMPTS} polls (video_id=${videoId})`);
+  throw new HeyGenTimeoutError(videoId);
 }
