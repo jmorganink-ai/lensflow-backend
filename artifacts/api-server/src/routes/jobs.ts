@@ -370,6 +370,7 @@ router.post("/jobs", async (req, res): Promise<void> => {
   }
 
   const inputMode = parsed.data.inputMode === "photos" ? "photos" : "url";
+  const enhancePhotos = parsed.data.enhancePhotos === true;
 
   if (inputMode === "url" && !parsed.data.listingUrl?.trim()) {
     res.status(400).json({ error: "A listing URL is required for URL mode" });
@@ -397,7 +398,16 @@ router.post("/jobs", async (req, res): Promise<void> => {
     })
     .returning();
 
-  const pipelineSteps = inputMode === "photos" ? PIPELINE_STEPS_PHOTOS : PIPELINE_STEPS_URL;
+  // Only include the AI photo enhancement step when the user explicitly opted in.
+  // Skip it and re-sequence orders so the timeline is tight.
+  const basePipelineSteps = inputMode === "photos" ? PIPELINE_STEPS_PHOTOS : PIPELINE_STEPS_URL;
+  const pipelineSteps =
+    inputMode === "photos" && !enhancePhotos
+      ? basePipelineSteps
+          .filter((s) => s.name !== "enhance_photos")
+          .map((s, i) => ({ ...s, order: i + 1 }))
+      : basePipelineSteps;
+
   const stepRows = pipelineSteps.map((step) => ({
     id: randomUUID(),
     jobId: id,

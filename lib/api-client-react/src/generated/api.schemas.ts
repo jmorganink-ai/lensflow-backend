@@ -217,6 +217,8 @@ export interface JobInput {
   propertyAddress?: string;
   /** Music preset ID for the final video (uplifting, cinematic, calm, corporate) */
   musicTrack?: string;
+  /** Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos */
+  enhancePhotos?: boolean;
 }
 
 export type GenerateScriptInputInputMode = typeof GenerateScriptInputInputMode[keyof typeof GenerateScriptInputInputMode];

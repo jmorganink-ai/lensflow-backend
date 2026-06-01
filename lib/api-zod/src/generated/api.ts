@@ -110,7 +110,8 @@ export const CreateJobBody = zod.object({
   "propertyImages": zod.array(zod.string()).optional().describe('Public URLs of uploaded property photos'),
   "inputMode": zod.enum(['url', 'photos']).optional().describe('Whether job was created from a URL or uploaded photos'),
   "propertyAddress": zod.string().optional().describe('Property address entered manually (used in photo mode)'),
-  "musicTrack": zod.string().optional().describe('Music preset ID for the final video (uplifting, cinematic, calm, corporate)')
+  "musicTrack": zod.string().optional().describe('Music preset ID for the final video (uplifting, cinematic, calm, corporate)'),
+  "enhancePhotos": zod.boolean().optional().describe('Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos')
 })
 
 

@@ -68,6 +68,7 @@ export default function CreateScreen() {
   const [voiceName, setVoiceName] = useState("");
   const [musicTrack, setMusicTrack] = useState("");
   const [backgroundImageUrl, setBackgroundImageUrl] = useState("");
+  const [enhancePhotos, setEnhancePhotos] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [uploading, setUploading] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -178,6 +179,7 @@ export default function CreateScreen() {
           voiceName: voiceName || undefined,
           musicTrack: musicTrack || undefined,
           propertyImages: photos.map((p) => p.publicUrl),
+          enhancePhotos: mode === "photos" && enhancePhotos ? true : undefined,
         },
       });
 
@@ -192,6 +194,7 @@ export default function CreateScreen() {
       setVoiceName("");
       setMusicTrack("");
       setBackgroundImageUrl("");
+      setEnhancePhotos(false);
 
       router.push(`/job/${job.id}`);
 
@@ -663,6 +666,52 @@ export default function CreateScreen() {
           </View>
         </View>
 
+        {/* AI Photo Enhancement toggle — photo mode only */}
+        {mode === "photos" && (
+          <View style={styles.field}>
+            {label("AI PHOTO ENHANCEMENT (OPTIONAL)")}
+            <Pressable
+              onPress={() => setEnhancePhotos((v) => !v)}
+              style={[
+                styles.enhanceCard,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: enhancePhotos ? colors.primary : colors.border,
+                },
+              ]}
+            >
+              <Text style={styles.enhanceEmoji}>✨</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.enhanceTitle, { color: enhancePhotos ? colors.primary : colors.foreground }]}>
+                  Enhance my photos with AI
+                </Text>
+                <Text style={[styles.enhanceDesc, { color: colors.mutedForeground }]}>
+                  Gemini relights, colour-balances &amp; declutters each photo for a premium listing look
+                </Text>
+              </View>
+              {/* Toggle pill */}
+              <View
+                style={[
+                  styles.togglePill,
+                  { backgroundColor: enhancePhotos ? colors.primary : colors.secondary },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.toggleThumb,
+                    { transform: [{ translateX: enhancePhotos ? 16 : 0 }] },
+                  ]}
+                />
+              </View>
+            </Pressable>
+            <Text style={[styles.voiceNote, { color: enhancePhotos ? colors.primary : colors.mutedForeground }]}>
+              {enhancePhotos
+                ? "✓ AI will enhance your photos before compositing"
+                : "No enhancement — original photos used directly"}
+            </Text>
+          </View>
+        )}
+
         {/* Action */}
         <Pressable
           onPress={path === "self" ? onContinueSelf : onSubmit}
@@ -863,4 +912,33 @@ const styles = StyleSheet.create({
   musicLabel: { fontFamily: "Inter_600SemiBold", fontSize: 13.5, marginTop: 2 },
   musicDesc: { fontFamily: "Inter_400Regular", fontSize: 11, lineHeight: 15 },
   bgThumb: { width: "100%", height: 54, borderRadius: 6, marginBottom: 4 },
+  enhanceCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    borderRadius: 14,
+    borderWidth: 2,
+    padding: 14,
+  },
+  enhanceEmoji: { fontSize: 22, lineHeight: 28 },
+  enhanceTitle: { fontFamily: "Inter_600SemiBold", fontSize: 14, marginBottom: 3 },
+  enhanceDesc: { fontFamily: "Inter_400Regular", fontSize: 11.5, lineHeight: 16 },
+  togglePill: {
+    width: 36,
+    height: 20,
+    borderRadius: 10,
+    paddingHorizontal: 2,
+    justifyContent: "center",
+  },
+  toggleThumb: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
 });

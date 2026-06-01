@@ -134,6 +134,7 @@ export default function NewJob() {
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [enhancePhotos, setEnhancePhotos] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -239,6 +240,7 @@ export default function NewJob() {
           voiceName: values.voiceName || undefined,
           propertyImages: readyPhotos.map((p) => p.publicUrl),
           musicTrack: values.musicTrack || undefined,
+          enhancePhotos: inputMode === "photos" && enhancePhotos ? true : undefined,
         },
       },
       {
@@ -713,6 +715,32 @@ export default function NewJob() {
                   </>
                 );
               })()}
+
+              {/* AI Photo Enhancement toggle — only relevant in photo mode */}
+              {inputMode === "photos" && (
+                <button
+                  type="button"
+                  onClick={() => setEnhancePhotos((v) => !v)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all ${
+                    enhancePhotos
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/40"
+                  }`}
+                >
+                  <span className="text-xl leading-none">✨</span>
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-sm font-mono font-medium ${enhancePhotos ? "text-foreground" : "text-muted-foreground"}`}>
+                      AI Photo Enhancement
+                    </div>
+                    <div className="text-[10px] text-muted-foreground/60 leading-tight mt-0.5">
+                      Gemini relights, colour-balances &amp; declutters each photo for a premium look
+                    </div>
+                  </div>
+                  <div className={`w-9 h-5 rounded-full transition-colors flex items-center px-0.5 shrink-0 ${enhancePhotos ? "bg-primary" : "bg-muted"}`}>
+                    <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${enhancePhotos ? "translate-x-4" : "translate-x-0"}`} />
+                  </div>
+                </button>
+              )}
             </div>
 
             <div className="flex justify-end">

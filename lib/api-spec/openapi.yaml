@@ -834,6 +834,9 @@ components:
         musicTrack:
           type: string
           description: Music preset ID for the final video (uplifting, cinematic, calm, corporate)
+        enhancePhotos:
+          type: boolean
+          description: Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos
 
     GenerateScriptInput:
       type: object
