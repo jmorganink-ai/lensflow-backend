@@ -2,14 +2,14 @@ import { logger } from "./logger";
 
 const HEYGEN_API_BASE = "https://api.heygen.com";
 
-// Default avatar IDs — professional business attire, front-facing
-// Override via env vars to use custom avatars
-const AVATAR_FEMALE = process.env.HEYGEN_AVATAR_FEMALE ?? "Abigail_standing_office_front";
-const AVATAR_MALE   = process.env.HEYGEN_AVATAR_MALE   ?? "Shawn_Business_Front_public";
+// John Morgan — the only custom avatar in this HeyGen account.
+// Used for James (the founder) and all male presenters.
+const JOHN_MORGAN_AVATAR_ID = "d6009ad7f6234aa1b98565649f5ffd55";
+const JOHN_MORGAN_VOICE_ID  = "6539347d386844db8516f1d3828938f0"; // "John Morgan" HeyGen voice
 
-// HeyGen voice IDs — first female/male from the account's voice list
-const VOICE_FEMALE = process.env.HEYGEN_VOICE_FEMALE ?? "f8c69e517f424cafaecde32dde57096b";
-const VOICE_MALE   = process.env.HEYGEN_VOICE_MALE   ?? "6539347d386844db8516f1d3828938f0";
+// Female presenters use Abigail (expressive, professional).
+const FEMALE_AVATAR_ID = process.env.HEYGEN_AVATAR_FEMALE ?? "Abigail_expressive_2024112501";
+const FEMALE_VOICE_ID  = process.env.HEYGEN_VOICE_FEMALE  ?? "f8c69e517f424cafaecde32dde57096b"; // Allison
 
 // ElevenLabs voice IDs that map to male presenters
 const ELEVENLABS_MALE_VOICE_IDS = new Set([
@@ -17,17 +17,22 @@ const ELEVENLABS_MALE_VOICE_IDS = new Set([
   "J5tYJbZpL62OrQsj70q6", // James (morgan voice)
 ]);
 
+// Male presenter voiceNames
+const MALE_VOICE_NAMES = new Set(["oliver", "james", "morgan voice", "aussie voice"]);
+
 function getAvatarConfig(voiceName?: string | null, elevenLabsVoiceId?: string | null): { avatarId: string; voiceId: string } {
   const name = (voiceName ?? "").toLowerCase();
   const isMale =
-    name === "oliver" ||
-    name === "james" ||
-    name === "morgan voice" ||
+    MALE_VOICE_NAMES.has(name) ||
     (elevenLabsVoiceId != null && ELEVENLABS_MALE_VOICE_IDS.has(elevenLabsVoiceId));
+
   if (isMale) {
-    return { avatarId: AVATAR_MALE, voiceId: VOICE_MALE };
+    return {
+      avatarId: process.env.HEYGEN_AVATAR_MALE ?? JOHN_MORGAN_AVATAR_ID,
+      voiceId: JOHN_MORGAN_VOICE_ID,
+    };
   }
-  return { avatarId: AVATAR_FEMALE, voiceId: VOICE_FEMALE };
+  return { avatarId: FEMALE_AVATAR_ID, voiceId: FEMALE_VOICE_ID };
 }
 
 export interface HeyGenResult {
