@@ -12,7 +12,7 @@ const PRESENTER_PRESETS = [
     specialty: "Waterfront · Lifestyle",
     voiceId: "x3PfG9wL6FOEApZ1VJ9H",
     voiceName: "emma",
-    photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300&h=400",
+    photo: "/presenters/mia-poster.jpg",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/f7c7da45b9a6460583b70fafd2405651/voices/x3PfG9wL6FOEApZ1VJ9H/92204d06-e00b-4d09-bbfc-3903c47a4c57.mp3",
   },
   {
@@ -21,7 +21,7 @@ const PRESENTER_PRESETS = [
     specialty: "Inner-City · Investment",
     voiceId: "yXFr3XVHzrViCIHi1yoc",
     voiceName: "aussie voice",
-    photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300&h=400",
+    photo: "/presenters/oliver-poster.jpg",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/yXFr3XVHzrViCIHi1yoc/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzZlNTZjZDctMTIwZC00MjM4LWFhYWUtZWZkNTRhNWI0YzM2Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
   },
   {

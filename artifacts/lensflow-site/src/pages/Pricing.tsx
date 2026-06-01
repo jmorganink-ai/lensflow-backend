@@ -16,9 +16,8 @@ export default function Pricing() {
       description: "Perfect for solo agents starting with AI video.",
       features: [
         "20 AI Videos per month",
-        "Mia & Oliver presenters",
-        "Basic lip sync",
-        "Teleprompter",
+        "All 4 AI presenters (Mia, Oliver, Sophie & James)",
+        "ElevenLabs voiceover",
         "720p & 1080p rendering"
       ],
       cta: "Start 7-day Free Trial",
@@ -94,7 +93,7 @@ export default function Pricing() {
     },
     {
       q: "What languages do the AI presenters speak?",
-      a: "Our presenters natively support over 40 languages with perfect lip-sync, allowing you to market your listings to international buyers effortlessly."
+      a: "Our presenters are trained in Australian English and deliver natural-sounding scripts tailored to the local market. Additional language options are available on the Concierge and Enterprise plans."
     }
   ];
 

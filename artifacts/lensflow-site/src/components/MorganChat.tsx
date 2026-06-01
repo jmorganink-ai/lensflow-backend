@@ -489,7 +489,7 @@ export default function MorganChat() {
                 {streaming ? <Loader2 size={14} className="text-white animate-spin" /> : <Send size={14} className="text-white" />}
               </button>
             </div>
-            <p className="text-center text-[10px] text-white/20 mt-1.5">Powered by LensFlow AI · Claude 4 · ElevenLabs voice</p>
+            <p className="text-center text-[10px] text-white/20 mt-1.5">Powered by LensFlow AI · Claude AI · ElevenLabs voice</p>
           </div>
         </div>
       )}
