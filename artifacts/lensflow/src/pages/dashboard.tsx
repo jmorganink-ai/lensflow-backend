@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { useGetJobStats } from "@workspace/api-client-react";
+import { useGetJobStats, useGetMarketBrief, useRefreshMarketBrief, getGetMarketBriefQueryKey } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { FileText, CheckCircle2, XCircle, ArrowRight, Play, ChevronDown, Clock } from "lucide-react";
+import { FileText, CheckCircle2, XCircle, ArrowRight, Play, ChevronDown, Clock, TrendingUp, TrendingDown, Minus, RefreshCw, MapPin, MessageSquare, BarChart2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import buildKitImage from "@assets/LensFlow-The-Build-Kit-every-tool-you-need_1780215479239.png";
 import { useAuth } from "@workspace/replit-auth-web";
+import { useQueryClient } from "@tanstack/react-query";
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -54,6 +55,8 @@ export default function Dashboard() {
         />
         <StatCard title="Failed" value={stats?.failed ?? 0} icon={XCircle} color="text-destructive" />
       </div>
+
+      <MarketBriefCard />
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -118,6 +121,134 @@ export default function Dashboard() {
       <SampleVideos />
 
       <RoadmapCard />
+    </div>
+  );
+}
+
+function TrendIcon({ trend }: { trend: string }) {
+  if (trend === "up") return <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />;
+  if (trend === "down") return <TrendingDown className="w-3.5 h-3.5 text-rose-400" />;
+  return <Minus className="w-3.5 h-3.5 text-muted-foreground" />;
+}
+
+function MarketBriefCard() {
+  const queryClient = useQueryClient();
+  const { data: brief, isLoading, isError } = useGetMarketBrief();
+  const refresh = useRefreshMarketBrief();
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    await refresh.mutateAsync();
+    queryClient.invalidateQueries({ queryKey: getGetMarketBriefQueryKey() });
+    setRefreshing(false);
+  }
+
+  const updatedAgo = brief?.generatedAt
+    ? formatDistanceToNow(new Date(brief.generatedAt), { addSuffix: true })
+    : null;
+
+  return (
+    <div className="border border-border rounded-lg bg-card overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex items-center gap-2.5">
+          <BarChart2 className="w-4 h-4 text-primary" />
+          <span className="text-sm font-mono font-medium uppercase tracking-wider">
+            AU Market Brief
+          </span>
+          {updatedAgo && (
+            <span className="text-[10px] font-mono text-muted-foreground border border-border px-1.5 py-0.5 rounded">
+              {updatedAgo}
+            </span>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={handleRefresh}
+          disabled={refreshing || isLoading}
+          className="p-1.5 rounded hover:bg-secondary transition-colors disabled:opacity-50"
+          title="Refresh market brief"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 text-muted-foreground ${refreshing ? "animate-spin" : ""}`} />
+        </button>
+      </div>
+
+      {isLoading ? (
+        <div className="p-6 space-y-3 animate-pulse">
+          <div className="h-5 w-3/4 bg-muted rounded" />
+          <div className="h-3 w-full bg-muted rounded" />
+          <div className="h-3 w-5/6 bg-muted rounded" />
+          <div className="grid grid-cols-4 gap-3 mt-4">
+            {[1,2,3,4].map(i => <div key={i} className="h-14 bg-muted rounded" />)}
+          </div>
+        </div>
+      ) : isError ? (
+        <div className="p-6 text-center text-sm text-muted-foreground">
+          Could not load market brief. <button type="button" onClick={handleRefresh} className="text-primary underline">Try again</button>
+        </div>
+      ) : brief ? (
+        <div className="p-4 space-y-4">
+          {/* Headline */}
+          <p className="text-base font-semibold text-foreground leading-snug">{brief.headline}</p>
+
+          {/* Key Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {brief.keyStats.map((stat) => (
+              <div key={stat.label} className="bg-background border border-border rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wide truncate pr-1">
+                    {stat.label}
+                  </span>
+                  <TrendIcon trend={stat.trend} />
+                </div>
+                <p className="text-lg font-bold font-mono text-foreground">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Snapshot */}
+          <p className="text-sm text-muted-foreground leading-relaxed">{brief.snapshot}</p>
+
+          {/* Talking Points */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
+              <MessageSquare className="w-3 h-3" /> Agent Talking Points
+            </div>
+            {brief.talkingPoints.map((point, i) => (
+              <div key={i} className="flex items-start gap-2.5 text-sm">
+                <span className="mt-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">
+                  {i + 1}
+                </span>
+                <span className="text-foreground/80 leading-relaxed">{point}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Hot Markets + Outlook */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-1 border-t border-border">
+            <div className="flex-1">
+              <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
+                <MapPin className="w-3 h-3" /> Hot Markets
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {brief.hotMarkets.map((market) => (
+                  <span
+                    key={market}
+                    className="px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded-full text-[11px] font-mono"
+                  >
+                    {market}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="sm:max-w-xs">
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-1">60–90 Day Outlook</div>
+              <p className="text-xs text-foreground/70 leading-relaxed italic">{brief.outlook}</p>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

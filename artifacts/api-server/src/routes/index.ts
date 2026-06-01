@@ -8,6 +8,7 @@ import supportRouter from "./support";
 import anthropicRouter from "./anthropic";
 import elevenlabsRouter from "./elevenlabs";
 import storageRouter from "./storage";
+import marketRouter from "./market";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(supportRouter);
 router.use(anthropicRouter);
 router.use(elevenlabsRouter);
 router.use(storageRouter);
+router.use(marketRouter);
 
 export default router;

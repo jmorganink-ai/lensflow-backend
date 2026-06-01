@@ -41,6 +41,7 @@ import type {
   LeadInput,
   LeadResult,
   LogoutSuccess,
+  MarketBrief,
   MobileTokenExchangeRequest,
   MobileTokenExchangeSuccess,
   RequestUploadUrl200,
@@ -2214,6 +2215,153 @@ export const useCreateSupportTicket = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getCreateSupportTicketMutationOptions(options));
+    }
+
+export const getGetMarketBriefUrl = () => {
+
+
+
+
+  return `/api/market/brief`
+}
+
+/**
+ * @summary Get Australian property market brief (Claude-generated, cached 4h)
+ */
+export const getMarketBrief = async ( options?: RequestInit): Promise<MarketBrief> => {
+
+  return customFetch<MarketBrief>(getGetMarketBriefUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMarketBriefQueryKey = () => {
+    return [
+    `/api/market/brief`
+    ] as const;
+    }
+
+
+export const getGetMarketBriefQueryOptions = <TData = Awaited<ReturnType<typeof getMarketBrief>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMarketBrief>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMarketBriefQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMarketBrief>>> = ({ signal }) => getMarketBrief({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMarketBrief>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMarketBriefQueryResult = NonNullable<Awaited<ReturnType<typeof getMarketBrief>>>
+export type GetMarketBriefQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get Australian property market brief (Claude-generated, cached 4h)
+ */
+
+export function useGetMarketBrief<TData = Awaited<ReturnType<typeof getMarketBrief>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMarketBrief>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMarketBriefQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getRefreshMarketBriefUrl = () => {
+
+
+
+
+  return `/api/market/brief`
+}
+
+/**
+ * @summary Force-refresh the market brief (busts 4h cache)
+ */
+export const refreshMarketBrief = async ( options?: RequestInit): Promise<MarketBrief> => {
+
+  return customFetch<MarketBrief>(getRefreshMarketBriefUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRefreshMarketBriefMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshMarketBrief>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof refreshMarketBrief>>, TError,void, TContext> => {
+
+const mutationKey = ['refreshMarketBrief'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof refreshMarketBrief>>, void> = () => {
+
+
+          return  refreshMarketBrief(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RefreshMarketBriefMutationResult = NonNullable<Awaited<ReturnType<typeof refreshMarketBrief>>>
+
+    export type RefreshMarketBriefMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Force-refresh the market brief (busts 4h cache)
+ */
+export const useRefreshMarketBrief = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshMarketBrief>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof refreshMarketBrief>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRefreshMarketBriefMutationOptions(options));
     }
 
 export const getDeleteWebhookUrl = (id: string,) => {

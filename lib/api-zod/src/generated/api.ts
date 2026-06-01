@@ -434,6 +434,42 @@ export const CreateSupportTicketBody = zod.object({
 
 
 /**
+ * @summary Get Australian property market brief (Claude-generated, cached 4h)
+ */
+export const GetMarketBriefResponse = zod.object({
+  "generatedAt": zod.string(),
+  "headline": zod.string(),
+  "snapshot": zod.string(),
+  "keyStats": zod.array(zod.object({
+  "label": zod.string(),
+  "value": zod.string(),
+  "trend": zod.enum(['up', 'down', 'neutral'])
+})),
+  "talkingPoints": zod.array(zod.string()),
+  "outlook": zod.string(),
+  "hotMarkets": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Force-refresh the market brief (busts 4h cache)
+ */
+export const RefreshMarketBriefResponse = zod.object({
+  "generatedAt": zod.string(),
+  "headline": zod.string(),
+  "snapshot": zod.string(),
+  "keyStats": zod.array(zod.object({
+  "label": zod.string(),
+  "value": zod.string(),
+  "trend": zod.enum(['up', 'down', 'neutral'])
+})),
+  "talkingPoints": zod.array(zod.string()),
+  "outlook": zod.string(),
+  "hotMarkets": zod.array(zod.string())
+})
+
+
+/**
  * @summary Delete a webhook
  */
 export const DeleteWebhookParams = zod.object({

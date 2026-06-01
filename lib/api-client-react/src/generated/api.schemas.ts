@@ -275,6 +275,31 @@ export interface SendToCrmResult {
   message?: string;
 }
 
+export type MarketKeyStatTrend = typeof MarketKeyStatTrend[keyof typeof MarketKeyStatTrend];
+
+
+export const MarketKeyStatTrend = {
+  up: 'up',
+  down: 'down',
+  neutral: 'neutral',
+} as const;
+
+export interface MarketKeyStat {
+  label: string;
+  value: string;
+  trend: MarketKeyStatTrend;
+}
+
+export interface MarketBrief {
+  generatedAt: string;
+  headline: string;
+  snapshot: string;
+  keyStats: MarketKeyStat[];
+  talkingPoints: string[];
+  outlook: string;
+  hotMarkets: string[];
+}
+
 export interface JobStats {
   total: number;
   queued: number;

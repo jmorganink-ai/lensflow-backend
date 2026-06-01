@@ -564,6 +564,32 @@ paths:
         "400":
           description: Invalid input
 
+  /market/brief:
+    get:
+      operationId: getMarketBrief
+      tags: [market]
+      summary: Get Australian property market brief (Claude-generated, cached 4h)
+      responses:
+        "200":
+          description: Current market brief
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketBrief"
+        "500":
+          description: Failed to generate brief
+    post:
+      operationId: refreshMarketBrief
+      tags: [market]
+      summary: Force-refresh the market brief (busts 4h cache)
+      responses:
+        "200":
+          description: Fresh market brief
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketBrief"
+
   /webhooks/{id}:
     delete:
       operationId: deleteWebhook
@@ -882,6 +908,43 @@ components:
           type: boolean
         message:
           type: string
+
+    MarketKeyStat:
+      type: object
+      required: [label, value, trend]
+      properties:
+        label:
+          type: string
+        value:
+          type: string
+        trend:
+          type: string
+          enum: [up, down, neutral]
+
+    MarketBrief:
+      type: object
+      required: [generatedAt, headline, snapshot, keyStats, talkingPoints, outlook, hotMarkets]
+      properties:
+        generatedAt:
+          type: string
+        headline:
+          type: string
+        snapshot:
+          type: string
+        keyStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketKeyStat"
+        talkingPoints:
+          type: array
+          items:
+            type: string
+        outlook:
+          type: string
+        hotMarkets:
+          type: array
+          items:
+            type: string
 
     JobStats:
       type: object
