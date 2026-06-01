@@ -451,8 +451,13 @@ export default function MorganChat() {
 
           {messages.length === 1 && !streaming && (
             <div className="px-4 pb-2 flex gap-2 flex-wrap shrink-0">
-              {["How does the pipeline work?", "What voices are available?", "Can I use my own voice?"].map((q) => (
-                <button key={q} onClick={() => { setInput(q); setTimeout(() => inputRef.current?.focus(), 50); }}
+              {[
+                "🏠 Find a property for my client",
+                "How does the pipeline work?",
+                "What voices are available?",
+                "Find mortgagee properties in Brisbane under $900k",
+              ].map((q) => (
+                <button key={q} onClick={() => { void sendMessage(q); }}
                   className="text-xs px-3 py-1.5 rounded-full border border-violet-500/40 text-violet-300 hover:bg-violet-500/20 transition-colors">{q}</button>
               ))}
             </div>

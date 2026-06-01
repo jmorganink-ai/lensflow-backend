@@ -22,12 +22,13 @@ interface Message {
 }
 
 const WELCOME =
-  "G'day! I'm Morgan from LensFlow AI 👋\n\nAsk me anything about creating videos, picking presenters, or how the pipeline works.";
+  "G'day! I'm Morgan from LensFlow AI 👋\n\nI'm your market intelligence partner, property finder, and pipeline expert — all in one. What do you need?";
 
 const SUGGESTIONS = [
+  "🏠 Find a property for my client",
+  "Find mortgagee properties in Brisbane under $900k",
   "How does the pipeline work?",
   "Which presenter should I use?",
-  "Can I use my own photos?",
 ];
 
 export default function MorganScreen() {

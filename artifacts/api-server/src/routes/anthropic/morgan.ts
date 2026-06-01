@@ -12,6 +12,7 @@ import {
 } from "@workspace/api-zod";
 import { ReplitConnectors } from "@replit/connectors-sdk";
 import { logger } from "../../lib/logger";
+import { searchProperties, type PropertySearchCriteria } from "../../lib/property-search";
 
 const router: IRouter = Router();
 
@@ -20,6 +21,43 @@ const anthropic = new Anthropic({
 });
 
 const connectors = new ReplitConnectors();
+
+const MORGAN_TOOLS: Anthropic.Tool[] = [
+  {
+    name: "search_properties",
+    description: `Search domain.com.au and realestate.com.au for Australian residential properties matching a buyer's criteria.
+Use this tool ONLY when an agent explicitly asks you to find, search, or look up properties for a buyer or investor client — e.g. "my client has a $2M budget in Mosman", "find me mortgagee properties in Brisbane", "what's available in South Yarra under $1.5M?".
+Do NOT use for general market questions or LensFlow product queries.`,
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        location: {
+          type: "string",
+          description: "Suburb and state, e.g. 'Mosman NSW', 'South Yarra VIC', 'New Farm QLD 4005'",
+        },
+        minPrice: { type: "number", description: "Minimum price in AUD (e.g. 800000 for $800k)" },
+        maxPrice: { type: "number", description: "Maximum price in AUD (e.g. 1500000 for $1.5M)" },
+        propertyType: {
+          type: "string",
+          enum: ["house", "apartment", "townhouse", "land", "any"],
+        },
+        bedrooms: { type: "number", description: "Minimum bedrooms" },
+        bathrooms: { type: "number", description: "Minimum bathrooms" },
+        landSizeMin: { type: "number", description: "Minimum land size in square metres" },
+        distressedOnly: {
+          type: "boolean",
+          description: "True for mortgagee in possession / bank seizure / distressed sale only",
+        },
+        keywords: {
+          type: "array",
+          items: { type: "string" },
+          description: "Extra search keywords e.g. ['pool', 'waterfront', 'granny flat']",
+        },
+      },
+      required: ["location"],
+    },
+  },
+];
 
 const MORGAN_SYSTEM_PROMPT = `You are Morgan, the founder and CEO of LensFlow AI — Australia's leading AI video platform for real estate professionals. You are warm, knowledgeable, confident, and deeply passionate about helping real estate agents dominate their market with AI-generated listing videos.
 
@@ -101,6 +139,20 @@ All plans include: unlimited AI script generation, 7-day free trial, cancel anyt
 - Help agents craft listing video scripts
 - Suggest which presenter (Mia or Oliver) suits their property type
 - Advise on best practices for real estate video marketing in 2026
+
+### Property Search — your secret weapon for buyer clients
+You can search domain.com.au and realestate.com.au in real-time for properties matching any criteria. When an agent says a client is looking for a property, use your **search_properties** tool immediately — don't ask them to search themselves.
+
+Criteria you can handle: suburb, price range, bedrooms, bathrooms, minimum land size, property type (house/apartment/townhouse/land), features (pool, waterfront, granny flat), and bank/mortgagee-seizure properties.
+
+**When you get search results back:**
+- Lead with a confident opening ("Found X properties matching your client's brief:")
+- List each property with address, price, beds/baths/cars, land size (if available), and a clickable link
+- Flag distressed/mortgagee properties clearly — these are investor gold
+- Always end with the pre-filtered Domain and REA search links so the agent can browse further
+- If no live listings came back via API, still provide the direct search links with all filters pre-set — these open right to the filtered results page
+
+**When no Domain API key is configured** (DOMAIN_CLIENT_ID not set): the tool still returns pre-built search URLs for both platforms. Present these as direct links and explain the agent can click to see live results immediately.
 
 ## Escalating to a human (Leave a message)
 You are available 24/7, but some things need a human on our team: billing disputes, refunds, account-specific problems, suspected bugs, or anything you genuinely can't resolve in chat. When that happens:
@@ -223,7 +275,7 @@ router.get("/anthropic/conversations/:id/messages", async (req, res) => {
   }
 });
 
-// POST /api/anthropic/conversations/:id/messages — SSE streaming
+// POST /api/anthropic/conversations/:id/messages — SSE streaming with tool_use support
 router.post("/anthropic/conversations/:id/messages", async (req, res) => {
   const paramsParsed = SendAnthropicMessageParams.safeParse({ id: Number(req.params.id) });
   const bodyParsed = SendAnthropicMessageBody.safeParse(req.body);
@@ -273,30 +325,106 @@ router.post("/anthropic/conversations/:id/messages", async (req, res) => {
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    let fullResponse = "";
-
+    // --- Phase 1: stream initial response, collect any tool_use block ---
     const stream = anthropic.messages.stream({
       model: "claude-sonnet-4-6",
       max_tokens: 8192,
       system: MORGAN_SYSTEM_PROMPT,
+      tools: MORGAN_TOOLS,
       messages: chatMessages,
     });
 
+    let preToolText = "";
+    let toolUseId = "";
+    let toolUseName = "";
+    let toolInputJson = "";
+    let stopReason = "";
+
     for await (const event of stream) {
-      if (
-        event.type === "content_block_delta" &&
-        event.delta.type === "text_delta"
-      ) {
-        fullResponse += event.delta.text;
-        res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
+      if (event.type === "content_block_start" && event.content_block.type === "tool_use") {
+        toolUseId = event.content_block.id;
+        toolUseName = event.content_block.name;
+      } else if (event.type === "content_block_delta") {
+        if (event.delta.type === "text_delta") {
+          preToolText += event.delta.text;
+          res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
+        } else if (event.delta.type === "input_json_delta") {
+          toolInputJson += event.delta.partial_json;
+        }
+      } else if (event.type === "message_delta") {
+        stopReason = event.delta.stop_reason ?? "";
       }
     }
 
-    await db.insert(messages).values({
-      conversationId,
-      role: "assistant",
-      content: fullResponse,
-    });
+    // --- Phase 2: if tool called, execute it and stream the final answer ---
+    if (stopReason === "tool_use" && toolUseName === "search_properties") {
+      const indicator = "\n\n🔍 *Searching listings for your client…*\n\n";
+      res.write(`data: ${JSON.stringify({ content: indicator })}\n\n`);
+
+      let toolResult: string;
+      try {
+        const criteria = JSON.parse(toolInputJson) as PropertySearchCriteria;
+        const result = await searchProperties(criteria);
+        toolResult = JSON.stringify(result);
+      } catch (err) {
+        req.log.warn({ err }, "Property search tool execution failed");
+        toolResult = JSON.stringify({
+          properties: [],
+          domainSearchUrl: "",
+          reaSearchUrl: "",
+          apiUsed: false,
+          error: "Search unavailable",
+        });
+      }
+
+      const toolResultMessages: Anthropic.MessageParam[] = [
+        ...chatMessages,
+        {
+          role: "assistant",
+          content: [
+            ...(preToolText ? [{ type: "text" as const, text: preToolText }] : []),
+            {
+              type: "tool_use" as const,
+              id: toolUseId,
+              name: toolUseName,
+              input: JSON.parse(toolInputJson) as Record<string, unknown>,
+            },
+          ],
+        },
+        {
+          role: "user",
+          content: [{ type: "tool_result" as const, tool_use_id: toolUseId, content: toolResult }],
+        },
+      ];
+
+      const finalStream = anthropic.messages.stream({
+        model: "claude-sonnet-4-6",
+        max_tokens: 8192,
+        system: MORGAN_SYSTEM_PROMPT,
+        messages: toolResultMessages,
+      });
+
+      let finalText = "";
+      for await (const event of finalStream) {
+        if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+          finalText += event.delta.text;
+          res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
+        }
+      }
+
+      await db.insert(messages).values({
+        conversationId,
+        role: "assistant",
+        content: preToolText + indicator + finalText,
+      });
+    } else {
+      // No tool use — save the streamed text directly
+      await db.insert(messages).values({
+        conversationId,
+        role: "assistant",
+        content: preToolText,
+      });
+    }
 
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
     res.end();
