@@ -11,12 +11,19 @@ const AVATAR_MALE   = process.env.HEYGEN_AVATAR_MALE   ?? "Shawn_Business_Front_
 const VOICE_FEMALE = process.env.HEYGEN_VOICE_FEMALE ?? "f8c69e517f424cafaecde32dde57096b";
 const VOICE_MALE   = process.env.HEYGEN_VOICE_MALE   ?? "6539347d386844db8516f1d3828938f0";
 
-// Oliver's ElevenLabs voice ID — used to detect male presenter
-const ELEVENLABS_OLIVER_VOICE_ID = "yXFr3XVHzrViCIHi1yoc";
+// ElevenLabs voice IDs that map to male presenters
+const ELEVENLABS_MALE_VOICE_IDS = new Set([
+  "yXFr3XVHzrViCIHi1yoc", // Oliver
+  "J5tYJbZpL62OrQsj70q6", // James (morgan voice)
+]);
 
 function getAvatarConfig(voiceName?: string | null, elevenLabsVoiceId?: string | null): { avatarId: string; voiceId: string } {
   const name = (voiceName ?? "").toLowerCase();
-  const isMale = name === "oliver" || elevenLabsVoiceId === ELEVENLABS_OLIVER_VOICE_ID;
+  const isMale =
+    name === "oliver" ||
+    name === "james" ||
+    name === "morgan voice" ||
+    (elevenLabsVoiceId != null && ELEVENLABS_MALE_VOICE_IDS.has(elevenLabsVoiceId));
   if (isMale) {
     return { avatarId: AVATAR_MALE, voiceId: VOICE_MALE };
   }
@@ -85,9 +92,10 @@ export async function generatePresenterVideo(
 
   logger.info({ videoId }, "HeyGen video queued — polling for completion");
 
-  // Poll up to 8 minutes (HeyGen typically takes 1-4 min)
-  const POLL_INTERVAL_MS = 8_000;
-  const MAX_ATTEMPTS = 60;
+  // Poll up to 90 seconds (15 × 6s). HeyGen typically responds in 30-60s.
+  // Keeping this tight prevents the step from blocking the pipeline for minutes.
+  const POLL_INTERVAL_MS = 6_000;
+  const MAX_ATTEMPTS = 15;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
