@@ -4,7 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { CheckCircle2, ArrowRight, Crown, Sparkles } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, Crown, Sparkles, Video, Film } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Pricing() {
@@ -13,50 +13,76 @@ export default function Pricing() {
   const tiers = [
     {
       name: "Starter",
+      badge: null,
       price: isAnnual ? "79" : "89",
-      description: "Perfect for solo agents starting with AI video.",
+      videoLimit: "1 video / month",
+      description: "You film. We write the script and run the teleprompter.",
+      icon: Film,
       features: [
-        "0 AI videos per month",
-        "AI script & voiceover drafts",
-        "All 4 AI presenters (Mia, Oliver, Sophie & James)",
-        "720p rendering"
+        "1 listing video per month",
+        "AI-generated script from listing URL",
+        "Scrolling teleprompter on your phone",
+        "Self-record & upload from library",
+        "720p video output",
+        "REA & Domain compatible",
+      ],
+      notIncluded: [
+        "AI presenter (no HeyGen / D-ID)",
+        "ElevenLabs voiceover",
+        "Voice + Photos slideshow",
+        "Morgan marketing campaign",
       ],
       cta: "Start 7-day Free Trial",
       link: "https://buy.stripe.com/bJe00jc29bWsa6r2eX2go04",
-      highlight: false
+      highlight: false,
     },
     {
       name: "Elite",
+      badge: "Most Popular",
       price: isAnnual ? "199" : "219",
-      description: "For top-producing agents who want maximum impact.",
+      videoLimit: "1 video / month",
+      description: "The complete AI pipeline. Your listing, fully produced.",
+      icon: Video,
       features: [
-        "1 AI video per month",
-        "Custom Avatar Training",
-        "Advanced Phoneme Lip Sync",
-        "Priority Rendering",
-        "REA/Domain Export",
-        "4K resolution output"
+        "1 listing video per month",
+        "AI presenter (Mia, Oliver, Sophie, James)",
+        "ElevenLabs voice cloning & narration",
+        "Voice + Photos slideshow option",
+        "AI script from listing URL or photos",
+        "Photo enhancement & Ken Burns",
+        "4K rendering · REA & Domain export",
+      ],
+      notIncluded: [
+        "Morgan marketing campaign",
+        "Digital twin avatar",
       ],
       cta: "Start 7-day Free Trial",
       link: "https://buy.stripe.com/cNi14n1nv2lSemHbPx2go05",
-      highlight: true
+      highlight: true,
     },
     {
       name: "Concierge",
+      badge: null,
       price: isAnnual ? "399" : "449",
-      description: "White-glove service for luxury agencies.",
+      videoLimit: "2 videos / month",
+      description: "Full pipeline plus Morgan runs your marketing.",
+      icon: Sparkles,
       features: [
-        "2 AI videos per month",
-        "White Glove Service",
-        "Dedicated Account Manager",
-        "Voice Cloning",
-        "24hr Turnaround",
-        "Custom branding & intros"
+        "2 listing videos per month",
+        "Everything in Elite",
+        "Morgan marketing campaign",
+        "Social captions & email copy",
+        "Content calendar scheduling",
+        "Dedicated account manager",
+        "White-glove onboarding · 24hr turnaround",
+      ],
+      notIncluded: [
+        "Digital twin avatar",
       ],
       cta: "Book a Call",
       link: "https://buy.stripe.com/8x27sLfel8Kgcez8Dl2go06",
-      highlight: false
-    }
+      highlight: false,
+    },
   ];
 
   const enterpriseTier = {
@@ -81,20 +107,24 @@ export default function Pricing() {
 
   const faqs = [
     {
-      q: "Do I need any special equipment to film?",
-      a: "None at all. LensFlow uses your existing property photos to generate the video, and our AI presenters deliver your script. You don't even need a microphone."
+      q: "What's the difference between Starter and Elite?",
+      a: "Starter is for agents who want to film themselves — you get the AI script, a scrolling teleprompter on your phone, and 1 finished video per month. Elite hands the whole thing to an AI presenter: the script writes itself, ElevenLabs narrates it, and HeyGen or D-ID renders the final video without you lifting a camera."
     },
     {
-      q: "Can I train my own custom avatar?",
-      a: "Yes! On the Elite and Concierge plans, you can submit a 2-minute video of yourself, and we'll train a custom digital twin that looks and sounds exactly like you."
+      q: "What does the Morgan marketing campaign include?",
+      a: "On Concierge, Morgan (our Claude-powered AI) generates your social captions, property email copy, and an Instagram/Facebook content calendar from the same listing data used to build your video — so your whole marketing push goes out in one click."
     },
     {
       q: "Are the videos compatible with REA and Domain?",
-      a: "Absolutely. Our export formats are specifically tailored to meet the exact specifications required by major Australian real estate portals."
+      a: "Yes. Every plan exports in a format that meets the exact upload specs for realestate.com.au and Domain. Starter (720p) meets the minimum; Elite and Concierge output full 4K."
     },
     {
-      q: "What languages do the AI presenters speak?",
-      a: "Our presenters are trained in Australian English and deliver natural-sounding scripts tailored to the local market. Additional language options are available on the Concierge and Enterprise plans."
+      q: "Can I upgrade my plan mid-month?",
+      a: "Absolutely — upgrades take effect immediately and we'll prorate the difference. Downgrades take effect at the start of your next billing cycle."
+    },
+    {
+      q: "What happens if I want my own digital twin?",
+      a: "That's the Twin Avatar Solution ($599/mo). You submit a short selfie video, we train your personal AI clone, and it presents every listing exactly like you — voice, mannerisms, and all. It includes 3 videos per month plus Morgan as your PA."
     }
   ];
 
@@ -140,19 +170,33 @@ export default function Pricing() {
                     : "bg-card border-white/5"
                 }`}
               >
-                {tier.highlight && (
+                {tier.badge && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-sm font-bold px-4 py-1 rounded-full">
-                    Most Popular
+                    {tier.badge}
                   </div>
                 )}
-                <h3 className="font-serif text-2xl font-bold mb-2">{tier.name}</h3>
-                <p className="text-sm text-muted-foreground mb-6 h-10">{tier.description}</p>
+
+                {/* Icon + name */}
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${tier.highlight ? "bg-primary/20" : "bg-white/5"}`}>
+                    <tier.icon className={`w-4.5 h-4.5 ${tier.highlight ? "text-primary" : "text-muted-foreground"}`} size={18} />
+                  </div>
+                  <h3 className="font-serif text-2xl font-bold">{tier.name}</h3>
+                </div>
+
+                {/* Video limit badge */}
+                <div className="inline-flex items-center gap-1.5 bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-3 py-1 rounded-full mb-3">
+                  <Video size={11} /> {tier.videoLimit}
+                </div>
+
+                <p className="text-sm text-muted-foreground mb-5">{tier.description}</p>
+
                 <div className="mb-6">
                   <span className="text-4xl font-bold">${tier.price}</span>
                   <span className="text-muted-foreground">/mo</span>
                 </div>
                 
-                <a href={tier.link} target="_blank" rel="noopener noreferrer" className="block mb-8">
+                <a href={tier.link} target="_blank" rel="noopener noreferrer" className="block mb-7">
                   <Button 
                     className={`w-full rounded-full h-12 text-base font-medium ${
                       tier.highlight ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-white/10 hover:bg-white/20 text-foreground"
@@ -163,13 +207,23 @@ export default function Pricing() {
                   </Button>
                 </a>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {tier.features.map((feature, j) => (
                     <div key={j} className="flex items-start gap-3 text-sm">
-                      <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                      <CheckCircle2 className="w-4.5 h-4.5 text-primary shrink-0 mt-0.5" size={17} />
                       <span className="text-foreground/90">{feature}</span>
                     </div>
                   ))}
+                  {tier.notIncluded.length > 0 && (
+                    <div className="pt-3 mt-1 border-t border-white/5 space-y-3">
+                      {tier.notIncluded.map((item, j) => (
+                        <div key={j} className="flex items-start gap-3 text-sm">
+                          <XCircle className="w-4.5 h-4.5 text-muted-foreground/40 shrink-0 mt-0.5" size={17} />
+                          <span className="text-muted-foreground/50">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}
