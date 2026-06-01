@@ -220,6 +220,13 @@ export default function NewJob() {
             onSuccess: () => {
               toast({ title: "Pipeline Running", description: "All 5 stages are now processing automatically." });
             },
+            onError: () => {
+              toast({
+                title: "Pipeline Didn't Start",
+                description: "Your listing was saved but processing failed to start. Open the job and click Run Pipeline.",
+                variant: "destructive",
+              });
+            },
           });
           setLocation(`/jobs/${job.id}`);
         },

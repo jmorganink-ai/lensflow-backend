@@ -1,7 +1,7 @@
 import { useParams, useLocation } from "wouter";
 import { useGetJob, useDeleteJob, useSimulateJob, useSendJobToCrm, getGetJobQueryKey, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic, Copy, Check, Download, Plus, Share2, Video, Camera, Send } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
@@ -55,6 +55,7 @@ export default function JobDetail() {
   const queryClient = useQueryClient();
   const deleteJob = useDeleteJob();
   const simulateJob = useSimulateJob();
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const { data: job, isLoading, isError } = useGetJob(id!, {
     query: {
@@ -68,7 +69,7 @@ export default function JobDetail() {
   });
 
   const isSimulating = job?.status === "processing" || job?.status === "queued";
-  const canSimulate = !!id && job?.status !== "processing";
+  const canSimulate = !!id && job?.status !== "processing" && job?.status !== "queued";
 
   function handleSimulate() {
     if (!id) return;
@@ -76,14 +77,14 @@ export default function JobDetail() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetJobQueryKey(id) });
         toast({
-          title: "Simulation Started",
-          description: "Pipeline is now running through all 5 stages.",
+          title: "Pipeline Started",
+          description: "All 5 stages are now running.",
         });
       },
       onError: () => {
         toast({
-          title: "Could not start simulation",
-          description: "The job may already be processing.",
+          title: "Could not start pipeline",
+          description: "The job may already be processing. Refresh the page.",
           variant: "destructive",
         });
       },
@@ -92,6 +93,12 @@ export default function JobDetail() {
 
   function handleDelete() {
     if (!id) return;
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      setTimeout(() => setConfirmingDelete(false), 4000);
+      return;
+    }
+    setConfirmingDelete(false);
     deleteJob.mutate({ id }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetJobStatsQueryKey() });
