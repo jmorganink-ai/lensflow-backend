@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { Link } from "wouter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, Crown, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Pricing() {
@@ -232,6 +233,65 @@ export default function Pricing() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Twin Avatar prestige teaser */}
+      <section className="py-20 px-6 bg-background border-t border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="relative rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/8 via-card to-card p-8 md:p-12 overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-72 h-72 bg-primary/6 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute -top-3 left-8">
+              <span className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 text-primary text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full">
+                <Crown className="w-3 h-3" /> Prestige Package
+              </span>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8 items-center pt-4">
+              <div>
+                <h3 className="font-serif text-3xl font-bold mb-3">
+                  Twin Avatar Solution
+                </h3>
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  Create your own human-like digital twin that presents every listing
+                  exactly like you — in 90 seconds flat. Includes Morgan as your
+                  Personal Marketing Advisor PA.
+                </p>
+                <div className="flex items-baseline gap-1 mb-6">
+                  <span className="text-4xl font-bold">$599</span>
+                  <span className="text-muted-foreground">/mo</span>
+                  <span className="ml-3 text-sm text-muted-foreground">· 3 videos · extra $499 each</span>
+                </div>
+                <Link href="/twin-avatar">
+                  <Button className="rounded-full h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 font-medium">
+                    Explore Twin Avatar <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  "Your own digital twin avatar",
+                  "Voice cloning — sounds like you",
+                  "Morgan PA for Marketing",
+                  "90-second 4K listing videos",
+                  "3 videos per month",
+                  "REA & Domain-ready export",
+                  "Concierge onboarding",
+                  "Extra projects at $499 each",
+                ].map((f, i) => (
+                  <div key={i} className="flex items-start gap-2 text-sm">
+                    <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <span className="text-foreground/90">{f}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 

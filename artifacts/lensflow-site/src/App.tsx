@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
+import TwinAvatar from "@/pages/TwinAvatar";
 import MorganChat from "@/components/MorganChat";
 
 const queryClient = new QueryClient();
@@ -16,6 +17,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/twin-avatar" component={TwinAvatar} />
       <Route path="/advantage" component={Advantage} />
       <Route path="/origin" component={Origin} />
       <Route component={NotFound} />

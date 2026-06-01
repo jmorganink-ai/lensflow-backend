@@ -24,6 +24,7 @@ export function Navbar() {
           <a href="/#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
           <a href="/#compare" className="hover:text-foreground transition-colors">Compare</a>
           <Link href="/origin" className="hover:text-foreground transition-colors">Our Story</Link>
+          <Link href="/twin-avatar" className="hover:text-foreground transition-colors font-semibold text-primary hover:text-primary/80">◈ Twin Avatar</Link>
           <Link href="/advantage" className="hover:text-foreground transition-colors font-semibold text-violet-400 hover:text-violet-300">✦ Your Edge</Link>
         </div>
 
