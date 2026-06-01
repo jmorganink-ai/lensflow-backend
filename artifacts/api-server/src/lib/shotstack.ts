@@ -1,5 +1,12 @@
 import { logger } from "./logger";
 
+const MUSIC_TRACK_URLS: Record<string, string> = {
+  uplifting: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/pegboard.mp3",
+  cinematic: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
+  calm:      "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/morning.mp3",
+  corporate: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
+};
+
 // Use production key + endpoint when available, fall back to sandbox/staging
 function getShotstackConfig(): { apiKey: string; baseUrl: string } {
   const prodKey = process.env.SHOTSTACK_PROD_API_KEY ?? process.env.SHOTSTACK_PRODUCTION_API_KEY;
@@ -32,6 +39,7 @@ export async function composePresenterVideo(
   propertyTitle?: string | null,
   listingUrl?: string | null,
   propertyImages?: string[] | null,
+  musicTrack?: string | null,
 ): Promise<ShotstackResult> {
   const { apiKey, baseUrl: SHOTSTACK_API_BASE } = getShotstackConfig();
 
@@ -187,8 +195,14 @@ export async function composePresenterVideo(
     { clips: [watermarkClip] },
   ];
 
+  const musicUrl = musicTrack ? MUSIC_TRACK_URLS[musicTrack] : undefined;
+  const soundtrack = musicUrl
+    ? { src: musicUrl, effect: "fadeInFadeOut", volume: 0.4 }
+    : undefined;
+
   const timeline = {
     background: "#0a0f1e",
+    ...(soundtrack ? { soundtrack } : {}),
     tracks,
   };
 

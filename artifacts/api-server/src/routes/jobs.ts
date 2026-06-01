@@ -300,6 +300,7 @@ async function runSimulation(jobId: string): Promise<void> {
             job.listingTitle,
             job.listingUrl,
             effectivePhotos.length > 0 ? effectivePhotos : (job.propertyImages ?? []),
+            job.musicTrack,
           );
           outputUrl = result.videoUrl;
           finalVideoUrl = result.videoUrl;
@@ -388,6 +389,7 @@ router.post("/jobs", async (req, res): Promise<void> => {
       propertyImages: parsed.data.propertyImages ?? [],
       inputMode,
       propertyAddress: parsed.data.propertyAddress ?? null,
+      musicTrack: parsed.data.musicTrack ?? null,
       status: "queued",
     })
     .returning();

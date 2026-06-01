@@ -27,6 +27,13 @@ import { PRESENTERS, detectPlatform, isValidUrl } from "@/constants/presenters";
 import { uploadPhoto } from "@/lib/api";
 import { useColors } from "@/hooks/useColors";
 
+const MUSIC_PRESETS = [
+  { id: "uplifting", label: "Uplifting", emoji: "✨", desc: "Bright & positive" },
+  { id: "cinematic", label: "Cinematic", emoji: "🎬", desc: "Epic & dramatic" },
+  { id: "calm",      label: "Calm",      emoji: "🌿", desc: "Soft & ambient" },
+  { id: "corporate", label: "Corporate", emoji: "💼", desc: "Professional" },
+] as const;
+
 type Mode = "url" | "photos";
 type Path = "self" | "ai";
 interface Photo {
@@ -50,6 +57,7 @@ export default function CreateScreen() {
   const [propertyAddress, setPropertyAddress] = useState("");
   const [voiceId, setVoiceId] = useState("");
   const [voiceName, setVoiceName] = useState("");
+  const [musicTrack, setMusicTrack] = useState("");
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [uploading, setUploading] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -154,6 +162,7 @@ export default function CreateScreen() {
           propertyAddress: propertyAddress.trim() || undefined,
           voiceId: voiceId || undefined,
           voiceName: voiceName || undefined,
+          musicTrack: musicTrack || undefined,
           propertyImages: photos.map((p) => p.publicUrl),
         },
       });
@@ -167,6 +176,7 @@ export default function CreateScreen() {
       setPhotos([]);
       setVoiceId("");
       setVoiceName("");
+      setMusicTrack("");
 
       router.push(`/job/${job.id}`);
 
@@ -411,6 +421,46 @@ export default function CreateScreen() {
         </View>
         )}
 
+        {/* Music picker — AI path only */}
+        {path === "ai" && (
+          <View style={styles.field}>
+            {label("BACKGROUND MUSIC (OPTIONAL)")}
+            <View style={styles.musicGrid}>
+              {MUSIC_PRESETS.map((m) => {
+                const selected = musicTrack === m.id;
+                return (
+                  <Pressable
+                    key={m.id}
+                    onPress={() => setMusicTrack(selected ? "" : m.id)}
+                    style={[
+                      styles.musicCard,
+                      {
+                        backgroundColor: colors.card,
+                        borderColor: selected ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.musicEmoji}>{m.emoji}</Text>
+                    <Text style={[styles.musicLabel, { color: selected ? colors.primary : colors.foreground }]}>
+                      {m.label}
+                    </Text>
+                    <Text style={[styles.musicDesc, { color: colors.mutedForeground }]}>{m.desc}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            {musicTrack ? (
+              <Text style={[styles.voiceNote, { color: colors.primary }]}>
+                ✓ {MUSIC_PRESETS.find((m) => m.id === musicTrack)?.label} music added to video
+              </Text>
+            ) : (
+              <Text style={[styles.voiceNote, { color: colors.mutedForeground }]}>
+                No music — voiceover audio only
+              </Text>
+            )}
+          </View>
+        )}
+
         {/* Photos */}
         <View style={styles.field}>
           {label(
@@ -648,4 +698,15 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   submitText: { fontFamily: "Inter_700Bold", fontSize: 16 },
+  musicGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  musicCard: {
+    width: "47%",
+    borderRadius: 12,
+    borderWidth: 2,
+    padding: 12,
+    gap: 3,
+  },
+  musicEmoji: { fontSize: 20, lineHeight: 26 },
+  musicLabel: { fontFamily: "Inter_600SemiBold", fontSize: 13.5, marginTop: 2 },
+  musicDesc: { fontFamily: "Inter_400Regular", fontSize: 11, lineHeight: 15 },
 });

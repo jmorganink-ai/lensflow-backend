@@ -84,6 +84,11 @@ export interface Job {
   propertyAddress?: string | null;
   propertyImages?: string[] | null;
   enhancedImages?: string[] | null;
+  /**
+     * Music preset used in the final video (uplifting, cinematic, calm, corporate)
+     * @nullable
+     */
+  musicTrack?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -166,6 +171,11 @@ export interface JobDetail {
   propertyAddress?: string | null;
   propertyImages?: string[] | null;
   enhancedImages?: string[] | null;
+  /**
+     * Music preset used in the final video (uplifting, cinematic, calm, corporate)
+     * @nullable
+     */
+  musicTrack?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -191,6 +201,8 @@ export interface JobInput {
   inputMode?: JobInputInputMode;
   /** Property address entered manually (used in photo mode) */
   propertyAddress?: string;
+  /** Music preset ID for the final video (uplifting, cinematic, calm, corporate) */
+  musicTrack?: string;
 }
 
 export type GenerateScriptInputInputMode = typeof GenerateScriptInputInputMode[keyof typeof GenerateScriptInputInputMode];

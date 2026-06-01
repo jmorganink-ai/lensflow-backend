@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2, ImagePlus, X, Upload, Camera } from "lucide-react";
+import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2, ImagePlus, X, Upload, Camera, Music2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useUpload } from "@workspace/object-storage-web";
@@ -38,6 +38,13 @@ const PRESENTER_PRESETS = [
     photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
   },
 ];
+
+const MUSIC_PRESETS = [
+  { id: "uplifting", label: "Uplifting", emoji: "✨", desc: "Bright & positive — lifestyle properties" },
+  { id: "cinematic", label: "Cinematic", emoji: "🎬", desc: "Epic & dramatic — premium listings" },
+  { id: "calm",      label: "Calm",      emoji: "🌿", desc: "Soft & ambient — family homes" },
+  { id: "corporate", label: "Corporate", emoji: "💼", desc: "Clean & professional — investment" },
+] as const;
 
 const PLATFORM_LABELS: Record<string, string> = {
   "realestate.com.au": "REA",
@@ -74,6 +81,7 @@ const formSchema = z
     propertyAddress: z.string().optional(),
     voiceId: z.string().optional(),
     voiceName: z.string().optional(),
+    musicTrack: z.string().optional(),
   })
   .superRefine((val, ctx) => {
     if (val.inputMode === "url") {
@@ -155,11 +163,12 @@ export default function NewJob() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { inputMode: "url", listingUrl: "", propertyAddress: "", voiceId: "", voiceName: "" },
+    defaultValues: { inputMode: "url", listingUrl: "", propertyAddress: "", voiceId: "", voiceName: "", musicTrack: "" },
   });
 
   const selectedVoiceName = form.watch("voiceName");
   const selectedVoiceId = form.watch("voiceId");
+  const selectedMusicTrack = form.watch("musicTrack");
   const watchedUrl = form.watch("listingUrl");
   const inputMode = form.watch("inputMode");
   const detectedPlatform = detectPlatform(watchedUrl ?? "");
@@ -199,6 +208,7 @@ export default function NewJob() {
           voiceId: values.voiceId || undefined,
           voiceName: values.voiceName || undefined,
           propertyImages: uploadedPhotos.map((p) => p.publicUrl),
+          musicTrack: values.musicTrack || undefined,
         },
       },
       {
@@ -387,6 +397,53 @@ export default function NewJob() {
                   );
                 })}
               </div>
+            </div>
+
+            {/* Music Picker */}
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
+                <Music2 className="w-3.5 h-3.5" />
+                Background Music
+                <span className="text-[9px] text-muted-foreground/50 normal-case tracking-normal font-sans">(optional)</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {MUSIC_PRESETS.map((m) => {
+                  const selected = selectedMusicTrack === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => form.setValue("musicTrack", selected ? "" : m.id)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all ${
+                        selected
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      <span className="text-xl leading-none">{m.emoji}</span>
+                      <div className="min-w-0">
+                        <div className={`text-sm font-mono font-medium ${selected ? "text-foreground" : "text-muted-foreground"}`}>{m.label}</div>
+                        <div className="text-[10px] text-muted-foreground/60 leading-tight mt-0.5 truncate">{m.desc}</div>
+                      </div>
+                      {selected && <CheckCircle2 className="w-4 h-4 text-primary ml-auto shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+              {selectedMusicTrack && (
+                <button
+                  type="button"
+                  onClick={() => form.setValue("musicTrack", "")}
+                  className="text-[11px] font-mono text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                >
+                  × No music
+                </button>
+              )}
+              {selectedMusicTrack ? (
+                <p className="text-[11px] text-primary font-mono">✓ {MUSIC_PRESETS.find(m => m.id === selectedMusicTrack)?.label} track added to final video</p>
+              ) : (
+                <p className="text-[11px] text-muted-foreground font-mono">No music — voiceover audio only</p>
+              )}
             </div>
 
             {/* Voice Picker */}

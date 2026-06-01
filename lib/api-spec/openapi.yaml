@@ -691,6 +691,9 @@ components:
           items:
             type: string
           nullable: true
+        musicTrack:
+          type: ["string", "null"]
+          description: Music preset used in the final video (uplifting, cinematic, calm, corporate)
         createdAt:
           type: string
           format: date-time
@@ -732,6 +735,9 @@ components:
           items:
             type: string
           nullable: true
+        musicTrack:
+          type: ["string", "null"]
+          description: Music preset used in the final video (uplifting, cinematic, calm, corporate)
         createdAt:
           type: string
           format: date-time
@@ -789,6 +795,9 @@ components:
         propertyAddress:
           type: string
           description: Property address entered manually (used in photo mode)
+        musicTrack:
+          type: string
+          description: Music preset ID for the final video (uplifting, cinematic, calm, corporate)
 
     GenerateScriptInput:
       type: object

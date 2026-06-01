@@ -15,6 +15,7 @@ export const jobsTable = pgTable("jobs", {
   enhancedImages: jsonb("enhanced_images").$type<string[]>().default([]),
   inputMode: text("input_mode").default("url"),
   propertyAddress: text("property_address"),
+  musicTrack: text("music_track"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

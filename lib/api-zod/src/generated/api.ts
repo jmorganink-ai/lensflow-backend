@@ -92,6 +92,7 @@ export const ListJobsResponseItem = zod.object({
   "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
   "enhancedImages": zod.array(zod.string()).nullish(),
+  "musicTrack": zod.string().nullish().describe('Music preset used in the final video (uplifting, cinematic, calm, corporate)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -107,7 +108,8 @@ export const CreateJobBody = zod.object({
   "voiceName": zod.string().optional(),
   "propertyImages": zod.array(zod.string()).optional().describe('Public URLs of uploaded property photos'),
   "inputMode": zod.enum(['url', 'photos']).optional().describe('Whether job was created from a URL or uploaded photos'),
-  "propertyAddress": zod.string().optional().describe('Property address entered manually (used in photo mode)')
+  "propertyAddress": zod.string().optional().describe('Property address entered manually (used in photo mode)'),
+  "musicTrack": zod.string().optional().describe('Music preset ID for the final video (uplifting, cinematic, calm, corporate)')
 })
 
 
@@ -163,6 +165,7 @@ export const GetJobStatsResponse = zod.object({
   "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
   "enhancedImages": zod.array(zod.string()).nullish(),
+  "musicTrack": zod.string().nullish().describe('Music preset used in the final video (uplifting, cinematic, calm, corporate)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 }))
@@ -228,6 +231,7 @@ export const GetJobResponse = zod.object({
   "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
   "enhancedImages": zod.array(zod.string()).nullish(),
+  "musicTrack": zod.string().nullish().describe('Music preset used in the final video (uplifting, cinematic, calm, corporate)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
