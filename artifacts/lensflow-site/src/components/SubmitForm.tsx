@@ -359,7 +359,7 @@ export function SubmitForm() {
 
       {!isAuthenticated && !authLoading && (
         <p className="text-center text-[11px] text-muted-foreground/60">
-          Sign in once with Replit · Takes 10 seconds · No credit card required
+          Takes 10 seconds · No credit card required
         </p>
       )}
     </form>

@@ -85,7 +85,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
             </Text>
           </Pressable>
           <Text style={[styles.legal, { color: colors.mutedForeground }]}>
-            Secure sign-in powered by Replit
+            Secure sign-in · LensFlow
           </Text>
         </View>
       </SafeAreaView>
