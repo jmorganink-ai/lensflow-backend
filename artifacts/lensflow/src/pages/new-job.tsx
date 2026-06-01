@@ -112,9 +112,11 @@ const formSchema = z
   });
 
 interface UploadedPhoto {
-  publicUrl: string;
+  publicUrl: string;   // empty string while uploading
   previewSrc: string;
   name: string;
+  uploading?: boolean;
+  failed?: boolean;
 }
 
 export default function NewJob() {
@@ -146,19 +148,37 @@ export default function NewJob() {
       const imageFiles = Array.from(files).filter((f) => f.type.startsWith("image/"));
       if (imageFiles.length === 0) return;
 
+      // Add all photos immediately with local blob previews so they appear right away.
+      // publicUrl is empty until the upload completes.
+      const pending: UploadedPhoto[] = imageFiles.map((file) => ({
+        publicUrl: "",
+        previewSrc: URL.createObjectURL(file),
+        name: file.name,
+        uploading: true,
+      }));
+      setUploadedPhotos((prev) => [...prev, ...pending]);
       setUploadingCount((n) => n + imageFiles.length);
 
       await Promise.all(
-        imageFiles.map(async (file) => {
-          const localPreview = URL.createObjectURL(file);
+        imageFiles.map(async (file, idx) => {
+          const preview = pending[idx].previewSrc;
           const result = await uploadFile(file);
           if (result) {
-            setUploadedPhotos((prev) => [
-              ...prev,
-              { publicUrl: result.publicUrl, previewSrc: localPreview, name: file.name },
-            ]);
+            // Swap out the pending entry with the completed one
+            setUploadedPhotos((prev) =>
+              prev.map((p) =>
+                p.previewSrc === preview
+                  ? { publicUrl: result.publicUrl, previewSrc: preview, name: file.name }
+                  : p
+              )
+            );
           } else {
-            URL.revokeObjectURL(localPreview);
+            // Mark failed so the user can see which ones didn't make it
+            setUploadedPhotos((prev) =>
+              prev.map((p) =>
+                p.previewSrc === preview ? { ...p, uploading: false, failed: true } : p
+              )
+            );
           }
           setUploadingCount((n) => n - 1);
         })
@@ -199,7 +219,9 @@ export default function NewJob() {
   }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (values.inputMode === "photos" && uploadedPhotos.length === 0) {
+    // Only count photos that finished uploading successfully
+    const readyPhotos = uploadedPhotos.filter((p) => !p.uploading && !p.failed && p.publicUrl);
+    if (values.inputMode === "photos" && readyPhotos.length === 0) {
       toast({
         title: "Add Photos",
         description: "Upload at least one property photo to generate a video from photos.",
@@ -215,7 +237,7 @@ export default function NewJob() {
           propertyAddress: values.propertyAddress?.trim() || undefined,
           voiceId: values.voiceId || undefined,
           voiceName: values.voiceName || undefined,
-          propertyImages: uploadedPhotos.map((p) => p.publicUrl),
+          propertyImages: readyPhotos.map((p) => p.publicUrl),
           musicTrack: values.musicTrack || undefined,
         },
       },
@@ -623,31 +645,45 @@ export default function NewJob() {
                 ) : (
                   <div className="p-3 grid grid-cols-5 gap-2">
                     {uploadedPhotos.map((photo, i) => (
-                      <div key={i} className="relative aspect-square rounded overflow-hidden group">
+                      <div key={photo.previewSrc} className="relative aspect-square rounded overflow-hidden group">
                         <img
                           src={photo.previewSrc}
                           alt={photo.name}
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setUploadedPhotos((prev) => prev.filter((_, j) => j !== i));
-                              URL.revokeObjectURL(photo.previewSrc);
-                            }}
-                            className="w-6 h-6 rounded-full bg-destructive flex items-center justify-center"
-                          >
-                            <X className="w-3 h-3 text-white" />
-                          </button>
-                        </div>
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-100" />
-                      </div>
-                    ))}
-                    {uploadingCount > 0 && Array.from({ length: uploadingCount }).map((_, i) => (
-                      <div key={`uploading-${i}`} className="relative aspect-square rounded bg-muted/50 flex items-center justify-center">
-                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                        {/* Uploading spinner overlay */}
+                        {photo.uploading && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <Loader2 className="w-4 h-4 animate-spin text-white" />
+                          </div>
+                        )}
+                        {/* Failed overlay */}
+                        {photo.failed && (
+                          <div className="absolute inset-0 bg-destructive/70 flex flex-col items-center justify-center gap-1">
+                            <X className="w-4 h-4 text-white" />
+                            <span className="text-[8px] text-white font-mono">failed</span>
+                          </div>
+                        )}
+                        {/* Hover remove — only for completed or failed photos */}
+                        {!photo.uploading && (
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setUploadedPhotos((prev) => prev.filter((_, j) => j !== i));
+                                URL.revokeObjectURL(photo.previewSrc);
+                              }}
+                              className="w-6 h-6 rounded-full bg-destructive flex items-center justify-center"
+                            >
+                              <X className="w-3 h-3 text-white" />
+                            </button>
+                          </div>
+                        )}
+                        {/* Progress bar at bottom — green when done, absent while uploading */}
+                        {!photo.uploading && !photo.failed && (
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                        )}
                       </div>
                     ))}
                     {(uploadedPhotos.length + uploadingCount) < 10 && (
@@ -659,11 +695,24 @@ export default function NewJob() {
                 )}
               </div>
 
-              {uploadedPhotos.length > 0 && (
-                <p className="text-[11px] text-primary font-mono">
-                  ✓ {uploadedPhotos.length} photo{uploadedPhotos.length !== 1 ? "s" : ""} ready — will be composed as a slideshow background
-                </p>
-              )}
+              {uploadedPhotos.length > 0 && (() => {
+                const ready = uploadedPhotos.filter((p) => !p.uploading && !p.failed && p.publicUrl).length;
+                const failed = uploadedPhotos.filter((p) => p.failed).length;
+                return (
+                  <>
+                    {ready > 0 && (
+                      <p className="text-[11px] text-primary font-mono">
+                        ✓ {ready} photo{ready !== 1 ? "s" : ""} ready — will be composed as a slideshow background
+                      </p>
+                    )}
+                    {failed > 0 && (
+                      <p className="text-[11px] text-destructive font-mono">
+                        ✗ {failed} photo{failed !== 1 ? "s" : ""} failed to upload — hover to remove and retry
+                      </p>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             <div className="flex justify-end">
