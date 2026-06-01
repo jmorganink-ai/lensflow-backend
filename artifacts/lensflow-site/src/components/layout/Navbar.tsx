@@ -23,6 +23,7 @@ export function Navbar() {
           <Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
           <a href="/#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
           <a href="/#compare" className="hover:text-foreground transition-colors">Compare</a>
+          <Link href="/advantage" className="hover:text-foreground transition-colors font-semibold text-violet-400 hover:text-violet-300">✦ Your Edge</Link>
         </div>
 
         <div className="flex items-center gap-3">
