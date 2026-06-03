@@ -2,12 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLocation } from "wouter";
-import { useCreateJob, useSimulateJob, useListElevenLabsVoices, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
+import { useCreateJob, useSimulateJob, useListElevenLabsVoices, useGenerateScript, useCreateSelfRecordedJob, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2, ImagePlus, X, Upload, Camera, Music2, Film } from "lucide-react";
+import { Link2, ArrowRight, Mic, Loader2, Play, ChevronDown, CheckCircle2, ImagePlus, X, Upload, Camera, Music2, Film, Video, Square, User, Bot, Layers } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useUpload } from "@workspace/object-storage-web";
@@ -52,7 +52,64 @@ const MUSIC_PRESETS = [
   { id: "cinematic", label: "Cinematic", emoji: "🎬", desc: "Epic & dramatic — premium listings" },
   { id: "calm",      label: "Calm",      emoji: "🌿", desc: "Soft & ambient — family homes" },
   { id: "corporate", label: "Corporate", emoji: "💼", desc: "Clean & professional — investment" },
+  { id: "luxury",   label: "Luxury",    emoji: "💎", desc: "Sophisticated & sleek — prestige listings" },
+  { id: "summer",   label: "Summer",    emoji: "🌊", desc: "Coastal & breezy — beach properties" },
+  { id: "country",  label: "Country",   emoji: "🌾", desc: "Warm & rustic — acreage & rural" },
+  { id: "urban",    label: "Urban",     emoji: "🏙️", desc: "Modern & edgy — inner-city apartments" },
 ] as const;
+
+const BACKGROUND_PRESETS = [
+  {
+    id: "studio",
+    label: "Studio Dark",
+    emoji: "🎙️",
+    desc: "Clean dark studio",
+    url: null,
+    preview: "bg-gradient-to-br from-slate-900 to-slate-800",
+  },
+  {
+    id: "reel-1",
+    label: "LensFlow Reel A",
+    emoji: "🎬",
+    desc: "Branded property reel",
+    url: "/backgrounds/bg-reel-1.mp4",
+    preview: null,
+    isVideo: true,
+  },
+  {
+    id: "reel-2",
+    label: "LensFlow Reel B",
+    emoji: "🏠",
+    desc: "Cinematic property reel",
+    url: "/backgrounds/bg-reel-2.mp4",
+    preview: null,
+    isVideo: true,
+  },
+  {
+    id: "city",
+    label: "City Skyline",
+    emoji: "🌆",
+    desc: "Modern city backdrop",
+    url: "https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&q=80&w=1920&h=1080",
+    preview: null,
+  },
+  {
+    id: "coastal",
+    label: "Coastal",
+    emoji: "🌊",
+    desc: "Sun & sea lifestyle",
+    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1920&h=1080",
+    preview: null,
+  },
+  {
+    id: "interior",
+    label: "Luxury Interior",
+    emoji: "🛋️",
+    desc: "Premium home interior",
+    url: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1920&h=1080",
+    preview: null,
+  },
+];
 
 const PLATFORM_LABELS: Record<string, string> = {
   "realestate.com.au": "REA",
@@ -135,7 +192,15 @@ export default function NewJob() {
   const [uploadingCount, setUploadingCount] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [enhancePhotos, setEnhancePhotos] = useState(false);
-  const [outputType, setOutputType] = useState<"presenter" | "voice_photos">("presenter");
+  const [outputType, setOutputType] = useState<"presenter" | "voice_photos" | "film_myself">("presenter");
+  const [selectedBackground, setSelectedBackground] = useState<string>("studio");
+  const [filmStep, setFilmStep] = useState<"configure" | "script-ready" | "recording" | "uploading">("configure");
+  const [filmScript, setFilmScript] = useState<string>("");
+  const [filmWebcamStream, setFilmWebcamStream] = useState<MediaStream | null>(null);
+  const [_filmRecordedBlob, setFilmRecordedBlob] = useState<Blob | null>(null);
+  const filmVideoRef = useRef<HTMLVideoElement>(null);
+  const filmMediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const filmChunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -190,6 +255,8 @@ export default function NewJob() {
   );
 
   const { data: voices = [], isLoading: voicesLoading } = useListElevenLabsVoices();
+  const generateScriptMutation = useGenerateScript();
+  const createSelfRecordedJob = useCreateSelfRecordedJob();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -214,6 +281,68 @@ export default function NewJob() {
     return () => document.removeEventListener("mousedown", handle);
   }, []);
 
+  // Webcam helpers for Film Myself path
+  async function startFilmWebcam() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
+      setFilmWebcamStream(stream);
+      if (filmVideoRef.current) filmVideoRef.current.srcObject = stream;
+    } catch (err: any) {
+      toast({ title: "Camera Error", description: err.message ?? "Could not access camera", variant: "destructive" });
+    }
+  }
+
+  function startFilmRecording() {
+    if (!filmWebcamStream) return;
+    filmChunksRef.current = [];
+    const recorder = new MediaRecorder(filmWebcamStream, { mimeType: "video/webm" });
+    recorder.ondataavailable = (e) => { if (e.data.size > 0) filmChunksRef.current.push(e.data); };
+    recorder.onstop = async () => {
+      const blob = new Blob(filmChunksRef.current, { type: "video/webm" });
+      setFilmRecordedBlob(blob);
+      filmWebcamStream.getTracks().forEach((t) => t.stop());
+      setFilmWebcamStream(null);
+      setFilmStep("uploading");
+      const file = new File([blob], `recording-${Date.now()}.webm`, { type: "video/webm" });
+      const result = await uploadFile(file);
+      if (!result) {
+        toast({ title: "Upload Failed", description: "Could not upload your recording.", variant: "destructive" });
+        setFilmStep("script-ready");
+        return;
+      }
+      const bg = BACKGROUND_PRESETS.find((b) => b.id === selectedBackground);
+      createSelfRecordedJob.mutate(
+        {
+          data: {
+            videoUrl: result.publicUrl,
+            script: filmScript,
+            musicTrack: form.getValues("musicTrack") || undefined,
+            backgroundImageUrl: bg?.url ?? undefined,
+          },
+        },
+        {
+          onSuccess: (job) => {
+            queryClient.invalidateQueries({ queryKey: getGetJobStatsQueryKey() });
+            queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
+            toast({ title: "Video Submitted!", description: "Your self-recorded video is being composed." });
+            setLocation(`/jobs/${job.id}`);
+          },
+          onError: () => {
+            toast({ title: "Submission Failed", description: "Could not save your recording.", variant: "destructive" });
+            setFilmStep("script-ready");
+          },
+        }
+      );
+    };
+    filmMediaRecorderRef.current = recorder;
+    recorder.start();
+    setFilmStep("recording");
+  }
+
+  function stopFilmRecording() {
+    filmMediaRecorderRef.current?.stop();
+  }
+
   function playPreview(url: string, e: React.MouseEvent) {
     e.stopPropagation();
     setPreviewSrc(url);
@@ -221,7 +350,6 @@ export default function NewJob() {
   }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Only count photos that finished uploading successfully
     const readyPhotos = uploadedPhotos.filter((p) => !p.uploading && !p.failed && p.publicUrl);
     if (values.inputMode === "photos" && readyPhotos.length === 0) {
       toast({
@@ -231,6 +359,31 @@ export default function NewJob() {
       });
       return;
     }
+
+    // Film Myself path — generate script then enter recording flow
+    if (outputType === "film_myself") {
+      generateScriptMutation.mutate(
+        {
+          data: {
+            listingUrl: values.inputMode === "url" ? values.listingUrl : undefined,
+            propertyAddress: values.propertyAddress?.trim() || undefined,
+          },
+        },
+        {
+          onSuccess: (result) => {
+            setFilmScript((result as any).script ?? "");
+            setFilmStep("script-ready");
+            setTimeout(() => startFilmWebcam(), 300);
+          },
+          onError: () => {
+            toast({ title: "Script Failed", description: "Could not generate your script. Try again.", variant: "destructive" });
+          },
+        }
+      );
+      return;
+    }
+
+    // AI Presenter / Voice+Photos pipeline paths
     createJob.mutate(
       {
         data: {
@@ -242,14 +395,13 @@ export default function NewJob() {
           propertyImages: readyPhotos.map((p) => p.publicUrl),
           musicTrack: values.musicTrack || undefined,
           enhancePhotos: inputMode === "photos" && enhancePhotos ? true : undefined,
-          outputType,
+          outputType: outputType as "presenter" | "voice_photos",
         },
       },
       {
         onSuccess: (job) => {
           queryClient.invalidateQueries({ queryKey: getGetJobStatsQueryKey() });
           queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
-          // Auto-start the pipeline immediately — no extra click needed
           simulateJob.mutate({ id: job.id }, {
             onSuccess: () => {
               toast({ title: "Pipeline Running", description: "All 5 stages are now processing automatically." });
@@ -278,8 +430,8 @@ export default function NewJob() {
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">New Pipeline Run</h1>
-        <p className="text-muted-foreground">Submit a property listing URL to automatically generate a professional presenter video.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Build Your Video</h1>
+        <p className="text-muted-foreground">Choose your video style, add voice and music, then generate a professional property video in one click.</p>
       </div>
 
       <div className="bg-card border border-border p-6 rounded-lg relative overflow-hidden">
@@ -402,83 +554,204 @@ export default function NewJob() {
             />
             )}
 
-            {/* Output Type */}
-            <div className="space-y-2">
+            {/* ── VIDEO STYLE ─────────────────────────────────────── */}
+            <div className="space-y-3">
               <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
-                <Film className="w-3.5 h-3.5" />
-                Output Type
+                <Layers className="w-3.5 h-3.5" />
+                Choose Your Video Style
               </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setOutputType("presenter")}
-                  className={`flex flex-col items-start gap-1 p-3 rounded-lg border text-left transition-all ${
-                    outputType === "presenter"
-                      ? "border-primary bg-primary/5 text-foreground"
-                      : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                  }`}
-                >
-                  <span className="text-xs font-mono font-semibold uppercase tracking-wider">AI Presenter</span>
-                  <span className="text-[11px] leading-tight">HeyGen avatar presents your listing</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOutputType("voice_photos")}
-                  className={`flex flex-col items-start gap-1 p-3 rounded-lg border text-left transition-all ${
-                    outputType === "voice_photos"
-                      ? "border-primary bg-primary/5 text-foreground"
-                      : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                  }`}
-                >
-                  <span className="text-xs font-mono font-semibold uppercase tracking-wider">Voice + Photos</span>
-                  <span className="text-[11px] leading-tight">AI narration over a photo slideshow</span>
-                </button>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  { id: "presenter", icon: Bot, title: "AI Presenter", desc: "HeyGen avatar presents your listing" },
+                  { id: "film_myself", icon: User, title: "Film Myself", desc: "Record yourself with a virtual background" },
+                  { id: "voice_photos", icon: Film, title: "Voice + Photos", desc: "AI narration over a photo slideshow" },
+                ] as const).map(({ id, icon: Icon, title, desc }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => { setOutputType(id); setFilmStep("configure"); }}
+                    className={`flex flex-col items-start gap-2 p-4 rounded-lg border text-left transition-all ${
+                      outputType === id
+                        ? "border-primary bg-primary/5 text-foreground shadow-[0_0_0_1px_hsl(var(--primary)/0.3)]"
+                        : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 ${outputType === id ? "text-primary" : "text-muted-foreground"}`} />
+                    <div>
+                      <div className="text-[11px] font-mono font-semibold uppercase tracking-wider leading-none mb-1">{title}</div>
+                      <div className="text-[10px] leading-tight opacity-70">{desc}</div>
+                    </div>
+                    {outputType === id && (
+                      <div className="absolute top-2 right-2 w-3 h-3 rounded-full bg-primary" />
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Presenter Presets — only for AI Presenter output type */}
-            {outputType === "presenter" && <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
-                <Mic className="w-3.5 h-3.5" />
-                Choose Presenter
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {PRESENTER_PRESETS.map((p) => {
-                  const isSelected = selectedVoiceId === p.voiceId;
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => {
-                        form.setValue("voiceId", p.voiceId);
-                        form.setValue("voiceName", p.voiceName);
-                      }}
-                      className={`relative rounded-lg overflow-hidden aspect-[3/4] group border-2 transition-all ${
-                        isSelected ? "border-primary shadow-[0_0_12px_rgba(var(--primary),0.4)]" : "border-border hover:border-primary/40"
-                      }`}
-                    >
-                      <img src={p.photo} alt={p.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
-                      {isSelected && (
-                        <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
+            {/* ── ADD-ON: AI PRESENTER choice ─────────────────────── */}
+            {outputType === "presenter" && (
+              <div className="space-y-2 pl-3 border-l-2 border-primary/30">
+                <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
+                  <Bot className="w-3.5 h-3.5" />
+                  Choose Presenter
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {PRESENTER_PRESETS.map((p) => {
+                    const isSelected = selectedVoiceId === p.voiceId;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => {
+                          form.setValue("voiceId", p.voiceId);
+                          form.setValue("voiceName", p.voiceName);
+                        }}
+                        className={`relative rounded-lg overflow-hidden aspect-[3/4] group border-2 transition-all ${
+                          isSelected ? "border-primary shadow-[0_0_12px_rgba(var(--primary),0.4)]" : "border-border hover:border-primary/40"
+                        }`}
+                      >
+                        <img src={p.photo} alt={p.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
+                        {isSelected && (
+                          <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
+                          </div>
+                        )}
+                        <div className="absolute bottom-2 left-2 right-2">
+                          <div className="text-xs font-semibold">{p.name}</div>
+                          <div className="text-[9px] text-primary font-mono leading-tight mt-0.5">{p.specialty}</div>
                         </div>
-                      )}
-                      <div className="absolute bottom-2 left-2 right-2">
-                        <div className="text-xs font-semibold">{p.name}</div>
-                        <div className="text-[9px] text-primary font-mono leading-tight mt-0.5">{p.specialty}</div>
-                      </div>
-                    </button>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>}
+            )}
 
-            {/* Music Picker */}
-            <div className="space-y-2">
+            {/* ── ADD-ON: FILM MYSELF background picker ───────────── */}
+            {outputType === "film_myself" && filmStep === "configure" && (
+              <div className="space-y-2 pl-3 border-l-2 border-primary/30">
+                <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
+                  <Video className="w-3.5 h-3.5" />
+                  Virtual Background
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {BACKGROUND_PRESETS.map((bg) => {
+                    const isSelected = selectedBackground === bg.id;
+                    return (
+                      <button
+                        key={bg.id}
+                        type="button"
+                        onClick={() => setSelectedBackground(bg.id)}
+                        className={`relative rounded-lg overflow-hidden border-2 transition-all group ${
+                          isSelected ? "border-primary shadow-[0_0_10px_rgba(var(--primary),0.3)]" : "border-border hover:border-primary/40"
+                        }`}
+                      >
+                        {bg.url && !bg.url.endsWith(".mp4") ? (
+                          <img src={bg.url} alt={bg.label} className="w-full aspect-video object-cover" />
+                        ) : bg.url?.endsWith(".mp4") ? (
+                          <div className="w-full aspect-video bg-slate-900 flex items-center justify-center">
+                            <Video className="w-6 h-6 text-primary/60" />
+                          </div>
+                        ) : (
+                          <div className={`w-full aspect-video ${bg.preview ?? "bg-slate-900"}`} />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                        {isSelected && (
+                          <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                            <CheckCircle2 className="w-2.5 h-2.5 text-primary-foreground" />
+                          </div>
+                        )}
+                        {bg.isVideo && (
+                          <div className="absolute top-1.5 left-1.5">
+                            <span className="text-[8px] font-mono uppercase tracking-wider bg-primary/80 text-primary-foreground px-1 py-0.5 rounded">VIDEO</span>
+                          </div>
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                          <div className="text-[10px] font-mono font-semibold text-white leading-none">{bg.emoji} {bg.label}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[11px] text-muted-foreground font-mono">
+                  {BACKGROUND_PRESETS.find(b => b.id === selectedBackground)?.isVideo
+                    ? "✓ Animated video background — Shotstack will composite your recording over this clip"
+                    : selectedBackground === "studio"
+                    ? "✓ Clean studio look — your recording will appear on a dark backdrop"
+                    : "✓ Image background — your recording will be placed over this scene"}
+                </p>
+              </div>
+            )}
+
+            {/* ── ADD-ON: VOICE (for AI Presenter + Voice+Photos) ──── */}
+            {outputType !== "film_myself" && (
+              <div className="space-y-2 pl-3 border-l-2 border-border">
+                <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
+                  <Mic className="w-3.5 h-3.5" />
+                  Add Voice
+                  <span className="text-[9px] text-muted-foreground/50 normal-case tracking-normal font-sans">(optional)</span>
+                  {voicesLoading && <Loader2 className="w-3 h-3 animate-spin" />}
+                </label>
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setVoiceOpen((o) => !o)}
+                    className="w-full h-11 flex items-center justify-between px-4 bg-background border border-border rounded-md font-mono text-sm hover:border-primary/50 transition-colors"
+                  >
+                    <span className={selectedVoiceName ? "text-foreground" : "text-muted-foreground"}>
+                      {selectedVoiceName || (voicesLoading ? "Loading voices…" : "Select an ElevenLabs voice")}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${voiceOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {voiceOpen && (
+                    <div className="absolute z-50 top-full mt-1 w-full max-h-72 overflow-y-auto bg-card border border-border rounded-md shadow-xl">
+                      <button
+                        type="button"
+                        onClick={() => { form.setValue("voiceId", ""); form.setValue("voiceName", ""); setVoiceOpen(false); }}
+                        className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border"
+                      >
+                        <span className="text-sm text-muted-foreground font-mono">— No voice (simulation only)</span>
+                      </button>
+                      {clonedVoices.length > 0 && (
+                        <>
+                          <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-primary/70 bg-primary/5">Your Cloned Voices</div>
+                          {clonedVoices.map((v) => (
+                            <VoiceOption key={v.voice_id} voice={v} selected={selectedVoiceId === v.voice_id}
+                              onSelect={() => { form.setValue("voiceId", v.voice_id); form.setValue("voiceName", v.name); setVoiceOpen(false); }}
+                              onPreview={v.preview_url ? (e) => playPreview(v.preview_url!, e) : undefined} />
+                          ))}
+                        </>
+                      )}
+                      {otherVoices.length > 0 && (
+                        <>
+                          <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-muted-foreground bg-muted/30">Library Voices</div>
+                          {otherVoices.map((v) => (
+                            <VoiceOption key={v.voice_id} voice={v} selected={selectedVoiceId === v.voice_id}
+                              onSelect={() => { form.setValue("voiceId", v.voice_id); form.setValue("voiceName", v.name); setVoiceOpen(false); }}
+                              onPreview={v.preview_url ? (e) => playPreview(v.preview_url!, e) : undefined} />
+                          ))}
+                        </>
+                      )}
+                      {!voicesLoading && voices.length === 0 && (
+                        <div className="px-4 py-6 text-center text-sm text-muted-foreground font-mono">No voices found in your ElevenLabs account.</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {selectedVoiceId
+                  ? <p className="text-[11px] text-primary font-mono">✓ ElevenLabs TTS active — live voiceover generation</p>
+                  : <p className="text-[11px] text-muted-foreground font-mono">No voice selected — voiceover step will be simulated</p>
+                }
+              </div>
+            )}
+
+            {/* ── ADD-ON: MUSIC ────────────────────────────────────── */}
+            <div className="space-y-2 pl-3 border-l-2 border-border">
               <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
                 <Music2 className="w-3.5 h-3.5" />
-                Background Music
+                Add Music
                 <span className="text-[9px] text-muted-foreground/50 normal-case tracking-normal font-sans">(optional)</span>
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -489,136 +762,30 @@ export default function NewJob() {
                       key={m.id}
                       type="button"
                       onClick={() => form.setValue("musicTrack", selected ? "" : m.id)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all ${
-                        selected
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/40"
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border text-left transition-all ${
+                        selected ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
                       }`}
                     >
-                      <span className="text-xl leading-none">{m.emoji}</span>
-                      <div className="min-w-0">
-                        <div className={`text-sm font-mono font-medium ${selected ? "text-foreground" : "text-muted-foreground"}`}>{m.label}</div>
-                        <div className="text-[10px] text-muted-foreground/60 leading-tight mt-0.5 truncate">{m.desc}</div>
+                      <span className="text-lg leading-none">{m.emoji}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className={`text-[11px] font-mono font-medium ${selected ? "text-foreground" : "text-muted-foreground"}`}>{m.label}</div>
+                        <div className="text-[9px] text-muted-foreground/60 leading-tight mt-0.5 truncate">{m.desc}</div>
                       </div>
-                      {selected && <CheckCircle2 className="w-4 h-4 text-primary ml-auto shrink-0" />}
+                      {selected && <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />}
                     </button>
                   );
                 })}
               </div>
               {selectedMusicTrack && (
-                <button
-                  type="button"
-                  onClick={() => form.setValue("musicTrack", "")}
-                  className="text-[11px] font-mono text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-                >
+                <button type="button" onClick={() => form.setValue("musicTrack", "")}
+                  className="text-[11px] font-mono text-muted-foreground/50 hover:text-muted-foreground transition-colors">
                   × No music
                 </button>
               )}
-              {selectedMusicTrack ? (
-                <p className="text-[11px] text-primary font-mono">✓ {MUSIC_PRESETS.find(m => m.id === selectedMusicTrack)?.label} track added to final video</p>
-              ) : (
-                <p className="text-[11px] text-muted-foreground font-mono">No music — voiceover audio only</p>
-              )}
-            </div>
-
-            {/* Voice Picker */}
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
-                <Mic className="w-3.5 h-3.5" />
-                Or Pick From Library
-                {voicesLoading && <Loader2 className="w-3 h-3 animate-spin" />}
-              </label>
-
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => setVoiceOpen((o) => !o)}
-                  className="w-full h-12 flex items-center justify-between px-4 bg-background border border-border rounded-md font-mono text-sm hover:border-primary/50 transition-colors"
-                >
-                  <span className={selectedVoiceName ? "text-foreground" : "text-muted-foreground"}>
-                    {selectedVoiceName || (voicesLoading ? "Loading voices…" : "Select a voice (optional)")}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${voiceOpen ? "rotate-180" : ""}`} />
-                </button>
-
-                {voiceOpen && (
-                  <div className="absolute z-50 top-full mt-1 w-full max-h-72 overflow-y-auto bg-card border border-border rounded-md shadow-xl">
-                    {/* No voice option */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        form.setValue("voiceId", "");
-                        form.setValue("voiceName", "");
-                        setVoiceOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border"
-                    >
-                      <span className="text-sm text-muted-foreground font-mono">— No voice (simulation only)</span>
-                    </button>
-
-                    {/* Cloned voices */}
-                    {clonedVoices.length > 0 && (
-                      <>
-                        <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-primary/70 bg-primary/5">
-                          Your Cloned Voices
-                        </div>
-                        {clonedVoices.map((v) => (
-                          <VoiceOption
-                            key={v.voice_id}
-                            voice={v}
-                            selected={selectedVoiceId === v.voice_id}
-                            onSelect={() => {
-                              form.setValue("voiceId", v.voice_id);
-                              form.setValue("voiceName", v.name);
-                              setVoiceOpen(false);
-                            }}
-                            onPreview={v.preview_url ? (e) => playPreview(v.preview_url!, e) : undefined}
-                          />
-                        ))}
-                      </>
-                    )}
-
-                    {/* Premade/other voices */}
-                    {otherVoices.length > 0 && (
-                      <>
-                        <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-muted-foreground bg-muted/30">
-                          Library Voices
-                        </div>
-                        {otherVoices.map((v) => (
-                          <VoiceOption
-                            key={v.voice_id}
-                            voice={v}
-                            selected={selectedVoiceId === v.voice_id}
-                            onSelect={() => {
-                              form.setValue("voiceId", v.voice_id);
-                              form.setValue("voiceName", v.name);
-                              setVoiceOpen(false);
-                            }}
-                            onPreview={v.preview_url ? (e) => playPreview(v.preview_url!, e) : undefined}
-                          />
-                        ))}
-                      </>
-                    )}
-
-                    {!voicesLoading && voices.length === 0 && (
-                      <div className="px-4 py-6 text-center text-sm text-muted-foreground font-mono">
-                        No voices found in your ElevenLabs account.
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {selectedVoiceId && (
-                <p className="text-[11px] text-primary font-mono">
-                  ✓ ElevenLabs TTS will run live for the voiceover step
-                </p>
-              )}
-              {!selectedVoiceId && (
-                <p className="text-[11px] text-muted-foreground font-mono">
-                  No voice selected — voiceover step will be simulated
-                </p>
-              )}
+              {selectedMusicTrack
+                ? <p className="text-[11px] text-primary font-mono">✓ {MUSIC_PRESETS.find(m => m.id === selectedMusicTrack)?.label} track will be mixed into the final video</p>
+                : <p className="text-[11px] text-muted-foreground font-mono">No music — voiceover or ambient audio only</p>
+              }
             </div>
 
             {/* Property Photos Upload */}
@@ -782,17 +949,155 @@ export default function NewJob() {
             <div className="flex justify-end">
               <Button
                 type="submit"
-                disabled={createJob.isPending || uploadingCount > 0}
+                disabled={createJob.isPending || generateScriptMutation.isPending || uploadingCount > 0}
                 className="font-mono uppercase tracking-wider h-12 px-8"
               >
-                {createJob.isPending ? "Starting pipeline..." : uploadingCount > 0 ? `Uploading ${uploadingCount} photo${uploadingCount !== 1 ? "s" : ""}...` : "Generate Video"}
-                {!createJob.isPending && uploadingCount === 0 && <ArrowRight className="w-4 h-4 ml-2" />}
-                {uploadingCount > 0 && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+                {generateScriptMutation.isPending
+                  ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating Script...</>
+                  : createJob.isPending
+                  ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Starting pipeline...</>
+                  : uploadingCount > 0
+                  ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading {uploadingCount} photo{uploadingCount !== 1 ? "s" : ""}...</>
+                  : outputType === "film_myself"
+                  ? <>Generate Script <ArrowRight className="w-4 h-4 ml-2" /></>
+                  : <>Generate Video <ArrowRight className="w-4 h-4 ml-2" /></>
+                }
               </Button>
             </div>
           </form>
         </Form>
       </div>
+
+      {/* ── FILM MYSELF: Script Ready + Recording Studio ── */}
+      {outputType === "film_myself" && filmStep !== "configure" && (
+        <div className="bg-card border border-primary/30 rounded-lg overflow-hidden">
+          <div className="bg-primary/5 border-b border-primary/20 px-6 py-4 flex items-center justify-between">
+            <div>
+              <div className="text-xs font-mono uppercase tracking-wider text-primary">Script Ready — Start Recording</div>
+              <div className="text-sm text-muted-foreground mt-0.5">Read the script below while looking at the camera</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                filmWebcamStream?.getTracks().forEach((t) => t.stop());
+                setFilmWebcamStream(null);
+                setFilmStep("configure");
+                setFilmScript("");
+                setFilmRecordedBlob(null);
+              }}
+              className="text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Start over
+            </button>
+          </div>
+
+          <div className="p-6 space-y-5">
+            {/* Webcam + background preview side by side */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Your Camera</div>
+                <div className="relative rounded-lg overflow-hidden bg-black aspect-video">
+                  {filmStep === "uploading" || filmStep === "recording" ? (
+                    <video ref={filmVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+                  ) : filmWebcamStream ? (
+                    <video ref={filmVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                      <Camera className="w-8 h-8 opacity-40" />
+                      <span className="text-xs font-mono">Camera not started</span>
+                      <button
+                        type="button"
+                        onClick={startFilmWebcam}
+                        className="text-xs font-mono text-primary border border-primary/40 bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded transition-colors"
+                      >
+                        Enable Camera
+                      </button>
+                    </div>
+                  )}
+                  {filmStep === "recording" && (
+                    <div className="absolute top-2 right-2 flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                      <span className="text-[10px] font-mono text-white">REC</span>
+                    </div>
+                  )}
+                  {(filmStep === "uploading") && (
+                    <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-2">
+                      <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                      <span className="text-xs font-mono text-white">Uploading & compositing...</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {filmStep === "script-ready" && filmWebcamStream && (
+                    <button
+                      type="button"
+                      onClick={startFilmRecording}
+                      className="flex-1 flex items-center justify-center gap-2 h-10 bg-primary text-primary-foreground rounded-lg font-mono text-sm font-semibold hover:bg-primary/90 transition-colors"
+                    >
+                      <Video className="w-4 h-4" />
+                      Record
+                    </button>
+                  )}
+                  {filmStep === "recording" && (
+                    <button
+                      type="button"
+                      onClick={stopFilmRecording}
+                      className="flex-1 flex items-center justify-center gap-2 h-10 bg-destructive text-destructive-foreground rounded-lg font-mono text-sm font-semibold hover:bg-destructive/90 transition-colors"
+                    >
+                      <Square className="w-4 h-4" />
+                      Stop & Submit
+                    </button>
+                  )}
+                  {filmStep === "script-ready" && !filmWebcamStream && (
+                    <button
+                      type="button"
+                      onClick={startFilmWebcam}
+                      className="flex-1 h-10 bg-primary text-primary-foreground rounded-lg font-mono text-sm font-semibold hover:bg-primary/90 transition-colors"
+                    >
+                      Enable Camera to Record
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Background preview */}
+              <div className="space-y-2">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Your Background (final output)</div>
+                {(() => {
+                  const bg = BACKGROUND_PRESETS.find(b => b.id === selectedBackground);
+                  if (!bg) return null;
+                  return (
+                    <div className="rounded-lg overflow-hidden aspect-video">
+                      {bg.url && !bg.url.endsWith(".mp4") ? (
+                        <img src={bg.url} alt={bg.label} className="w-full h-full object-cover" />
+                      ) : bg.url?.endsWith(".mp4") ? (
+                        <video src={bg.url} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                      ) : (
+                        <div className={`w-full h-full ${bg.preview ?? "bg-slate-900"} flex items-center justify-center`}>
+                          <span className="text-muted-foreground/40 font-mono text-xs">Studio Dark</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+                <p className="text-[10px] text-muted-foreground font-mono">
+                  Shotstack will composite your recording over this background
+                </p>
+              </div>
+            </div>
+
+            {/* Script teleprompter */}
+            <div className="space-y-2">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Your Script — read this to camera</div>
+              <div className="bg-background border border-border rounded-lg p-4 max-h-64 overflow-y-auto">
+                <p className="text-sm leading-relaxed whitespace-pre-wrap font-mono text-foreground">
+                  {filmScript || "Script will appear here after generation…"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hidden audio player for previews */}
       {previewSrc && <audio ref={audioRef} src={previewSrc} className="hidden" />}

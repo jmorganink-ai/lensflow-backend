@@ -5,6 +5,11 @@ const MUSIC_TRACK_URLS: Record<string, string> = {
   cinematic: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
   calm:      "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/morning.mp3",
   corporate: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
+  // Extended library
+  luxury:  "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/arcade.mp3",
+  summer:  "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/daydreaming.mp3",
+  country: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/slow.mp3",
+  urban:   "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/chill.mp3",
 };
 
 // Use production key + endpoint when available, fall back to sandbox/staging
