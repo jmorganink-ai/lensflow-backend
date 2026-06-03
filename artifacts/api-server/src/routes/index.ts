@@ -10,6 +10,7 @@ import elevenlabsRouter from "./elevenlabs";
 import storageRouter from "./storage";
 import marketRouter from "./market";
 import settingsRouter from "./settings";
+import heygenRouter from "./heygen";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(elevenlabsRouter);
 router.use(storageRouter);
 router.use(marketRouter);
 router.use(settingsRouter);
+router.use(heygenRouter);
 
 export default router;
