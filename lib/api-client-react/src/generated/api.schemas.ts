@@ -247,6 +247,8 @@ export interface GenerateScriptInput {
   listingUrl?: string;
   propertyAddress?: string;
   propertyImages?: string[];
+  /** Presenter name (mia, sophie, oliver, james) — shapes the script tone and persona */
+  voiceName?: string;
 }
 
 export interface GenerateScriptResult {

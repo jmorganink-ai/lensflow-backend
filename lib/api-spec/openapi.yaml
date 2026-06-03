@@ -898,6 +898,9 @@ components:
           type: array
           items:
             type: string
+        voiceName:
+          type: string
+          description: Presenter name (mia, sophie, oliver, james) — shapes the script tone and persona
 
     GenerateScriptResult:
       type: object

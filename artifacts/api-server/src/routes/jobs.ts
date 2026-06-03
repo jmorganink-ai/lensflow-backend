@@ -275,7 +275,7 @@ async function runSimulation(jobId: string): Promise<void> {
         // Real Anthropic call to generate a listing script
         try {
           logger.info({ jobId }, "Generating script with Anthropic");
-          const result = await generateListingScript(job.listingUrl, listingContext);
+          const result = await generateListingScript(job.listingUrl, listingContext, job.voiceName);
           outputData = result.script;
           generatedScript = result.script;
           // Use AI title if available; else fall back to URL-parsed summary
@@ -559,7 +559,7 @@ router.post("/jobs/generate-script", async (req, res): Promise<void> => {
     }
   }
 
-  const result = await generateListingScript(listingUrl, listingContext);
+  const result = await generateListingScript(listingUrl, listingContext, parsed.data.voiceName);
   res.json({ script: result.script, title: result.title });
 });
 

@@ -123,7 +123,8 @@ export const GenerateScriptBody = zod.object({
   "inputMode": zod.enum(['url', 'photos']).optional(),
   "listingUrl": zod.string().optional(),
   "propertyAddress": zod.string().optional(),
-  "propertyImages": zod.array(zod.string()).optional()
+  "propertyImages": zod.array(zod.string()).optional(),
+  "voiceName": zod.string().optional().describe('Presenter name (mia, sophie, oliver, james) — shapes the script tone and persona')
 })
 
 export const GenerateScriptResponse = zod.object({
