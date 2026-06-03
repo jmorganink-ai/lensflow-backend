@@ -4,7 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { CheckCircle2, XCircle, ArrowRight, Crown, Sparkles, Video, Film } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, Crown, Sparkles, Video, Film, Clock, Zap, Camera, DollarSign, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Pricing() {
@@ -273,6 +273,258 @@ export default function Pricing() {
           </motion.div>
         </div>
       </main>
+
+      {/* ── PRESTIGE COMPARISON ─────────────────────────────────────────────── */}
+      <section className="py-28 px-6 bg-background border-t border-white/5 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-20"
+          >
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full mb-6">
+              <AlertTriangle className="w-3 h-3" /> The Real Numbers
+            </div>
+            <h2 className="font-serif text-4xl lg:text-5xl font-bold mb-5">
+              The time you waste, the money you bleed,<br />
+              <span className="text-primary italic">and the listings you don't win</span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Every listing your competitor presents with a grainy phone clip or a basic slide show
+              is a deal you could be winning. Compare what it actually costs to do this the old way.
+            </p>
+          </motion.div>
+
+          {/* Visual Quality Comparison */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="grid md:grid-cols-2 gap-4 mb-20"
+          >
+            {/* Before — old way */}
+            <div className="relative rounded-2xl overflow-hidden aspect-[4/3] group">
+              <img
+                src="/quality-before.jpg"
+                alt="Standard listing photo"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{
+                  filter: "contrast(0.68) brightness(0.78) saturate(0.35) blur(0.7px)",
+                }}
+              />
+              {/* Noise / grain overlay */}
+              <div className="absolute inset-0 opacity-30"
+                style={{
+                  backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E\")",
+                  backgroundSize: "128px 128px",
+                }}
+              />
+              {/* Dark vignette */}
+              <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-black/40" />
+              {/* Quality badge */}
+              <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm border border-white/10 text-white/70 text-xs font-bold px-2.5 py-1 rounded-lg">
+                <Camera className="w-3 h-3" /> 720p · Shot on iPhone
+              </div>
+              {/* Timestamp watermark */}
+              <div className="absolute top-4 right-4 text-white/50 text-xs font-mono bg-black/40 px-2 py-0.5 rounded">
+                12:34 PM
+              </div>
+              {/* Bottom label */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-6 py-5">
+                <div className="flex items-center gap-2 mb-1">
+                  <XCircle className="w-4 h-4 text-red-400" />
+                  <span className="text-white font-bold text-base tracking-wide">Without LensFlow</span>
+                </div>
+                <p className="text-white/60 text-sm">Basic phone snapshot · No script · No voiceover · No presenter</p>
+              </div>
+            </div>
+
+            {/* After — LensFlow quality */}
+            <div className="relative rounded-2xl overflow-hidden aspect-[4/3] group">
+              <img
+                src="/quality-after.jpg"
+                alt="LensFlow AI cinematic presentation"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ filter: "contrast(1.05) brightness(1.02) saturate(1.1)" }}
+              />
+              {/* Cinematic top bar */}
+              <div className="absolute top-0 left-0 right-0 h-7 bg-black/80" />
+              <div className="absolute bottom-0 left-0 right-0 h-7 bg-black/80" />
+              {/* Quality badge */}
+              <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-primary/90 backdrop-blur-sm text-primary-foreground text-xs font-bold px-2.5 py-1 rounded-lg shadow-lg shadow-primary/30">
+                <Zap className="w-3 h-3" /> 4K · AI-Composed
+              </div>
+              {/* LensFlow watermark */}
+              <div className="absolute top-4 right-4 text-white/80 text-xs font-bold bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-lg tracking-wider">
+                LensFlow AI
+              </div>
+              {/* Presenter overlay badge */}
+              <div className="absolute bottom-16 left-4 right-4 flex justify-end">
+                <div className="bg-black/70 backdrop-blur-sm rounded-xl px-3 py-2 text-xs text-white/90 font-medium flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-primary/80 flex items-center justify-center">
+                    <Video className="w-3 h-3 text-white" />
+                  </div>
+                  AI Presenter · ElevenLabs Voice · HeyGen Avatar
+                </div>
+              </div>
+              {/* Bottom label */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-6 py-5">
+                <div className="flex items-center gap-2 mb-1">
+                  <CheckCircle2 className="w-4 h-4 text-primary" />
+                  <span className="text-white font-bold text-base tracking-wide">With LensFlow</span>
+                </div>
+                <p className="text-white/60 text-sm">Cinematic 4K · AI script · Professional voiceover · Presenter video</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Time comparison */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="grid md:grid-cols-2 gap-6 mb-20"
+          >
+            {/* Old way */}
+            <div className="rounded-2xl border border-white/5 bg-card p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-red-400" />
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground font-medium uppercase tracking-widest">The Old Way</div>
+                  <div className="text-2xl font-bold text-red-400">4+ hours per listing</div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {[
+                  ["45 min", "Find and brief a videographer"],
+                  ["2–3 days", "Wait for availability + travel to property"],
+                  ["60–90 min", "Filming on-site"],
+                  ["1–2 days", "Wait for video edit to come back"],
+                  ["30 min", "Write your own listing script or ad copy"],
+                  ["45 min", "Film your own voiceover (multiple takes)"],
+                  ["30 min", "Upload to REA, Domain, social media, email"],
+                ].map(([time, task], i) => (
+                  <div key={i} className="flex items-start gap-3 text-sm">
+                    <span className="text-red-400/70 font-mono text-xs mt-0.5 w-16 shrink-0">{time}</span>
+                    <span className="text-foreground/70">{task}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/5 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-400" />
+                <span className="text-red-400 text-sm font-semibold">Meanwhile, a faster agent already has the listing</span>
+              </div>
+            </div>
+
+            {/* LensFlow */}
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground font-medium uppercase tracking-widest">With LensFlow</div>
+                  <div className="text-2xl font-bold text-primary">90 seconds flat</div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {[
+                  ["0:10", "Paste the listing URL (or upload 3 photos)"],
+                  ["0:20", "AI reads the property and writes the script"],
+                  ["0:30", "ElevenLabs narrates it in a professional voice"],
+                  ["0:60", "HeyGen renders your AI presenter on screen"],
+                  ["0:75", "Photos composed into a cinematic 4K video"],
+                  ["0:90", "Ready to share to REA, Domain, socials, email"],
+                  ["", "Morgan drafts your marketing copy automatically"],
+                ].map(([time, task], i) => (
+                  <div key={i} className="flex items-start gap-3 text-sm">
+                    <span className="text-primary/60 font-mono text-xs mt-0.5 w-16 shrink-0">{time}</span>
+                    <span className="text-foreground/90">{task}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 pt-4 border-t border-primary/20 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-primary" />
+                <span className="text-primary text-sm font-semibold">You're first to market. Every. Single. Time.</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Real cost table */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="text-center mb-10">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <DollarSign className="w-5 h-5 text-primary" />
+                <h3 className="font-serif text-2xl lg:text-3xl font-bold">What one listing video actually costs without us</h3>
+              </div>
+              <p className="text-muted-foreground">Per-listing breakdown, based on real Australian market rates.</p>
+            </div>
+
+            <div className="rounded-3xl border border-white/5 overflow-hidden">
+              {/* Table header */}
+              <div className="grid grid-cols-3 bg-card border-b border-white/5 px-6 py-4">
+                <div className="text-sm font-semibold text-muted-foreground">Cost Item</div>
+                <div className="text-sm font-semibold text-center text-red-400">Without LensFlow</div>
+                <div className="text-sm font-semibold text-center text-primary">With LensFlow</div>
+              </div>
+
+              {[
+                ["Videographer hire", "$800 – $1,500", "✓ Included"],
+                ["Video editing & colour grade", "$200 – $400", "✓ Included"],
+                ["Voiceover recording", "$150 – $300", "✓ Included"],
+                ["Listing script writing", "$100 – $200", "✓ Included"],
+                ["Social media caption writing", "$200 – $300/mo", "✓ Morgan writes it"],
+                ["Email marketing copy", "$150 – $250/mo", "✓ Morgan writes it"],
+                ["Your time (5+ hrs @ ~$150/hr)", "$750+", "✓ 90 seconds of your time"],
+                ["Waiting for deliverables", "3 – 7 business days", "✓ Ready instantly"],
+                ["REA & Domain formatting", "$50 – $100", "✓ Auto-formatted"],
+              ].map(([item, cost, lensflow], i) => (
+                <div
+                  key={i}
+                  className={`grid grid-cols-3 px-6 py-4 border-b border-white/5 items-center text-sm ${
+                    i % 2 === 0 ? "bg-background" : "bg-card"
+                  }`}
+                >
+                  <div className="text-foreground/80 pr-4">{item}</div>
+                  <div className="text-center text-red-400/80">{cost}</div>
+                  <div className="text-center text-primary font-medium">{lensflow}</div>
+                </div>
+              ))}
+
+              {/* Total row */}
+              <div className="grid grid-cols-3 px-6 py-5 bg-primary/5 border-t border-primary/20 items-center">
+                <div className="font-bold text-foreground">Total per listing</div>
+                <div className="text-center">
+                  <span className="text-red-400 font-bold text-lg line-through opacity-70">$2,400+</span>
+                  <div className="text-red-400/60 text-xs">plus days of your life</div>
+                </div>
+                <div className="text-center">
+                  <span className="text-primary font-bold text-lg">From $199/mo</span>
+                  <div className="text-primary/60 text-xs">unlimited listings · cancel anytime</div>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-center text-sm text-muted-foreground mt-6">
+              This is why LensFlow members don't just save money — they <span className="text-primary font-medium">present more, faster, and at a quality level that justifies higher commissions.</span>
+            </p>
+          </motion.div>
+
+        </div>
+      </section>
 
       <section className="py-24 bg-card border-t border-white/5">
         <div className="max-w-4xl mx-auto px-6">
