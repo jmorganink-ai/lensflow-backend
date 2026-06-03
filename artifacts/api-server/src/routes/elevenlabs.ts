@@ -4,7 +4,7 @@ import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
-const MORGAN_VOICE_ID = "J5tYJbZpL62OrQsj70q6"; // Custom — user-provided ElevenLabs voice
+const MORGAN_VOICE_ID = "g5fH9S068t9I3i8Y9u4"; // Morgan — user-provided ElevenLabs voice
 
 function getClient(): ElevenLabsClient {
   return new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY });

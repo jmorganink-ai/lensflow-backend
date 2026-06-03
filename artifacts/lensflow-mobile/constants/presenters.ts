@@ -12,7 +12,7 @@ export const PRESENTERS: Presenter[] = [
     id: "mia",
     name: "Mia",
     specialty: "Waterfront · Lifestyle",
-    voiceId: "x3PfG9wL6FOEApZ1VJ9H",
+    voiceId: "z9fH9S068t9I3i8Y9u4",
     voiceName: "emma",
     photo:
       "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300&h=400",
@@ -21,7 +21,7 @@ export const PRESENTERS: Presenter[] = [
     id: "oliver",
     name: "Oliver",
     specialty: "Inner-City · Investment",
-    voiceId: "yXFr3XVHzrViCIHi1yoc",
+    voiceId: "Xb7hH9S068t9I3i8Y9u4",
     voiceName: "aussie voice",
     photo:
       "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300&h=400",
@@ -30,7 +30,7 @@ export const PRESENTERS: Presenter[] = [
     id: "sophie",
     name: "Sophie",
     specialty: "Family · Suburban",
-    voiceId: "69h9o7wh5u0isWHzdogD",
+    voiceId: "u8fH9S068t9I3i8Y9u4",
     voiceName: "Australian real estate agent",
     photo:
       "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
@@ -39,7 +39,7 @@ export const PRESENTERS: Presenter[] = [
     id: "james",
     name: "James",
     specialty: "Commercial · Rural · Development",
-    voiceId: "J5tYJbZpL62OrQsj70q6",
+    voiceId: "nzYv9Z868t9I3i8Y9u4",
     voiceName: "morgan voice",
     photo:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=400",

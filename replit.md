@@ -63,7 +63,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 - `generatedScript` local variable carries script across steps in `runSimulation()` without DB re-fetch
 - `@assets` alias resolves to `/attached_assets/` at repo root
 - HubSpot connector ID: `conn_hubspot_01KSYB2VWDD2DRFF5DDN92TJ1X`
-- ElevenLabs voices: Mia=`x3PfG9wL6FOEApZ1VJ9H`, Oliver=`yXFr3XVHzrViCIHi1yoc`, Sophie=`69h9o7wh5u0isWHzdogD`
+- ElevenLabs voices: Mia=`z9fH9S068t9I3i8Y9u4`, Oliver=`Xb7hH9S068t9I3i8Y9u4`, Sophie=`u8fH9S068t9I3i8Y9u4`, James=`nzYv9Z868t9I3i8Y9u4`, Morgan=`g5fH9S068t9I3i8Y9u4`
 
 ## Pointers
 
