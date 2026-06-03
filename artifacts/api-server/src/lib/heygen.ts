@@ -2,37 +2,49 @@ import { logger } from "./logger";
 
 const HEYGEN_API_BASE = "https://api.heygen.com";
 
-// John Morgan — the only custom avatar in this HeyGen account.
-// Used for James (the founder) and all male presenters.
-const JOHN_MORGAN_AVATAR_ID = "d6009ad7f6234aa1b98565649f5ffd55";
-const JOHN_MORGAN_VOICE_ID  = "6539347d386844db8516f1d3828938f0"; // "John Morgan" HeyGen voice
+// ── Per-presenter avatar IDs ──────────────────────────────────────────────────
+// Set these env vars in Secrets to lock each presenter to a specific HeyGen avatar.
+// To find valid IDs for your account call GET /api/heygen/avatars.
+//
+// Fallbacks use known HeyGen v2 public avatar IDs. If a fallback is still
+// returning the wrong avatar, override it via the env var for that presenter.
+const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Abigail_expressive_2024112601";
+const AVATAR_SOPHIE  = process.env.HEYGEN_AVATAR_SOPHIE  ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Anna_public_3_20240108";
+const AVATAR_OLIVER  = process.env.HEYGEN_AVATAR_OLIVER  ?? process.env.HEYGEN_AVATAR_MALE   ?? "Bryan_FrontFacing_public";
+const AVATAR_JAMES   = process.env.HEYGEN_AVATAR_JAMES   ?? process.env.HEYGEN_AVATAR_MALE   ?? "Bryan_FrontFacing_public";
 
-// Female presenters use Adriana Business Front — professional, Western-looking.
-const FEMALE_AVATAR_ID = process.env.HEYGEN_AVATAR_FEMALE ?? "Adriana_Business_Front_public";
-const FEMALE_VOICE_ID  = process.env.HEYGEN_VOICE_FEMALE  ?? "f8c69e517f424cafaecde32dde57096b"; // Allison
+// ── Per-presenter HeyGen voice IDs ───────────────────────────────────────────
+// These are HeyGen-side voices (not ElevenLabs). Override per presenter if needed.
+const VOICE_FEMALE   = process.env.HEYGEN_VOICE_FEMALE ?? "f8c69e517f424cafaecde32dde57096b"; // Allison
+const VOICE_MALE     = process.env.HEYGEN_VOICE_MALE   ?? "6539347d386844db8516f1d3828938f0"; // John Morgan
 
 // ElevenLabs voice IDs that map to male presenters
 const ELEVENLABS_MALE_VOICE_IDS = new Set([
   "yXFr3XVHzrViCIHi1yoc", // Oliver
-  "J5tYJbZpL62OrQsj70q6", // James (morgan voice)
+  "J5tYJbZpL62OrQsj70q6", // James
 ]);
 
-// Male presenter voiceNames
 const MALE_VOICE_NAMES = new Set(["oliver", "james", "morgan voice", "aussie voice"]);
 
-function getAvatarConfig(voiceName?: string | null, elevenLabsVoiceId?: string | null): { avatarId: string; voiceId: string } {
-  const name = (voiceName ?? "").toLowerCase();
+function getAvatarConfig(
+  voiceName?: string | null,
+  elevenLabsVoiceId?: string | null,
+): { avatarId: string; voiceId: string } {
+  const name = (voiceName ?? "").toLowerCase().trim();
+
+  if (name === "mia")    return { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE };
+  if (name === "sophie") return { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE };
+  if (name === "oliver") return { avatarId: AVATAR_OLIVER, voiceId: VOICE_MALE };
+  if (name === "james")  return { avatarId: AVATAR_JAMES,  voiceId: VOICE_MALE };
+
+  // Fallback: infer from voice gender
   const isMale =
     MALE_VOICE_NAMES.has(name) ||
     (elevenLabsVoiceId != null && ELEVENLABS_MALE_VOICE_IDS.has(elevenLabsVoiceId));
 
-  if (isMale) {
-    return {
-      avatarId: process.env.HEYGEN_AVATAR_MALE ?? JOHN_MORGAN_AVATAR_ID,
-      voiceId: JOHN_MORGAN_VOICE_ID,
-    };
-  }
-  return { avatarId: FEMALE_AVATAR_ID, voiceId: FEMALE_VOICE_ID };
+  return isMale
+    ? { avatarId: AVATAR_OLIVER, voiceId: VOICE_MALE }
+    : { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE };
 }
 
 export class HeyGenTimeoutError extends Error {
@@ -61,9 +73,9 @@ export async function generatePresenterVideo(
   // Prefer custom digital-twin avatar saved in user settings over the defaults
   const fallback = getAvatarConfig(voiceName, elevenLabsVoiceId);
   const avatarId = customAvatarId ?? fallback.avatarId;
-  const voiceId = customHeygenVoiceId ?? fallback.voiceId;
+  const voiceId  = customHeygenVoiceId ?? fallback.voiceId;
 
-  logger.info({ avatarId, voiceId }, "Submitting HeyGen video generation job");
+  logger.info({ avatarId, voiceId, voiceName, presenter: voiceName ?? "unknown" }, "Submitting HeyGen video generation job");
 
   const submitRes = await fetch(`${HEYGEN_API_BASE}/v2/video/generate`, {
     method: "POST",
@@ -146,4 +158,35 @@ export async function generatePresenterVideo(
   }
 
   throw new HeyGenTimeoutError(videoId);
+}
+
+// ── Diagnostic helpers ────────────────────────────────────────────────────────
+
+export async function listHeyGenAvatars(): Promise<unknown> {
+  const apiKey = process.env.HEYGEN_API_KEY;
+  if (!apiKey) throw new Error("HEYGEN_API_KEY not set");
+  const res = await fetch(`${HEYGEN_API_BASE}/v2/avatars`, {
+    headers: { "X-Api-Key": apiKey },
+  });
+  if (!res.ok) throw new Error(`HeyGen avatars list failed (${res.status}): ${await res.text()}`);
+  return res.json();
+}
+
+export async function listHeyGenVoices(): Promise<unknown> {
+  const apiKey = process.env.HEYGEN_API_KEY;
+  if (!apiKey) throw new Error("HEYGEN_API_KEY not set");
+  const res = await fetch(`${HEYGEN_API_BASE}/v2/voices`, {
+    headers: { "X-Api-Key": apiKey },
+  });
+  if (!res.ok) throw new Error(`HeyGen voices list failed (${res.status}): ${await res.text()}`);
+  return res.json();
+}
+
+export function getPresenterAvatarMap() {
+  return {
+    Mia:    { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE },
+    Sophie: { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE },
+    Oliver: { avatarId: AVATAR_OLIVER, voiceId: VOICE_MALE },
+    James:  { avatarId: AVATAR_JAMES,  voiceId: VOICE_MALE },
+  };
 }
