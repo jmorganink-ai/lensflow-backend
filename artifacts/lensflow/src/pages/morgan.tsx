@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useGetJobs } from "@workspace/api-client-react";
+import { useListJobs } from "@workspace/api-client-react";
+import type { Job } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,9 +53,8 @@ const PLATFORM_META = [
 ];
 
 export default function MorganMarketing() {
-  const { data: jobsData } = useGetJobs();
-  const jobs = jobsData?.jobs ?? [];
-  const completedJobs = jobs.filter((j) => j.status === "complete");
+  const { data: jobs } = useListJobs();
+  const completedJobs = (jobs ?? []).filter((j: Job) => j.status === "complete");
 
   const [listingUrl, setListingUrl] = useState("");
   const [agentName, setAgentName] = useState("");
@@ -63,7 +63,7 @@ export default function MorganMarketing() {
   const [loading, setLoading] = useState(false);
   const [pack, setPack] = useState<MarketingPack | null>(null);
 
-  const selectJob = (job: (typeof jobs)[0]) => {
+  const selectJob = (job: Job) => {
     setListingUrl(job.listingUrl ?? "");
     setShowJobPicker(false);
   };

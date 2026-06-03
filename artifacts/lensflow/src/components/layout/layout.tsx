@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Film, LayoutDashboard, Webhook, Plus, LogOut, Settings, Video, ArrowUpLeft } from "lucide-react";
+import { Film, LayoutDashboard, Webhook, Plus, LogOut, Settings, Video, ArrowUpLeft, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@workspace/replit-auth-web";
 import { useGetJobStats } from "@workspace/api-client-react";
@@ -13,6 +13,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard, badge: null },
     { href: "/jobs", label: "My Videos", icon: Video, badge: runningCount > 0 ? runningCount : null },
+    { href: "/morgan", label: "Morgan", icon: Sparkles, badge: null },
     { href: "/webhooks", label: "Webhooks", icon: Webhook, badge: null },
     { href: "/settings", label: "Settings", icon: Settings, badge: null },
   ];
@@ -129,7 +130,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             {[
               { href: "/", label: "Dashboard", icon: LayoutDashboard },
               { href: "/jobs", label: "Videos", icon: Video },
-              { href: "/webhooks", label: "Webhooks", icon: Webhook },
+              { href: "/morgan", label: "Morgan", icon: Sparkles },
               { href: "/settings", label: "Settings", icon: Settings },
             ].map((item) => {
               const isActive = item.href === "/" ? location === "/" : location === item.href || location.startsWith(item.href + "/");

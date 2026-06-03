@@ -11,6 +11,7 @@ import storageRouter from "./storage";
 import marketRouter from "./market";
 import settingsRouter from "./settings";
 import heygenRouter from "./heygen";
+import morganMarketingRouter from "./morgan-marketing";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(storageRouter);
 router.use(marketRouter);
 router.use(settingsRouter);
 router.use(heygenRouter);
+router.use(morganMarketingRouter);
 
 export default router;
