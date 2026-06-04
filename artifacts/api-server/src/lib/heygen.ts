@@ -8,10 +8,10 @@ const HEYGEN_API_BASE = "https://api.heygen.com";
 //
 // Fallbacks use known HeyGen v2 public avatar IDs. If a fallback is still
 // returning the wrong avatar, override it via the env var for that presenter.
-const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Abigail_expressive_2024112501";
-const AVATAR_SOPHIE  = process.env.HEYGEN_AVATAR_SOPHIE  ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Anna_public_3_20240108";
+const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Lina_Casual_Front_public";
+const AVATAR_SOPHIE  = process.env.HEYGEN_AVATAR_SOPHIE  ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Scarlett_sitting_couch_front";
 const AVATAR_OLIVER  = process.env.HEYGEN_AVATAR_OLIVER  ?? process.env.HEYGEN_AVATAR_MALE   ?? "Bryan_Suit_Front_public";
-const AVATAR_JAMES   = process.env.HEYGEN_AVATAR_JAMES   ?? process.env.HEYGEN_AVATAR_MALE   ?? "d6009ad7f6234aa1b98565649f5ffd55";
+const AVATAR_JAMES   = process.env.HEYGEN_AVATAR_JAMES   ?? process.env.HEYGEN_AVATAR_MALE   ?? "Tito_Casual_Front_public";
 
 // ── Per-presenter HeyGen voice IDs ───────────────────────────────────────────
 // These are HeyGen-side voices (not ElevenLabs). Override per presenter if needed.
