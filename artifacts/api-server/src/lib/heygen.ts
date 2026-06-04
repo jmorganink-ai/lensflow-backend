@@ -8,15 +8,16 @@ const HEYGEN_API_BASE = "https://api.heygen.com";
 //
 // Fallbacks use known HeyGen v2 public avatar IDs. If a fallback is still
 // returning the wrong avatar, override it via the env var for that presenter.
-const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Lina_Casual_Front_public";
-const AVATAR_SOPHIE  = process.env.HEYGEN_AVATAR_SOPHIE  ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Scarlett_sitting_couch_front";
-const AVATAR_OLIVER  = process.env.HEYGEN_AVATAR_OLIVER  ?? process.env.HEYGEN_AVATAR_MALE   ?? "Bryan_Suit_Front_public";
-const AVATAR_JAMES   = process.env.HEYGEN_AVATAR_JAMES   ?? process.env.HEYGEN_AVATAR_MALE   ?? "Tito_Casual_Front_public";
+const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Gala_standing_businesssofa_front";
+const AVATAR_SOPHIE  = process.env.HEYGEN_AVATAR_SOPHIE  ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Freja_public_1";
+const AVATAR_OLIVER  = process.env.HEYGEN_AVATAR_OLIVER  ?? process.env.HEYGEN_AVATAR_MALE   ?? "Onat_Suit_Front_public";
+const AVATAR_JAMES   = process.env.HEYGEN_AVATAR_JAMES   ?? process.env.HEYGEN_AVATAR_MALE   ?? "Shawn_Suit_Front_public";
 
 // ── Per-presenter HeyGen voice IDs ───────────────────────────────────────────
 // These are HeyGen-side voices (not ElevenLabs). Override per presenter if needed.
-const VOICE_FEMALE   = process.env.HEYGEN_VOICE_FEMALE ?? "f8c69e517f424cafaecde32dde57096b"; // Allison
-const VOICE_MALE     = process.env.HEYGEN_VOICE_MALE   ?? "6539347d386844db8516f1d3828938f0"; // John Morgan
+const VOICE_FEMALE   = process.env.HEYGEN_VOICE_FEMALE        ?? "f8c69e517f424cafaecde32dde57096b"; // Allison (Australian)
+const VOICE_MALE     = process.env.HEYGEN_VOICE_MALE          ?? "6539347d386844db8516f1d3828938f0"; // John Morgan (Australian)
+const VOICE_OLIVER   = process.env.HEYGEN_VOICE_OLIVER        ?? "kbxy8S61KI1ZTJZFHKQV";            // Educated British Baritone
 
 // ElevenLabs voice IDs that map to male presenters
 const ELEVENLABS_MALE_VOICE_IDS = new Set([
@@ -34,7 +35,7 @@ function getAvatarConfig(
 
   if (name === "mia"    || name === "emma")                              return { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE };
   if (name === "sophie" || name === "australian real estate agent")      return { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE };
-  if (name === "oliver" || name === "aussie voice")                      return { avatarId: AVATAR_OLIVER, voiceId: VOICE_MALE };
+  if (name === "oliver" || name === "aussie voice")                      return { avatarId: AVATAR_OLIVER, voiceId: VOICE_OLIVER };
   if (name === "james"  || name === "morgan voice")                      return { avatarId: AVATAR_JAMES,  voiceId: VOICE_MALE };
 
   // Fallback: infer from voice gender
