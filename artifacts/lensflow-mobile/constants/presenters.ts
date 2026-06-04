@@ -14,8 +14,7 @@ export const PRESENTERS: Presenter[] = [
     specialty: "Waterfront · Lifestyle",
     voiceId: "z9fH9S068t9I3i8Y9u4",
     voiceName: "emma",
-    photo:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300&h=400",
+    photo: "https://files2.heygen.ai/avatar/v3/96a78a5d17d04e75adc4b53a89eb3fe4_38970/preview_talk_7.webp",
   },
   {
     id: "oliver",
@@ -23,8 +22,7 @@ export const PRESENTERS: Presenter[] = [
     specialty: "Inner-City · Investment",
     voiceId: "Xb7hH9S068t9I3i8Y9u4",
     voiceName: "aussie voice",
-    photo:
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300&h=400",
+    photo: "https://files2.heygen.ai/avatar/v3/e2811ccbb3b247fabf76a93d288a75a6_43160/preview_target.webp",
   },
   {
     id: "sophie",
@@ -32,8 +30,7 @@ export const PRESENTERS: Presenter[] = [
     specialty: "Family · Suburban",
     voiceId: "u8fH9S068t9I3i8Y9u4",
     voiceName: "Australian real estate agent",
-    photo:
-      "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
+    photo: "https://files2.heygen.ai/avatar/v3/5ea97a1a6cbf4a96b5ee910aa8f4f08d_62450/preview_target.webp",
   },
   {
     id: "james",
@@ -41,8 +38,7 @@ export const PRESENTERS: Presenter[] = [
     specialty: "Commercial · Rural · Development",
     voiceId: "nzYv9Z868t9I3i8Y9u4",
     voiceName: "morgan voice",
-    photo:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=400",
+    photo: "https://files2.heygen.ai/avatar/v3/e8e19bc909f24c24a0956f4528e5faa7_46590/preview_talk_1.webp",
   },
 ];
 

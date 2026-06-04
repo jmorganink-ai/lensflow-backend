@@ -15,6 +15,17 @@ import buildKitImage from "@assets/LensFlow-The-Build-Kit-every-tool-you-need_17
 
 const PRESENTERS = [
   {
+    id: "mia",
+    name: "Mia",
+    tagline: "Waterfront & Luxury Lifestyle",
+    specialty: "Waterfront · Prestige · Lifestyle",
+    photo: "/presenters/mia-poster.jpg",
+    previewUrl: null as string | null,
+    videoUrl: "/presenters/mia.mp4" as string | null,
+    smileTimestamp: 0,
+    badge: "Premium" as string | null,
+  },
+  {
     id: "sophie",
     name: "Sophie",
     tagline: "Family Homes & Suburban Estates",

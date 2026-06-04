@@ -7,6 +7,15 @@ import { useUpload } from "@workspace/object-storage-web";
 
 const PRESENTER_PRESETS = [
   {
+    id: "mia",
+    name: "Mia",
+    specialty: "Waterfront · Lifestyle",
+    voiceId: "z9fH9S068t9I3i8Y9u4",
+    voiceName: "emma",
+    photo: "/presenters/mia-poster.jpg",
+    previewUrl: null as string | null,
+  },
+  {
     id: "sophie",
     name: "Sophie",
     specialty: "Family · Suburban",
