@@ -102,8 +102,8 @@ export default function Settings() {
         </div>
         <div className="px-6 py-5 space-y-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Save your HeyGen digital twin avatar ID so it's used automatically on all new AI Presenter videos.
-            Leave blank to use the default LensFlow presenters.
+            Create a Digital Twin using <strong className="text-foreground">HeyGen Avatar V</strong> at app.heygen.com, then paste the avatar ID here.
+            It will be used automatically on all your AI Presenter videos instead of the default presenters.
           </p>
           {avatarLoading ? (
             <div className="h-24 flex items-center justify-center">
