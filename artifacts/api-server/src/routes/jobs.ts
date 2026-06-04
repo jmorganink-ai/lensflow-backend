@@ -303,15 +303,13 @@ async function runSimulation(jobId: string): Promise<void> {
           const base64 = audioBuffer.toString("base64");
           outputUrl = `data:audio/mpeg;base64,${base64}`;
           logger.info({ jobId, bytes: audioBuffer.length }, "ElevenLabs voiceover generated");
-          // For voice_photos mode: upload to object storage so Shotstack can fetch it
-          if (isVoicePhotos) {
-            try {
-              const storage = new ObjectStorageService();
-              voiceoverPublicUrl = await storage.uploadPublicAudio(audioBuffer, `voiceovers/${jobId}.mp3`);
-              logger.info({ jobId, voiceoverPublicUrl }, "Voiceover uploaded for Shotstack");
-            } catch (uploadErr) {
-              logger.error({ err: uploadErr, jobId }, "Voiceover upload failed — compose will proceed without audio");
-            }
+          // Always upload to object storage — Shotstack (voice_photos) and HeyGen (AI presenter) both need a public URL
+          try {
+            const storage = new ObjectStorageService();
+            voiceoverPublicUrl = await storage.uploadPublicAudio(audioBuffer, `voiceovers/${jobId}.mp3`);
+            logger.info({ jobId, voiceoverPublicUrl }, "Voiceover uploaded for HeyGen lip-sync");
+          } catch (uploadErr) {
+            logger.error({ err: uploadErr, jobId }, "Voiceover upload failed — will fall back to HeyGen TTS");
           }
         } catch (err) {
           logger.error({ err, jobId }, "ElevenLabs voiceover failed — continuing without audio");
@@ -333,6 +331,7 @@ async function runSimulation(jobId: string): Promise<void> {
               userSettings?.heygenAvatarId ?? null,
               userSettings?.heygenVoiceId ?? null,
               60_000,
+              voiceoverPublicUrl ?? null,
             );
             presenterVideoUrl = result.videoUrl;
             finalVideoUrl = result.videoUrl;

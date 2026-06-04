@@ -67,6 +67,7 @@ export async function generatePresenterVideo(
   customAvatarId?: string | null,
   customHeygenVoiceId?: string | null,
   timeoutMs = 90_000,
+  elevenLabsAudioUrl?: string | null,
 ): Promise<HeyGenResult> {
   const apiKey = process.env.HEYGEN_API_KEY;
   if (!apiKey) throw new Error("HEYGEN_API_KEY not set");
@@ -76,7 +77,15 @@ export async function generatePresenterVideo(
   const avatarId = customAvatarId ?? fallback.avatarId;
   const voiceId  = customHeygenVoiceId ?? fallback.voiceId;
 
-  logger.info({ avatarId, voiceId, voiceName, presenter: voiceName ?? "unknown" }, "Submitting HeyGen video generation job");
+  // If an ElevenLabs audio URL is provided, use it for lip-sync instead of HeyGen's own TTS
+  const voiceInput = elevenLabsAudioUrl
+    ? { type: "audio", audio_url: elevenLabsAudioUrl }
+    : { type: "text", input_text: script, voice_id: voiceId };
+
+  logger.info(
+    { avatarId, voiceName, presenter: voiceName ?? "unknown", usingElevenLabs: !!elevenLabsAudioUrl },
+    "Submitting HeyGen video generation job",
+  );
 
   const submitRes = await fetch(`${HEYGEN_API_BASE}/v2/video/generate`, {
     method: "POST",
@@ -92,11 +101,7 @@ export async function generatePresenterVideo(
             avatar_id: avatarId,
             avatar_style: "normal",
           },
-          voice: {
-            type: "text",
-            input_text: script,
-            voice_id: voiceId,
-          },
+          voice: voiceInput,
           background: {
             type: "color",
             value: "#0a0f1e",
