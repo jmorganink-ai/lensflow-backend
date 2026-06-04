@@ -344,17 +344,17 @@ async function runSimulation(jobId: string): Promise<void> {
           logger.info({ jobId }, "Skipping presenter_video — voice_photos output type");
           await new Promise((resolve) => setTimeout(resolve, baseDuration));
         } else {
-          // AI Presenter — generate HeyGen avatar video (60 s budget), with D-ID fallback
+          // AI Presenter — generate HeyGen avatar video (5 min budget), with D-ID fallback
           const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
           try {
-            logger.info({ jobId, voiceName: job.voiceName, customAvatar: userSettings?.heygenAvatarId ?? null }, "Generating presenter video with HeyGen (60 s budget)");
+            logger.info({ jobId, voiceName: job.voiceName, customAvatar: userSettings?.heygenAvatarId ?? null }, "Generating presenter video with HeyGen (5 min budget)");
             const result = await generatePresenterVideo(
               script,
               job.voiceName,
               job.voiceId,
               userSettings?.heygenAvatarId ?? null,
               userSettings?.heygenVoiceId ?? null,
-              60_000,
+              300_000,
               voiceoverPublicUrl ?? null,
             );
             presenterVideoUrl = result.videoUrl;
@@ -363,7 +363,7 @@ async function runSimulation(jobId: string): Promise<void> {
             logger.info({ jobId, videoId: result.videoId }, "HeyGen presenter video ready");
           } catch (err) {
             if (err instanceof HeyGenTimeoutError) {
-              logger.warn({ jobId }, "HeyGen timed out after 60 s — switching to D-ID fallback");
+              logger.warn({ jobId }, "HeyGen timed out after 5 min — switching to D-ID fallback");
               try {
                 const didResult = await generatePresenterVideoDID(script);
                 presenterVideoUrl = didResult.videoUrl;
