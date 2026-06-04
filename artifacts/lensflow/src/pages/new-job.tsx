@@ -22,6 +22,14 @@ const PRESENTER_PRESETS = [
     photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
   },
   {
+    id: "oliver",
+    name: "Oliver",
+    specialty: "Inner-City · Investment",
+    voiceId: "Xb7hH9S068t9I3i8Y9u4",
+    voiceName: "aussie voice",
+    photo: "/presenters/oliver-poster.jpg",
+  },
+  {
     id: "james",
     name: "James",
     specialty: "Commercial · Rural · Development",
@@ -580,7 +588,7 @@ export default function NewJob() {
                   <Bot className="w-3.5 h-3.5" />
                   Choose Presenter
                 </label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   {PRESENTER_PRESETS.map((p) => {
                     const isSelected = selectedVoiceId === p.voiceId;
                     return (

@@ -26,6 +26,17 @@ const PRESENTERS = [
     badge: "Most Popular",
   },
   {
+    id: "oliver",
+    name: "Oliver",
+    tagline: "Inner-City & Investment Authority",
+    specialty: "Urban · Off-the-plan · High-net-worth",
+    photo: "/presenters/oliver-poster.jpg",
+    previewUrl: "https://api.us.elevenlabs.io/v1/voices/yXFr3XVHzrViCIHi1yoc/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzZlNTZjZDctMTIwZC00MjM4LWFhYWUtZWZkNTRhNWI0YzM2Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
+    videoUrl: "/presenters/oliver.mp4" as string | null,
+    smileTimestamp: 0,
+    badge: null,
+  },
+  {
     id: "james",
     name: "James",
     tagline: "Commercial & Rural Properties",
