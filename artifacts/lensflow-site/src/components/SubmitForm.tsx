@@ -34,13 +34,13 @@ const PRESENTER_PRESETS = [
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/yXFr3XVHzrViCIHi1yoc/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzZlNTZjZDctMTIwZC00MjM4LWFhYWUtZWZkNTRhNWI0YzM2Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
   },
   {
-    id: "james",
-    name: "James",
+    id: "liam",
+    name: "Liam",
     specialty: "Commercial · Rural · Development",
-    voiceId: "J5tYJbZpL62OrQsj70q6",
+    voiceId: "nzYv9Z868t9I3i8Y9u4",
     voiceName: "morgan voice",
-    photo: "/presenters/james-poster.jpg",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/IKne3meq5aSn9XLyUdCD/102de6f2-22ed-43e0-a1f1-111fa75c5481.mp3",
+    photo: "/presenters/liam-poster.jpg",
+    previewUrl: null as string | null,
   },
 ];
 

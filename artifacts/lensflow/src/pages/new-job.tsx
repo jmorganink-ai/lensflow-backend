@@ -38,12 +38,12 @@ const PRESENTER_PRESETS = [
     photo: "/presenters/sophie-poster.jpg",
   },
   {
-    id: "james",
-    name: "James",
+    id: "liam",
+    name: "Liam",
     specialty: "Commercial · Rural · Development",
     voiceId: "nzYv9Z868t9I3i8Y9u4",
     voiceName: "morgan voice",
-    photo: "/presenters/james-poster.jpg",
+    photo: "/presenters/liam-poster.jpg",
   },
 ];
 

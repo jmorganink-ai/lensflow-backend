@@ -12,19 +12,34 @@ const MUSIC_TRACK_URLS: Record<string, string> = {
   urban:   "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/chill.mp3",
 };
 
-// Use production key + endpoint when available, fall back to sandbox/staging
+// Both sandbox and production keys use the same /v1 endpoint as of 2025.
+// Trim any accidental whitespace that Replit secrets UI may introduce.
 function getShotstackConfig(): { apiKey: string; baseUrl: string } {
-  const prodKey = process.env.SHOTSTACK_PROD_API_KEY ?? process.env.SHOTSTACK_PRODUCTION_API_KEY;
-  const sandboxKey = process.env.SHOTSTACK_API_KEY ?? process.env.SHOTSTACK_SANDBOX_API_KEY;
+  const prodKey = (process.env.SHOTSTACK_PROD_API_KEY ?? process.env.SHOTSTACK_PRODUCTION_API_KEY)?.trim();
+  const sandboxKey = (process.env.SHOTSTACK_API_KEY ?? process.env.SHOTSTACK_SANDBOX_API_KEY)?.trim();
 
   if (prodKey) {
     return { apiKey: prodKey, baseUrl: "https://api.shotstack.io/v1" };
   }
   if (sandboxKey) {
-    logger.warn("Using Shotstack sandbox/staging — set SHOTSTACK_PROD_API_KEY for production renders");
-    return { apiKey: sandboxKey, baseUrl: "https://api.shotstack.io/stage/v1" };
+    logger.warn("Using Shotstack sandbox key — set SHOTSTACK_PROD_API_KEY for production renders");
+    return { apiKey: sandboxKey, baseUrl: "https://api.shotstack.io/v1" };
   }
   throw new Error("No Shotstack API key set (SHOTSTACK_PROD_API_KEY or SHOTSTACK_API_KEY)");
+}
+
+// Solid colour background clip — shape rectangle fills clip bounds
+function colourClip(colour: string, start: number, length: number, opacity?: number) {
+  return {
+    asset: {
+      type: "shape",
+      shape: "rectangle",
+      fill: { color: colour },
+    },
+    start,
+    length,
+    ...(opacity !== undefined ? { opacity } : {}),
+  };
 }
 
 export interface ShotstackResult {
@@ -65,28 +80,16 @@ export async function composePresenterVideo(
   // Build photo background track — Ken Burns zoom effect on each image
   const buildPhotoTrack = () => {
     if (!hasPhotos) {
-      return {
-        clips: [
-          {
-            asset: { type: "colour", colour: "#0a0f1e" },
-            start: 0,
-            length: TOTAL_DURATION,
-          },
-        ],
-      };
+      return { clips: [colourClip("#0a0f1e", 0, TOTAL_DURATION)] };
     }
 
     const clips = images.map((src, i) => ({
-      asset: {
-        type: "image",
-        src,
-      },
+      asset: { type: "image", src },
       start: i * PHOTO_DURATION,
       length: PHOTO_DURATION,
       fit: "cover",
       scale: 1,
       effect: i % 2 === 0 ? "zoomIn" : "zoomOut",
-      filter: "contrast",
       opacity: 1,
       transition: {
         in: i === 0 ? "fade" : "fadeSlow",
@@ -108,7 +111,6 @@ export async function composePresenterVideo(
             fit: "cover",
             scale: 1,
             effect: i % 2 === 0 ? "zoomIn" : "zoomOut",
-            filter: "contrast",
             opacity: 1,
             transition: { in: "fadeSlow", out: "fadeSlow" },
           });
@@ -119,18 +121,9 @@ export async function composePresenterVideo(
     return { clips };
   };
 
-  // Dark gradient overlay over photos — helps text/presenter legibility
+  // Dark overlay over photos — helps text/presenter legibility
   const gradientOverlayTrack = hasPhotos
-    ? {
-        clips: [
-          {
-            asset: { type: "colour", colour: "#000000" },
-            start: 0,
-            length: TOTAL_DURATION,
-            opacity: 0.35,
-          },
-        ],
-      }
+    ? { clips: [colourClip("#000000", 0, TOTAL_DURATION, 0.35)] }
     : null;
 
   // Presenter video — bottom-right PiP when photos present, full-screen when no photos
@@ -174,7 +167,7 @@ export async function composePresenterVideo(
     length: 5,
     position: "bottomLeft",
     offset: { x: 0.04, y: hasPhotos ? 0.35 : 0.12 },
-    transition: { in: "slideRight", out: "fadeOut" },
+    transition: { in: "slideRight", out: "fade" },
   };
 
   // LensFlow watermark — top-left, subtle
@@ -328,26 +321,9 @@ export async function composeSelfieVideo(
           },
         ],
       }
-    : {
-        clips: [
-          {
-            asset: { type: "colour", colour: "#0a0f1e" },
-            start: 0,
-            length: TOTAL_DURATION,
-          },
-        ],
-      };
+    : { clips: [colourClip("#0a0f1e", 0, TOTAL_DURATION)] };
 
-  const overlayTrack = {
-    clips: [
-      {
-        asset: { type: "colour", colour: "#000000" },
-        start: 0,
-        length: TOTAL_DURATION,
-        opacity: 0.4,
-      },
-    ],
-  };
+  const overlayTrack = { clips: [colourClip("#000000", 0, TOTAL_DURATION, 0.4)] };
 
   const agentTrack = {
     clips: [
@@ -387,7 +363,7 @@ export async function composeSelfieVideo(
     length: 5,
     position: "bottomLeft",
     offset: { x: 0.04, y: 0.12 },
-    transition: { in: "slideRight", out: "fadeOut" },
+    transition: { in: "slideRight", out: "fade" },
   };
 
   const watermarkClip = {
@@ -519,11 +495,7 @@ export async function composeVoicePhotosVideo(
 
   const buildPhotoTrack = () => {
     if (!hasPhotos) {
-      return {
-        clips: [
-          { asset: { type: "colour", colour: "#0a0f1e" }, start: 0, length: TOTAL_DURATION },
-        ],
-      };
+      return { clips: [colourClip("#0a0f1e", 0, TOTAL_DURATION)] };
     }
     const clips = images.map((src, i) => ({
       asset: { type: "image", src },
@@ -532,7 +504,6 @@ export async function composeVoicePhotosVideo(
       fit: "cover",
       scale: 1,
       effect: i % 2 === 0 ? "zoomIn" : "zoomOut",
-      filter: "contrast",
       opacity: 1,
       transition: { in: i === 0 ? "fade" : "fadeSlow", out: "fadeSlow" },
     }));
@@ -548,7 +519,6 @@ export async function composeVoicePhotosVideo(
             fit: "cover",
             scale: 1,
             effect: i % 2 === 0 ? "zoomIn" : "zoomOut",
-            filter: "contrast",
             opacity: 1,
             transition: { in: "fadeSlow", out: "fadeSlow" },
           });
@@ -559,7 +529,7 @@ export async function composeVoicePhotosVideo(
   };
 
   const gradientOverlayTrack = hasPhotos
-    ? { clips: [{ asset: { type: "colour", colour: "#000000" }, start: 0, length: TOTAL_DURATION, opacity: 0.3 }] }
+    ? { clips: [colourClip("#000000", 0, TOTAL_DURATION, 0.3)] }
     : null;
 
   const voiceoverTrack = voiceoverUrl
@@ -572,7 +542,7 @@ export async function composeVoicePhotosVideo(
     length: 6,
     position: "center",
     offset: { x: 0, y: 0.1 },
-    transition: { in: "fadeIn", out: "fadeOut" },
+    transition: { in: "fade", out: "fade" },
   };
 
   const watermarkClip = {

@@ -5,6 +5,7 @@
 - [Pipeline degradation](pipeline-degradation.md) — runSimulation continues on step failure; job.status "complete" ≠ all steps succeeded; finished video must be persisted to job.videoUrl.
 - [ElevenLabs STT](elevenlabs-stt.md) — speechToText.convert({file,model_id:"scribe_v1"}); route uses express.raw (not multipart); browser falls back from Web Speech API to MediaRecorder.
 - [Storage upload auth](storage-upload-auth.md) — presigned upload endpoint must require auth; validate client-supplied videoUrl is our /api/storage/ URL before persisting.
-- [HeyGen avatar routing](heygen-avatar-routing.md) — old "Adriana_Business_Front_public" string was v1 format; v2 needs UUID IDs; each presenter (Mia/Sophie/Oliver/James) has its own env var override; diagnostic endpoint GET /api/heygen/avatars lists account avatars.
-- [Presenter voice IDs](presenter-voice-ids.md) — ElevenLabs: Mia=z9fH9S068t9I3i8Y9u4, Oliver=Xb7hH9S068t9I3i8Y9u4, Sophie=u8fH9S068t9I3i8Y9u4, James=nzYv9Z868t9I3i8Y9u4, Morgan=g5fH9S068t9I3i8Y9u4; defined in new-job.tsx AND mobile constants/presenters.ts — update both.
+- [HeyGen avatar routing](heygen-avatar-routing.md) — each presenter (Mia/Sophie/Oliver/Liam) has its own env var override; diagnostic endpoint GET /api/heygen/avatars lists account avatars.
+- [Presenter voice IDs](presenter-voice-ids.md) — ElevenLabs: Mia=z9fH9S068t9I3i8Y9u4, Oliver=Xb7hH9S068t9I3i8Y9u4, Sophie=u8fH9S068t9I3i8Y9u4, Liam=nzYv9Z868t9I3i8Y9u4, Morgan=g5fH9S068t9I3i8Y9u4; defined in new-job.tsx AND mobile constants/presenters.ts — update both.
+- [Shotstack API 2025 breaking changes](shotstack-api-changes.md) — colour asset type removed; stage URL gone; transition names changed.
 - [Morgan marketing tab](morgan-marketing-tab.md) — POST /api/morgan/marketing-pack generates Instagram/Facebook/LinkedIn/email pack; page at /morgan in pipeline app; uses useListJobs (not useGetJobs) which returns Job[] directly.

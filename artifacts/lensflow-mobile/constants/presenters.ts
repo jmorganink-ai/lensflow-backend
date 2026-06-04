@@ -33,12 +33,12 @@ export const PRESENTERS: Presenter[] = [
     photo: "https://files2.heygen.ai/avatar/v3/5ea97a1a6cbf4a96b5ee910aa8f4f08d_62450/preview_target.webp",
   },
   {
-    id: "james",
-    name: "James",
+    id: "liam",
+    name: "Liam",
     specialty: "Commercial · Rural · Development",
     voiceId: "nzYv9Z868t9I3i8Y9u4",
     voiceName: "morgan voice",
-    photo: "https://files2.heygen.ai/avatar/v3/e8e19bc909f24c24a0956f4528e5faa7_46590/preview_talk_1.webp",
+    photo: "https://files2.heygen.ai/avatar/v3/4a77fc7cc1cb4304b40c61ac1e11921a_43310/preview_target.webp",
   },
 ];
 
