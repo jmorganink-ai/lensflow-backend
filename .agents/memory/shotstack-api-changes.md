@@ -11,7 +11,7 @@ description: Breaking changes in Shotstack v1 API that affect shotstack.ts — a
 ```
 Do NOT include `width` or `height` — the shape fills clip bounds automatically.
 
-**Stage URL is gone.** Both sandbox and production keys now use `https://api.shotstack.io/v1`. The old `https://api.shotstack.io/stage/v1` path returns 404. The `getShotstackConfig()` function in `shotstack.ts` now uses `/v1` for both.
+**Correct base URL is `/edit/v1`.** Both sandbox and production keys use `https://api.shotstack.io/edit/v1`. The old `/stage/v1` and plain `/v1` paths both return 404. The `getShotstackConfig()` function in `shotstack.ts` uses `https://api.shotstack.io/edit/v1` for both.
 
 **`fadeOut` / `fadeIn` transition names are gone.** Use `"fade"` (or `"fadeSlow"`, `"fadeFast"`) for both in/out transitions.
 
