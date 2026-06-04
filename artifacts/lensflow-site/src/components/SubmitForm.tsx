@@ -12,7 +12,7 @@ const PRESENTER_PRESETS = [
     specialty: "Family · Suburban",
     voiceId: "69h9o7wh5u0isWHzdogD",
     voiceName: "Australian real estate agent",
-    photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
+    photo: "/presenters/sophie-poster.jpg",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/69h9o7wh5u0isWHzdogD/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzBlMWJmMjUtZDEwNC00ZjY1LTg1ZTctNjE3ZDU5MjhmMDk5Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
   },
   {

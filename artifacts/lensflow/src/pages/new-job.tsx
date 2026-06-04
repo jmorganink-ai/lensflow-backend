@@ -35,7 +35,7 @@ const PRESENTER_PRESETS = [
     specialty: "Family · Suburban",
     voiceId: "u8fH9S068t9I3i8Y9u4",
     voiceName: "Australian real estate agent",
-    photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
+    photo: "/presenters/sophie-poster.jpg",
   },
   {
     id: "james",
