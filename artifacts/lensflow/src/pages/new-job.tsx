@@ -14,12 +14,12 @@ import { useUpload } from "@workspace/object-storage-web";
 
 const PRESENTER_PRESETS = [
   {
-    id: "sophie",
-    name: "Sophie",
-    specialty: "Family · Suburban",
-    voiceId: "u8fH9S068t9I3i8Y9u4",
-    voiceName: "Australian real estate agent",
-    photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
+    id: "mia",
+    name: "Mia",
+    specialty: "Waterfront · Lifestyle",
+    voiceId: "z9fH9S068t9I3i8Y9u4",
+    voiceName: "emma",
+    photo: "/presenters/mia-poster.jpg",
   },
   {
     id: "oliver",
@@ -28,6 +28,14 @@ const PRESENTER_PRESETS = [
     voiceId: "Xb7hH9S068t9I3i8Y9u4",
     voiceName: "aussie voice",
     photo: "/presenters/oliver-poster.jpg",
+  },
+  {
+    id: "sophie",
+    name: "Sophie",
+    specialty: "Family · Suburban",
+    voiceId: "u8fH9S068t9I3i8Y9u4",
+    voiceName: "Australian real estate agent",
+    photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
   },
   {
     id: "james",
@@ -588,7 +596,7 @@ export default function NewJob() {
                   <Bot className="w-3.5 h-3.5" />
                   Choose Presenter
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-4 gap-2">
                   {PRESENTER_PRESETS.map((p) => {
                     const isSelected = selectedVoiceId === p.voiceId;
                     return (
