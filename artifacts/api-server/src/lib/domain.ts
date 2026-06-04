@@ -2,7 +2,11 @@ import { logger } from "./logger";
 import type { ScrapedListing } from "./apify";
 
 const DOMAIN_AUTH_URL = "https://auth.domain.com.au/v1/connect/token";
-const DOMAIN_API_BASE = "https://api.domain.com.au/v1";
+const DOMAIN_API_PROD = "https://api.domain.com.au/v1";
+const DOMAIN_API_SANDBOX = "https://api.domain.com.au/sandbox/v1";
+
+// Auto-detected at first API call — null means unknown, true = sandbox, false = production
+let isSandbox: boolean | null = null;
 
 const ALL_SCOPES = [
   "api_listings_read",
@@ -61,16 +65,59 @@ async function getAccessToken(): Promise<string> {
   return cachedToken.value;
 }
 
+function apiBase(): string {
+  return isSandbox ? DOMAIN_API_SANDBOX : DOMAIN_API_PROD;
+}
+
 async function domainGet<T>(path: string): Promise<T> {
   const token = await getAccessToken();
-  const res = await fetch(`${DOMAIN_API_BASE}${path}`, {
+
+  // If environment is known, just use it
+  if (isSandbox !== null) {
+    const res = await fetch(`${apiBase()}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Domain API ${path} failed (${res.status}): ${text}`);
+    }
+    return res.json() as Promise<T>;
+  }
+
+  // Auto-detect: try production first
+  const prodRes = await fetch(`${DOMAIN_API_PROD}${path}`, {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
   });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Domain API ${path} failed (${res.status}): ${text}`);
+
+  if (prodRes.ok) {
+    isSandbox = false;
+    logger.info("Domain API: production environment detected");
+    return prodRes.json() as Promise<T>;
   }
-  return res.json() as Promise<T>;
+
+  const prodText = await prodRes.text();
+
+  // Detect sandbox credentials by the specific error message from Domain
+  if (prodRes.status === 403 && prodText.includes("Sandbox")) {
+    isSandbox = true;
+    logger.info("Domain API: sandbox environment detected — using /sandbox/v1/ base");
+
+    const sandboxRes = await fetch(`${DOMAIN_API_SANDBOX}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    });
+
+    if (sandboxRes.ok) return sandboxRes.json() as Promise<T>;
+
+    const sandboxText = await sandboxRes.text();
+
+    // Some endpoints (suburb stats, sales results) are production-only even in sandbox mode
+    if (sandboxRes.status === 403 && sandboxText.includes("Sandbox")) {
+      throw new Error(`SANDBOX_ONLY: ${path} requires production credentials`);
+    }
+    throw new Error(`Domain API sandbox ${path} failed (${sandboxRes.status}): ${sandboxText}`);
+  }
+
+  throw new Error(`Domain API ${path} failed (${prodRes.status}): ${prodText}`);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────

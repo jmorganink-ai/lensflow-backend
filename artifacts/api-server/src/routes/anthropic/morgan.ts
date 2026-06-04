@@ -452,7 +452,10 @@ router.post("/anthropic/conversations/:id/messages", async (req, res) => {
         }
       } catch (err) {
         req.log.warn({ err, toolUseName }, "Domain tool execution failed");
-        toolResult = JSON.stringify({ error: "Data unavailable — please try again" });
+        const msg = err instanceof Error && err.message.startsWith("SANDBOX_ONLY")
+          ? "This data is only available once the Domain.com.au API credentials are upgraded to production access. The production upgrade is pending — this will work automatically once it's approved."
+          : "Data unavailable — please try again";
+        toolResult = JSON.stringify({ error: msg });
       }
 
       const toolResultMessages: Anthropic.MessageParam[] = [
