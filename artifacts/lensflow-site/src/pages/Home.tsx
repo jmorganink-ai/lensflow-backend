@@ -281,7 +281,7 @@ export default function Home() {
           >
             <video
               ref={featuredVideoRef}
-              src="/videos/lensflow-reel-creator-v1.mp4"
+              src="/videos/oliver-featured.mp4"
               autoPlay
               muted
               loop
