@@ -223,6 +223,25 @@ export default function JobDetail() {
         </div>
       </div>
 
+      {/* ── VIDEO HERO — shown at the top when the job is complete ── */}
+      {job.status === "complete" && job.videoUrl && (
+        <div className="bg-card border border-primary/30 rounded-xl overflow-hidden shadow-lg shadow-primary/5">
+          <video
+            controls
+            src={job.videoUrl}
+            className="w-full"
+            style={{ maxHeight: "480px", background: "#000" }}
+            data-testid="hero-video-player"
+          />
+          <div className="p-4 flex items-center justify-between gap-3 flex-wrap border-t border-border">
+            <span className="text-sm font-semibold text-foreground truncate flex-1">
+              {job.listingTitle || job.propertyAddress || "Your listing video"}
+            </span>
+            <DownloadVideoButton url={job.videoUrl} large />
+          </div>
+        </div>
+      )}
+
       {/* Progress Bar */}
       <div className="bg-card border border-border rounded-lg p-5 space-y-3">
         <div className="flex justify-between items-center">
@@ -378,23 +397,7 @@ export default function JobDetail() {
         />
       )}
 
-      {/* Video Output */}
-      {job.status === "complete" && job.videoUrl && (
-        <div className="bg-card border border-border rounded-lg p-5 space-y-3">
-          <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Output Video</span>
-          <a
-            href={job.videoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded text-sm font-mono font-medium hover:bg-primary/90 transition-colors"
-            data-testid="link-video-output"
-          >
-            <Play className="w-4 h-4" /> View Video
-          </a>
-        </div>
-      )}
-
-      {/* Completion Banner */}
+      {/* Completion Banner — action buttons only */}
       {job.status === "complete" && (
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-5 space-y-4">
           <div className="flex items-start gap-4">
@@ -404,34 +407,34 @@ export default function JobDetail() {
               <p className="text-xs text-muted-foreground mt-0.5">Script generated, voiceover synthesised, and video composition finished. Ready to share.</p>
             </div>
           </div>
-          <div className="flex flex-col gap-4 border-t border-primary/10 pt-4">
-            {job.videoUrl && (
-              <NativeShareButton videoUrl={job.videoUrl} title={job.listingTitle || job.propertyAddress || "LensFlow video"} />
-            )}
-            <div className="flex items-center gap-3 flex-wrap">
-              <Link
-                href="/jobs/new"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded text-xs font-mono font-medium hover:bg-primary/90 transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" /> New Listing
-              </Link>
-              <SendToCrmButton jobId={job.id} />
-              <button
-                type="button"
-                onClick={() => simulateJob.mutate({ id: job.id })}
-                className="inline-flex items-center gap-2 px-4 py-2 border border-border text-foreground rounded text-xs font-mono hover:border-primary/40 hover:text-primary transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5" /> Re-run Pipeline
-              </button>
-              <Link
-                href="/jobs"
-                className="inline-flex items-center gap-2 px-4 py-2 text-muted-foreground text-xs font-mono hover:text-primary transition-colors"
-              >
-                View All Videos <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
-              </Link>
-            </div>
+          <div className="flex items-center gap-3 flex-wrap border-t border-primary/10 pt-4">
+            <Link
+              href="/jobs/new"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded text-xs font-mono font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" /> New Listing
+            </Link>
+            <SendToCrmButton jobId={job.id} />
+            <button
+              type="button"
+              onClick={() => simulateJob.mutate({ id: job.id })}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-border text-foreground rounded text-xs font-mono hover:border-primary/40 hover:text-primary transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Re-run Pipeline
+            </button>
+            <Link
+              href="/jobs"
+              className="inline-flex items-center gap-2 px-4 py-2 text-muted-foreground text-xs font-mono hover:text-primary transition-colors"
+            >
+              View All Videos <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+            </Link>
           </div>
         </div>
+      )}
+
+      {/* ── SOCIAL SHARING — bottom of page, prominent ── */}
+      {job.status === "complete" && job.videoUrl && (
+        <NativeShareButton videoUrl={job.videoUrl} title={job.listingTitle || job.propertyAddress || "LensFlow video"} />
       )}
 
       {/* Metadata */}
@@ -444,7 +447,7 @@ export default function JobDetail() {
   );
 }
 
-function DownloadVideoButton({ url }: { url: string }) {
+function DownloadVideoButton({ url, large }: { url: string; large?: boolean }) {
   const { toast } = useToast();
   const [downloading, setDownloading] = useState(false);
 
@@ -473,6 +476,20 @@ function DownloadVideoButton({ url }: { url: string }) {
       setDownloading(false);
     }
   }, [url, downloading, toast]);
+
+  if (large) {
+    return (
+      <button
+        type="button"
+        onClick={handleDownload}
+        disabled={downloading}
+        className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-mono font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
+      >
+        {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+        {downloading ? "Downloading…" : "Download Video"}
+      </button>
+    );
+  }
 
   return (
     <button
@@ -565,72 +582,75 @@ function NativeShareButton({ videoUrl, title }: { videoUrl: string; title: strin
 
   const caption = `Just listed! ${title} — see this AI-powered property video 🏠✨\n\n#realestate #propertymarketing #lensflow`;
 
-  const platforms = [
-    {
-      label: "Facebook",
-      color: "#1877F2",
-      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(videoUrl)}&quote=${encodeURIComponent(caption)}`,
-    },
-    {
-      label: "LinkedIn",
-      color: "#0A66C2",
-      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(videoUrl)}`,
-    },
-    {
-      label: "WhatsApp",
-      color: "#25D366",
-      href: `https://wa.me/?text=${encodeURIComponent(`${caption}\n\n${videoUrl}`)}`,
-    },
-    {
-      label: "X / Twitter",
-      color: "#000",
-      href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}&url=${encodeURIComponent(videoUrl)}`,
-    },
-    {
-      label: "Instagram",
-      color: "#E1306C",
-      href: "https://www.instagram.com",
-      copyFirst: true,
-    },
-    {
-      label: "TikTok",
-      color: "#010101",
-      href: "https://www.tiktok.com",
-      copyFirst: true,
-    },
-  ] as const;
-
-  async function openPlatform(p: (typeof platforms)[number]) {
-    if ("copyFirst" in p && p.copyFirst) {
-      try { await navigator.clipboard.writeText(videoUrl); } catch { /* ok */ }
-      toast({ title: `Link copied!`, description: `Paste your video link when you open ${p.label}.` });
-    }
-    window.open(p.href, "_blank", "noopener,noreferrer");
+  async function openWithCopy(href: string, platform: string) {
+    try { await navigator.clipboard.writeText(videoUrl); } catch { /* ok */ }
+    toast({ title: "Link copied!", description: `Paste your video link when ${platform} opens.` });
+    window.open(href, "_blank", "noopener,noreferrer");
   }
 
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">Share to</p>
-      <div className="flex flex-wrap gap-2">
-        {platforms.map((p) => (
-          <button
-            key={p.label}
-            type="button"
-            onClick={() => openPlatform(p)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono font-medium text-white transition-opacity hover:opacity-85"
-            style={{ backgroundColor: p.color }}
-          >
-            {"copyFirst" in p && p.copyFirst && <Copy className="w-3 h-3 opacity-70" />}
-            {p.label}
-          </button>
-        ))}
+    <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+      <div>
+        <p className="text-sm font-semibold text-foreground">Share Your Video</p>
+        <p className="text-xs text-muted-foreground mt-0.5">Post it to social media or send directly to your client.</p>
+      </div>
+
+      {/* Primary platforms — large buttons */}
+      <div className="grid grid-cols-3 gap-3">
+        <button
+          type="button"
+          onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(videoUrl)}&quote=${encodeURIComponent(caption)}`, "_blank", "noopener,noreferrer")}
+          className="flex flex-col items-center gap-2 py-4 rounded-xl font-semibold text-white text-sm transition-opacity hover:opacity-85"
+          style={{ background: "#1877F2" }}
+        >
+          <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          Facebook
+        </button>
+        <button
+          type="button"
+          onClick={() => openWithCopy("https://www.tiktok.com/upload", "TikTok")}
+          className="flex flex-col items-center gap-2 py-4 rounded-xl font-semibold text-white text-sm transition-opacity hover:opacity-85"
+          style={{ background: "#010101" }}
+        >
+          <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+          TikTok
+        </button>
+        <button
+          type="button"
+          onClick={() => openWithCopy("https://www.instagram.com", "Instagram")}
+          className="flex flex-col items-center gap-2 py-4 rounded-xl font-semibold text-white text-sm transition-opacity hover:opacity-85"
+          style={{ background: "linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" }}
+        >
+          <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          Instagram
+        </button>
+      </div>
+
+      {/* Secondary: copy link + WhatsApp */}
+      <div className="flex gap-2 flex-wrap border-t border-border pt-3">
+        <button
+          type="button"
+          onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${caption}\n\n${videoUrl}`)}`, "_blank", "noopener,noreferrer")}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono font-medium text-white transition-opacity hover:opacity-85"
+          style={{ background: "#25D366" }}
+        >
+          WhatsApp
+        </button>
+        <button
+          type="button"
+          onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(videoUrl)}`, "_blank", "noopener,noreferrer")}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono font-medium text-white transition-opacity hover:opacity-85"
+          style={{ background: "#0A66C2" }}
+        >
+          LinkedIn
+        </button>
         <button
           type="button"
           onClick={() => copy(videoUrl)}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded text-xs font-mono hover:border-primary/40 hover:text-primary text-muted-foreground transition-colors"
         >
           {copied ? <Check className="w-3 h-3 text-primary" /> : <Copy className="w-3 h-3" />}
-          {copied ? "Copied!" : "Copy Link"}
+          {copied ? "Copied!" : "Copy Video Link"}
         </button>
       </div>
     </div>
