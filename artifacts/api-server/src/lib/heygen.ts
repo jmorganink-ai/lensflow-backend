@@ -32,10 +32,10 @@ function getAvatarConfig(
 ): { avatarId: string; voiceId: string } {
   const name = (voiceName ?? "").toLowerCase().trim();
 
-  if (name === "mia")    return { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE };
-  if (name === "sophie") return { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE };
-  if (name === "oliver") return { avatarId: AVATAR_OLIVER, voiceId: VOICE_MALE };
-  if (name === "james")  return { avatarId: AVATAR_JAMES,  voiceId: VOICE_MALE };
+  if (name === "mia"    || name === "emma")                              return { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE };
+  if (name === "sophie" || name === "australian real estate agent")      return { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE };
+  if (name === "oliver" || name === "aussie voice")                      return { avatarId: AVATAR_OLIVER, voiceId: VOICE_MALE };
+  if (name === "james"  || name === "morgan voice")                      return { avatarId: AVATAR_JAMES,  voiceId: VOICE_MALE };
 
   // Fallback: infer from voice gender
   const isMale =
