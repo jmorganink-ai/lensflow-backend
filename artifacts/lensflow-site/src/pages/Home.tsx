@@ -15,28 +15,6 @@ import buildKitImage from "@assets/LensFlow-The-Build-Kit-every-tool-you-need_17
 
 const PRESENTERS = [
   {
-    id: "mia",
-    name: "Mia",
-    tagline: "Waterfront & Lifestyle Specialist",
-    specialty: "Coastal · Prestige · Instagram-first",
-    photo: "/presenters/mia-poster.jpg",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/f7c7da45b9a6460583b70fafd2405651/voices/x3PfG9wL6FOEApZ1VJ9H/92204d06-e00b-4d09-bbfc-3903c47a4c57.mp3",
-    videoUrl: "/presenters/mia.mp4" as string | null,
-    smileTimestamp: 1.0,
-    badge: "Most Popular",
-  },
-  {
-    id: "oliver",
-    name: "Oliver",
-    tagline: "Inner-City & Investment Authority",
-    specialty: "Urban · Off-the-plan · High-net-worth",
-    photo: "/presenters/oliver-poster.jpg",
-    previewUrl: "https://api.us.elevenlabs.io/v1/voices/yXFr3XVHzrViCIHi1yoc/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzZlNTZjZDctMTIwZC00MjM4LWFhYWUtZWZkNTRhNWI0YzM2Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
-    videoUrl: "/presenters/oliver.mp4" as string | null,
-    smileTimestamp: 0,
-    badge: null,
-  },
-  {
     id: "sophie",
     name: "Sophie",
     tagline: "Family Homes & Suburban Estates",
@@ -45,7 +23,7 @@ const PRESENTERS = [
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/69h9o7wh5u0isWHzdogD/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzBlMWJmMjUtZDEwNC00ZjY1LTg1ZTctNjE3ZDU5MjhmMDk5Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
     videoUrl: "/presenters/sophie.mp4" as string | null,
     smileTimestamp: 0,
-    badge: "New",
+    badge: "Most Popular",
   },
   {
     id: "james",
@@ -322,10 +300,10 @@ export default function Home() {
           {/* Sample Video Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { src: "/videos/sample-v1.mp4", label: "Mia · Mosman, NSW" },
-              { src: "/videos/sample-v2.mp4", label: "Oliver · South Yarra, VIC" },
+              { src: "/videos/sample-v1.mp4", label: "Sophie · Mosman, NSW" },
+              { src: "/videos/sample-v2.mp4", label: "James · South Yarra, VIC" },
               { src: "/videos/sample-v3.mp4", label: "Sophie · Brighton, VIC" },
-              { src: "/videos/sample-v4.mp4", label: "Mia · Bondi, NSW" },
+              { src: "/videos/sample-v4.mp4", label: "James · Bondi, NSW" },
             ].map((v, i) => (
               <motion.div
                 key={i}

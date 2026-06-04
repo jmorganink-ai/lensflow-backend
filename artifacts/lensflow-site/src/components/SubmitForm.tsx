@@ -7,24 +7,6 @@ import { useUpload } from "@workspace/object-storage-web";
 
 const PRESENTER_PRESETS = [
   {
-    id: "mia",
-    name: "Mia",
-    specialty: "Waterfront · Lifestyle",
-    voiceId: "x3PfG9wL6FOEApZ1VJ9H",
-    voiceName: "emma",
-    photo: "/presenters/mia-poster.jpg",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/f7c7da45b9a6460583b70fafd2405651/voices/x3PfG9wL6FOEApZ1VJ9H/92204d06-e00b-4d09-bbfc-3903c47a4c57.mp3",
-  },
-  {
-    id: "oliver",
-    name: "Oliver",
-    specialty: "Inner-City · Investment",
-    voiceId: "yXFr3XVHzrViCIHi1yoc",
-    voiceName: "aussie voice",
-    photo: "/presenters/oliver-poster.jpg",
-    previewUrl: "https://api.us.elevenlabs.io/v1/voices/yXFr3XVHzrViCIHi1yoc/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzZlNTZjZDctMTIwZC00MjM4LWFhYWUtZWZkNTRhNWI0YzM2Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
-  },
-  {
     id: "sophie",
     name: "Sophie",
     specialty: "Family · Suburban",
