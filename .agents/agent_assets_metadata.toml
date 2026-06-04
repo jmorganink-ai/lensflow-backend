@@ -29,3 +29,9 @@ id = "UkGgJGUFwMZXGFQ5zvXlU"
 uri = "file://attached_assets/lensflow-web-qr.png"
 type = "image"
 title = "LensFlow — scan to open in phone browser"
+
+[[outputs]]
+id = "LphFaLVDLxl4kQ78yS9tF"
+uri = "file://lensflow-presenters-heygen.zip"
+type = "unspecified"
+title = "LensFlow Presenters — HeyGen Package"
