@@ -8,4 +8,5 @@
 - [HeyGen avatar routing](heygen-avatar-routing.md) — each presenter (Mia/Sophie/Oliver/Liam) has its own env var override; diagnostic endpoint GET /api/heygen/avatars lists account avatars.
 - [Presenter voice IDs](presenter-voice-ids.md) — ElevenLabs: Mia=z9fH9S068t9I3i8Y9u4, Oliver=Xb7hH9S068t9I3i8Y9u4, Sophie=u8fH9S068t9I3i8Y9u4, Liam=nzYv9Z868t9I3i8Y9u4, Morgan=g5fH9S068t9I3i8Y9u4; defined in new-job.tsx AND mobile constants/presenters.ts — update both.
 - [Shotstack API 2025 breaking changes](shotstack-api-changes.md) — colour asset type removed; stage URL gone; transition names changed.
+- [Domain API setup](domain-api-setup.md) — sandbox/v1 auto-detected; correct package is "Properties & Locations" not "Listings Management"; production pending approval.
 - [Morgan marketing tab](morgan-marketing-tab.md) — POST /api/morgan/marketing-pack generates Instagram/Facebook/LinkedIn/email pack; page at /morgan in pipeline app; uses useListJobs (not useGetJobs) which returns Job[] directly.
