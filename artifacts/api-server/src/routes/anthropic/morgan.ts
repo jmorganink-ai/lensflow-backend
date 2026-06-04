@@ -13,6 +13,7 @@ import {
 import { ReplitConnectors } from "@replit/connectors-sdk";
 import { logger } from "../../lib/logger";
 import { searchProperties, type PropertySearchCriteria } from "../../lib/property-search";
+import { getSuburbPerformance, getRecentSalesResults, getPropertyEstimate } from "../../lib/domain";
 
 const router: IRouter = Router();
 
@@ -55,6 +56,51 @@ Do NOT use for general market questions or LensFlow product queries.`,
         },
       },
       required: ["location"],
+    },
+  },
+  {
+    name: "get_suburb_stats",
+    description: `Get live market statistics for an Australian suburb directly from the Domain.com.au API.
+Use when an agent or visitor asks about market conditions, median prices, clearance rates, days on market, or general market health for a specific suburb.
+Examples: "how's the market in Bondi?", "what's the median price in Toorak?", "is Fitzroy a buyers or sellers market?", "how many days do homes sit on market in Surry Hills?"`,
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        suburb: { type: "string", description: "Suburb name, e.g. 'Mosman', 'South Yarra', 'New Farm'" },
+        state: { type: "string", description: "Australian state abbreviation: NSW, VIC, QLD, SA, WA, TAS, ACT, NT" },
+        propertyCategory: {
+          type: "string",
+          enum: ["house", "unit"],
+          description: "Property category — use 'unit' for apartments/units, 'house' for houses/townhouses",
+        },
+      },
+      required: ["suburb", "state"],
+    },
+  },
+  {
+    name: "get_recent_sales",
+    description: `Get recent auction and sales results for a state directly from Domain.com.au. 
+Use when asked about recent sales, auction results, what properties sold for, or weekend clearance rates.
+Examples: "what sold in Sydney last weekend?", "show me recent auction results in Melbourne", "what are homes going for in Brisbane right now?"`,
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        state: { type: "string", description: "Australian state abbreviation: NSW, VIC, QLD, SA, WA, TAS, ACT, NT" },
+      },
+      required: ["state"],
+    },
+  },
+  {
+    name: "get_property_estimate",
+    description: `Get an AI-powered price estimate for a specific property using Domain.com.au's automated valuation model.
+Use when someone asks what a specific property is worth or wants a price estimate. Requires a Domain property ID.
+Examples: "what's this property worth?", "get me a price estimate for property ID 12345678"`,
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        propertyId: { type: "string", description: "Domain.com.au property ID (7-8 digit number)" },
+      },
+      required: ["propertyId"],
     },
   },
 ];
@@ -140,19 +186,29 @@ All plans include: unlimited AI script generation, 7-day free trial, cancel anyt
 - Suggest which presenter (Mia or Oliver) suits their property type
 - Advise on best practices for real estate video marketing in 2026
 
-### Property Search — your secret weapon for buyer clients
-You can search domain.com.au and realestate.com.au in real-time for properties matching any criteria. When an agent says a client is looking for a property, use your **search_properties** tool immediately — don't ask them to search themselves.
+### Live Real Estate Market Intelligence — your secret weapon
+You are connected **live** to the Domain.com.au API and can answer market questions with real data, not estimates. Use these tools proactively whenever agents or visitors ask about the market:
 
-Criteria you can handle: suburb, price range, bedrooms, bathrooms, minimum land size, property type (house/apartment/townhouse/land), features (pool, waterfront, granny flat), and bank/mortgagee-seizure properties.
+#### search_properties — find properties for buyer clients
+Search domain.com.au and realestate.com.au in real-time. When an agent mentions a buyer or client brief, use this immediately — don't ask them to search themselves.
+- Criteria: suburb, price range, beds/baths, land size, property type, features (pool, waterfront, granny flat), mortgagee-in-possession properties
+- **When results return:** Lead with "Found X properties matching your client's brief:", list each with address, price, beds/baths, and clickable link. Flag distressed/bank-sale properties clearly — investor gold.
+- If no live listings: still provide the pre-filtered Domain + REA search links
 
-**When you get search results back:**
-- Lead with a confident opening ("Found X properties matching your client's brief:")
-- List each property with address, price, beds/baths/cars, land size (if available), and a clickable link
-- Flag distressed/mortgagee properties clearly — these are investor gold
-- Always end with the pre-filtered Domain and REA search links so the agent can browse further
-- If no live listings came back via API, still provide the direct search links with all filters pre-set — these open right to the filtered results page
+#### get_suburb_stats — live market data for any suburb
+Use when asked about median prices, clearance rates, days on market, or market conditions for a suburb. This pulls live Domain data — give specific numbers, not generalisations.
+- Present as: Median price, days on market, clearance rate, number of sales
+- Add your market read: "At X% clearance, this is a strong sellers market" etc.
 
-**When no Domain API key is configured** (DOMAIN_CLIENT_ID not set): the tool still returns pre-built search URLs for both platforms. Present these as direct links and explain the agent can click to see live results immediately.
+#### get_recent_sales — this weekend's auction and sales results
+Use when asked what sold recently, auction results, or what homes are going for right now.
+- Present as a clean table or list: address, sold price, method (auction/private), beds
+- Calculate the total sold value and headline clearance rate if data allows
+
+#### get_property_estimate — Domain AVM price estimate
+Use when someone wants to know what a specific property is worth (by Domain property ID).
+- Present the estimated value with the confidence range and confidence level
+- Contextualise: "Domain's model puts this at $X–$Y, which aligns with/sits above the suburb median"
 
 ## Escalating to a human (Leave a message)
 You are available 24/7, but some things need a human on our team: billing disputes, refunds, account-specific problems, suspected bugs, or anything you genuinely can't resolve in chat. When that happens:
@@ -357,24 +413,46 @@ router.post("/anthropic/conversations/:id/messages", async (req, res) => {
     }
 
     // --- Phase 2: if tool called, execute it and stream the final answer ---
-    if (stopReason === "tool_use" && toolUseName === "search_properties") {
-      const indicator = "\n\n🔍 *Searching listings for your client…*\n\n";
+    if (stopReason === "tool_use" && toolUseName) {
+      const INDICATORS: Record<string, string> = {
+        search_properties: "\n\n🔍 *Searching listings for your client…*\n\n",
+        get_suburb_stats: "\n\n📊 *Pulling live suburb data from Domain…*\n\n",
+        get_recent_sales: "\n\n🏠 *Fetching recent sales results from Domain…*\n\n",
+        get_property_estimate: "\n\n💰 *Retrieving property price estimate from Domain…*\n\n",
+      };
+      const indicator = INDICATORS[toolUseName] ?? "\n\n⏳ *Looking that up…*\n\n";
       res.write(`data: ${JSON.stringify({ content: indicator })}\n\n`);
 
       let toolResult: string;
       try {
-        const criteria = JSON.parse(toolInputJson) as PropertySearchCriteria;
-        const result = await searchProperties(criteria);
-        toolResult = JSON.stringify(result);
+        const toolInput = JSON.parse(toolInputJson) as Record<string, unknown>;
+        if (toolUseName === "search_properties") {
+          const result = await searchProperties(toolInput as unknown as PropertySearchCriteria);
+          toolResult = JSON.stringify(result);
+        } else if (toolUseName === "get_suburb_stats") {
+          const suburb = toolInput.suburb as string;
+          const state = toolInput.state as string;
+          const propertyCategory = (toolInput.propertyCategory as "house" | "unit" | undefined) ?? "house";
+          const stats = await getSuburbPerformance(suburb, state, propertyCategory);
+          toolResult = stats
+            ? JSON.stringify(stats)
+            : JSON.stringify({ error: `No market data found for ${suburb} ${state}` });
+        } else if (toolUseName === "get_recent_sales") {
+          const state = toolInput.state as string;
+          const sales = await getRecentSalesResults(state);
+          toolResult = JSON.stringify({ state, count: sales.length, results: sales });
+        } else if (toolUseName === "get_property_estimate") {
+          const propertyId = toolInput.propertyId as string;
+          const estimate = await getPropertyEstimate(propertyId);
+          toolResult = estimate
+            ? JSON.stringify(estimate)
+            : JSON.stringify({ error: `No price estimate available for property ${propertyId}` });
+        } else {
+          toolResult = JSON.stringify({ error: "Unknown tool" });
+        }
       } catch (err) {
-        req.log.warn({ err }, "Property search tool execution failed");
-        toolResult = JSON.stringify({
-          properties: [],
-          domainSearchUrl: "",
-          reaSearchUrl: "",
-          apiUsed: false,
-          error: "Search unavailable",
-        });
+        req.log.warn({ err, toolUseName }, "Domain tool execution failed");
+        toolResult = JSON.stringify({ error: "Data unavailable — please try again" });
       }
 
       const toolResultMessages: Anthropic.MessageParam[] = [

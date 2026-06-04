@@ -20,7 +20,7 @@ import { generatePresenterVideoDID } from "../lib/did";
 import { composePresenterVideo, composeSelfieVideo, composeVoicePhotosVideo } from "../lib/shotstack";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { scrapeListing } from "../lib/apify";
-import { isDomainUrl, extractDomainListingId, fetchDomainListing } from "../lib/domain";
+import { isDomainUrl, extractDomainListingId, fetchDomainListing, getSuburbPerformance } from "../lib/domain";
 import { analysePropertyPhotos } from "../lib/analyse-photos";
 import { enhancePropertyPhotos } from "../lib/enhance-photos";
 
@@ -244,6 +244,21 @@ async function runSimulation(jobId: string): Promise<void> {
             bedrooms: apifyResult.bedrooms?.toString() ?? listingContext.bedrooms,
             suburb: listingContext.suburb ?? (apifyResult.address?.split(",")[1]?.trim() ?? null),
           });
+
+          // Fetch live suburb market data from Domain API (non-blocking enrichment)
+          const suburbForStats = listingContext.suburb;
+          const stateForStats = listingContext.state;
+          if (suburbForStats && stateForStats) {
+            try {
+              const propCategory = listingContext.propertyType?.toLowerCase().includes("unit")
+                || listingContext.propertyType?.toLowerCase().includes("apartment")
+                ? "unit" : "house";
+              const stats = await getSuburbPerformance(suburbForStats, stateForStats, propCategory);
+              if (stats) listingContext.suburbStats = stats;
+            } catch (err) {
+              logger.warn({ err, jobId }, "Suburb performance fetch failed (non-critical)");
+            }
+          }
 
           // Update listing title if we got a better one from Apify
           if (apifyResult.title && !job.listingTitle) {

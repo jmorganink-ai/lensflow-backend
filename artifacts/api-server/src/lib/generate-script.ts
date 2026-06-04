@@ -24,11 +24,18 @@ export interface ListingContext {
   // Enriched from photo (Claude Vision) analysis
   features?: string[] | null;
   inputMode?: "url" | "photos";
+  // Live Domain suburb market data
+  suburbStats?: {
+    medianSoldPrice?: number | null;
+    medianDaysOnMarket?: number | null;
+    numberSold?: number | null;
+    clearanceRate?: number | null;
+    periodLabel?: string | null;
+  } | null;
 }
 
 // ── Presenter personas ────────────────────────────────────────────────────────
 // Each presenter gets a distinct voice, angle, and opening style.
-// James is the founder — always speaks as himself in first person.
 
 const PRESENTER_PERSONAS: Record<string, { role: string; style: string; opening: string }> = {
   mia: {
@@ -51,12 +58,12 @@ const PRESENTER_PERSONAS: Record<string, { role: string; style: string; opening:
     opening:
       "Open with a bold, confident statement about the property's calibre or investment position.",
   },
-  james: {
-    role: "founder and director of LensFlow AI, with 20 years in Australian real estate",
+  liam: {
+    role: "seasoned real estate auctioneer and investment advisor with 20 years across Australian capital city markets",
     style:
-      "authoritative, personal, and direct. You always introduce yourself by name: 'I'm James.' You speak as the founder who has personally selected this listing as exceptional. First-person perspective throughout — you give your personal endorsement.",
+      "authoritative, energetic, and direct. You have the commanding presence of a top auctioneer. You speak to serious buyers and investors with confidence and precision — cutting through the noise to what really matters about this property.",
     opening:
-      "Always open with 'I'm James.' and your personal take on why this property caught your eye.",
+      "Open with a bold, punchy statement about what makes this property a standout opportunity — the kind of line you'd use to open a premium auction.",
   },
 };
 
@@ -93,6 +100,18 @@ function buildPrompt(
   if (context?.scrapedDescription) contextLines.push(`Listing description: ${context.scrapedDescription}`);
   if (context?.features && context.features.length > 0)
     contextLines.push(`Visible features (from photos): ${context.features.join(", ")}`);
+  if (context?.suburbStats) {
+    const s = context.suburbStats;
+    const parts: string[] = [];
+    if (s.medianSoldPrice) parts.push(`median sold $${s.medianSoldPrice.toLocaleString()}`);
+    if (s.medianDaysOnMarket) parts.push(`avg ${s.medianDaysOnMarket} days on market`);
+    if (s.clearanceRate != null) parts.push(`${s.clearanceRate}% clearance rate`);
+    if (s.numberSold) parts.push(`${s.numberSold} sales`);
+    if (parts.length > 0) {
+      const period = s.periodLabel ? ` (${s.periodLabel})` : "";
+      contextLines.push(`Live suburb market data${period}: ${parts.join(", ")}`);
+    }
+  }
 
   const isPhotoMode = context?.inputMode === "photos";
   const sourceLine = isPhotoMode
