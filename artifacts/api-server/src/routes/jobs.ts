@@ -20,6 +20,7 @@ import { generatePresenterVideoDID } from "../lib/did";
 import { composePresenterVideo, composeSelfieVideo, composeVoicePhotosVideo } from "../lib/shotstack";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { scrapeListing } from "../lib/apify";
+import { isDomainUrl, extractDomainListingId, fetchDomainListing } from "../lib/domain";
 import { analysePropertyPhotos } from "../lib/analyse-photos";
 import { enhancePropertyPhotos } from "../lib/enhance-photos";
 
@@ -207,10 +208,18 @@ async function runSimulation(jobId: string): Promise<void> {
           await new Promise((resolve) => setTimeout(resolve, baseDuration));
         }
       } else if (step.name === "scrape_listing") {
-        // Real Apify scrape — falls back to URL parsing if Apify unavailable
+        // Domain.com.au → official API; all other platforms → Apify scrape
         try {
-          logger.info({ jobId, listingUrl: job.listingUrl }, "Scraping listing with Apify");
-          const apifyResult = await scrapeListing(job.listingUrl);
+          let apifyResult;
+          if (isDomainUrl(job.listingUrl)) {
+            const listingId = extractDomainListingId(job.listingUrl);
+            if (!listingId) throw new Error(`Could not extract listing ID from Domain URL: ${job.listingUrl}`);
+            logger.info({ jobId, listingId }, "Fetching listing from Domain.com.au API");
+            apifyResult = await fetchDomainListing(listingId);
+          } else {
+            logger.info({ jobId, listingUrl: job.listingUrl }, "Scraping listing with Apify");
+            apifyResult = await scrapeListing(job.listingUrl);
+          }
           scrapedImages = apifyResult.images;
 
           // If agent uploaded manual photos, keep those — otherwise use scraped photos
