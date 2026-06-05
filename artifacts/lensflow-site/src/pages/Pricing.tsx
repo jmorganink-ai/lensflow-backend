@@ -32,8 +32,8 @@ export default function Pricing() {
         "Voice + Photos slideshow",
         "Morgan marketing campaign",
       ],
-      cta: "Start 7-day Free Trial",
-      link: "https://buy.stripe.com/bJe00jc29bWsa6r2eX2go04",
+      cta: "Get Started",
+      link: "/pipeline/billing?plan=starter",
       highlight: false,
     },
     {
@@ -56,8 +56,8 @@ export default function Pricing() {
         "Morgan marketing campaign",
         "Digital twin avatar",
       ],
-      cta: "Start 7-day Free Trial",
-      link: "https://buy.stripe.com/cNi14n1nv2lSemHbPx2go05",
+      cta: "Get Started",
+      link: "/pipeline/billing?plan=elite",
       highlight: true,
     },
     {
@@ -79,8 +79,8 @@ export default function Pricing() {
       notIncluded: [
         "Digital twin avatar",
       ],
-      cta: "Book a Call",
-      link: "https://buy.stripe.com/8x27sLfel8Kgcez8Dl2go06",
+      cta: "Get Started",
+      link: "/pipeline/billing?plan=concierge",
       highlight: false,
     },
   ];
@@ -196,7 +196,7 @@ export default function Pricing() {
                   <span className="text-muted-foreground">/mo</span>
                 </div>
                 
-                <a href={tier.link} target="_blank" rel="noopener noreferrer" className="block mb-7">
+                <a href={tier.link} className="block mb-7">
                   <Button 
                     className={`w-full rounded-full h-12 text-base font-medium ${
                       tier.highlight ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-white/10 hover:bg-white/20 text-foreground"

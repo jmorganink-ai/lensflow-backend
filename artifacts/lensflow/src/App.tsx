@@ -15,6 +15,7 @@ import Settings from "@/pages/settings";
 import JobsList from "@/pages/jobs";
 import Recorder from "@/pages/recorder";
 import MorganMarketing from "@/pages/morgan";
+import Billing from "@/pages/billing";
 import MorganChat from "@/components/MorganChat";
 import { PendingJobHandler } from "@/components/PendingJobHandler";
 import { useServiceWorker } from "@/hooks/use-service-worker";
@@ -124,6 +125,7 @@ function Router() {
               <Route path="/jobs/:id" component={JobDetail} />
               <Route path="/jobs" component={JobsList} />
               <Route path="/morgan" component={MorganMarketing} />
+              <Route path="/billing" component={Billing} />
               <Route path="/webhooks" component={Webhooks} />
               <Route path="/settings" component={Settings} />
               <Route component={NotFound} />

@@ -23,6 +23,10 @@ export const usersTable = pgTable("users", {
   heygenAvatarId: varchar("heygen_avatar_id"),
   heygenAvatarName: varchar("heygen_avatar_name"),
   heygenVoiceId: varchar("heygen_voice_id"),
+  // Stripe billing
+  stripeCustomerId: varchar("stripe_customer_id"),
+  stripeSubscriptionId: varchar("stripe_subscription_id"),
+  planName: varchar("plan_name"), // 'starter' | 'elite' | 'concierge'
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
