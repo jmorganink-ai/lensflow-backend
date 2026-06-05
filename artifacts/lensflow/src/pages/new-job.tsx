@@ -194,6 +194,7 @@ export default function NewJob() {
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const dragPhotoIndex = useRef<number | null>(null);
 
   // Property photo uploads
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
@@ -873,12 +874,38 @@ export default function NewJob() {
                 ) : (
                   <div className="p-3 grid grid-cols-5 gap-2">
                     {uploadedPhotos.map((photo, i) => (
-                      <div key={photo.previewSrc} className="relative aspect-square rounded overflow-hidden group">
+                      <div
+                        key={photo.previewSrc}
+                        draggable={!photo.uploading && !photo.failed}
+                        onDragStart={() => { dragPhotoIndex.current = i; }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          const src = dragPhotoIndex.current;
+                          if (src === null || src === i) return;
+                          setUploadedPhotos((prev) => {
+                            const next = [...prev];
+                            const [moved] = next.splice(src, 1);
+                            next.splice(i, 0, moved);
+                            return next;
+                          });
+                          dragPhotoIndex.current = i;
+                        }}
+                        onDragEnd={() => { dragPhotoIndex.current = null; }}
+                        className="relative aspect-square rounded overflow-hidden group cursor-grab active:cursor-grabbing"
+                      >
                         <img
                           src={photo.previewSrc}
                           alt={photo.name}
                           className="w-full h-full object-cover"
                         />
+                        {/* Position badge */}
+                        {!photo.uploading && !photo.failed && (
+                          <div className={`absolute top-1 left-1 rounded px-1 py-0.5 text-[9px] font-bold font-mono leading-none ${
+                            i === 0 ? "bg-primary text-primary-foreground" : "bg-black/60 text-white"
+                          }`}>
+                            {i === 0 ? "LEAD" : `#${i + 1}`}
+                          </div>
+                        )}
                         {/* Uploading spinner overlay */}
                         {photo.uploading && (
                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -892,7 +919,7 @@ export default function NewJob() {
                             <span className="text-[8px] text-white font-mono">failed</span>
                           </div>
                         )}
-                        {/* Hover remove — only for completed or failed photos */}
+                        {/* Hover remove */}
                         {!photo.uploading && (
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <button
@@ -908,7 +935,7 @@ export default function NewJob() {
                             </button>
                           </div>
                         )}
-                        {/* Progress bar at bottom — green when done, absent while uploading */}
+                        {/* Ready indicator */}
                         {!photo.uploading && !photo.failed && (
                           <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
                         )}
