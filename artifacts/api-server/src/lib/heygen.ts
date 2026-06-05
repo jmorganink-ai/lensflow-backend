@@ -28,7 +28,9 @@ function buildCharacterPayload(avatarId: string): Record<string, unknown> {
 
 // ── Per-presenter HeyGen voice IDs ───────────────────────────────────────────
 // These are HeyGen-side voices (not ElevenLabs). Override per presenter if needed.
-const VOICE_FEMALE   = process.env.HEYGEN_VOICE_FEMALE        ?? "f8c69e517f424cafaecde32dde57096b"; // Allison (Australian)
+const VOICE_FEMALE   = process.env.HEYGEN_VOICE_FEMALE        ?? "f8c69e517f424cafaecde32dde57096b"; // Allison (Australian) — shared fallback
+const VOICE_MIA      = process.env.HEYGEN_VOICE_MIA           ?? VOICE_FEMALE;
+const VOICE_SOPHIE   = process.env.HEYGEN_VOICE_SOPHIE        ?? VOICE_FEMALE;
 const VOICE_JAMES    = process.env.HEYGEN_VOICE_JAMES         ?? "f38a635bee7a4d1f9b0a654a31d050d2"; // Chill Brian (Australian male)
 const VOICE_OLIVER   = process.env.HEYGEN_VOICE_OLIVER        ?? "kbxy8S61KI1ZTJZFHKQV";            // Educated British Baritone
 
@@ -46,8 +48,8 @@ function getAvatarConfig(
 ): { avatarId: string; voiceId: string } {
   const name = (voiceName ?? "").toLowerCase().trim();
 
-  if (name === "mia"    || name === "emma")                                        return { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE };
-  if (name === "sophie" || name === "sophia" || name === "australian real estate agent") return { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE };
+  if (name === "mia"    || name === "emma")                                        return { avatarId: AVATAR_MIA,    voiceId: VOICE_MIA };
+  if (name === "sophie" || name === "sophia" || name === "australian real estate agent") return { avatarId: AVATAR_SOPHIE, voiceId: VOICE_SOPHIE };
   if (name === "oliver" || name === "aussie voice")                                return { avatarId: AVATAR_OLIVER, voiceId: VOICE_OLIVER };
   if (name === "james"  || name === "morgan voice")                                return { avatarId: AVATAR_JAMES,  voiceId: VOICE_JAMES };
 
@@ -199,8 +201,8 @@ export async function listHeyGenVoices(): Promise<unknown> {
 
 export function getPresenterAvatarMap() {
   return {
-    Mia:    { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE },
-    Sophie: { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE },
+    Mia:    { avatarId: AVATAR_MIA,    voiceId: VOICE_MIA },
+    Sophie: { avatarId: AVATAR_SOPHIE, voiceId: VOICE_SOPHIE },
     Oliver: { avatarId: AVATAR_OLIVER, voiceId: VOICE_OLIVER },
     James:  { avatarId: AVATAR_JAMES,  voiceId: VOICE_JAMES },
   };
