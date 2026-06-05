@@ -192,7 +192,7 @@ export function SubmitForm() {
   const busy = uploadingCount > 0 || submitting || authLoading;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-5 pb-14">
       {/* Listing URL */}
       <div>
         <div className="relative">
@@ -218,7 +218,7 @@ export function SubmitForm() {
       {/* Presenter Picker */}
       <div>
         <label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2 block">Choose Presenter</label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {PRESENTER_PRESETS.map((p) => {
             const isSelected = selectedPresenter.id === p.id;
             const isPlaying = playingId === p.id;
