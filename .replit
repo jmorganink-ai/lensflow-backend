@@ -53,3 +53,9 @@ channel = "stable-25_05"
 
 [objectStorage]
 defaultBucketID = "replit-objstore-dfdae97e-a094-4e9a-8807-6cead5534551"
+
+[userenv]
+
+[userenv.shared]
+HEYGEN_AVATAR_MIA = "2d06d0f7cca14fe0a9c03e92bd059e27"
+HEYGEN_AVATAR_OLIVER = "e5af058a307c413e93451ab549ae2c7e"
