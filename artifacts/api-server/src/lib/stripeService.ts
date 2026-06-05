@@ -1,51 +1,81 @@
-import { sql, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { db, usersTable } from '@workspace/db';
-import { getUncachableStripeClient } from './stripeClient';
+import { getStripeClient, getUncachableStripeClient } from './stripeClient';
+import type Stripe from 'stripe';
 
 export class StripeStorage {
-  async getProduct(productId: string) {
-    const result = await db.execute(
-      sql`SELECT * FROM stripe.products WHERE id = ${productId}`
-    );
-    return result.rows[0] || null;
+  async listProductsWithPrices(active = true): Promise<Array<{
+    product_id: string;
+    product_name: string;
+    product_description: string | null;
+    product_active: boolean;
+    product_metadata: Record<string, string>;
+    price_id: string | null;
+    unit_amount: number | null;
+    currency: string | null;
+    recurring: Stripe.Price.Recurring | null;
+  }>> {
+    const stripe = await getStripeClient();
+
+    const [products, prices] = await Promise.all([
+      stripe.products.list({ active: active || undefined, limit: 100 }),
+      stripe.prices.list({ active: true, limit: 100 }),
+    ]);
+
+    const rows: ReturnType<typeof this.listProductsWithPrices> extends Promise<infer T> ? T : never = [];
+
+    for (const product of products.data) {
+      const productPrices = prices.data.filter(p => p.product === product.id);
+      if (productPrices.length === 0) {
+        rows.push({
+          product_id: product.id,
+          product_name: product.name,
+          product_description: product.description ?? null,
+          product_active: product.active,
+          product_metadata: product.metadata as Record<string, string>,
+          price_id: null,
+          unit_amount: null,
+          currency: null,
+          recurring: null,
+        });
+      } else {
+        for (const price of productPrices) {
+          rows.push({
+            product_id: product.id,
+            product_name: product.name,
+            product_description: product.description ?? null,
+            product_active: product.active,
+            product_metadata: product.metadata as Record<string, string>,
+            price_id: price.id,
+            unit_amount: price.unit_amount,
+            currency: price.currency,
+            recurring: price.recurring ?? null,
+          });
+        }
+      }
+    }
+
+    rows.sort((a, b) => (a.unit_amount ?? 0) - (b.unit_amount ?? 0));
+    return rows;
   }
 
-  async listProductsWithPrices(active = true) {
-    const result = await db.execute(sql`
-      WITH paginated_products AS (
-        SELECT id, name, description, metadata, active
-        FROM stripe.products
-        WHERE active = ${active}
-        ORDER BY id
-      )
-      SELECT
-        p.id as product_id,
-        p.name as product_name,
-        p.description as product_description,
-        p.active as product_active,
-        p.metadata as product_metadata,
-        pr.id as price_id,
-        pr.unit_amount,
-        pr.currency,
-        pr.recurring,
-        pr.active as price_active,
-        pr.metadata as price_metadata
-      FROM paginated_products p
-      LEFT JOIN stripe.prices pr ON pr.product = p.id AND pr.active = true
-      ORDER BY pr.unit_amount ASC
-    `);
-    return result.rows;
-  }
-
-  async getSubscription(subscriptionId: string) {
-    const result = await db.execute(
-      sql`SELECT * FROM stripe.subscriptions WHERE id = ${subscriptionId}`
-    );
-    return result.rows[0] || null;
+  async getSubscription(subscriptionId: string): Promise<Stripe.Subscription | null> {
+    try {
+      const stripe = await getStripeClient();
+      return await stripe.subscriptions.retrieve(subscriptionId);
+    } catch {
+      return null;
+    }
   }
 
   async getUser(id: string) {
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
+    return user;
+  }
+
+  async getUserByStripeCustomerId(customerId: string) {
+    const [user] = await db.select().from(usersTable)
+      .where(eq(usersTable.stripeCustomerId, customerId));
     return user;
   }
 

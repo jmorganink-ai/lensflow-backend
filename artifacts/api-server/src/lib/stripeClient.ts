@@ -1,5 +1,4 @@
 import Stripe from 'stripe';
-import { StripeSync } from 'stripe-replit-sync';
 
 async function getStripeCredentials(): Promise<{ secretKey: string; webhookSecret?: string }> {
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
@@ -28,10 +27,10 @@ async function getStripeCredentials(): Promise<{ secretKey: string; webhookSecre
     throw new Error(`Failed to fetch Stripe credentials: ${resp.status} ${resp.statusText}`);
   }
 
-  const data = await resp.json() as { items?: Array<{ settings?: { secret_key?: string; webhook_secret?: string } }> };
+  const data = await resp.json() as { items?: Array<{ settings?: { secret?: string; publishable?: string; webhook_secret?: string } }> };
   const settings = data.items?.[0]?.settings;
 
-  if (!settings?.secret_key) {
+  if (!settings?.secret) {
     throw new Error(
       'Stripe integration not connected or missing secret key. ' +
       'Connect Stripe via the Integrations tab first.'
@@ -39,26 +38,26 @@ async function getStripeCredentials(): Promise<{ secretKey: string; webhookSecre
   }
 
   return {
-    secretKey: settings.secret_key,
-    webhookSecret: settings.webhook_secret,
+    secretKey: settings.secret,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? settings.webhook_secret,
   };
+}
+
+let _cachedClient: Stripe | null = null;
+
+export async function getStripeClient(): Promise<Stripe> {
+  if (_cachedClient) return _cachedClient;
+  const { secretKey } = await getStripeCredentials();
+  _cachedClient = new Stripe(secretKey);
+  return _cachedClient;
+}
+
+export async function getStripeWebhookSecret(): Promise<string | undefined> {
+  const { webhookSecret } = await getStripeCredentials();
+  return webhookSecret;
 }
 
 export async function getUncachableStripeClient(): Promise<Stripe> {
   const { secretKey } = await getStripeCredentials();
   return new Stripe(secretKey);
-}
-
-export async function getStripeSync(): Promise<StripeSync> {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error('DATABASE_URL environment variable is required');
-  }
-
-  const { secretKey, webhookSecret } = await getStripeCredentials();
-  return new StripeSync({
-    poolConfig: { connectionString: databaseUrl },
-    stripeSecretKey: secretKey,
-    stripeWebhookSecret: webhookSecret ?? '',
-  });
 }
