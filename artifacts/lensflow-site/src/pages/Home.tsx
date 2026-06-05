@@ -48,17 +48,6 @@ const PRESENTERS = [
     badge: null,
   },
   {
-    id: "liam",
-    name: "Liam",
-    tagline: "Commercial & Rural Properties",
-    specialty: "Commercial · Rural · Development",
-    photo: "/presenters/liam-poster.jpg",
-    previewUrl: null as string | null,
-    videoUrl: "/presenters/liam.mp4" as string | null,
-    smileTimestamp: 0,
-    badge: null,
-  },
-  {
     id: "james",
     name: "James",
     tagline: "Prestige & Inner-City Authority",

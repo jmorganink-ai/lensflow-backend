@@ -38,14 +38,6 @@ const PRESENTER_PRESETS = [
     photo: "/presenters/sophie-poster.jpg",
   },
   {
-    id: "liam",
-    name: "Liam",
-    specialty: "Commercial · Rural · Development",
-    voiceId: "nzYv9Z868t9I3i8Y9u4",
-    voiceName: "liam",
-    photo: "/presenters/liam-poster.jpg",
-  },
-  {
     id: "james",
     name: "James",
     specialty: "Prestige · Coastal · Inner-City",
@@ -59,7 +51,6 @@ const PRESENTER_VOICE_NEUTRAL: Record<string, string> = {
   "x3PfG9wL6FOEApZ1VJ9H": "Female — Warm",
   "jfIS2w2yJi0grJZPyEsk": "Male — Confident",
   "69h9o7wh5u0isWHzdogD": "Female — Energetic",
-  "nzYv9Z868t9I3i8Y9u4": "Male — Relaxed",
   "yXFr3XVHzrViCIHi1yoc": "Male — Authoritative",
   "g5fH9S068t9I3i8Y9u4": "Female — Friendly",
 };

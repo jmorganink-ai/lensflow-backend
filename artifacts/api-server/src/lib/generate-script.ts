@@ -58,7 +58,7 @@ const PRESENTER_PERSONAS: Record<string, { role: string; style: string; opening:
     opening:
       "Open with a bold, confident statement about the property's calibre or investment position.",
   },
-  liam: {
+  james: {
     role: "seasoned real estate auctioneer and investment advisor with 20 years across Australian capital city markets",
     style:
       "authoritative, energetic, and direct. You have the commanding presence of a top auctioneer. You speak to serious buyers and investors with confidence and precision — cutting through the noise to what really matters about this property.",

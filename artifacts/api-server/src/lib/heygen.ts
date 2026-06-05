@@ -14,7 +14,7 @@ const HEYGEN_API_BASE = "https://api.heygen.com";
 const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Gala_standing_businesssofa_front";
 const AVATAR_SOPHIE  = process.env.HEYGEN_AVATAR_SOPHIE  ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Freja_public_1";
 const AVATAR_OLIVER  = process.env.HEYGEN_AVATAR_OLIVER  ?? process.env.HEYGEN_AVATAR_MALE   ?? "Onat_Suit_Front_public";
-const AVATAR_LIAM    = process.env.HEYGEN_AVATAR_LIAM    ?? process.env.HEYGEN_AVATAR_MALE   ?? "Bryan_Suit_Front_public";
+const AVATAR_JAMES   = process.env.HEYGEN_AVATAR_JAMES   ?? process.env.HEYGEN_AVATAR_MALE   ?? "Bryan_Suit_Front_public";
 
 // Returns the correct HeyGen character payload depending on whether the ID is
 // a UUID-style look_id or a named avatar_id.
@@ -29,17 +29,16 @@ function buildCharacterPayload(avatarId: string): Record<string, unknown> {
 // ── Per-presenter HeyGen voice IDs ───────────────────────────────────────────
 // These are HeyGen-side voices (not ElevenLabs). Override per presenter if needed.
 const VOICE_FEMALE   = process.env.HEYGEN_VOICE_FEMALE        ?? "f8c69e517f424cafaecde32dde57096b"; // Allison (Australian)
-const VOICE_LIAM     = process.env.HEYGEN_VOICE_LIAM          ?? "f38a635bee7a4d1f9b0a654a31d050d2"; // Chill Brian (Australian male)
+const VOICE_JAMES    = process.env.HEYGEN_VOICE_JAMES         ?? "f38a635bee7a4d1f9b0a654a31d050d2"; // Chill Brian (Australian male)
 const VOICE_OLIVER   = process.env.HEYGEN_VOICE_OLIVER        ?? "kbxy8S61KI1ZTJZFHKQV";            // Educated British Baritone
 
 // ElevenLabs voice IDs that map to male presenters
 const ELEVENLABS_MALE_VOICE_IDS = new Set([
   "jfIS2w2yJi0grJZPyEsk", // Oliver
-  "nzYv9Z868t9I3i8Y9u4",  // Liam
   "yXFr3XVHzrViCIHi1yoc", // James
 ]);
 
-const MALE_VOICE_NAMES = new Set(["oliver", "liam", "morgan voice", "aussie voice"]);
+const MALE_VOICE_NAMES = new Set(["oliver", "james", "morgan voice", "aussie voice"]);
 
 function getAvatarConfig(
   voiceName?: string | null,
@@ -50,8 +49,7 @@ function getAvatarConfig(
   if (name === "mia"    || name === "emma")                                        return { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE };
   if (name === "sophie" || name === "sophia" || name === "australian real estate agent") return { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE };
   if (name === "oliver" || name === "aussie voice")                                return { avatarId: AVATAR_OLIVER, voiceId: VOICE_OLIVER };
-  if (name === "liam"   || name === "morgan voice")                                return { avatarId: AVATAR_LIAM,   voiceId: VOICE_LIAM };
-  if (name === "james")                                                            return { avatarId: AVATAR_LIAM,   voiceId: VOICE_LIAM };
+  if (name === "james"  || name === "morgan voice")                                return { avatarId: AVATAR_JAMES,  voiceId: VOICE_JAMES };
 
   // Fallback: infer from voice gender
   const isMale =
@@ -59,7 +57,7 @@ function getAvatarConfig(
     (elevenLabsVoiceId != null && ELEVENLABS_MALE_VOICE_IDS.has(elevenLabsVoiceId));
 
   return isMale
-    ? { avatarId: AVATAR_LIAM,   voiceId: VOICE_LIAM }
+    ? { avatarId: AVATAR_JAMES,  voiceId: VOICE_JAMES }
     : { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE };
 }
 
@@ -204,6 +202,6 @@ export function getPresenterAvatarMap() {
     Mia:    { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE },
     Sophie: { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE },
     Oliver: { avatarId: AVATAR_OLIVER, voiceId: VOICE_OLIVER },
-    Liam:   { avatarId: AVATAR_LIAM,   voiceId: VOICE_LIAM },
+    James:  { avatarId: AVATAR_JAMES,  voiceId: VOICE_JAMES },
   };
 }

@@ -30,20 +30,20 @@ const PROPERTY_IMAGES = [
   "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=900&q=82",
 ];
 
-type Presenter = "Mia" | "Oliver" | "Sophie" | "Liam";
+type Presenter = "Mia" | "Oliver" | "Sophie" | "James";
 
 const PRESENTER_GRADIENT: Record<Presenter, string> = {
   Mia:    "linear-gradient(135deg, #151b31 0%, #2a1535 55%, #c99a2e 100%)",
   Oliver: "linear-gradient(135deg, #151b31 0%, #132a2a 55%, #c99a2e 100%)",
   Sophie: "linear-gradient(135deg, #151b31 0%, #1f1535 55%, #8d6c20 100%)",
-  Liam:   "linear-gradient(135deg, #151b31 0%, #152235 55%, #c99a2e 100%)",
+  James:  "linear-gradient(135deg, #151b31 0%, #152235 55%, #c99a2e 100%)",
 };
 
 const PRESENTER_DESC: Record<Presenter, string> = {
   Mia:    "Polished, warm and premium. Best for luxury homes and prestige brand campaigns.",
   Oliver: "Confident, refined, direct. Best for market updates and high-value appraisals.",
   Sophie: "Approachable and modern. Best for social-first residential campaigns.",
-  Liam:   "Energetic and sharp. Best for new developments and investment property listings.",
+  James:  "Authoritative and sharp. Best for prestige, coastal and inner-city listings.",
 };
 
 function getGreeting() {
@@ -80,7 +80,7 @@ export default function Dashboard() {
   const { data: stats, isLoading } = useGetJobStats();
   const { user } = useAuth();
   const firstName = user?.firstName ?? user?.email?.split("@")[0] ?? null;
-  const [selectedPresenter, setSelectedPresenter] = useState<"Mia" | "Oliver" | "Sophie" | "Liam">("Mia");
+  const [selectedPresenter, setSelectedPresenter] = useState<"Mia" | "Oliver" | "Sophie" | "James">("Mia");
 
   const completed = stats?.complete ?? 0;
   const estimatedReach = completed * 5400;
@@ -363,7 +363,7 @@ export default function Dashboard() {
 
             {/* 2×2 picker grid */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 14 }}>
-              {(["Mia", "Oliver", "Sophie", "Liam"] as const).map(p => (
+              {(["Mia", "Oliver", "Sophie", "James"] as const).map(p => (
                 <button
                   key={p}
                   type="button"

@@ -41,14 +41,14 @@ export const PRESENTERS: Presenter[] = [
     photo: "https://files2.heygen.ai/avatar/v3/5ea97a1a6cbf4a96b5ee910aa8f4f08d_62450/preview_target.webp",
   },
   {
-    id: "liam",
-    name: "Liam",
-    specialty: "Commercial · Rural · Development",
-    neutralName: "Male — Relaxed",
-    neutralSpecialty: "Warm · Approachable",
-    voiceId: "nzYv9Z868t9I3i8Y9u4",
-    voiceName: "liam",
-    photo: "https://files2.heygen.ai/avatar/v3/4a77fc7cc1cb4304b40c61ac1e11921a_43310/preview_target.webp",
+    id: "james",
+    name: "James",
+    specialty: "Prestige · Coastal · Inner-City",
+    neutralName: "Male — Authoritative",
+    neutralSpecialty: "Sharp · Commanding",
+    voiceId: "yXFr3XVHzrViCIHi1yoc",
+    voiceName: "james",
+    photo: "https://files2.heygen.ai/avatar/v3/placeholder_james/preview_target.webp",
   },
 ];
 

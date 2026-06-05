@@ -34,15 +34,6 @@ const PRESENTER_PRESETS = [
     previewUrl: "/presenters/oliver-preview.mp3" as string | null,
   },
   {
-    id: "liam",
-    name: "Liam",
-    specialty: "Commercial · Rural · Development",
-    voiceId: "nzYv9Z868t9I3i8Y9u4",
-    voiceName: "liam",
-    photo: "/presenters/liam-poster.jpg",
-    previewUrl: null as string | null,
-  },
-  {
     id: "james",
     name: "James",
     specialty: "Prestige · Coastal · Inner-City",
