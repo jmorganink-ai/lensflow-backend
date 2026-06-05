@@ -347,14 +347,14 @@ export async function runSimulation(jobId: string): Promise<void> {
           // AI Presenter — generate HeyGen avatar video (5 min budget), with D-ID fallback
           const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
           try {
-            logger.info({ jobId, voiceName: job.voiceName, customAvatar: userSettings?.heygenAvatarId ?? null }, "Generating presenter video with HeyGen (5 min budget)");
+            logger.info({ jobId, voiceName: job.voiceName, customAvatar: userSettings?.heygenAvatarId ?? null }, "Generating presenter video with HeyGen (10 min budget)");
             const result = await generatePresenterVideo(
               script,
               job.voiceName,
               job.voiceId,
               userSettings?.heygenAvatarId ?? null,
               userSettings?.heygenVoiceId ?? null,
-              300_000,
+              600_000,
               voiceoverPublicUrl ?? null,
             );
             presenterVideoUrl = result.videoUrl;
