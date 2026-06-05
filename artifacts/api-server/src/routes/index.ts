@@ -13,9 +13,11 @@ import settingsRouter from "./settings";
 import heygenRouter from "./heygen";
 import morganMarketingRouter from "./morgan-marketing";
 import stripeRouter from "./stripe";
+import devRouter from "./dev";
 
 const router: IRouter = Router();
 
+router.use(devRouter);
 router.use(healthRouter);
 router.use(authRouter);
 router.use(jobsRouter);

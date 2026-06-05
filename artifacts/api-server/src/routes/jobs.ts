@@ -88,7 +88,7 @@ function buildVoiceoverScript(listingUrl: string): string {
   }
 }
 
-async function runSimulation(jobId: string): Promise<void> {
+export async function runSimulation(jobId: string): Promise<void> {
   try {
     // Fetch job to get voice details
     const [job] = await db.select().from(jobsTable).where(eq(jobsTable.id, jobId));
