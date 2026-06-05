@@ -91,6 +91,7 @@ export async function composePresenterVideo(
   propertyImages?: string[] | null,
   musicTrack?: string | null,
   voiceName?: string | null,
+  testMode = false,
 ): Promise<ShotstackResult> {
   const { apiKey, baseUrl } = getShotstackConfig();
 
@@ -106,8 +107,9 @@ export async function composePresenterVideo(
   const images = (propertyImages ?? []).filter(Boolean);
   const hasPhotos = images.length > 0;
 
-  const PHOTO_DURATION = 5;
-  const TOTAL_DURATION = 65;
+  // testMode: cheap 10s SD render for pipeline validation under low credits (~0.15 credits)
+  const PHOTO_DURATION = testMode ? 5 : 5;
+  const TOTAL_DURATION = testMode ? 10 : 65;
 
   logger.info(
     { presenterVideoUrl, subtitle, photoCount: images.length, presenterLabel, env: process.env.SHOTSTACK_PROD_API_KEY ? "production" : "sandbox" },
@@ -244,7 +246,7 @@ export async function composePresenterVideo(
     headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({
       timeline: { background: "#0d1117", soundtrack, tracks },
-      output: { format: "mp4", resolution: "hd", fps: 25 },
+      output: { format: "mp4", resolution: testMode ? "sd" : "hd", fps: 25 },
     }),
   });
 

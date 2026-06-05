@@ -358,7 +358,8 @@ export async function runSimulation(jobId: string): Promise<void> {
               voiceoverPublicUrl ?? null,
             );
             presenterVideoUrl = result.videoUrl;
-            finalVideoUrl = result.videoUrl;
+            // Do NOT set finalVideoUrl here — Shotstack compose_video is the only step
+            // that sets finalVideoUrl. Raw HeyGen URL stays as step output only.
             outputUrl = result.videoUrl;
             logger.info({ jobId, videoId: result.videoId }, "HeyGen presenter video ready");
           } catch (err) {
@@ -367,7 +368,7 @@ export async function runSimulation(jobId: string): Promise<void> {
               try {
                 const didResult = await generatePresenterVideoDID(script);
                 presenterVideoUrl = didResult.videoUrl;
-                finalVideoUrl = didResult.videoUrl;
+                // Do NOT set finalVideoUrl — compose_video is the only step that sets it.
                 outputUrl = didResult.videoUrl;
                 logger.info({ jobId, videoId: didResult.videoId }, "D-ID fallback presenter video ready");
               } catch (didErr) {
@@ -399,7 +400,9 @@ export async function runSimulation(jobId: string): Promise<void> {
           } else {
             // Option A: AI presenter clip composed over photo slideshow
             if (!presenterVideoUrl) throw new Error("No presenter video URL from presenter_video step");
-            logger.info({ jobId, presenterVideoUrl }, "Composing final video with Shotstack");
+            // testMode: dev jobs (userId=null) use 10s SD renders to keep credit cost low
+            const shotstackTestMode = job.userId === null;
+            logger.info({ jobId, presenterVideoUrl, testMode: shotstackTestMode }, "Composing final video with Shotstack");
             const result = await composePresenterVideo(
               presenterVideoUrl,
               job.listingTitle,
@@ -407,14 +410,24 @@ export async function runSimulation(jobId: string): Promise<void> {
               photos,
               job.musicTrack,
               job.voiceName,
+              shotstackTestMode,
             );
             outputUrl = result.videoUrl;
             finalVideoUrl = result.videoUrl;
             logger.info({ jobId, renderId: result.renderId }, "Shotstack final video ready");
           }
         } catch (err) {
-          logger.error({ err, jobId }, "Shotstack compose failed — continuing");
-          await new Promise((resolve) => setTimeout(resolve, baseDuration));
+          const errMsg = err instanceof Error ? err.message : String(err);
+          logger.error({ err, jobId }, "Shotstack compose failed — marking job failed");
+          await db
+            .update(pipelineStepsTable)
+            .set({ status: "failed", completedAt: new Date(), outputData: errMsg })
+            .where(eq(pipelineStepsTable.id, step.id));
+          await db
+            .update(jobsTable)
+            .set({ status: "failed" })
+            .where(eq(jobsTable.id, jobId));
+          return; // stop pipeline — never mark complete without a Shotstack URL
         }
       } else {
         // Fallback simulated step
