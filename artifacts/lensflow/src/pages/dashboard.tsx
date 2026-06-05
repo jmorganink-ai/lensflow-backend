@@ -1,11 +1,34 @@
 import React, { useState } from "react";
 import { useGetJobStats, useGetMarketBrief, useRefreshMarketBrief, getGetMarketBriefQueryKey } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { FileText, CheckCircle2, XCircle, ArrowRight, Play, ChevronDown, Clock, TrendingUp, TrendingDown, Minus, RefreshCw, MapPin, MessageSquare, BarChart2, Sparkles, Link2, ImageIcon, Video, Mic, DollarSign, Star, Users } from "lucide-react";
+import { ChevronDown, TrendingUp, TrendingDown, Minus, RefreshCw, MapPin, MessageSquare, BarChart2, ArrowRight, Play } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import buildKitImage from "@assets/LensFlow-The-Build-Kit-every-tool-you-need_1780215479239.png";
 import { useAuth } from "@workspace/replit-auth-web";
 import { useQueryClient } from "@tanstack/react-query";
+
+// ── Cosmic palette ────────────────────────────────────────────────────────────
+const C = {
+  paper:     "#0a0d1a",
+  panel:     "#0d1120",
+  card:      "#10162a",
+  deep:      "#151b31",
+  line:      "#1a213a",
+  ink:       "#f9f3ea",
+  text:      "#f2ecdf",
+  muted:     "#8f99b2",
+  goldLight: "#dfb44d",
+  gold:      "#c99a2e",
+  goldDark:  "#8d6c20",
+};
+
+const PROPERTY_IMAGES = [
+  "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=900&q=82",
+  "https://images.unsplash.com/photo-1600607687644-c7171b42498b?auto=format&fit=crop&w=900&q=82",
+  "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=900&q=82",
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=82",
+  "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=900&q=82",
+];
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -14,304 +37,340 @@ function getGreeting() {
   return "Good evening";
 }
 
+// ── Eyebrow label (gold bar + uppercase text) ─────────────────────────────────
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: C.goldDark, fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1 }}>
+      <div style={{ width: 24, height: 2, background: C.gold, flexShrink: 0 }} />
+      {children}
+    </div>
+  );
+}
+
+// ── Ghost button ──────────────────────────────────────────────────────────────
+function Ghost({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{ border: `1px solid ${C.line}`, borderRadius: 8, padding: "9px 14px", background: C.card, color: C.text, fontWeight: 700, cursor: "pointer", fontSize: 13, whiteSpace: "nowrap" }}
+    >
+      {children}
+    </button>
+  );
+}
+
 export default function Dashboard() {
   const { data: stats, isLoading } = useGetJobStats();
   const { user } = useAuth();
   const firstName = user?.firstName ?? user?.email?.split("@")[0] ?? null;
-
-  if (isLoading) {
-    return <div className="space-y-6 animate-pulse">
-      <div className="h-32 bg-muted rounded-xl"></div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-muted rounded"></div>)}
-      </div>
-      <div className="h-64 bg-muted rounded mt-8"></div>
-    </div>;
-  }
+  const [selectedPresenter, setSelectedPresenter] = useState<"Mia" | "Oliver">("Mia");
 
   const completed = stats?.complete ?? 0;
+  const estimatedReach = completed * 5400;
+
+  if (isLoading) {
+    return (
+      <div style={{ padding: 24, display: "grid", gap: 16 }}>
+        {[1, 2, 3].map(i => (
+          <div key={i} style={{ height: i === 1 ? 310 : 96, background: C.panel, borderRadius: 8, animation: "pulse 2s infinite" }} />
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div style={{ color: C.text, fontFamily: "inherit" }}>
+
+      {/* ── Topbar ── */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, padding: "14px 0 20px" }}>
+        <div>
+          {firstName && <div style={{ color: C.muted, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>{getGreeting()}, {firstName}</div>}
+          <div style={{ color: C.ink, fontSize: 22, fontWeight: 800 }}>Create Campaign is the main event</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 12px", border: `1px solid ${C.line}`, borderRadius: 8, background: "rgba(13,17,32,0.9)", flexShrink: 0 }}>
+          <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${C.panel}, ${C.gold})`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 14, color: "white" }}>
+            {selectedPresenter[0]}
+          </div>
+          <div>
+            <div style={{ color: C.ink, fontSize: 13, fontWeight: 700 }}>AI Presenter Ready</div>
+            <div style={{ color: C.gold, fontSize: 12, fontWeight: 700 }}>{selectedPresenter} selected</div>
+          </div>
+        </div>
+      </div>
 
       {/* ── Hero ── */}
-      <div className="relative rounded-xl overflow-hidden border border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 p-6 md:p-8">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/8 via-transparent to-transparent pointer-events-none" />
-        <div className="relative space-y-3 max-w-2xl">
-          {firstName && (
-            <p className="text-sm text-muted-foreground font-mono">{getGreeting()}, {firstName}.</p>
-          )}
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">
-            Create Luxury Property Campaigns{" "}
-            <span className="text-primary">in Minutes</span>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 360px", gap: 22, marginBottom: 20 }}>
+
+        {/* Property photo + headline */}
+        <div style={{
+          minHeight: 300,
+          padding: 34,
+          borderRadius: 8,
+          color: "white",
+          background: `linear-gradient(90deg, rgba(10,13,26,0.92), rgba(10,13,26,0.48)), url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=82') center / cover`,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          boxShadow: "0 18px 45px rgba(0,0,0,0.18)",
+        }}>
+          <h1 style={{ margin: "0 0 12px", fontSize: "clamp(30px,4vw,52px)", lineHeight: 1, letterSpacing: 0, fontWeight: 900 }}>
+            Create Luxury Property Campaigns in Minutes
           </h1>
-          <p className="text-muted-foreground leading-relaxed max-w-xl">
-            Turn listings, photos and videos into AI-powered marketing campaigns, presenter reels,
-            property walkthroughs and social media content designed to help agents win more listings.
+          <p style={{ maxWidth: 620, margin: 0, color: "rgba(255,255,255,0.82)", fontSize: 16, lineHeight: 1.5 }}>
+            Turn listings, photos and videos into AI-powered marketing campaigns, social reels and property presentations.
           </p>
-          <div className="pt-2">
-            <Link
-              href="/jobs/new"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
+        </div>
+
+        {/* Launcher panel */}
+        <div style={{ padding: 22, borderRadius: 8, background: C.panel, border: `1px solid ${C.line}`, boxShadow: "0 18px 45px rgba(0,0,0,0.18)" }}>
+          <Eyebrow>Start New Campaign</Eyebrow>
+          <h2 style={{ margin: "10px 0 14px", color: C.ink, fontSize: 22, lineHeight: 1.12, fontWeight: 800 }}>Generate Property Campaign</h2>
+          <div style={{ display: "grid", gap: 8, margin: "16px 0" }}>
+            <label style={{ color: C.muted, fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.5 }}>Property URL</label>
+            <Link href="/jobs/new">
+              <div style={{ width: "100%", border: `1px solid ${C.line}`, borderRadius: 8, padding: "12px 14px", background: C.card, color: C.muted, fontSize: 14, cursor: "pointer" }}>
+                https://domain.com.au/your-listing
+              </div>
+            </Link>
+          </div>
+          <Link href="/jobs/new">
+            <button
+              style={{
+                width: "100%", border: 0, borderRadius: 8, padding: "14px 18px", color: "white",
+                background: `linear-gradient(135deg, ${C.goldLight}, ${C.gold} 48%, ${C.goldDark})`,
+                fontWeight: 800, cursor: "pointer", fontSize: 15,
+                boxShadow: "0 14px 28px rgba(143,103,29,0.28)",
+              }}
             >
-              <Sparkles className="w-4 h-4" />
               Generate Property Campaign
-            </Link>
-          </div>
-        </div>
-
-        {/* Quick launch cards */}
-        <div className="relative grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
-          {[
-            { icon: Link2, label: "Property URL", href: "/jobs/new", desc: "Paste listing link" },
-            { icon: ImageIcon, label: "Upload Photos", href: "/jobs/new", desc: "Photo walkthrough" },
-            { icon: Video, label: "Upload Video", href: "/jobs/new", desc: "Your own footage" },
-            { icon: Mic, label: "Teleprompter", href: "/teleprompter", desc: "Self-record mode" },
-          ].map(({ icon: Icon, label, href, desc }) => (
-            <Link
-              key={label}
-              href={href}
-              className="flex flex-col gap-1.5 p-3 rounded-lg border border-border bg-background/60 hover:border-primary/40 hover:bg-primary/5 transition-all group"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <Icon className="w-3.5 h-3.5 text-primary" />
+            </button>
+          </Link>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 16 }}>
+            {[
+              { tag: "URL", label: "Property URL", href: "/jobs/new" },
+              { tag: "IMG", label: "Upload Photos", href: "/jobs/new" },
+              { tag: "VID", label: "Upload Video", href: "/jobs/new" },
+              { tag: "REC", label: "Record with Teleprompter", href: "/teleprompter" },
+            ].map(({ tag, label, href }) => (
+              <Link key={tag} href={href}>
+                <div style={{ minHeight: 70, border: `1px solid ${C.line}`, borderRadius: 8, background: C.card, padding: 12, display: "flex", flexDirection: "column", justifyContent: "space-between", cursor: "pointer" }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 8, background: C.deep, color: C.goldDark, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900 }}>{tag}</div>
+                  <strong style={{ color: C.ink, fontSize: 13 }}>{label}</strong>
                 </div>
-                <span className="text-xs font-semibold text-foreground">{label}</span>
-              </div>
-              <span className="text-[11px] text-muted-foreground font-mono">{desc}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Stats ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Campaigns Created" value={completed} icon={CheckCircle2} color="text-primary" />
-        <StatCard title="Properties Processed" value={stats?.scriptsGenerated ?? 0} icon={FileText} color="text-blue-400" />
-        <StatCard
-          title="Marketing Hours Saved"
-          value={stats?.timeSavedHours ?? 0}
-          icon={Clock}
-          color="text-emerald-400"
-          suffix="h"
-          tooltip="Estimated vs. manual filming & editing (~4 hrs/video)"
-        />
-        <StatCard title="Failed" value={stats?.failed ?? 0} icon={XCircle} color="text-destructive" />
-      </div>
-
-      {/* ── Presenter Studio ── */}
-      <PresenterStudioCard />
-
-      {/* ── Recent Campaigns ── */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Recent Campaigns</h2>
-          <div className="flex items-center gap-4">
-            <Link href="/jobs" className="text-xs text-muted-foreground font-mono hover:text-primary transition-colors">
-              View all
-            </Link>
-            <Link href="/jobs/new" className="text-sm text-primary hover:underline font-mono flex items-center gap-1">
-              New Campaign <ArrowRight className="w-4 h-4" />
-            </Link>
+              </Link>
+            ))}
           </div>
         </div>
-
-        <div className="border border-border rounded-lg bg-card overflow-hidden">
-          {stats?.recentJobs?.length === 0 ? (
-            <div className="py-14 px-8 flex flex-col items-center justify-center text-center space-y-5">
-              <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Play className="w-6 h-6 text-primary ml-0.5" />
-              </div>
-              <div className="space-y-1.5">
-                <p className="font-semibold text-foreground">No campaigns yet</p>
-                <p className="text-sm text-muted-foreground max-w-xs">
-                  Paste a property listing URL and LensFlow will automatically write the script, record the voiceover, and render a presenter video.
-                </p>
-              </div>
-              <Link
-                href="/jobs/new"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded text-sm font-mono font-medium hover:bg-primary/90 transition-colors"
-              >
-                Generate Your First Campaign <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          ) : (
-            <div className="divide-y divide-border">
-              {stats?.recentJobs?.map((job) => (
-                <Link
-                  key={job.id}
-                  href={`/jobs/${job.id}`}
-                  className="flex items-center justify-between p-4 hover:bg-secondary/50 transition-colors group"
-                >
-                  <div className="flex flex-col gap-1 overflow-hidden pr-4">
-                    <div className="font-medium truncate">{job.listingTitle || job.listingUrl}</div>
-                    <div className="text-xs text-muted-foreground font-mono flex items-center gap-2">
-                      <span>ID: {job.id.slice(0, 8)}</span>
-                      <span>•</span>
-                      <span>{formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 shrink-0">
-                    <JobStatusBadge status={job.status} />
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
 
-      {/* ── Marketing Value Generated ── */}
-      <MarketingValueCard completed={completed} />
-
-      {/* ── Example Videos ── */}
-      <SampleVideos />
-
-      {/* ── Market Intelligence (moved below sample videos) ── */}
-      <MarketBriefCard />
-
-      <RoadmapCard />
-    </div>
-  );
-}
-
-// ── Presenter Studio Card ─────────────────────────────────────────────────────
-
-const PRESENTERS = [
-  {
-    name: "Mia",
-    specialty: "Luxury listings",
-    initials: "M",
-    color: "from-rose-500/20 to-rose-500/5",
-    accent: "text-rose-400",
-    border: "border-rose-500/20",
-  },
-  {
-    name: "Oliver",
-    specialty: "Corporate premium",
-    initials: "O",
-    color: "from-blue-500/20 to-blue-500/5",
-    accent: "text-blue-400",
-    border: "border-blue-500/20",
-  },
-  {
-    name: "Liam",
-    specialty: "Confident sales",
-    initials: "L",
-    color: "from-amber-500/20 to-amber-500/5",
-    accent: "text-amber-400",
-    border: "border-amber-500/20",
-  },
-  {
-    name: "Sophie",
-    specialty: "Lifestyle reels",
-    initials: "S",
-    color: "from-emerald-500/20 to-emerald-500/5",
-    accent: "text-emerald-400",
-    border: "border-emerald-500/20",
-  },
-];
-
-function PresenterStudioCard() {
-  return (
-    <div className="border border-border rounded-lg bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-        <div className="flex items-center gap-2.5">
-          <Users className="w-4 h-4 text-primary" />
-          <span className="text-sm font-mono font-medium uppercase tracking-wider">AI Presenter Studio</span>
-          <span className="text-[10px] font-mono text-emerald-400 border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-            Ready
-          </span>
-        </div>
-        <Link href="/jobs/new" className="text-xs text-primary hover:underline font-mono flex items-center gap-1">
-          Choose presenter <ArrowRight className="w-3 h-3" />
-        </Link>
-      </div>
-      <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-        {PRESENTERS.map((p) => (
-          <div
-            key={p.name}
-            className={`relative rounded-lg border ${p.border} bg-gradient-to-br ${p.color} p-4 flex flex-col items-center gap-2 text-center`}
-          >
-            <div className={`w-12 h-12 rounded-full border ${p.border} bg-background/60 flex items-center justify-center text-lg font-bold ${p.accent}`}>
-              {p.initials}
-            </div>
-            <div>
-              <p className="font-semibold text-sm text-foreground">{p.name}</p>
-              <p className={`text-[11px] font-mono ${p.accent}`}>{p.specialty}</p>
-            </div>
-            <div className="flex items-center gap-1">
-              {[1,2,3,4,5].map(i => (
-                <Star key={i} className={`w-2.5 h-2.5 fill-current ${p.accent}`} />
-              ))}
-            </div>
+      {/* ── Metrics ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 14, marginBottom: 20 }}>
+        {[
+          { val: completed.toString(), label: "Campaigns Created" },
+          { val: (stats?.scriptsGenerated ?? 0).toString(), label: "Listings Processed" },
+          { val: `${stats?.timeSavedHours ?? 0}h`, label: "Time Saved" },
+          { val: estimatedReach > 0 ? `${Math.round(estimatedReach / 1000)}k` : "—", label: "Estimated Reach" },
+        ].map(({ val, label }) => (
+          <div key={label} style={{ padding: 18, border: `1px solid ${C.line}`, borderRadius: 8, background: "rgba(13,17,32,0.92)" }}>
+            <strong style={{ display: "block", color: C.ink, fontSize: 30, lineHeight: 1, marginBottom: 8 }}>{val}</strong>
+            <span style={{ color: C.muted, fontSize: 13, fontWeight: 700 }}>{label}</span>
           </div>
         ))}
       </div>
-    </div>
-  );
-}
 
-// ── Marketing Value Card ──────────────────────────────────────────────────────
+      {/* ── Main grid ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.4fr) minmax(280px,0.6fr)", gap: 20, alignItems: "start" }}>
 
-const VALUE_ITEMS = [
-  { label: "Script Creation", value: 50 },
-  { label: "Voiceover", value: 75 },
-  { label: "Video Production", value: 250 },
-  { label: "Social Package", value: 150 },
-];
-const VALUE_PER_CAMPAIGN = VALUE_ITEMS.reduce((s, i) => s + i.value, 0);
+        {/* Left: campaigns + market intelligence */}
+        <div>
 
-function MarketingValueCard({ completed }: { completed: number }) {
-  const totalValue = completed > 0 ? completed * VALUE_PER_CAMPAIGN : VALUE_PER_CAMPAIGN;
-  const label = completed > 0 ? `${completed} campaign${completed !== 1 ? "s" : ""}` : "Per campaign";
-
-  return (
-    <div className="border border-border rounded-lg bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-        <div className="flex items-center gap-2.5">
-          <DollarSign className="w-4 h-4 text-primary" />
-          <span className="text-sm font-mono font-medium uppercase tracking-wider">Marketing Value Generated</span>
-        </div>
-        <span className="text-[10px] font-mono text-muted-foreground border border-border px-1.5 py-0.5 rounded">
-          {label}
-        </span>
-      </div>
-      <div className="p-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          {VALUE_ITEMS.map(({ label: l, value }) => (
-            <div key={l} className="bg-background border border-border rounded-lg p-3">
-              <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wide mb-1">{l}</p>
-              <p className="text-lg font-bold font-mono text-foreground">
-                ${completed > 0 ? (value * completed).toLocaleString() : value}
-              </p>
-              {completed > 0 && (
-                <p className="text-[10px] font-mono text-muted-foreground">${value} × {completed}</p>
-              )}
+          {/* Recent Campaigns heading */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, marginBottom: 14 }}>
+            <div>
+              <h2 style={{ color: C.ink, margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Recent Campaigns</h2>
+              <p style={{ margin: 0, color: C.muted, fontSize: 13, lineHeight: 1.45 }}>Your latest property marketing campaigns.</p>
             </div>
-          ))}
+            <Link href="/jobs">
+              <Ghost>View All</Ghost>
+            </Link>
+          </div>
+
+          {/* Campaign cards or empty state */}
+          {(stats?.recentJobs?.length ?? 0) === 0 ? (
+            <div style={{ padding: "48px 24px", border: `1px solid ${C.line}`, borderRadius: 8, background: C.panel, textAlign: "center", marginBottom: 24 }}>
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${C.gold}18`, border: `1px solid ${C.gold}30`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
+                <Play style={{ width: 20, height: 20, color: C.gold, marginLeft: 2 }} />
+              </div>
+              <p style={{ color: C.ink, fontWeight: 700, margin: "0 0 6px" }}>No campaigns yet</p>
+              <p style={{ color: C.muted, fontSize: 13, margin: "0 0 18px", maxWidth: 320, marginLeft: "auto", marginRight: "auto" }}>
+                Paste a property listing URL and LensFlow will write the script, record the voiceover, and render a presenter video.
+              </p>
+              <Link href="/jobs/new">
+                <button style={{ border: 0, borderRadius: 8, padding: "12px 22px", color: "white", background: `linear-gradient(135deg, ${C.goldLight}, ${C.gold} 48%, ${C.goldDark})`, fontWeight: 800, cursor: "pointer", fontSize: 14 }}>
+                  Generate Your First Campaign
+                </button>
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 14, marginBottom: 24 }}>
+              {(stats?.recentJobs ?? []).slice(0, 3).map((job, i) => {
+                const statusColors: Record<string, string> = {
+                  complete: C.gold,
+                  processing: "#1269cf",
+                  queued: "#a78bfa",
+                  failed: "#ef4444",
+                };
+                const statusLabels: Record<string, string> = {
+                  complete: "Ready",
+                  processing: "Exporting",
+                  queued: "Queued",
+                  failed: "Failed",
+                };
+                const color = statusColors[job.status] ?? C.muted;
+                const img = PROPERTY_IMAGES[i % PROPERTY_IMAGES.length];
+                const tags = job.status === "complete"
+                  ? ["Reel", "Script", "Voiceover"]
+                  : job.status === "processing"
+                  ? ["Script", "Voiceover"]
+                  : ["Script"];
+                return (
+                  <Link key={job.id} href={`/jobs/${job.id}`}>
+                    <article style={{ border: `1px solid ${C.line}`, borderRadius: 8, overflow: "hidden", background: C.panel, cursor: "pointer", transition: "border-color 0.2s" }}>
+                      <div style={{ aspectRatio: "16/10", backgroundImage: `url('${img}')`, backgroundSize: "cover", backgroundPosition: "center" }} />
+                      <div style={{ padding: 14 }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, color, fontSize: 12, fontWeight: 850, textTransform: "uppercase", marginBottom: 8 }}>
+                          <div style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />
+                          {statusLabels[job.status] ?? job.status}
+                        </div>
+                        <h3 style={{ color: C.ink, margin: "0 0 10px", fontSize: 15, lineHeight: 1.2, fontWeight: 700 }}>
+                          {job.listingTitle || job.listingUrl || `Campaign ${job.id.slice(0, 8)}`}
+                        </h3>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                          {tags.map(t => (
+                            <span key={t} style={{ display: "inline-flex", border: `1px solid ${C.line}`, borderRadius: 999, padding: "4px 9px", background: C.card, color: C.muted, fontSize: 12, fontWeight: 700 }}>{t}</span>
+                          ))}
+                          <span style={{ display: "inline-flex", border: `1px solid ${C.line}`, borderRadius: 999, padding: "4px 9px", background: C.card, color: C.muted, fontSize: 12, fontWeight: 700 }}>
+                            {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <div style={{ flex: 1, border: `1px solid ${C.line}`, background: C.card, borderRadius: 8, padding: "8px 6px", color: C.text, fontWeight: 800, cursor: "pointer", fontSize: 12, textAlign: "center" }}>View Campaign</div>
+                        </div>
+                      </div>
+                    </article>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Market Intelligence */}
+          <MarketBriefCard />
+
+          {/* Sample videos & roadmap — collapsed */}
+          <div style={{ marginTop: 20, display: "grid", gap: 12 }}>
+            <SampleVideos />
+            <RoadmapCard />
+          </div>
         </div>
-        <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-primary/10 border border-primary/20">
-          <span className="text-sm font-mono font-semibold text-primary uppercase tracking-wider">
-            Estimated Value {completed > 0 ? "Today" : "Per Campaign"}
-          </span>
-          <span className="text-2xl font-bold font-mono text-primary">
-            ${totalValue.toLocaleString()}
-          </span>
+
+        {/* Right sidebar */}
+        <div style={{ display: "grid", gap: 20 }}>
+
+          {/* Presenter panel */}
+          <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, background: C.panel, padding: 18 }}>
+            <Eyebrow>AI Presenter Ready</Eyebrow>
+            <div style={{ display: "grid", gridTemplateColumns: "82px minmax(0,1fr)", gap: 14, alignItems: "center", marginTop: 14 }}>
+              <div style={{
+                width: 82, height: 92, borderRadius: 8,
+                background: `linear-gradient(135deg, ${C.deep} 0%, #2a1f3a 50%, ${C.gold} 100%)`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 30, fontWeight: 900, color: C.goldLight,
+                flexShrink: 0,
+              }}>
+                {selectedPresenter[0]}
+              </div>
+              <div>
+                <h3 style={{ color: C.ink, margin: "0 0 6px", fontSize: 18, fontWeight: 800 }}>{selectedPresenter}</h3>
+                <p style={{ margin: 0, color: C.muted, lineHeight: 1.4, fontSize: 13 }}>
+                  {selectedPresenter === "Mia"
+                    ? "Polished, warm and premium. Best for luxury homes and prestige brand campaigns."
+                    : selectedPresenter === "Oliver"
+                    ? "Confident, refined, direct. Best for market updates and high-value appraisals."
+                    : "Approachable and modern. Best for social-first residential campaigns."}
+                </p>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginTop: 14 }}>
+              {(["Mia", "Oliver"] as const).map(p => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setSelectedPresenter(p)}
+                  style={{
+                    border: selectedPresenter === p ? "0" : `1px solid ${C.line}`,
+                    borderRadius: 8, padding: 10,
+                    background: selectedPresenter === p ? C.gold : C.card,
+                    color: selectedPresenter === p ? "white" : C.text,
+                    fontWeight: 800, cursor: "pointer", fontSize: 14,
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+            <Link href="/jobs/new">
+              <button
+                type="button"
+                style={{
+                  width: "100%", border: 0, borderRadius: 8, padding: "12px 18px", color: "white", marginTop: 10,
+                  background: `linear-gradient(135deg, ${C.goldLight}, ${C.gold} 48%, ${C.goldDark})`,
+                  fontWeight: 800, cursor: "pointer", fontSize: 14,
+                  boxShadow: "0 8px 20px rgba(143,103,29,0.22)",
+                }}
+              >
+                Generate with {selectedPresenter}
+              </button>
+            </Link>
+          </div>
+
+          {/* Marketing value panel */}
+          <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, background: C.panel, padding: 18 }}>
+            <Eyebrow>Estimated Marketing Value</Eyebrow>
+            <div style={{ display: "grid", gap: 12, marginTop: 14 }}>
+              {[
+                { label: "Script Creation", val: 50 },
+                { label: "Voiceover", val: 75 },
+                { label: "Video Editing", val: 250 },
+                { label: "Social Media Package", val: 150 },
+              ].map(({ label, val }) => (
+                <div key={label} style={{ display: "flex", justifyContent: "space-between", color: C.muted, paddingBottom: 9, borderBottom: `1px solid ${C.line}` }}>
+                  <span style={{ fontSize: 14 }}>{label}</span>
+                  <strong style={{ color: C.ink, fontWeight: 800 }}>${completed > 0 ? (val * completed).toLocaleString() : val}</strong>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 14 }}>
+              <span style={{ fontSize: 13, color: C.muted }}>{completed > 0 ? `${completed} campaign${completed !== 1 ? "s" : ""}` : "Per campaign"}</span>
+              <strong style={{ fontSize: 32, fontWeight: 900, color: C.ink }}>
+                ${(completed > 0 ? completed * 525 : 525).toLocaleString()}
+              </strong>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
   );
 }
 
-// ── Existing components (unchanged) ──────────────────────────────────────────
-
+// ── Market Brief (reskinned, logic untouched) ─────────────────────────────────
 function TrendIcon({ trend }: { trend: string }) {
-  if (trend === "up") return <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />;
-  if (trend === "down") return <TrendingDown className="w-3.5 h-3.5 text-rose-400" />;
-  return <Minus className="w-3.5 h-3.5 text-muted-foreground" />;
+  const s = { width: 14, height: 14 };
+  if (trend === "up") return <TrendingUp style={{ ...s, color: "#34d399" }} />;
+  if (trend === "down") return <TrendingDown style={{ ...s, color: "#f87171" }} />;
+  return <Minus style={{ ...s, color: C.muted }} />;
 }
 
 function MarketBriefCard() {
@@ -327,102 +386,62 @@ function MarketBriefCard() {
     setRefreshing(false);
   }
 
-  const updatedAgo = brief?.generatedAt
-    ? formatDistanceToNow(new Date(brief.generatedAt), { addSuffix: true })
-    : null;
-
   return (
-    <div className="border border-border rounded-lg bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-        <div className="flex items-center gap-2.5">
-          <BarChart2 className="w-4 h-4 text-primary" />
-          <span className="text-sm font-mono font-medium uppercase tracking-wider">
-            AU Market Intelligence
-          </span>
-          {updatedAgo && (
-            <span className="text-[10px] font-mono text-muted-foreground border border-border px-1.5 py-0.5 rounded">
-              {updatedAgo}
-            </span>
-          )}
+    <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, background: C.panel, overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderBottom: `1px solid ${C.line}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <BarChart2 style={{ width: 14, height: 14, color: C.gold }} />
+          <Eyebrow>AU Market Intelligence</Eyebrow>
         </div>
         <button
           type="button"
           onClick={handleRefresh}
           disabled={refreshing || isLoading}
-          className="p-1.5 rounded hover:bg-secondary transition-colors disabled:opacity-50"
-          title="Refresh market brief"
+          style={{ padding: "6px", borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", opacity: (refreshing || isLoading) ? 0.4 : 1 }}
+          title="Refresh"
         >
-          <RefreshCw className={`w-3.5 h-3.5 text-muted-foreground ${refreshing ? "animate-spin" : ""}`} />
+          <RefreshCw style={{ width: 14, height: 14, color: C.muted, animation: refreshing ? "spin 1s linear infinite" : "none" }} />
         </button>
       </div>
 
       {isLoading ? (
-        <div className="p-6 space-y-3 animate-pulse">
-          <div className="h-5 w-3/4 bg-muted rounded" />
-          <div className="h-3 w-full bg-muted rounded" />
-          <div className="h-3 w-5/6 bg-muted rounded" />
-          <div className="grid grid-cols-4 gap-3 mt-4">
-            {[1,2,3,4].map(i => <div key={i} className="h-14 bg-muted rounded" />)}
-          </div>
+        <div style={{ padding: 16, display: "grid", gap: 8 }}>
+          {[1, 2, 3].map(i => <div key={i} style={{ height: 14, background: C.card, borderRadius: 4 }} />)}
         </div>
       ) : isError ? (
-        <div className="p-6 text-center text-sm text-muted-foreground">
-          Could not load market intelligence. <button type="button" onClick={handleRefresh} className="text-primary underline">Try again</button>
+        <div style={{ padding: 16, color: C.muted, fontSize: 13, textAlign: "center" }}>
+          Could not load.{" "}
+          <button type="button" onClick={handleRefresh} style={{ color: C.gold, background: "none", border: "none", cursor: "pointer", fontWeight: 700 }}>
+            Try again
+          </button>
         </div>
       ) : brief ? (
-        <div className="p-4 space-y-4">
-          <p className="text-base font-semibold text-foreground leading-snug">{brief.headline}</p>
+        <div style={{ padding: 16, display: "grid", gap: 14 }}>
+          <p style={{ margin: 0, color: C.ink, fontWeight: 700, fontSize: 14, lineHeight: 1.4 }}>{brief.headline}</p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {brief.keyStats.map((stat) => (
-              <div key={stat.label} className="bg-background border border-border rounded-lg p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wide truncate pr-1">
-                    {stat.label}
-                  </span>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 10 }}>
+            {brief.keyStats.slice(0, 3).map(stat => (
+              <div key={stat.label} style={{ padding: 12, background: C.card, border: `1px solid ${C.line}`, borderRadius: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                  <span style={{ color: C.muted, fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.5 }}>{stat.label}</span>
                   <TrendIcon trend={stat.trend} />
                 </div>
-                <p className="text-lg font-bold font-mono text-foreground">{stat.value}</p>
+                <p style={{ margin: 0, color: C.ink, fontWeight: 900, fontSize: 18 }}>{stat.value}</p>
               </div>
             ))}
           </div>
 
-          <p className="text-sm text-muted-foreground leading-relaxed">{brief.snapshot}</p>
+          <p style={{ margin: 0, color: C.muted, fontSize: 13, lineHeight: 1.5 }}>{brief.snapshot}</p>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
-              <MessageSquare className="w-3 h-3" /> Agent Talking Points
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 4, color: C.muted, fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.5, width: "100%", marginBottom: 2 }}>
+              <MapPin style={{ width: 10, height: 10 }} /> Hot Markets
             </div>
-            {brief.talkingPoints.map((point, i) => (
-              <div key={i} className="flex items-start gap-2.5 text-sm">
-                <span className="mt-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">
-                  {i + 1}
-                </span>
-                <span className="text-foreground/80 leading-relaxed">{point}</span>
-              </div>
+            {brief.hotMarkets.map(market => (
+              <span key={market} style={{ padding: "4px 10px", background: `${C.gold}14`, color: C.gold, border: `1px solid ${C.gold}28`, borderRadius: 999, fontSize: 11, fontWeight: 700 }}>
+                {market}
+              </span>
             ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 pt-1 border-t border-border">
-            <div className="flex-1">
-              <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
-                <MapPin className="w-3 h-3" /> Hot Markets
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {brief.hotMarkets.map((market) => (
-                  <span
-                    key={market}
-                    className="px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded-full text-[11px] font-mono"
-                  >
-                    {market}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="sm:max-w-xs">
-              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-1">60–90 Day Outlook</div>
-              <p className="text-xs text-foreground/70 leading-relaxed italic">{brief.outlook}</p>
-            </div>
           </div>
         </div>
       ) : null}
@@ -430,6 +449,7 @@ function MarketBriefCard() {
   );
 }
 
+// ── Sample Videos (unchanged logic, reskinned header) ─────────────────────────
 const SAMPLE_VIDEOS = [
   { src: "/videos/oliver-featured.mp4", label: "Oliver · Williamstown, VIC", featured: true },
   { src: "/videos/sample-v1.mp4", label: "Mia · Mosman, NSW", featured: false },
@@ -445,60 +465,44 @@ function SampleVideos() {
   const grid = SAMPLE_VIDEOS.slice(1);
 
   return (
-    <div className="border border-border rounded-lg bg-card overflow-hidden">
+    <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, background: C.panel, overflow: "hidden" }}>
       <button
         type="button"
-        onClick={() => setExpanded((o) => !o)}
-        className="w-full flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors"
+        onClick={() => setExpanded(o => !o)}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", background: "transparent", border: "none", cursor: "pointer", color: C.text }}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-primary" />
-          <span className="text-sm font-mono font-medium uppercase tracking-wider">Example Output Videos</span>
-          <span className="text-[10px] font-mono text-muted-foreground border border-border px-1.5 py-0.5 rounded">
-            {SAMPLE_VIDEOS.length} reels
-          </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.gold }} />
+          <span style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: C.ink }}>Example Output Videos</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: C.muted, border: `1px solid ${C.line}`, padding: "2px 8px", borderRadius: 4 }}>{SAMPLE_VIDEOS.length} reels</span>
         </div>
-        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+        <ChevronDown style={{ width: 16, height: 16, color: C.muted, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
       </button>
       {expanded && (
-        <div className="border-t border-border p-4 space-y-3">
-          <p className="text-xs text-muted-foreground font-mono mb-4">Real LensFlow output — hover to preview, click to play with sound.</p>
-          <div className="relative rounded-xl overflow-hidden border border-white/10 aspect-video bg-black group">
-            <video
-              src={featured.src}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-            <div className="absolute bottom-3 left-3 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <span className="text-[10px] font-mono text-white/80 uppercase tracking-widest">{featured.label}</span>
-            </div>
-            <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-primary/90 text-[9px] font-mono text-primary-foreground uppercase tracking-widest">
-              AI Generated
+        <div style={{ borderTop: `1px solid ${C.line}`, padding: 16, display: "grid", gap: 10 }}>
+          <div style={{ position: "relative", borderRadius: 10, overflow: "hidden", aspectRatio: "16/9", background: "black" }}>
+            <video src={featured.src} autoPlay muted loop playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6), transparent)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", bottom: 10, left: 12, display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.gold, animation: "pulse 2s infinite" }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.8)", textTransform: "uppercase", letterSpacing: 2 }}>{featured.label}</span>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0,1fr))", gap: 8 }}>
             {grid.map((v, i) => (
-              <div
-                key={i}
-                className="relative rounded-lg overflow-hidden border border-white/8 aspect-video bg-black group cursor-pointer"
-              >
+              <div key={i} style={{ position: "relative", borderRadius: 6, overflow: "hidden", aspectRatio: "16/9", background: "black", cursor: "pointer" }}>
                 <video
                   src={v.src}
                   muted
                   loop
                   playsInline
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play()}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLVideoElement).pause(); (e.currentTarget as HTMLVideoElement).currentTime = 0; }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
+                  onMouseLeave={e => { (e.currentTarget as HTMLVideoElement).pause(); (e.currentTarget as HTMLVideoElement).currentTime = 0; }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center gap-1">
-                  <span className="text-[8px] font-mono text-white/60 uppercase tracking-widest truncate">{v.label}</span>
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)", pointerEvents: "none" }} />
+                <div style={{ position: "absolute", bottom: 4, left: 6, right: 6 }}>
+                  <span style={{ fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: 1 }}>{v.label}</span>
                 </div>
               </div>
             ))}
@@ -512,28 +516,24 @@ function SampleVideos() {
 function RoadmapCard() {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-border rounded-lg bg-card overflow-hidden">
+    <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, background: C.panel, overflow: "hidden" }}>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors"
+        onClick={() => setOpen(o => !o)}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", background: "transparent", border: "none", cursor: "pointer", color: C.text }}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-sm font-mono font-medium uppercase tracking-wider">Production Roadmap</span>
-          <span className="text-[10px] font-mono text-muted-foreground border border-border px-1.5 py-0.5 rounded">URL → VIDEO ENGINE</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.gold, animation: "pulse 2s infinite" }} />
+          <span style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: C.ink }}>Production Roadmap</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: C.muted, border: `1px solid ${C.line}`, padding: "2px 8px", borderRadius: 4 }}>URL → VIDEO ENGINE</span>
         </div>
-        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown style={{ width: 16, height: 16, color: C.muted, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
       </button>
       {open && (
-        <div className="border-t border-border">
-          <img
-            src={buildKitImage}
-            alt="LensFlow full pipeline architecture — vendor map from URL scrape to MP4 delivery"
-            className="w-full"
-          />
-          <div className="p-4 flex items-center gap-2 text-xs text-muted-foreground font-mono border-t border-border">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+        <div style={{ borderTop: `1px solid ${C.line}` }}>
+          <img src={buildKitImage} alt="LensFlow pipeline architecture" style={{ width: "100%", display: "block" }} />
+          <div style={{ padding: 14, borderTop: `1px solid ${C.line}`, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.muted }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.gold, display: "inline-block" }} />
             Build window 4–8 weeks · ~$2.54 cost/video · $3.95/vid margin at 20 vids/mo
           </div>
         </div>
@@ -542,40 +542,16 @@ function RoadmapCard() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, color, suffix, tooltip }: {
-  title: string;
-  value: number;
-  icon: React.ComponentType<{ className?: string }>;
-  color: string;
-  suffix?: string;
-  tooltip?: string;
-}) {
-  return (
-    <div className="bg-card border border-border p-4 rounded-lg flex flex-col gap-2 relative overflow-hidden group" title={tooltip}>
-      <div className="absolute -right-4 -top-4 opacity-5 group-hover:scale-110 transition-transform duration-500">
-        <Icon className={`w-24 h-24 ${color}`} />
-      </div>
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <Icon className={`w-4 h-4 ${color}`} />
-        <span className="text-xs font-mono uppercase tracking-wider">{title}</span>
-      </div>
-      <div className="text-3xl font-bold font-mono">
-        {value}{suffix && <span className="text-xl ml-0.5 text-muted-foreground">{suffix}</span>}
-      </div>
-    </div>
-  );
-}
-
 export function JobStatusBadge({ status }: { status: string }) {
-  const colors = {
-    queued: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-    processing: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    complete: "bg-primary/10 text-primary border-primary/20",
-    failed: "bg-destructive/10 text-destructive border-destructive/20"
+  const colors: Record<string, { bg: string; text: string; border: string }> = {
+    queued:     { bg: `${C.gold}12`,    text: C.gold,    border: `${C.gold}30` },
+    processing: { bg: "#1269cf18",      text: "#60a5fa", border: "#1269cf30" },
+    complete:   { bg: `${C.gold}18`,    text: C.gold,    border: `${C.gold}38` },
+    failed:     { bg: "#ef444418",      text: "#f87171", border: "#ef444430" },
   };
-
+  const s = colors[status] ?? colors.queued;
   return (
-    <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-mono border ${colors[status as keyof typeof colors] || colors.queued}`}>
+    <span style={{ padding: "3px 10px", borderRadius: 999, fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.5, background: s.bg, color: s.text, border: `1px solid ${s.border}` }}>
       {status}
     </span>
   );
