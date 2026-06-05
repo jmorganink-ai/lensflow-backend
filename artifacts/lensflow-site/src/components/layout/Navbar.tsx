@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, LayoutDashboard, LogOut, Loader2 } from "lucide-react";
+import { ChevronRight, LayoutDashboard, Loader2, LogOut } from "lucide-react";
+import favicon from "@assets/lensflow-brand/favicon.png";
 import { useAuth } from "@workspace/replit-auth-web";
 
 export function Navbar() {
@@ -8,64 +9,75 @@ export function Navbar() {
   const firstName = user?.firstName ?? user?.email?.split("@")[0] ?? null;
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center group">
-          <span className="font-serif font-semibold text-xl tracking-wide group-hover:text-primary transition-colors">
+    <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+        <Link href="/" className="group flex items-center gap-2">
+          <img src={favicon} alt="LensFlow Logo" className="h-8 w-8" />
+          <span className="font-serif text-xl font-semibold tracking-wide transition-colors group-hover:text-primary">
             LensFlow<span className="text-primary">.</span>
           </span>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-          <a href="/#presenters" className="hover:text-foreground transition-colors">Presenters</a>
-          <Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
-          <a href="/#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
-          <a href="/#compare" className="hover:text-foreground transition-colors">Compare</a>
-          <Link href="/origin" className="hover:text-foreground transition-colors">Our Story</Link>
-          <Link href="/twin-avatar" className="hover:text-foreground transition-colors font-semibold text-primary hover:text-primary/80">◈ Twin Avatar</Link>
-          <Link href="/advantage" className="hover:text-foreground transition-colors font-semibold text-violet-400 hover:text-violet-300">✦ Your Edge</Link>
-          <Link href="/concierge" className="hover:text-foreground transition-colors font-semibold text-amber-400 hover:text-amber-300">★ Concierge</Link>
+        <div className="hidden items-center gap-8 text-sm font-medium text-muted-foreground lg:flex">
+          <a href="/#examples" className="transition-colors hover:text-foreground">
+            Examples
+          </a>
+          <a href="/#presenters" className="transition-colors hover:text-foreground">
+            AI Presenters
+          </a>
+          <a href="/#how-it-works" className="transition-colors hover:text-foreground">
+            How It Works
+          </a>
+          <a href="/#compare" className="transition-colors hover:text-foreground">
+            Value
+          </a>
+          <Link href="/pricing" className="transition-colors hover:text-foreground">
+            Pricing
+          </Link>
         </div>
 
         <div className="flex items-center gap-3">
           {isLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
           ) : isAuthenticated ? (
             <>
-              <span className="hidden md:block text-xs text-muted-foreground font-mono">
+              <span className="hidden font-mono text-xs text-muted-foreground md:block">
                 {firstName ?? "Agent"}
               </span>
               <a
                 href="/pipeline/"
-                className="hidden md:flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                className="hidden items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80 md:flex"
               >
-                <LayoutDashboard className="w-4 h-4" />
+                <LayoutDashboard className="h-4 w-4" />
                 My Dashboard
               </a>
               <button
                 onClick={logout}
-                className="hidden md:flex items-center gap-1 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                className="hidden items-center gap-1 text-xs text-muted-foreground/60 transition-colors hover:text-muted-foreground md:flex"
               >
-                <LogOut className="w-3.5 h-3.5" />
+                <LogOut className="h-3.5 w-3.5" />
                 Sign Out
               </button>
               <a href="/pipeline/">
-                <Button className="rounded-full px-5 bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-sm">
-                  Open Studio <ChevronRight className="w-4 h-4 ml-1" />
+                <Button className="rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+                  Open Studio <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </a>
             </>
           ) : (
             <>
-              <a href="/pipeline/" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              <a
+                href="/pipeline/"
+                className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-primary md:block"
+              >
                 Sign In
               </a>
-              <a href="#hero-form">
+              <a href="/#hero-form">
                 <Button
                   data-testid="nav-btn-start"
-                  className="rounded-full px-6 bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
+                  className="rounded-full bg-primary px-6 font-medium text-primary-foreground hover:bg-primary/90"
                 >
-                  Get Started <ChevronRight className="w-4 h-4 ml-1" />
+                  Create Campaign <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </a>
             </>

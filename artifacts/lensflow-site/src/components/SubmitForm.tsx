@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link2, ImagePlus, Upload, X, Loader2, ArrowRight, CheckCircle2, Play, Pause } from "lucide-react";
+import { Link2, ImagePlus, Upload, X, Loader2, ArrowRight, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@workspace/replit-auth-web";
 import { useUpload } from "@workspace/object-storage-web";
@@ -9,38 +9,38 @@ const PRESENTER_PRESETS = [
   {
     id: "mia",
     name: "Mia",
-    specialty: "Waterfront · Lifestyle",
+    specialty: "Waterfront / Lifestyle",
     voiceId: "x3PfG9wL6FOEApZ1VJ9H",
-    voiceName: "mia",
+    voiceName: "emma",
     photo: "/presenters/mia-poster.jpg",
-    previewUrl: "/presenters/mia-preview.mp3" as string | null,
-  },
-  {
-    id: "sophie",
-    name: "Sophie",
-    specialty: "Family · Suburban",
-    voiceId: "69h9o7wh5u0isWHzdogD",
-    voiceName: "sophie",
-    photo: "/presenters/sophie-poster.jpg",
-    previewUrl: "/presenters/sophie-preview.mp3" as string | null,
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/f7c7da45b9a6460583b70fafd2405651/voices/x3PfG9wL6FOEApZ1VJ9H/92204d06-e00b-4d09-bbfc-3903c47a4c57.mp3",
   },
   {
     id: "oliver",
     name: "Oliver",
-    specialty: "Inner-City · Investment",
-    voiceId: "jfIS2w2yJi0grJZPyEsk",
-    voiceName: "oliver",
+    specialty: "Inner-City / Investment",
+    voiceId: "yXFr3XVHzrViCIHi1yoc",
+    voiceName: "aussie voice",
     photo: "/presenters/oliver-poster.jpg",
-    previewUrl: "/presenters/oliver-preview.mp3" as string | null,
+    previewUrl: "https://api.us.elevenlabs.io/v1/voices/yXFr3XVHzrViCIHi1yoc/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzZlNTZjZDctMTIwZC00MjM4LWFhYWUtZWZkNTRhNWI0YzM2Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
+  },
+  {
+    id: "sophie",
+    name: "Sophie",
+    specialty: "Family / Suburban",
+    voiceId: "69h9o7wh5u0isWHzdogD",
+    voiceName: "Australian real estate agent",
+    photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
+    previewUrl: "https://api.us.elevenlabs.io/v1/voices/69h9o7wh5u0isWHzdogD/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzBlMWJmMjUtZDEwNC00ZjY1LTg1ZTctNjE3ZDU5MjhmMDk5Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
   },
   {
     id: "james",
     name: "James",
-    specialty: "Prestige · Coastal · Inner-City",
-    voiceId: "yXFr3XVHzrViCIHi1yoc",
-    voiceName: "james",
+    specialty: "Commercial / Rural / Development",
+    voiceId: "J5tYJbZpL62OrQsj70q6",
+    voiceName: "morgan voice",
     photo: "/presenters/james-poster.jpg",
-    previewUrl: "/presenters/james-preview.mp3" as string | null,
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/IKne3meq5aSn9XLyUdCD/102de6f2-22ed-43e0-a1f1-111fa75c5481.mp3",
   },
 ];
 
@@ -155,11 +155,11 @@ export function SubmitForm() {
     };
 
     if (isAuthenticated) {
-      // Already signed in — create job directly, redirect to pipeline
+      // Already signed in: create job directly, redirect to pipeline
       setSubmitting(true);
       createJobAndRedirect(pendingJob);
     } else {
-      // Save job, trigger auth — pipeline will pick it up after sign-in
+      // Save job, trigger auth: pipeline will pick it up after sign-in
       savePendingJob(pendingJob);
       login();
     }
@@ -201,7 +201,7 @@ export function SubmitForm() {
             type="url"
             value={listingUrl}
             onChange={(e) => { setListingUrl(e.target.value); setUrlError(""); }}
-            placeholder="Paste listing URL — realestate.com.au, Domain, etc."
+            placeholder="Paste listing URL - realestate.com.au, Domain, etc."
             className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-background/60 border border-white/10 text-sm font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 focus:bg-background transition-all"
           />
         </div>
@@ -211,7 +211,7 @@ export function SubmitForm() {
           onClick={() => setListingUrl("https://www.realestate.com.au/property/4-bed-house-in-mosman-nsw-2088-145832674")}
           className="mt-2 text-[10px] font-mono text-primary/70 hover:text-primary transition-colors"
         >
-          ✦ Try sample listing
+          Try sample listing
         </button>
       </div>
 
@@ -333,7 +333,7 @@ export function SubmitForm() {
               exit={{ opacity: 0, height: 0 }}
               className="mt-1.5 text-[10px] text-primary font-mono"
             >
-              ✓ {uploadedPhotos.length} photo{uploadedPhotos.length !== 1 ? "s" : ""} ready — will compose as slideshow background
+              {uploadedPhotos.length} photo{uploadedPhotos.length !== 1 ? "s" : ""} ready - will compose as slideshow background
             </motion.p>
           )}
         </AnimatePresence>
@@ -347,19 +347,19 @@ export function SubmitForm() {
         className="w-full h-14 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-base transition-all hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed"
       >
         {submitting ? (
-          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Starting pipeline…</>
+          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Starting pipeline...</>
         ) : uploadingCount > 0 ? (
-          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Uploading {uploadingCount} photo{uploadingCount !== 1 ? "s" : ""}…</>
+          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Uploading {uploadingCount} photo{uploadingCount !== 1 ? "s" : ""}...</>
         ) : isAuthenticated ? (
           <>Generate My Video <ArrowRight className="w-4 h-4 ml-2" /></>
         ) : (
-          <>Get Started — Sign In Free <ArrowRight className="w-4 h-4 ml-2" /></>
+          <>Get Started - Sign In Free <ArrowRight className="w-4 h-4 ml-2" /></>
         )}
       </Button>
 
       {!isAuthenticated && !authLoading && (
         <p className="text-center text-[11px] text-muted-foreground/60">
-          Takes 10 seconds · No credit card required
+          Takes 10 seconds / No credit card required
         </p>
       )}
     </form>

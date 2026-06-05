@@ -1,871 +1,629 @@
-import React, { useRef, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ChevronRight, PlayCircle, Star, Shield, TrendingUp, Sparkles, Building, Video, CheckCircle2, XCircle, Users, Zap, Globe, Clock, Quote, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  Film,
+  PlayCircle,
+  Shield,
+  Sparkles,
+  Star,
+  TrendingUp,
+  Users,
+  Video,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { LeadCapture } from "@/components/LeadCapture";
-import { UrgencyCounter } from "@/components/UrgencyCounter";
 import { SubmitForm } from "@/components/SubmitForm";
 
-// Assets
-import ogImage from "@assets/lensflow-brand/og-image.png";
-import buildKitImage from "@assets/LensFlow-The-Build-Kit-every-tool-you-need_1780215479239.png";
-
-const PRESENTERS = [
-  {
-    id: "mia",
-    name: "Mia",
-    tagline: "Waterfront & Luxury Lifestyle",
-    specialty: "Waterfront · Prestige · Lifestyle",
-    photo: "/presenters/mia-poster.jpg",
-    previewUrl: null as string | null,
-    videoUrl: "/presenters/mia.mp4" as string | null,
-    smileTimestamp: 0,
-    badge: "Premium" as string | null,
-  },
-  {
-    id: "sophie",
-    name: "Sophie",
-    tagline: "Family Homes & Suburban Estates",
-    specialty: "Family · Acreage · Off-market",
-    photo: "/presenters/sophie-poster.jpg",
-    previewUrl: "https://api.us.elevenlabs.io/v1/voices/69h9o7wh5u0isWHzdogD/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzBlMWJmMjUtZDEwNC00ZjY1LTg1ZTctNjE3ZDU5MjhmMDk5Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
-    videoUrl: "/presenters/sophie.mp4" as string | null,
-    smileTimestamp: 0,
-    badge: "Most Popular",
-  },
-  {
-    id: "oliver",
-    name: "Oliver",
-    tagline: "Inner-City & Investment Authority",
-    specialty: "Urban · Off-the-plan · High-net-worth",
-    photo: "/presenters/oliver-poster.jpg",
-    previewUrl: "https://api.us.elevenlabs.io/v1/voices/yXFr3XVHzrViCIHi1yoc/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzZlNTZjZDctMTIwZC00MjM4LWFhYWUtZWZkNTRhNWI0YzM2Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
-    videoUrl: "/presenters/oliver.mp4" as string | null,
-    smileTimestamp: 0,
-    badge: null,
-  },
-  {
-    id: "james",
-    name: "James",
-    tagline: "Prestige & Inner-City Authority",
-    specialty: "Prestige · Coastal · Inner-City",
-    photo: "/presenters/james-poster.jpg",
-    previewUrl: null as string | null,
-    videoUrl: "/presenters/james.mp4" as string | null,
-    smileTimestamp: 0,
-    badge: null,
-  },
-];
-
-function PresenterCard({ presenter }: { presenter: typeof PRESENTERS[0] }) {
-  const [playing, setPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const togglePlay = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!audioRef.current) return;
-    if (playing) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setPlaying(false);
-    } else {
-      audioRef.current.play().catch(() => {});
-      setPlaying(true);
-    }
-  };
-
-  const resetToSmile = () => {
-    if (presenter.videoUrl && videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = presenter.smileTimestamp ?? 0;
-    }
-  };
-
-  const handleMouseEnter = () => {
-    if (presenter.videoUrl && videoRef.current) {
-      videoRef.current.currentTime = presenter.smileTimestamp ?? 0;
-      videoRef.current.play().catch(() => {});
-    }
-  };
-
-  const handleMouseLeave = () => {
-    resetToSmile();
-  };
-
-  return (
-    <motion.div
-      whileHover={{ y: -5 }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className="rounded-2xl overflow-hidden aspect-[3/4] relative group bg-card cursor-pointer"
-    >
-      {presenter.videoUrl ? (
-        <video
-          ref={videoRef}
-          src={presenter.videoUrl}
-          poster={presenter.photo}
-          muted
-          playsInline
-          onEnded={resetToSmile}
-          className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-        />
-      ) : (
-        <img
-          src={presenter.photo}
-          alt={presenter.name}
-          className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-        />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-      {presenter.badge && (
-        <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded-full">
-          {presenter.badge}
-        </div>
-      )}
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="text-base font-semibold leading-tight">{presenter.name}</div>
-            <div className="text-xs text-primary mt-0.5">{presenter.tagline}</div>
-            <div className="text-[10px] text-muted-foreground mt-1 font-mono opacity-0 group-hover:opacity-100 transition-opacity">{presenter.specialty}</div>
-          </div>
-          <button
-            onClick={togglePlay}
-            className="w-9 h-9 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center flex-shrink-0 transition-colors shadow-lg opacity-0 group-hover:opacity-100"
-            title={playing ? "Stop preview" : "Hear voice"}
-          >
-            {playing ? <Pause className="w-4 h-4 text-primary-foreground" /> : <Play className="w-4 h-4 text-primary-foreground ml-0.5" />}
-          </button>
-        </div>
-      </div>
-      <audio
-        ref={audioRef}
-        src={presenter.previewUrl}
-        onEnded={() => setPlaying(false)}
-        preload="none"
-      />
-    </motion.div>
-  );
-}
-
-function HowItWorksVideo() {
-  const ref = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
-
-  const toggle = () => {
-    if (!ref.current) return;
-    if (playing) { ref.current.pause(); setPlaying(false); }
-    else { ref.current.play().catch(() => {}); setPlaying(true); }
-  };
-
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!ref.current) return;
-    ref.current.muted = !ref.current.muted;
-    setMuted(ref.current.muted);
-  };
-
-  return (
-    <div className="relative w-full h-full cursor-pointer" onClick={toggle}>
-      <video
-        ref={ref}
-        src="/videos/how-it-works.mp4"
-        playsInline
-        onEnded={() => setPlaying(false)}
-        className="w-full h-full object-cover"
-      />
-
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-
-      {/* Centre play button — hides while playing */}
-      <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${playing ? "opacity-0" : "opacity-100"}`}>
-        <div className="w-20 h-20 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-2xl transition-transform hover:scale-110">
-          <Play className="w-8 h-8 text-primary-foreground ml-1" />
-        </div>
-      </div>
-
-      {/* Bottom-left label */}
-      <div className="absolute bottom-4 left-4 flex items-center gap-2 pointer-events-none">
-        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-        <span className="text-xs font-mono text-white/80 uppercase tracking-widest">The LensFlow Pipeline</span>
-      </div>
-
-      {/* Bottom-right controls */}
-      <div className="absolute bottom-4 right-4 flex items-center gap-2">
-        <button
-          onClick={toggleMute}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 text-white transition-all backdrop-blur-sm"
-        >
-          {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-          <span className="text-[10px] font-mono uppercase tracking-widest">{muted ? "Unmute" : "Mute"}</span>
-        </button>
-        {playing && (
-          <button
-            onClick={(e) => { e.stopPropagation(); toggle(); }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 text-white transition-all backdrop-blur-sm"
-          >
-            <Pause className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-mono uppercase tracking-widest">Pause</span>
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
 const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" as const } }
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 },
 };
 
 const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.15
-    }
-  }
+    transition: { staggerChildren: 0.12 },
+  },
 };
 
+const heroMetrics = [
+  { label: "Campaigns created", value: "4 assets" },
+  { label: "Listings processed", value: "1 URL" },
+  { label: "Time saved", value: "5+ hrs" },
+  { label: "Estimated reach", value: "Social ready" },
+];
+
+const campaignOutputs = [
+  {
+    title: "AI presenter video",
+    detail: "Mia or Oliver introduces the property with polished, listing-aware copy.",
+    video: "/videos/sample-v1.mp4",
+    icon: Video,
+  },
+  {
+    title: "Social reel package",
+    detail: "Short-form clips built for Instagram, Facebook, TikTok and LinkedIn.",
+    video: "/videos/sample-v3.mp4",
+    icon: Film,
+  },
+  {
+    title: "Property presentation",
+    detail: "Premium visuals, captions and agent-ready story beats from the same listing.",
+    video: "/videos/sample-v5.mp4",
+    icon: PlayCircle,
+  },
+];
+
+const presenters = [
+  {
+    name: "Mia",
+    role: "Luxury lifestyle presenter",
+    line: "Warm, polished and ideal for coastal, prestige and family listings.",
+    poster: "/presenters/mia-poster.jpg",
+    video: "/presenters/mia.mp4",
+  },
+  {
+    name: "Oliver",
+    role: "Investment and city presenter",
+    line: "Sharper, confident and suited to apartments, developers and investor campaigns.",
+    poster: "/presenters/oliver-poster.jpg",
+    video: "/presenters/oliver.mp4",
+  },
+];
+
+const workflow = [
+  {
+    title: "Paste the listing",
+    detail: "Start with a property URL, upload photos, add video or use the teleprompter.",
+    icon: Sparkles,
+  },
+  {
+    title: "Choose the presenter",
+    detail: "Select Mia, Oliver or another LensFlow voice to match the listing style.",
+    icon: Users,
+  },
+  {
+    title: "Launch the campaign",
+    detail: "Get the video, script, captions and presentation assets ready to publish.",
+    icon: Zap,
+  },
+];
+
+const valueItems = [
+  { label: "Script creation", amount: "$50" },
+  { label: "Voiceover", amount: "$75" },
+  { label: "Video editing", amount: "$250" },
+  { label: "Social media package", amount: "$150" },
+];
+
+const pricingHighlights = [
+  {
+    name: "Starter",
+    price: "$79/mo",
+    detail: "For agents who want scripts, teleprompter flow and a monthly campaign.",
+  },
+  {
+    name: "Elite",
+    price: "$199/mo",
+    detail: "For agents who want AI presenter videos and a faster listing workflow.",
+    featured: true,
+  },
+  {
+    name: "Concierge",
+    price: "$399/mo",
+    detail: "For teams that want campaign copy, captions and launch support included.",
+  },
+];
+
+const proofPoints = [
+  "Listing URL to campaign kit",
+  "Mia and Oliver ready",
+  "Real estate focused outputs",
+  "Built for Australian agents",
+];
+
 export default function Home() {
-  const featuredVideoRef = useRef<HTMLVideoElement>(null);
-  const [isMuted, setIsMuted] = useState(true);
-
-  const toggleMute = () => {
-    if (featuredVideoRef.current) {
-      featuredVideoRef.current.muted = !featuredVideoRef.current.muted;
-      setIsMuted(featuredVideoRef.current.muted);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground overflow-hidden font-sans">
+    <div className="min-h-screen overflow-hidden bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       <Navbar />
 
-      {/* 1. Hero Section */}
-      <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-32 overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-          <img src={ogImage} alt="" className="w-full h-full object-cover object-center mix-blend-overlay blur-sm" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
-        </div>
+      <main>
+        <section className="relative overflow-hidden border-b border-white/5 pt-28 lg:pt-32">
+          <div className="absolute inset-0">
+            <video
+              src="/videos/lensflow-reel-creator-v1.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="h-full w-full object-cover opacity-35"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/35" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-background/15" />
+          </div>
 
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left — headline copy */}
+          <div className="relative z-10 mx-auto grid max-w-7xl items-end gap-10 px-6 pb-16 lg:grid-cols-[minmax(0,1fr)_470px] lg:pb-20">
             <motion.div
               initial="hidden"
               animate="visible"
               variants={staggerContainer}
-              className="max-w-2xl"
+              className="max-w-3xl"
             >
-              <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-8">
-                <Sparkles className="w-4 h-4" />
-                <span>The Future of Proptech</span>
+              <motion.div
+                variants={fadeInUp}
+                className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary"
+              >
+                <Sparkles className="h-4 w-4" />
+                LensFlow AI marketing department
               </motion.div>
 
-              <motion.h1 variants={fadeInUp} className="font-serif text-5xl lg:text-[72px] leading-[1.1] font-bold text-foreground mb-6">
-                AI Videos That Sell Properties <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-amber-200">Faster in 2026</span>
+              <motion.h1
+                variants={fadeInUp}
+                className="font-serif text-5xl font-bold leading-[1.03] tracking-normal text-foreground md:text-6xl lg:text-[76px]"
+              >
+                Create Luxury Property Campaigns in Minutes
               </motion.h1>
 
-              <motion.p variants={fadeInUp} className="text-xl lg:text-[21px] text-muted-foreground leading-relaxed mb-8 max-w-xl">
-                Paste a listing URL, upload your photos, pick a presenter — your professional video is ready in minutes.
+              <motion.p
+                variants={fadeInUp}
+                className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl"
+              >
+                Turn listings, photos and videos into AI presenter campaigns,
+                social reels and premium property presentations without chasing
+                a videographer.
               </motion.p>
 
-              <motion.div variants={fadeInUp} className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
-                <div className="flex -space-x-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 border-background bg-secondary flex items-center justify-center overflow-hidden">
-                      <img src={`https://i.pravatar.cc/100?img=${i + 15}`} alt="Agent" className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <div className="flex items-center text-primary">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-                  </div>
-                  <span className="mt-0.5 block text-xs">
-                    <UrgencyCounter /> agents already generating reels
-                  </span>
-                </div>
+              <motion.div
+                variants={fadeInUp}
+                className="mt-8 flex flex-col gap-3 sm:flex-row"
+              >
+                <a href="#hero-form">
+                  <Button className="h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground hover:bg-primary/90">
+                    Generate Property Campaign
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </a>
+                <a href="#examples">
+                  <Button
+                    variant="outline"
+                    className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-foreground hover:bg-white/10"
+                  >
+                    View Campaign Examples
+                  </Button>
+                </a>
               </motion.div>
 
-              {/* Trust badges */}
-              <motion.div variants={fadeInUp} className="flex flex-wrap gap-3 text-[11px] font-mono text-muted-foreground">
-                {["Claude AI Scripts", "ElevenLabs Voice", "HeyGen Avatar", "Shotstack Compose"].map((t) => (
-                  <span key={t} className="flex items-center gap-1 px-2 py-1 rounded border border-white/10 bg-white/[0.03]">
-                    <CheckCircle2 className="w-3 h-3 text-primary" /> {t}
-                  </span>
+              <motion.div
+                variants={fadeInUp}
+                className="mt-10 grid max-w-3xl grid-cols-2 gap-3 md:grid-cols-4"
+              >
+                {heroMetrics.map((metric) => (
+                  <div
+                    key={metric.label}
+                    className="rounded-2xl border border-white/10 bg-background/60 p-4 backdrop-blur"
+                  >
+                    <div className="text-2xl font-semibold text-foreground">
+                      {metric.value}
+                    </div>
+                    <div className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                      {metric.label}
+                    </div>
+                  </div>
                 ))}
               </motion.div>
             </motion.div>
 
-            {/* Right — unified submission form */}
             <motion.div
               id="hero-form"
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="relative"
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="rounded-[2rem] border border-white/10 bg-card/90 p-5 shadow-2xl shadow-black/35 backdrop-blur-xl"
             >
-              {/* Glow */}
-              <div className="absolute -inset-4 bg-primary/10 rounded-[2rem] blur-2xl pointer-events-none" />
-              <div className="relative bg-card/80 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl">
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Create your listing video</span>
+              <div className="mb-5 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-primary">
+                    Start New Campaign
+                  </p>
+                  <h2 className="mt-2 font-serif text-2xl font-semibold">
+                    Generate Property Campaign
+                  </h2>
                 </div>
-                <SubmitForm />
+                <div className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                  AI Presenter Ready
+                </div>
               </div>
+              <SubmitForm />
             </motion.div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* 1b. Real Results Video Showcase */}
-      <section id="results" className="py-24 relative overflow-hidden bg-background">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={fadeInUp}
-            className="text-center mb-14"
-          >
-            <div className="text-xs font-mono uppercase tracking-widest text-primary mb-3">Real output · No CGI</div>
-            <h2 className="font-serif text-3xl md:text-[42px] font-bold mb-4">
-              This is what we deliver.
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              Every video below was made by LensFlow — real listings, real AI presenters, real results in under 5 minutes.
-            </p>
-          </motion.div>
+        <section className="border-b border-white/5 bg-background py-16">
+          <div className="mx-auto grid max-w-7xl gap-4 px-6 md:grid-cols-4">
+            {proofPoints.map((point) => (
+              <div
+                key={point}
+                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4"
+              >
+                <CheckCircle2 className="h-5 w-5 flex-none text-primary" />
+                <span className="text-sm text-muted-foreground">{point}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          {/* Featured Oliver Video */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl mb-8 aspect-video max-w-4xl mx-auto bg-black group"
-          >
+        <section id="examples" className="bg-background py-24 lg:py-28">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+              <div className="max-w-2xl">
+                <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                  Campaign Output
+                </p>
+                <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                  One listing becomes a full marketing launch.
+                </h2>
+              </div>
+              <p className="max-w-md text-base leading-7 text-muted-foreground">
+                LensFlow should feel like an AI marketing department. That means
+                video, social, presenter and campaign assets in one flow.
+              </p>
+            </div>
+
+            <div className="grid gap-5 lg:grid-cols-3">
+              {campaignOutputs.map((item) => (
+                <motion.article
+                  key={item.title}
+                  whileHover={{ y: -6 }}
+                  className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-card"
+                >
+                  <div className="relative aspect-[9/13] overflow-hidden bg-black">
+                    <video
+                      src={item.video}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                    <div className="absolute left-4 top-4 rounded-full bg-black/45 px-3 py-1 text-xs font-medium text-white backdrop-blur">
+                      Ready to publish
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                      <item.icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-xl font-semibold">{item.title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                      {item.detail}
+                    </p>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="presenters" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
+          <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+            <div>
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                Mia and Oliver
+              </p>
+              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                Your AI presenters are the product difference.
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-muted-foreground">
+                A normal dashboard sells tasks. LensFlow sells a marketing team:
+                presenter, scriptwriter, editor and social coordinator working
+                from the same listing.
+              </p>
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                {["Mia for lifestyle listings", "Oliver for investment listings"].map((line) => (
+                  <div key={line} className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <Star className="h-4 w-4 text-primary" />
+                    {line}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              {presenters.map((presenter) => (
+                <article
+                  key={presenter.name}
+                  className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-background"
+                >
+                  <div className="relative aspect-[4/5] overflow-hidden bg-black">
+                    <video
+                      src={presenter.video}
+                      poster={presenter.poster}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                    <div className="absolute bottom-5 left-5 right-5">
+                      <div className="text-2xl font-semibold text-white">
+                        {presenter.name}
+                      </div>
+                      <div className="mt-1 text-sm text-primary">
+                        {presenter.role}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="p-5 text-sm leading-6 text-muted-foreground">
+                    {presenter.line}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="bg-background py-24 lg:py-28">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-12 max-w-2xl">
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                How It Works
+              </p>
+              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                Built around the first action an agent should take.
+              </h2>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-3">
+              {workflow.map((step, index) => (
+                <div
+                  key={step.title}
+                  className="rounded-[1.75rem] border border-white/10 bg-card p-7"
+                >
+                  <div className="mb-8 flex items-center justify-between">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                      <step.icon className="h-5 w-5" />
+                    </div>
+                    <span className="font-serif text-5xl text-white/10">
+                      0{index + 1}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-semibold">{step.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {step.detail}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="compare" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
+          <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[1fr_0.85fr] lg:items-start">
+            <div>
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                Marketing Value
+              </p>
+              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                Show agents what LensFlow creates for them.
+              </h2>
+              <div className="mt-8 overflow-hidden rounded-[1.75rem] border border-white/10 bg-background">
+                {valueItems.map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between border-b border-white/5 px-6 py-4 last:border-b-0"
+                  >
+                    <span className="text-muted-foreground">{item.label}</span>
+                    <span className="font-semibold text-foreground">{item.amount}</span>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between bg-primary/10 px-6 py-5">
+                  <span className="font-semibold text-primary">Total created today</span>
+                  <span className="text-3xl font-bold text-primary">$525</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-primary/25 bg-primary/10 p-7">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+                <TrendingUp className="h-5 w-5" />
+              </div>
+              <h3 className="font-serif text-3xl font-semibold">
+                From admin software to operating system.
+              </h3>
+              <p className="mt-4 leading-7 text-muted-foreground">
+                The experience should open with campaign creation, not market
+                briefs or job logs. Every screen should answer the agent's real
+                question: what marketing did this create for me today?
+              </p>
+              <div className="mt-7 space-y-3">
+                {[
+                  "Generate campaign first",
+                  "Recent campaigns instead of recent jobs",
+                  "Presenter status visible",
+                  "Marketing value shown in dollars",
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-3 text-sm text-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-background py-24 lg:py-28">
+          <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div>
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                Output Quality
+              </p>
+              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                Premium enough for luxury listings. Fast enough for every week.
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-muted-foreground">
+                LensFlow should lead with finished marketing assets: polished
+                video, clean listing story, confident presenter and social-ready
+                format.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              {[
+                { src: "/quality-before.jpg", label: "Listing media" },
+                { src: "/quality-presenter.jpg", label: "AI presenter" },
+                { src: "/quality-after.jpg", label: "Campaign output" },
+              ].map((image) => (
+                <div
+                  key={image.label}
+                  className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-card"
+                >
+                  <img
+                    src={image.src}
+                    alt={image.label}
+                    className="aspect-[4/5] w-full object-cover"
+                  />
+                  <div className="p-4 text-sm font-medium text-muted-foreground">
+                    {image.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="pricing" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+              <div className="max-w-2xl">
+                <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                  Packages
+                </p>
+                <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                  Price the platform like an AI marketing team.
+                </h2>
+              </div>
+              <Link href="/pricing">
+                <Button
+                  variant="outline"
+                  className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-foreground hover:bg-white/10"
+                >
+                  See Full Pricing
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-3">
+              {pricingHighlights.map((plan) => (
+                <div
+                  key={plan.name}
+                  className={`rounded-[1.75rem] border p-7 ${
+                    plan.featured
+                      ? "border-primary/50 bg-primary/10"
+                      : "border-white/10 bg-background"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-semibold">{plan.name}</h3>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                        {plan.detail}
+                      </p>
+                    </div>
+                    {plan.featured && (
+                      <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                        Popular
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-8 font-serif text-4xl font-semibold">
+                    {plan.price}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-background py-24 lg:py-28">
+          <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div>
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                Trust Layer
+              </p>
+              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                A calm, premium system agents can trust.
+              </h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              {[
+                { icon: Shield, title: "Brand safe", detail: "Property-first copy and professional presenter tone." },
+                { icon: Clock, title: "Fast turnaround", detail: "Campaign creation starts from a listing URL." },
+                { icon: Users, title: "Team friendly", detail: "Built for agents, agencies and premium vendors." },
+              ].map((item) => (
+                <div key={item.title} className="rounded-[1.5rem] border border-white/10 bg-card p-6">
+                  <item.icon className="h-5 w-5 text-primary" />
+                  <h3 className="mt-5 font-semibold">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {item.detail}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="relative overflow-hidden bg-card py-20">
+          <div className="absolute inset-0">
             <video
-              ref={featuredVideoRef}
               src="/videos/oliver-featured.mp4"
               autoPlay
               muted
               loop
               playsInline
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover opacity-25"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs font-mono text-white/80 uppercase tracking-widest">Made with LensFlow AI</span>
-            </div>
-            <div className="absolute top-3 right-3 flex items-center gap-2">
-              <button
-                onClick={toggleMute}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 text-white transition-all backdrop-blur-sm"
-                title={isMuted ? "Unmute" : "Mute"}
-              >
-                {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                <span className="text-[10px] font-mono uppercase tracking-widest">{isMuted ? "Unmute" : "Mute"}</span>
-              </button>
-              <div className="px-2 py-1 rounded-full bg-primary/90 text-[10px] font-mono text-primary-foreground uppercase tracking-widest">
-                AI Generated
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Sample Video Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { src: "/videos/sample-v1.mp4", label: "Sophie · Mosman, NSW" },
-              { src: "/videos/sample-v2.mp4", label: "James · South Yarra, VIC" },
-              { src: "/videos/sample-v3.mp4", label: "Sophie · Brighton, VIC" },
-              { src: "/videos/sample-v4.mp4", label: "James · Bondi, NSW" },
-            ].map((v, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.5 }}
-                className="relative rounded-xl overflow-hidden border border-white/8 aspect-video bg-black group cursor-pointer"
-              >
-                <video
-                  src={v.src}
-                  muted
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play()}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLVideoElement).pause(); (e.currentTarget as HTMLVideoElement).currentTime = 0; }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                  <span className="text-[9px] font-mono text-white/70 uppercase tracking-widest truncate">{v.label}</span>
-                  <div className="w-5 h-5 rounded-full bg-white/10 group-hover:bg-primary/80 flex items-center justify-center transition-colors shrink-0">
-                    <Play className="w-2.5 h-2.5 text-white ml-0.5" />
-                  </div>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-0 transition-opacity">
-                </div>
-              </motion.div>
-            ))}
+            <div className="absolute inset-0 bg-background/80" />
           </div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="text-center mt-8"
-          >
-            <a href="#hero-form">
-              <Button size="lg" className="rounded-full h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 font-medium">
-                Create Your Listing Video <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            </a>
-            <p className="mt-3 text-xs text-muted-foreground font-mono">Upload 5–7 photos · Pick a presenter · Done in minutes</p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 2. Trends Section */}
-      <section id="trends" className="py-24 bg-card border-y border-white/5 relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeInUp}
-            className="text-center mb-16"
-          >
-            <h2 className="font-serif text-3xl md:text-[34px] font-bold mb-4">2026 Real Estate Marketing Trends</h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Video className="w-8 h-8 text-primary" />,
-                title: "AI Avatars & Lip Sync",
-                desc: "Replace hours of filming with professional AI presenters."
-              },
-              {
-                icon: <TrendingUp className="w-8 h-8 text-primary" />,
-                title: "Short-Form Video",
-                desc: "Daily Reels and TikToks drive most leads."
-              },
-              {
-                icon: <Shield className="w-8 h-8 text-primary" />,
-                title: "Personal AI Twins",
-                desc: "Your digital version works 24/7."
-              }
-            ].map((trend, i) => (
-              <motion.div 
-                key={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0, transition: { delay: i * 0.1 + 0.2, duration: 0.6 } }
-                }}
-                className="p-8 rounded-3xl bg-background border border-white/5 hover:border-primary/30 transition-colors group"
-              >
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  {trend.icon}
-                </div>
-                <h3 className="font-serif text-2xl font-semibold mb-3">{trend.title}</h3>
-                <p className="text-muted-foreground text-lg leading-relaxed">{trend.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. How It Works */}
-      <section id="how-it-works" className="py-24 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-
-          {/* Heading */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            className="text-center mb-14"
-          >
-            <div className="text-xs font-mono uppercase tracking-widest text-primary mb-3">The LensFlow Pipeline</div>
-            <h2 className="font-serif text-3xl md:text-[42px] font-bold mb-4">See exactly how it works</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              No cameras. No lighting. No awkward retakes. Paste a URL and your professional video is ready in minutes.
+          <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+            <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+              Ready To Build
             </p>
-          </motion.div>
-
-          {/* Video player */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl aspect-video max-w-4xl mx-auto bg-black mb-16 group"
-          >
-            <HowItWorksVideo />
-          </motion.div>
-
-          {/* 4-step grid */}
-          <div className="grid md:grid-cols-4 gap-8">
-            {[
-              { step: "01", title: "Paste the URL", desc: "Drop any realestate.com.au, Domain, or agent website listing URL into LensFlow." },
-              { step: "02", title: "Claude Writes the Script", desc: "Our AI reads the listing and generates a property-specific 45-second presenter script in seconds." },
-              { step: "03", title: "ElevenLabs Records It", desc: "Your chosen AI presenter's voice narrates the script with natural intonation and Australian accent." },
-              { step: "04", title: "Video Delivered", desc: "A ready-to-publish presenter video lands in your dashboard — download or share the link instantly." }
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="relative"
-              >
-                <div className="text-[80px] font-serif font-bold text-primary/10 leading-none mb-4">{item.step}</div>
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                <p className="text-muted-foreground">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* CTA below steps */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5 }}
-            className="text-center mt-14"
-          >
-            <a href="#hero-form">
-              <Button size="lg" className="rounded-full h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 font-medium">
-                Try It Now — Free <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            </a>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 4. Compare Section */}
-      <section id="compare" className="py-24 bg-card/50 border-y border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-3xl md:text-[34px] font-bold mb-4">The Old Way vs. LensFlow AI</h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <div className="p-8 rounded-3xl bg-background border border-white/5 opacity-70">
-              <h3 className="text-xl text-muted-foreground font-semibold mb-6 flex items-center gap-2">
-                <XCircle className="w-5 h-5" /> Traditional Videography
-              </h3>
-              <ul className="space-y-4">
-                {["$500 - $1,500 per property", "Takes 3-5 days to deliver", "Requires you to be on-site", "Multiple awkward takes", "Costs extra for social formats"].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-muted-foreground">
-                    <div className="mt-1 w-1.5 h-1.5 rounded-full bg-white/20" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div className="p-8 rounded-3xl bg-primary/5 border border-primary/30 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full pointer-events-none" />
-              <h3 className="text-xl text-primary font-semibold mb-6 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5" /> LensFlow AI Studio
-              </h3>
-              <ul className="space-y-4">
-                {["Fraction of the cost", "Delivered in minutes", "Zero time on-site", "Perfect pitch, every time", "Export to all formats instantly"].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-foreground">
-                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Presenters Showcase */}
-      <section id="presenters" className="py-24 relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-            <div className="max-w-2xl">
-              <h2 className="font-serif text-3xl md:text-[34px] font-bold mb-4">Premium AI Presenters</h2>
-              <p className="text-xl text-muted-foreground">Choose from our diverse roster of highly realistic avatars, meticulously designed for luxury real estate.</p>
-            </div>
-            <Link href="/pipeline/">
-              <Button variant="outline" className="rounded-full border-primary/50 text-foreground hover:bg-primary/10">
-                Try a Presenter
-              </Button>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {PRESENTERS.map((p) => (
-              <PresenterCard key={p.id} presenter={p} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 5b. The Engine Section */}
-      <section className="py-24 relative bg-card/30 border-y border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-            <div>
-              <div className="text-xs font-mono uppercase tracking-widest text-primary mb-3">Built for scale</div>
-              <h2 className="font-serif text-3xl md:text-[34px] font-bold">Paste URL → Video.<br/><span className="text-primary italic">Here's the engine.</span></h2>
-            </div>
-            <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">Every step is modular, monitored, and production-hardened. From scraping the listing to delivering a finished MP4 — no human in the loop.</p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" as const }}
-            className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
-          >
-            <img
-              src={buildKitImage}
-              alt="LensFlow pipeline architecture — full vendor map from URL scrape to MP4 delivery"
-              className="w-full"
-            />
-          </motion.div>
-          <div className="flex items-center justify-center mt-6 gap-2 text-xs text-muted-foreground font-mono">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            Build window 4–8 weeks · Cost per 60s video ~$2.54 · Margin $3.95/vid at 20 vids/mo
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Cinematic Section */}
-      <section className="py-32 relative overflow-hidden bg-card border-y border-white/5">
-        <div className="absolute inset-0 bg-background" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeInUp}
-            >
-              <h2 className="font-serif text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-                Command attention. <br/>
-                <span className="text-primary italic">Without the camera crew.</span>
-              </h2>
-              <p className="text-xl text-muted-foreground mb-8">
-                In a market where every agent has an iPhone, professional production value is your unfair advantage. LensFlow turns a listing URL into a studio-quality presenter video in under 3 minutes — no filming, no editing, no crew.
-              </p>
-              <ul className="space-y-4 mb-10">
-                {[
-                  "Photorealistic 4K human presenters",
-                  "Perfect lip-sync in 40+ languages",
-                  "Cinematic camera moves generated from static photos",
-                  "Automated captioning and social formatting"
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                      <ChevronRight className="w-4 h-4 text-primary" />
-                    </div>
-                    <span className="text-foreground/90 text-lg">{item}</span>
-                  </li>
-                ))}
-              </ul>
+            <h2 className="font-serif text-4xl font-semibold leading-tight md:text-6xl">
+              Make LensFlow feel like the marketing department agents wish they had.
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
+              Start with the campaign, show the presenter, prove the output and
+              make the value obvious.
+            </p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <a href="#hero-form">
-                <Button data-testid="cta-btn-generate" size="lg" className="rounded-full h-14 px-8 bg-primary text-primary-foreground hover:bg-primary/90 text-lg font-medium">
-                  Generate Your Reel Free
+                <Button className="h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground hover:bg-primary/90">
+                  Generate Property Campaign
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </a>
-            </motion.div>
-
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={{
-                hidden: { opacity: 0, x: 50 },
-                visible: { opacity: 1, x: 0, transition: { duration: 0.8 } }
-              }}
-              className="grid grid-cols-2 gap-4"
-            >
-              <div className="space-y-4 pt-12">
-                <div className="rounded-3xl overflow-hidden aspect-[4/5] border border-white/10 relative group">
-                  <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=800&auto=format&fit=crop" alt="Luxury Home" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                </div>
-                <div className="rounded-3xl overflow-hidden aspect-square border border-white/10 relative group">
-                  <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=800&auto=format&fit=crop" alt="Modern Interior" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="rounded-3xl overflow-hidden aspect-square border border-white/10 relative group">
-                  <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop" alt="Kitchen" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                </div>
-                <div className="rounded-3xl overflow-hidden aspect-[4/5] border border-white/10 relative group">
-                  <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop" alt="Living Room" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-3xl md:text-5xl font-bold mb-4">Trusted by industry leaders</h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                name: "Sarah Mitchell",
-                agency: "Ray White Bondi",
-                quote: "Cut our listing video time from 2 days to 15 minutes. It's completely transformed our marketing workflow.",
-                img: "https://i.pravatar.cc/150?img=47"
-              },
-              {
-                name: "James Okafor",
-                agency: "McGrath Mosman",
-                quote: "Vendors love the AI presenter — looks completely real. They are amazed at how quickly we can get campaigns live.",
-                img: "https://i.pravatar.cc/150?img=11"
-              },
-              {
-                name: "Priya Sharma",
-                agency: "Barry Plant",
-                quote: "The lip-sync is flawless. I use LensFlow for every single listing now, and the engagement on socials is through the roof.",
-                img: "https://i.pravatar.cc/150?img=44"
-              },
-              {
-                name: "Tom Hennessy",
-                agency: "LJ Hooker",
-                quote: "No more awkward reshoots or coordinating with videographers. Just perfect pitch delivery every time.",
-                img: "https://i.pravatar.cc/150?img=33"
-              }
-            ].map((testimonial, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-card border border-white/5 p-8 rounded-3xl flex flex-col justify-between"
-              >
-                <div>
-                  <Quote className="w-8 h-8 text-primary/40 mb-6" />
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(5)].map((_, j) => (
-                      <Star key={j} className="w-4 h-4 fill-primary text-primary" />
-                    ))}
-                  </div>
-                  <p className="text-lg text-foreground mb-8">"{testimonial.quote}"</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <img src={testimonial.img} alt={testimonial.name} className="w-12 h-12 rounded-full object-cover border border-white/10" />
-                  <div>
-                    <div className="font-semibold">{testimonial.name}</div>
-                    <div className="text-sm text-muted-foreground">{testimonial.agency}</div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Stats/Trust Section */}
-      <section className="py-20 border-y border-white/5 bg-card/30">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/5 text-center">
-            <div>
-              <div className="font-serif text-4xl font-bold text-primary mb-2">10k+</div>
-              <div className="text-muted-foreground">Videos Generated</div>
-            </div>
-            <div>
-              <div className="font-serif text-4xl font-bold text-primary mb-2">90%</div>
-              <div className="text-muted-foreground">Cost Reduction</div>
-            </div>
-            <div>
-              <div className="font-serif text-4xl font-bold text-primary mb-2">40+</div>
-              <div className="text-muted-foreground">Languages Supported</div>
-            </div>
-            <div>
-              <div className="font-serif text-4xl font-bold text-primary mb-2">24/7</div>
-              <div className="text-muted-foreground">Studio Access</div>
+              <Link href="/pricing">
+                <Button
+                  variant="outline"
+                  className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-foreground hover:bg-white/10"
+                >
+                  Compare Packages
+                </Button>
+              </Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Early Access / Velvet Rope Section */}
-      <section className="py-32 relative overflow-hidden bg-background">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-        <div className="max-w-3xl mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-8 border border-primary/20 shadow-[0_0_30px_rgba(201,154,46,0.3)]">
-            <Shield className="w-8 h-8" />
-          </div>
-          <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6">Gain the unfair advantage.</h2>
-          <p className="text-xl text-muted-foreground mb-12">
-            LensFlow is currently in an exclusive early-access phase for top-performing Australian agencies. Request access below to secure your spot.
-          </p>
-          <div className="flex justify-center">
-            <LeadCapture source="velvet-rope" />
-          </div>
-        </div>
-      </section>
-
-      {/* 8. CTA Section */}
-      <section className="py-32 relative overflow-hidden bg-primary text-primary-foreground">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2000&auto=format&fit=crop')] opacity-10 mix-blend-multiply object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent" />
-        
-        <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-          >
-            <Building className="w-12 h-12 mx-auto mb-8 opacity-80" />
-            <h2 className="font-serif text-4xl lg:text-[56px] font-bold mb-6 text-primary-foreground">
-              Ready to dominate 2026?
-            </h2>
-            <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto">
-              Join the top 1% of agents using LensFlow AI to scale their listing marketing infinitely.
-            </p>
-            <a href="#hero-form">
-              <Button size="lg" className="h-16 px-10 rounded-full bg-background text-foreground hover:bg-background/90 text-xl font-semibold hover:scale-105 transition-transform shadow-xl">
-                Start Creating Videos Now
-              </Button>
-            </a>
-            <p className="mt-5 text-sm opacity-80">
-              No credit card required · Cancel anytime
-            </p>
-          </motion.div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       <Footer />
     </div>
