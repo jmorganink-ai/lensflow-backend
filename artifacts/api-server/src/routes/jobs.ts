@@ -406,6 +406,7 @@ export async function runSimulation(jobId: string): Promise<void> {
               job.listingUrl,
               photos,
               job.musicTrack,
+              job.voiceName,
             );
             outputUrl = result.videoUrl;
             finalVideoUrl = result.videoUrl;

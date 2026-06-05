@@ -31,7 +31,17 @@ router.post("/dev/run-test", async (req, res): Promise<void> => {
   const listingUrl = (req.body as Record<string, string>).listingUrl
     ?? "https://www.realestate.com.au/property-house-vic-richmond-141826448";
   const voiceName = (req.body as Record<string, string>).voiceName ?? "mia";
-  const voiceId = (req.body as Record<string, string>).voiceId ?? "x3PfG9wL6FOEApZ1VJ9H";
+
+  // Default ElevenLabs voice IDs per presenter — must match constants/presenters in mobile + new-job
+  const PRESENTER_VOICE_IDS: Record<string, string> = {
+    mia:    "x3PfG9wL6FOEApZ1VJ9H",
+    oliver: "jfIS2w2yJi0grJZPyEsk",
+    sophie: "69h9o7wh5u0isWHzdogD",
+    james:  "yXFr3XVHzrViCIHi1yoc",
+  };
+  const voiceId = (req.body as Record<string, string>).voiceId
+    ?? PRESENTER_VOICE_IDS[voiceName.toLowerCase()]
+    ?? "x3PfG9wL6FOEApZ1VJ9H";
 
   await db.insert(jobsTable).values({
     id,
