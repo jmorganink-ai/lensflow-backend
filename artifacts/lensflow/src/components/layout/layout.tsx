@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Film, LayoutDashboard, Webhook, Plus, LogOut, Settings, Video, ArrowUpLeft, Sparkles } from "lucide-react";
+import { LayoutDashboard, Webhook, Plus, LogOut, Settings, Video, ArrowUpLeft, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@workspace/replit-auth-web";
 import { useGetJobStats } from "@workspace/api-client-react";
@@ -23,14 +23,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className="w-64 flex-col hidden md:flex border-r border-border bg-card/50">
         <div className="h-16 flex items-center px-6 border-b border-border">
-          <a
-            href="/"
-            className="flex items-center gap-2 font-mono font-bold tracking-tight text-lg text-primary hover:opacity-80 transition-opacity"
-            title="Back to lensflow.com.au"
-          >
-            <Film className="w-5 h-5" />
-            <span>LENSFLOW_AI</span>
-          </a>
+          <span className="text-sm font-semibold tracking-wide text-foreground/60 uppercase select-none">LensFlow</span>
         </div>
 
         <div className="flex-1 py-6 px-4 flex flex-col gap-2">
@@ -108,10 +101,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
         <header className="h-16 flex items-center justify-between px-6 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
-          <div className="flex items-center gap-2 font-mono font-bold text-primary">
-            <Film className="w-5 h-5" />
-            <span>LENSFLOW</span>
-          </div>
+          <span className="text-sm font-semibold tracking-wide text-foreground/60 uppercase select-none">LensFlow</span>
           <Link
             href="/jobs/new"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs font-mono font-medium hover:bg-primary/90 transition-colors"
