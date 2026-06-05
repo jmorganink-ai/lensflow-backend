@@ -34,8 +34,9 @@ const VOICE_OLIVER   = process.env.HEYGEN_VOICE_OLIVER        ?? "kbxy8S61KI1ZTJ
 
 // ElevenLabs voice IDs that map to male presenters
 const ELEVENLABS_MALE_VOICE_IDS = new Set([
-  "Xb7hH9S068t9I3i8Y9u4", // Oliver
-  "nzYv9Z868t9I3i8Y9u4",  // James
+  "jfIS2w2yJi0grJZPyEsk", // Oliver
+  "nzYv9Z868t9I3i8Y9u4",  // Liam
+  "yXFr3XVHzrViCIHi1yoc", // James
 ]);
 
 const MALE_VOICE_NAMES = new Set(["oliver", "liam", "morgan voice", "aussie voice"]);
