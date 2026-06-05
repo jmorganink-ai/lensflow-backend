@@ -236,9 +236,10 @@ export async function composePresenterVideo(
   }
 
   const renderId = renderData.response.id;
-  logger.info({ renderId }, "Shotstack render queued — polling for completion");
+  logger.info({ renderId }, "Shotstack render queued — waiting 30s before polling");
+  await new Promise((r) => setTimeout(r, 30_000));
 
-  const POLL_INTERVAL_MS = 6_000;
+  const POLL_INTERVAL_MS = 10_000;
   const MAX_ATTEMPTS = 60;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
@@ -249,7 +250,8 @@ export async function composePresenterVideo(
     });
 
     if (!statusRes.ok) {
-      logger.warn({ attempt, status: statusRes.status }, "Shotstack poll failed — retrying");
+      const errText = await statusRes.text().catch(() => "(unreadable)");
+      logger.warn({ attempt, httpStatus: statusRes.status, body: errText.slice(0, 300) }, "Shotstack poll failed — retrying");
       continue;
     }
 
@@ -425,9 +427,10 @@ export async function composeSelfieVideo(
   }
 
   const renderId = renderData.response.id;
-  logger.info({ renderId }, "Shotstack selfie render queued — polling for completion");
+  logger.info({ renderId }, "Shotstack selfie render queued — waiting 30s before polling");
+  await new Promise((r) => setTimeout(r, 30_000));
 
-  const POLL_INTERVAL_MS = 6_000;
+  const POLL_INTERVAL_MS = 10_000;
   const MAX_ATTEMPTS = 60;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
@@ -438,7 +441,8 @@ export async function composeSelfieVideo(
     });
 
     if (!statusRes.ok) {
-      logger.warn({ attempt, status: statusRes.status }, "Shotstack selfie poll failed — retrying");
+      const errText = await statusRes.text().catch(() => "(unreadable)");
+      logger.warn({ attempt, httpStatus: statusRes.status, body: errText.slice(0, 300) }, "Shotstack selfie poll failed — retrying");
       continue;
     }
 
@@ -591,9 +595,10 @@ export async function composeVoicePhotosVideo(
   }
 
   const renderId = renderData.response.id;
-  logger.info({ renderId }, "Shotstack voice-photos render queued — polling");
+  logger.info({ renderId }, "Shotstack voice-photos render queued — waiting 30s before polling");
+  await new Promise((r) => setTimeout(r, 30_000));
 
-  const POLL_INTERVAL_MS = 6_000;
+  const POLL_INTERVAL_MS = 10_000;
   const MAX_ATTEMPTS = 60;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
