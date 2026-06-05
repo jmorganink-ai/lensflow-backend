@@ -732,7 +732,9 @@ export default function NewJob() {
                       className="w-full h-11 flex items-center justify-between px-4 bg-background border border-border rounded-md font-mono text-sm hover:border-primary/50 transition-colors"
                     >
                       <span className={selectedVoiceName ? "text-foreground" : "text-muted-foreground"}>
-                        {selectedVoiceName || (voicesLoading ? "Loading voices…" : "Select an ElevenLabs voice")}
+                        {selectedVoiceId && PRESENTER_VOICE_NEUTRAL[selectedVoiceId]
+                          ? PRESENTER_VOICE_NEUTRAL[selectedVoiceId]
+                          : selectedVoiceName || (voicesLoading ? "Loading voices…" : "Select a narration voice")}
                       </span>
                       <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${voiceOpen ? "rotate-180" : ""}`} />
                     </button>
@@ -750,17 +752,19 @@ export default function NewJob() {
                             <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-primary/70 bg-primary/5">Your Cloned Voices</div>
                             {clonedVoices.map((v) => (
                               <VoiceOption key={v.voice_id} voice={v} selected={selectedVoiceId === v.voice_id}
-                                onSelect={() => { form.setValue("voiceId", v.voice_id); form.setValue("voiceName", v.name); setVoiceOpen(false); }}
+                                displayName={PRESENTER_VOICE_NEUTRAL[v.voice_id]}
+                                onSelect={() => { form.setValue("voiceId", v.voice_id); form.setValue("voiceName", PRESENTER_VOICE_NEUTRAL[v.voice_id] ?? v.name); setVoiceOpen(false); }}
                                 onPreview={v.preview_url ? (e) => playPreview(v.preview_url!, e) : undefined} />
                             ))}
                           </>
                         )}
                         {otherVoices.length > 0 && (
                           <>
-                            <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-muted-foreground bg-muted/30">Library Voices</div>
+                            <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-muted-foreground bg-muted/30">Narration Voices</div>
                             {otherVoices.map((v) => (
                               <VoiceOption key={v.voice_id} voice={v} selected={selectedVoiceId === v.voice_id}
-                                onSelect={() => { form.setValue("voiceId", v.voice_id); form.setValue("voiceName", v.name); setVoiceOpen(false); }}
+                                displayName={PRESENTER_VOICE_NEUTRAL[v.voice_id]}
+                                onSelect={() => { form.setValue("voiceId", v.voice_id); form.setValue("voiceName", PRESENTER_VOICE_NEUTRAL[v.voice_id] ?? v.name); setVoiceOpen(false); }}
                                 onPreview={v.preview_url ? (e) => playPreview(v.preview_url!, e) : undefined} />
                             ))}
                           </>
@@ -1198,14 +1202,17 @@ function VoiceOption({
   selected,
   onSelect,
   onPreview,
+  displayName,
 }: {
   voice: { voice_id: string; name: string; category: string; labels?: Record<string, string> | null };
   selected: boolean;
   onSelect: () => void;
   onPreview?: (e: React.MouseEvent) => void;
+  displayName?: string;
 }) {
   const accent = voice.labels?.accent ?? null;
   const gender = voice.labels?.gender ?? null;
+  const label = displayName ?? voice.name;
 
   return (
     <button
@@ -1216,8 +1223,8 @@ function VoiceOption({
       <div className="flex items-center gap-3 min-w-0">
         <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${selected ? "bg-primary" : "bg-muted-foreground/30"}`} />
         <div className="min-w-0">
-          <span className={`text-sm font-mono block truncate ${selected ? "text-primary" : "text-foreground"}`}>{voice.name}</span>
-          {(accent || gender) && (
+          <span className={`text-sm font-mono block truncate ${selected ? "text-primary" : "text-foreground"}`}>{label}</span>
+          {!displayName && (accent || gender) && (
             <span className="text-[10px] text-muted-foreground font-mono">{[gender, accent].filter(Boolean).join(" · ")}</span>
           )}
         </div>

@@ -527,9 +527,9 @@ export default function CreateScreen() {
                       </View>
                     )}
                     <View style={styles.presenterMeta}>
-                      <Text style={styles.presenterName}>{p.name}</Text>
+                      <Text style={styles.presenterName}>{p.neutralName}</Text>
                       <Text style={[styles.presenterSpec, { color: colors.primary }]}>
-                        {p.specialty}
+                        {p.neutralSpecialty}
                       </Text>
                     </View>
                   </Pressable>
@@ -538,7 +538,7 @@ export default function CreateScreen() {
             </View>
             {voiceId ? (
               <Text style={[styles.voiceNote, { color: colors.primary }]}>
-                ✓ {voiceName} narrates over your video
+                ✓ {PRESENTERS.find(p => p.voiceId === voiceId)?.neutralName ?? voiceName} narrates over your video
               </Text>
             ) : (
               <Text style={[styles.voiceNote, { color: colors.mutedForeground }]}>
