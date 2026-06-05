@@ -693,61 +693,76 @@ export default function NewJob() {
               </div>
             )}
 
-            {/* ── ADD-ON: VOICE (for AI Presenter + Voice+Photos) ──── */}
+            {/* ── ADD-ON: VOICE ──────────────────────────────────────── */}
             {outputType !== "film_myself" && (
               <div className="space-y-2 pl-3 border-l-2 border-border">
                 <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
                   <Mic className="w-3.5 h-3.5" />
-                  Add Voice
-                  <span className="text-[9px] text-muted-foreground/50 normal-case tracking-normal font-sans">(optional)</span>
-                  {voicesLoading && <Loader2 className="w-3 h-3 animate-spin" />}
+                  {outputType === "presenter" ? "Voice" : "Add Voice"}
+                  {outputType !== "presenter" && <span className="text-[9px] text-muted-foreground/50 normal-case tracking-normal font-sans">(optional)</span>}
+                  {voicesLoading && outputType !== "presenter" && <Loader2 className="w-3 h-3 animate-spin" />}
                 </label>
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    type="button"
-                    onClick={() => setVoiceOpen((o) => !o)}
-                    className="w-full h-11 flex items-center justify-between px-4 bg-background border border-border rounded-md font-mono text-sm hover:border-primary/50 transition-colors"
-                  >
-                    <span className={selectedVoiceName ? "text-foreground" : "text-muted-foreground"}>
-                      {selectedVoiceName || (voicesLoading ? "Loading voices…" : "Select an ElevenLabs voice")}
+
+                {/* Presenter mode: voice is locked to the selected presenter */}
+                {outputType === "presenter" ? (
+                  <div className="h-11 flex items-center gap-3 px-4 bg-background border border-primary/30 rounded-md">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    <span className="font-mono text-sm text-foreground">
+                      {PRESENTER_PRESETS.find(p => p.voiceId === selectedVoiceId)?.name
+                        ? `${PRESENTER_PRESETS.find(p => p.voiceId === selectedVoiceId)!.name}'s voice — auto-selected`
+                        : "Select a presenter above to lock voice"}
                     </span>
-                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${voiceOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {voiceOpen && (
-                    <div className="absolute z-50 top-full mt-1 w-full max-h-72 overflow-y-auto bg-card border border-border rounded-md shadow-xl">
-                      <button
-                        type="button"
-                        onClick={() => { form.setValue("voiceId", ""); form.setValue("voiceName", ""); setVoiceOpen(false); }}
-                        className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border"
-                      >
-                        <span className="text-sm text-muted-foreground font-mono">— No voice (simulation only)</span>
-                      </button>
-                      {clonedVoices.length > 0 && (
-                        <>
-                          <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-primary/70 bg-primary/5">Your Cloned Voices</div>
-                          {clonedVoices.map((v) => (
-                            <VoiceOption key={v.voice_id} voice={v} selected={selectedVoiceId === v.voice_id}
-                              onSelect={() => { form.setValue("voiceId", v.voice_id); form.setValue("voiceName", v.name); setVoiceOpen(false); }}
-                              onPreview={v.preview_url ? (e) => playPreview(v.preview_url!, e) : undefined} />
-                          ))}
-                        </>
-                      )}
-                      {otherVoices.length > 0 && (
-                        <>
-                          <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-muted-foreground bg-muted/30">Library Voices</div>
-                          {otherVoices.map((v) => (
-                            <VoiceOption key={v.voice_id} voice={v} selected={selectedVoiceId === v.voice_id}
-                              onSelect={() => { form.setValue("voiceId", v.voice_id); form.setValue("voiceName", v.name); setVoiceOpen(false); }}
-                              onPreview={v.preview_url ? (e) => playPreview(v.preview_url!, e) : undefined} />
-                          ))}
-                        </>
-                      )}
-                      {!voicesLoading && voices.length === 0 && (
-                        <div className="px-4 py-6 text-center text-sm text-muted-foreground font-mono">No voices found in your ElevenLabs account.</div>
-                      )}
-                    </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  /* Voice+Photos mode: open voice picker */
+                  <div className="relative" ref={dropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setVoiceOpen((o) => !o)}
+                      className="w-full h-11 flex items-center justify-between px-4 bg-background border border-border rounded-md font-mono text-sm hover:border-primary/50 transition-colors"
+                    >
+                      <span className={selectedVoiceName ? "text-foreground" : "text-muted-foreground"}>
+                        {selectedVoiceName || (voicesLoading ? "Loading voices…" : "Select an ElevenLabs voice")}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${voiceOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    {voiceOpen && (
+                      <div className="absolute z-50 top-full mt-1 w-full max-h-72 overflow-y-auto bg-card border border-border rounded-md shadow-xl">
+                        <button
+                          type="button"
+                          onClick={() => { form.setValue("voiceId", ""); form.setValue("voiceName", ""); setVoiceOpen(false); }}
+                          className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border"
+                        >
+                          <span className="text-sm text-muted-foreground font-mono">— No voice (simulation only)</span>
+                        </button>
+                        {clonedVoices.length > 0 && (
+                          <>
+                            <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-primary/70 bg-primary/5">Your Cloned Voices</div>
+                            {clonedVoices.map((v) => (
+                              <VoiceOption key={v.voice_id} voice={v} selected={selectedVoiceId === v.voice_id}
+                                onSelect={() => { form.setValue("voiceId", v.voice_id); form.setValue("voiceName", v.name); setVoiceOpen(false); }}
+                                onPreview={v.preview_url ? (e) => playPreview(v.preview_url!, e) : undefined} />
+                            ))}
+                          </>
+                        )}
+                        {otherVoices.length > 0 && (
+                          <>
+                            <div className="px-4 py-2 text-[10px] uppercase tracking-widest font-mono text-muted-foreground bg-muted/30">Library Voices</div>
+                            {otherVoices.map((v) => (
+                              <VoiceOption key={v.voice_id} voice={v} selected={selectedVoiceId === v.voice_id}
+                                onSelect={() => { form.setValue("voiceId", v.voice_id); form.setValue("voiceName", v.name); setVoiceOpen(false); }}
+                                onPreview={v.preview_url ? (e) => playPreview(v.preview_url!, e) : undefined} />
+                            ))}
+                          </>
+                        )}
+                        {!voicesLoading && voices.length === 0 && (
+                          <div className="px-4 py-6 text-center text-sm text-muted-foreground font-mono">No voices found in your ElevenLabs account.</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {selectedVoiceId
                   ? <p className="text-[11px] text-primary font-mono">✓ ElevenLabs TTS active — live voiceover generation</p>
                   : <p className="text-[11px] text-muted-foreground font-mono">No voice selected — voiceover step will be simulated</p>
