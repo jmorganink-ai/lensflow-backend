@@ -24,6 +24,7 @@ export function Navbar() {
           <Link href="/origin" className="hover:text-foreground transition-colors">Our Story</Link>
           <Link href="/twin-avatar" className="hover:text-foreground transition-colors font-semibold text-primary hover:text-primary/80">◈ Twin Avatar</Link>
           <Link href="/advantage" className="hover:text-foreground transition-colors font-semibold text-violet-400 hover:text-violet-300">✦ Your Edge</Link>
+          <Link href="/concierge" className="hover:text-foreground transition-colors font-semibold text-amber-400 hover:text-amber-300">★ Concierge</Link>
         </div>
 
         <div className="flex items-center gap-3">

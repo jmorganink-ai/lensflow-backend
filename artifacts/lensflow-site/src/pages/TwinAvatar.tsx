@@ -481,6 +481,64 @@ export default function TwinAvatar() {
         </div>
       </section>
 
+      {/* ── LENSFLOW vs DESCRIPT ─────────────────────────────────────────── */}
+      <section className="py-24 px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }} className="text-center mb-14">
+            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-muted-foreground text-xs font-semibold tracking-widest uppercase mb-6">
+              Comparison
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="font-serif text-4xl lg:text-5xl font-bold mb-4">
+              LensFlow vs Descript
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-muted-foreground text-lg max-w-xl mx-auto">
+              Descript is great for editing existing footage. LensFlow means you never need footage in the first place.
+            </motion.p>
+          </motion.div>
+
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="rounded-2xl border border-white/8 overflow-hidden">
+            {/* Header */}
+            <div className="grid grid-cols-3 px-6 py-4 bg-card border-b border-white/8">
+              <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Category</div>
+              <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground text-center">Descript</div>
+              <div className="text-xs font-bold uppercase tracking-widest text-primary text-center">LensFlow</div>
+            </div>
+
+            {[
+              { cat: "Primary purpose", descript: "Edit existing footage using text", lensflow: "Create videos — no footage needed" },
+              { cat: "Speed for real estate", descript: "Requires raw footage first, then edit", lensflow: "Photos → finished video in minutes" },
+              { cat: "AI avatars & presenters", descript: "Basic voice cloning only, no visuals", lensflow: "Photoreal avatars — Mia, Oliver, Sophie, James" },
+              { cat: "No camera required", descript: "You must film yourself first", lensflow: "100% AI-generated, zero filming" },
+              { cat: "Real estate scripts", descript: "General purpose — you write it", lensflow: "Claude AI writes property-specific scripts" },
+              { cat: "Daily content volume", descript: "Slow — still needs raw footage", lensflow: "5+ finished videos per day, easily" },
+              { cat: "Agent burnout", descript: "Still requires filming & lighting setup", lensflow: "No filming. No editing. No stress." },
+              { cat: "Consistent branding", descript: "Varies with filming conditions", lensflow: "Same presenter look across every video" },
+              { cat: "REA / Domain export", descript: "Manual export & reformatting", lensflow: "Platform-ready specs, automatic" },
+              { cat: "Best for", descript: "Podcasters, YouTubers with footage", lensflow: "Busy agents who want daily content" },
+            ].map((row, i) => (
+              <div key={i} className={`grid grid-cols-3 px-6 py-4 border-b border-white/5 items-start ${i % 2 === 0 ? "bg-background" : "bg-card"}`}>
+                <div className="text-sm text-foreground/90 pr-4 font-medium">{row.cat}</div>
+                <div className="text-sm text-center text-muted-foreground px-2">{row.descript}</div>
+                <div className="text-sm text-center text-primary font-medium px-2">{row.lensflow}</div>
+              </div>
+            ))}
+
+            <div className="grid grid-cols-3 px-6 py-5 bg-primary/10 border-t border-primary/20 items-center">
+              <div className="font-bold text-foreground text-sm">Verdict</div>
+              <div className="text-center text-sm text-muted-foreground">Good for editing what you already have</div>
+              <div className="text-center text-sm text-primary font-bold">Wins for agents who want to create fast</div>
+            </div>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="text-center text-sm text-muted-foreground mt-6"
+          >
+            Many top agents use both: LensFlow to create, Descript to add captions and repurpose clips.
+          </motion.p>
+        </div>
+      </section>
+
       {/* ── PRICING CTA ──────────────────────────────────────────────────── */}
       <section className="py-24 px-6 bg-card border-t border-white/5">
         <div className="max-w-4xl mx-auto">

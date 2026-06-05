@@ -12,8 +12,11 @@ export function Footer() {
           © 2026 LensFlow AI. All rights reserved.
         </p>
         <div className="flex gap-6 text-sm text-muted-foreground">
+          <a href="/pricing" className="hover:text-foreground">Pricing</a>
+          <a href="/concierge" className="hover:text-foreground">Concierge</a>
+          <a href="/twin-avatar" className="hover:text-foreground">Twin Avatar</a>
+          <a href="/origin" className="hover:text-foreground">Our Story</a>
           <a href="mailto:hello@lensflow.com.au" className="hover:text-foreground">Contact</a>
-          <a href="mailto:hello@lensflow.com.au" className="hover:text-foreground">Support</a>
         </div>
       </div>
     </footer>
