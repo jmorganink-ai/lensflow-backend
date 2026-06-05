@@ -14,9 +14,9 @@ const STEP_LABELS: Record<string, string> = {
   analyse_photos: "Analyse Photos",
   scrape_listing: "Scrape Listing",
   generate_script: "Generate Script",
-  create_voiceover: "Create Voiceover",
-  presenter_video: "Presenter Video",
-  compose_video: "Compose Video",
+  create_voiceover: "Generate Voiceover",
+  presenter_video: "Generate Presenter",
+  compose_video: "Final Video Render",
 };
 
 const STEP_DESCRIPTIONS: Record<string, string> = {
