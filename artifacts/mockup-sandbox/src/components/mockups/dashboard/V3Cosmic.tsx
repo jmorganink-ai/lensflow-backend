@@ -1,260 +1,235 @@
-import { ArrowRight, Sparkles, Link2, ImageIcon, Video, Mic, Play, BarChart2, TrendingUp, TrendingDown, DollarSign, Globe, Zap, ChevronRight, Star, CheckCircle2, FileText, Clock } from "lucide-react";
-
 export function V3Cosmic() {
   return (
-    <div className="min-h-screen bg-[#05050d] text-white font-sans overflow-x-hidden">
+    <div style={{ margin: 0, color: "#f2ecdf", background: "#0a0d1a", fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, sans-serif", minHeight: "100vh" }}>
 
-      {/* ── Campaign Hero ── */}
-      <div className="relative overflow-hidden px-6 pt-8 pb-6">
-        {/* ambient glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#f59e0b]/6 rounded-full blur-[120px]" />
-          <div className="absolute top-20 right-0 w-[400px] h-[300px] bg-purple-600/5 rounded-full blur-[100px]" />
+      {/* ── Topbar ── */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, padding: "16px 24px", borderBottom: "1px solid #1a213a" }}>
+        <div>
+          <div style={{ color: "#8f99b2", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Dashboard</div>
+          <div style={{ color: "#f9f3ea", fontSize: 22, fontWeight: 800, marginTop: 2 }}>Create Campaign is the main event</div>
         </div>
-
-        <div className="relative max-w-3xl mx-auto text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#f59e0b]/25 bg-[#f59e0b]/8 mb-5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] animate-pulse" />
-            <span className="text-[11px] font-mono text-[#f59e0b] uppercase tracking-widest">Luxury Real Estate Marketing OS</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 12px", border: "1px solid #1a213a", borderRadius: 8, background: "rgba(13,17,32,0.9)" }}>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg,#1a1f3a,#c99a2e)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 14, color: "white" }}>M</div>
+          <div>
+            <div style={{ color: "#f9f3ea", fontSize: 13, fontWeight: 700 }}>AI Presenter Ready</div>
+            <div style={{ color: "#c99a2e", fontSize: 12, fontWeight: 700 }}>Mia selected</div>
           </div>
-          <h1 className="text-5xl font-black tracking-tight leading-none mb-4">
-            Create Property Campaigns<br />
-            <span className="bg-gradient-to-r from-[#f59e0b] via-[#fbbf24] to-[#f59e0b] bg-clip-text text-transparent">
-              That Win Listings
-            </span>
-          </h1>
-          <p className="text-[#9ca3af] text-base leading-relaxed max-w-xl mx-auto mb-7">
-            AI script → ElevenLabs voiceover → HeyGen presenter video → social media pack.<br />
-            <span className="text-white/60">Under 5 minutes. Every listing.</span>
-          </p>
-          <button className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] text-black rounded-xl font-bold text-base shadow-2xl shadow-[#f59e0b]/30 hover:shadow-[#f59e0b]/40 hover:scale-[1.02] transition-all">
-            <Sparkles className="w-5 h-5" />
-            Generate Property Campaign
-            <ArrowRight className="w-4 h-4" />
-          </button>
+        </div>
+      </div>
+
+      <div style={{ padding: "20px 24px", maxWidth: 1220, margin: "0 auto" }}>
+
+        {/* ── Hero ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 360px", gap: 22, marginBottom: 20 }}>
+
+          {/* Left: property photo with text overlay */}
+          <div style={{
+            minHeight: 310,
+            padding: 34,
+            borderRadius: 8,
+            color: "white",
+            background: "linear-gradient(90deg, rgba(10,13,26,0.92), rgba(10,13,26,0.48)), url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=82') center / cover",
+            display: "flex",
+            flexDirection: "column" as const,
+            justifyContent: "flex-end",
+            boxShadow: "0 18px 45px rgba(0,0,0,0.12)"
+          }}>
+            <h1 style={{ margin: "0 0 12px", fontSize: "clamp(34px,5vw,58px)", lineHeight: 0.98, letterSpacing: 0, fontWeight: 900 }}>
+              Create Luxury Property Campaigns in Minutes
+            </h1>
+            <p style={{ maxWidth: 620, margin: 0, color: "rgba(255,255,255,0.82)", fontSize: 17, lineHeight: 1.5 }}>
+              Turn listings, photos and videos into AI-powered marketing campaigns, social reels and property presentations.
+            </p>
+          </div>
+
+          {/* Right: launcher panel */}
+          <div style={{ padding: 22, borderRadius: 8, background: "#0d1120", border: "1px solid #1a213a", boxShadow: "0 18px 45px rgba(0,0,0,0.12)" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#8d6c20", fontSize: 12, fontWeight: 800, textTransform: "uppercase" as const, letterSpacing: 1 }}>
+              <div style={{ width: 24, height: 2, background: "#c99a2e" }} />
+              Start New Campaign
+            </div>
+            <h2 style={{ margin: "8px 0 14px", color: "#f9f3ea", fontSize: 24, lineHeight: 1.12, fontWeight: 800 }}>Generate Property Campaign</h2>
+            <div style={{ display: "grid", gap: 8, margin: "16px 0" }}>
+              <label style={{ color: "#8f99b2", fontSize: 12, fontWeight: 800, textTransform: "uppercase" as const, letterSpacing: 0.5 }}>Property URL</label>
+              <input
+                defaultValue="https://domain.com.au/28-harbour-view"
+                style={{ width: "100%", border: "1px solid #1a213a", borderRadius: 8, padding: "12px 14px", background: "#10162a", color: "#f9f3ea", outline: "none", fontSize: 14, boxSizing: "border-box" as const }}
+              />
+            </div>
+            <button style={{
+              width: "100%", border: 0, borderRadius: 8, padding: "14px 18px", color: "white",
+              background: "linear-gradient(135deg, #dfb44d, #c99a2e 48%, #8d6c20)",
+              fontWeight: 800, cursor: "pointer", fontSize: 15,
+              boxShadow: "0 14px 28px rgba(143,103,29,0.22)"
+            }}>
+              Generate Property Campaign
+            </button>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 16 }}>
+              {[
+                { tag: "URL", label: "Property URL" },
+                { tag: "IMG", label: "Upload Photos" },
+                { tag: "VID", label: "Upload Video" },
+                { tag: "REC", label: "Record with Teleprompter" },
+              ].map(({ tag, label }) => (
+                <div key={tag} style={{ minHeight: 72, border: "1px solid #1a213a", borderRadius: 8, background: "#10162a", padding: 12, display: "flex", flexDirection: "column" as const, justifyContent: "space-between" }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 8, background: "#151b31", color: "#8d6c20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900 }}>{tag}</div>
+                  <strong style={{ color: "#f9f3ea", fontSize: 13 }}>{label}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* 4 launch modes */}
-        <div className="relative grid grid-cols-4 gap-3 max-w-3xl mx-auto">
+        {/* ── Metrics ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 14, marginBottom: 20 }}>
           {[
-            { icon: Link2, label: "Property URL", desc: "Paste any listing link", hot: true },
-            { icon: ImageIcon, label: "Photo Campaign", desc: "Upload property photos" },
-            { icon: Video, label: "Upload Video", desc: "Use your footage" },
-            { icon: Mic, label: "Teleprompter", desc: "Self-record with script", hot: false },
-          ].map(({ icon: Icon, label, desc, hot }) => (
-            <button key={label} className={`group relative flex flex-col gap-2 p-4 rounded-xl border transition-all text-left ${hot ? "border-[#f59e0b]/40 bg-[#f59e0b]/6 hover:bg-[#f59e0b]/10" : "border-white/8 bg-white/3 hover:border-white/15 hover:bg-white/5"}`}>
-              {hot && <div className="absolute top-2 right-2 text-[9px] font-mono bg-[#f59e0b] text-black px-1.5 py-0.5 rounded-full">Popular</div>}
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${hot ? "bg-[#f59e0b]/15" : "bg-white/6"}`}>
-                <Icon className={`w-4.5 h-4.5 ${hot ? "text-[#f59e0b]" : "text-white/50"}`} style={{ width: 18, height: 18 }} />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-white">{label}</p>
-                <p className="text-[11px] text-[#6b7280] mt-0.5">{desc}</p>
-              </div>
-            </button>
+            { val: "24", label: "Campaigns Created" },
+            { val: "18", label: "Listings Processed" },
+            { val: "46h", label: "Time Saved" },
+            { val: "128k", label: "Estimated Reach" },
+          ].map(({ val, label }) => (
+            <div key={label} style={{ padding: 18, border: "1px solid #1a213a", borderRadius: 8, background: "rgba(13,17,32,0.92)" }}>
+              <strong style={{ display: "block", color: "#f9f3ea", fontSize: 30, lineHeight: 1, marginBottom: 8 }}>{val}</strong>
+              <span style={{ color: "#8f99b2", fontSize: 13, fontWeight: 700 }}>{label}</span>
+            </div>
           ))}
         </div>
-      </div>
 
-      {/* ── Stats Row ── */}
-      <div className="px-6 py-4 grid grid-cols-4 gap-3">
-        {[
-          { label: "Campaigns Created", val: "12", delta: "+3 this week", icon: CheckCircle2, color: "#f59e0b" },
-          { label: "Properties Processed", val: "38", delta: "24 suburbs mapped", icon: Globe, color: "#60a5fa" },
-          { label: "Marketing Hours Saved", val: "48h", delta: "vs manual production", icon: Clock, color: "#34d399" },
-          { label: "Est. Value Generated", val: "$6.3k", delta: "agency savings", icon: DollarSign, color: "#a78bfa" },
-        ].map(({ label, val, delta, icon: Icon, color }) => (
-          <div key={label} className="relative rounded-xl border border-white/6 bg-white/2 p-4 overflow-hidden">
-            <div className="absolute inset-0 opacity-50" style={{ background: `radial-gradient(ellipse at top right, ${color}08, transparent 60%)` }} />
-            <div className="relative flex items-start justify-between">
+        {/* ── Main grid: campaigns + sidebar ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.4fr) minmax(300px,0.6fr)", gap: 20, alignItems: "start" }}>
+
+          {/* Left: campaign cards + market intelligence */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, marginBottom: 14 }}>
               <div>
-                <p className="text-[10px] font-mono uppercase tracking-widest mb-1" style={{ color }}>{label}</p>
-                <p className="text-3xl font-black font-mono tracking-tight">{val}</p>
-                <p className="text-[11px] text-[#4b5563] mt-1">{delta}</p>
+                <h2 style={{ color: "#f9f3ea", margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Recent Campaigns</h2>
+                <p style={{ margin: 0, color: "#8f99b2", fontSize: 13, lineHeight: 1.45 }}>Show finished marketing outcomes, not backend jobs.</p>
               </div>
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${color}12`, border: `1px solid ${color}20` }}>
-                <Icon className="w-4 h-4" style={{ color }} />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="px-6 pb-4 grid grid-cols-12 gap-4">
-
-        {/* ── AI Presenters ── */}
-        <div className="col-span-5 rounded-xl border border-white/6 bg-white/2 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-            <div className="flex items-center gap-2">
-              <Zap className="w-3.5 h-3.5 text-[#f59e0b]" />
-              <span className="text-[11px] font-mono uppercase tracking-widest text-[#f59e0b]">AI Presenter Studio</span>
-            </div>
-            <span className="text-[10px] font-mono text-emerald-400 border border-emerald-500/20 bg-emerald-500/8 px-1.5 py-0.5 rounded">4 Active</span>
-          </div>
-
-          <div className="p-3 grid grid-cols-2 gap-2">
-            {[
-              { name: "Mia", spec: "Luxury listings", tag: "⭐ Top rated", color: "#f43f5e", bg: "from-rose-500/15 to-transparent" },
-              { name: "Oliver", spec: "Corporate premium", tag: "Most used", color: "#60a5fa", bg: "from-blue-500/15 to-transparent" },
-              { name: "Liam", spec: "Confident sales", tag: "New", color: "#f59e0b", bg: "from-amber-500/15 to-transparent" },
-              { name: "Sophie", spec: "Lifestyle reels", tag: "Trending", color: "#34d399", bg: "from-emerald-500/15 to-transparent" },
-            ].map(p => (
-              <button key={p.name} className={`group flex flex-col items-center gap-2 p-3 rounded-xl border border-white/6 bg-gradient-to-br ${p.bg} hover:border-white/15 transition-all`}>
-                <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-black" style={{ background: `${p.color}20`, border: `2px solid ${p.color}30`, color: p.color }}>
-                  {p.name[0]}
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-bold">{p.name}</p>
-                  <p className="text-[10px] font-mono mt-0.5" style={{ color: p.color }}>{p.spec}</p>
-                  <p className="text-[9px] text-[#6b7280] mt-1">{p.tag}</p>
-                </div>
-                <button className="opacity-0 group-hover:opacity-100 text-[10px] px-3 py-1 rounded-full font-mono transition-opacity" style={{ background: `${p.color}20`, color: p.color, border: `1px solid ${p.color}30` }}>
-                  Select →
-                </button>
+              <button style={{ border: "1px solid #1a213a", borderRadius: 8, padding: "9px 14px", background: "#10162a", color: "#f2ecdf", fontWeight: 700, cursor: "pointer", fontSize: 13, whiteSpace: "nowrap" as const }}>
+                View All
               </button>
-            ))}
-          </div>
-
-          {/* Value section */}
-          <div className="p-3 border-t border-white/5">
-            <div className="rounded-lg bg-[#f59e0b]/8 border border-[#f59e0b]/15 p-3 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-mono uppercase tracking-widest text-[#f59e0b] mb-0.5">Est. value — 12 campaigns</p>
-                <p className="text-2xl font-black font-mono text-[#f59e0b]">$6,300</p>
-              </div>
-              <div className="text-right text-[10px] font-mono text-[#6b7280] space-y-0.5">
-                <p>Script $600</p>
-                <p>Voice $900</p>
-                <p>Video $3,000</p>
-                <p>Social $1,800</p>
-              </div>
             </div>
-          </div>
-        </div>
 
-        {/* ── Recent Campaigns ── */}
-        <div className="col-span-7 rounded-xl border border-white/6 bg-white/2 overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 shrink-0">
-            <span className="text-[11px] font-mono uppercase tracking-widest">Recent Campaigns</span>
-            <button className="text-[11px] text-[#f59e0b] font-mono hover:text-[#f59e0b]/80">View all →</button>
-          </div>
-          <div className="flex-1 divide-y divide-white/4">
-            {[
-              { title: "14 Harbour View Dr, Mosman NSW", presenter: "Mia", type: "Luxury", status: "complete", time: "2h ago", color: "#f43f5e" },
-              { title: "8/32 St Kilda Rd, Melbourne VIC", presenter: "Oliver", type: "Corporate", status: "processing", time: "5h ago", color: "#60a5fa" },
-              { title: "3 Bondi Beach Rd, Sydney NSW", presenter: "Sophie", type: "Lifestyle", status: "queued", time: "Yesterday", color: "#34d399" },
-              { title: "12 Chapel St, Prahran VIC", presenter: "Liam", type: "Sales", status: "complete", time: "2d ago", color: "#f59e0b" },
-              { title: "21 The Corso, Manly NSW", presenter: "Mia", type: "Luxury", status: "complete", time: "3d ago", color: "#f43f5e" },
-            ].map((j, i) => (
-              <div key={i} className="flex items-center gap-3 px-4 py-3 hover:bg-white/2 cursor-pointer group">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shrink-0"
-                  style={{ background: `${j.color}18`, color: j.color, border: `1px solid ${j.color}28` }}>
-                  {j.presenter[0]}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{j.title}</p>
-                  <p className="text-[11px] text-[#6b7280] font-mono">{j.presenter} · {j.type} · {j.time}</p>
-                </div>
-                <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-mono border uppercase tracking-wider ${
-                  j.status === "complete" ? "bg-[#f59e0b]/10 text-[#f59e0b] border-[#f59e0b]/20" :
-                  j.status === "processing" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
-                  "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                }`}>{j.status}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-white/15 group-hover:text-white/40 shrink-0" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Market Intelligence ── */}
-      <div className="px-6 pb-6">
-        <div className="rounded-xl border border-white/6 bg-white/2 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-            <div className="flex items-center gap-2">
-              <BarChart2 className="w-3.5 h-3.5 text-[#f59e0b]" />
-              <span className="text-[11px] font-mono uppercase tracking-widest">AU Market Intelligence</span>
-              <span className="text-[10px] font-mono text-[#4b5563] border border-white/8 px-1.5 py-0.5 rounded">Updated 3h ago</span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {["Mosman", "Toorak", "Bondi", "South Yarra", "Brighton"].map(m => (
-                <span key={m} className="px-2 py-0.5 bg-[#f59e0b]/8 text-[#f59e0b] border border-[#f59e0b]/15 rounded-full text-[10px] font-mono">{m}</span>
-              ))}
-            </div>
-          </div>
-          <div className="p-4">
-            <p className="text-sm font-semibold mb-4 text-white/80">Sydney and Melbourne luxury property demand at 18-month high, driven by offshore buyer return</p>
-            <div className="grid grid-cols-4 gap-3">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 14, marginBottom: 24 }}>
               {[
-                { label: "Median Price", val: "$1.24M", trend: "up", sub: "▲ 4.2% YoY" },
-                { label: "Days on Market", val: "21d", trend: "down", sub: "▼ 8d faster" },
-                { label: "Clearance Rate", val: "74%", trend: "up", sub: "▲ 6% this qtr" },
-                { label: "New Listings", val: "+12%", trend: "up", sub: "▲ strong supply" },
-              ].map(({ label, val, trend, sub }) => (
-                <div key={label} className="bg-[#05050d] border border-white/6 rounded-xl p-3">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wide">{label}</p>
-                    {trend === "up"
-                      ? <TrendingUp className="w-3 h-3 text-emerald-400" />
-                      : <TrendingDown className="w-3 h-3 text-rose-400" />}
+                {
+                  img: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=900&q=82",
+                  status: "READY", statusColor: "#c99a2e",
+                  title: "28 Harbour View, Mosman",
+                  tags: ["Reel", "Script", "Voiceover", "Deck"]
+                },
+                {
+                  img: "https://images.unsplash.com/photo-1600607687644-c7171b42498b?auto=format&fit=crop&w=900&q=82",
+                  status: "EXPORTING", statusColor: "#1269cf",
+                  title: "11 Ocean Road, Byron Bay",
+                  tags: ["Reel", "Captions", "Mia"]
+                },
+                {
+                  img: "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=900&q=82",
+                  status: "LIVE", statusColor: "#34d399",
+                  title: "7 Palm Court, Noosa",
+                  tags: ["Oliver", "Voiceover", "Social Pack"]
+                },
+              ].map((c, i) => (
+                <article key={i} style={{ border: "1px solid #1a213a", borderRadius: 8, overflow: "hidden", background: "#0d1120" }}>
+                  <div style={{ aspectRatio: "16/10", backgroundImage: `url('${c.img}')`, backgroundSize: "cover", backgroundPosition: "center" }} />
+                  <div style={{ padding: 14 }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 7, color: c.statusColor, fontSize: 12, fontWeight: 850, textTransform: "uppercase" as const, marginBottom: 8 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: c.statusColor }} />
+                      {c.status}
+                    </div>
+                    <h3 style={{ color: "#f9f3ea", margin: "0 0 10px", fontSize: 16, lineHeight: 1.2, fontWeight: 700 }}>{c.title}</h3>
+                    <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6, marginBottom: 12 }}>
+                      {c.tags.map(t => (
+                        <span key={t} style={{ display: "inline-flex", border: "1px solid #1a213a", borderRadius: 999, padding: "4px 9px", background: "#10162a", color: "#8f99b2", fontSize: 12, fontWeight: 700 }}>{t}</span>
+                      ))}
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button style={{ flex: 1, border: "1px solid #1a213a", background: "#10162a", borderRadius: 8, padding: "8px 6px", color: "#f2ecdf", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>View Campaign</button>
+                      <button style={{ flex: 1, border: "1px solid #1a213a", background: "#10162a", borderRadius: 8, padding: "8px 6px", color: "#f2ecdf", fontWeight: 800, cursor: "pointer", fontSize: 12 }}>Duplicate</button>
+                    </div>
                   </div>
-                  <p className="text-2xl font-black font-mono">{val}</p>
-                  <p className={`text-[10px] font-mono mt-0.5 ${trend === "up" ? "text-emerald-400" : "text-rose-400"}`}>{sub}</p>
-                </div>
+                </article>
               ))}
+            </div>
+
+            {/* Market Intelligence */}
+            <div>
+              <div style={{ marginBottom: 12 }}>
+                <h2 style={{ color: "#f9f3ea", margin: "0 0 4px", fontSize: 22, fontWeight: 800 }}>Market Intelligence</h2>
+                <p style={{ margin: 0, color: "#8f99b2", fontSize: 13 }}>Helpful context, lower on the page after campaign creation.</p>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+                {[
+                  { label: "AU Market Brief", val: "Prestige buyer demand is strongest in coastal suburbs." },
+                  { label: "Listing Angle", val: "Lead with lifestyle, privacy and indoor-outdoor living." },
+                  { label: "Content Tip", val: "Short reels should open with the hero facade or view." },
+                ].map(({ label, val }) => (
+                  <div key={label} style={{ padding: 14, borderRadius: 8, background: "#10162a", border: "1px solid #1a213a" }}>
+                    <span style={{ color: "#8f99b2", fontSize: 12, fontWeight: 800, textTransform: "uppercase" as const, letterSpacing: 0.5 }}>{label}</span>
+                    <strong style={{ display: "block", marginTop: 8, color: "#f9f3ea", fontSize: 15, fontWeight: 700, lineHeight: 1.35 }}>{val}</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right sidebar */}
+          <div style={{ display: "grid", gap: 20 }}>
+
+            {/* Presenter panel */}
+            <div style={{ border: "1px solid #1a213a", borderRadius: 8, background: "#0d1120", padding: 18 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#8d6c20", fontSize: 12, fontWeight: 800, textTransform: "uppercase" as const, letterSpacing: 1, marginBottom: 14 }}>
+                <div style={{ width: 24, height: 2, background: "#c99a2e" }} />
+                AI Presenter Ready
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "82px minmax(0,1fr)", gap: 14, alignItems: "center" }}>
+                <div style={{
+                  width: 82, height: 92, borderRadius: 8, overflow: "hidden",
+                  background: "linear-gradient(135deg, #1a1f3a 0%, #2a1f3a 50%, #c99a2e 100%)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 32, fontWeight: 900, color: "#dfb44d"
+                }}>M</div>
+                <div>
+                  <h3 style={{ color: "#f9f3ea", margin: "0 0 6px", fontSize: 18, fontWeight: 800 }}>Mia</h3>
+                  <p style={{ margin: 0, color: "#8f99b2", lineHeight: 1.4, fontSize: 13 }}>
+                    Polished, warm and premium. Best for luxury homes and prestige brand campaigns.
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 14 }}>
+                <button style={{ border: 0, borderRadius: 8, padding: 10, background: "#c99a2e", color: "white", fontWeight: 800, cursor: "pointer", fontSize: 14 }}>Mia</button>
+                <button style={{ border: "1px solid #1a213a", borderRadius: 8, padding: 10, background: "#10162a", color: "#f2ecdf", fontWeight: 800, cursor: "pointer", fontSize: 14 }}>Oliver</button>
+              </div>
+            </div>
+
+            {/* Value panel */}
+            <div style={{ border: "1px solid #1a213a", borderRadius: 8, background: "#0d1120", padding: 18 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#8d6c20", fontSize: 12, fontWeight: 800, textTransform: "uppercase" as const, letterSpacing: 1, marginBottom: 12 }}>
+                <div style={{ width: 24, height: 2, background: "#c99a2e" }} />
+                Estimated Marketing Value
+              </div>
+              <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+                {[
+                  { label: "Script Creation", val: "$50" },
+                  { label: "Voiceover", val: "$75" },
+                  { label: "Video Editing", val: "$250" },
+                  { label: "Social Media Package", val: "$150" },
+                ].map(({ label, val }) => (
+                  <div key={label} style={{ display: "flex", justifyContent: "space-between", color: "#8f99b2", paddingBottom: 9, borderBottom: "1px solid #1a213a" }}>
+                    <span style={{ fontSize: 14 }}>{label}</span>
+                    <strong style={{ color: "#f9f3ea", fontWeight: 800 }}>{val}</strong>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 14, color: "#f9f3ea" }}>
+                <span style={{ fontSize: 14, color: "#8f99b2" }}>Total Created Today</span>
+                <strong style={{ fontSize: 34, fontWeight: 900, color: "#f9f3ea" }}>$525</strong>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
-  );
-}
-
-function Zap({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-    </svg>
-  );
-}
-
-function Globe({ className, style }: { className?: string; style?: React.CSSProperties }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
-      <circle cx="12" cy="12" r="10" />
-      <line x1="2" y1="12" x2="22" y2="12" />
-      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-    </svg>
-  );
-}
-
-function Clock({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
-}
-
-function CheckCircle2({ className, style }: { className?: string; style?: React.CSSProperties }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
-      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  );
-}
-
-function FileText({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" y1="13" x2="8" y2="13" />
-      <line x1="16" y1="17" x2="8" y2="17" />
-      <polyline points="10 9 9 9 8 9" />
-    </svg>
   );
 }
