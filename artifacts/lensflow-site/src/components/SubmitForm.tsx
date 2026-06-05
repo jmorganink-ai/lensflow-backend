@@ -42,6 +42,15 @@ const PRESENTER_PRESETS = [
     photo: "/presenters/liam-poster.jpg",
     previewUrl: null as string | null,
   },
+  {
+    id: "james",
+    name: "James",
+    specialty: "Prestige · Coastal · Inner-City",
+    voiceId: "nzYv9Z868t9I3i8Y9u4",
+    voiceName: "james",
+    photo: "/presenters/james-poster.jpg",
+    previewUrl: null as string | null,
+  },
 ];
 
 const PENDING_JOB_KEY = "lensflow_pending_job";

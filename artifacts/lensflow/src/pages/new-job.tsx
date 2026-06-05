@@ -45,6 +45,14 @@ const PRESENTER_PRESETS = [
     voiceName: "morgan voice",
     photo: "/presenters/liam-poster.jpg",
   },
+  {
+    id: "james",
+    name: "James",
+    specialty: "Prestige · Coastal · Inner-City",
+    voiceId: "nzYv9Z868t9I3i8Y9u4",
+    voiceName: "james",
+    photo: "/presenters/james-poster.jpg",
+  },
 ];
 
 const MUSIC_PRESETS = [

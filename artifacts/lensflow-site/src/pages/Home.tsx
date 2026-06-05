@@ -58,6 +58,17 @@ const PRESENTERS = [
     smileTimestamp: 0,
     badge: null,
   },
+  {
+    id: "james",
+    name: "James",
+    tagline: "Prestige & Inner-City Authority",
+    specialty: "Prestige · Coastal · Inner-City",
+    photo: "/presenters/james-poster.jpg",
+    previewUrl: null as string | null,
+    videoUrl: "/presenters/james.mp4" as string | null,
+    smileTimestamp: 0,
+    badge: null,
+  },
 ];
 
 function PresenterCard({ presenter }: { presenter: typeof PRESENTERS[0] }) {
