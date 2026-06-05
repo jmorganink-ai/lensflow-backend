@@ -30,6 +30,22 @@ const PROPERTY_IMAGES = [
   "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=900&q=82",
 ];
 
+type Presenter = "Mia" | "Oliver" | "Sophie" | "Liam";
+
+const PRESENTER_GRADIENT: Record<Presenter, string> = {
+  Mia:    "linear-gradient(135deg, #151b31 0%, #2a1535 55%, #c99a2e 100%)",
+  Oliver: "linear-gradient(135deg, #151b31 0%, #132a2a 55%, #c99a2e 100%)",
+  Sophie: "linear-gradient(135deg, #151b31 0%, #1f1535 55%, #8d6c20 100%)",
+  Liam:   "linear-gradient(135deg, #151b31 0%, #152235 55%, #c99a2e 100%)",
+};
+
+const PRESENTER_DESC: Record<Presenter, string> = {
+  Mia:    "Polished, warm and premium. Best for luxury homes and prestige brand campaigns.",
+  Oliver: "Confident, refined, direct. Best for market updates and high-value appraisals.",
+  Sophie: "Approachable and modern. Best for social-first residential campaigns.",
+  Liam:   "Energetic and sharp. Best for new developments and investment property listings.",
+};
+
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 12) return "Good morning";
@@ -64,7 +80,7 @@ export default function Dashboard() {
   const { data: stats, isLoading } = useGetJobStats();
   const { user } = useAuth();
   const firstName = user?.firstName ?? user?.email?.split("@")[0] ?? null;
-  const [selectedPresenter, setSelectedPresenter] = useState<"Mia" | "Oliver">("Mia");
+  const [selectedPresenter, setSelectedPresenter] = useState<"Mia" | "Oliver" | "Sophie" | "Liam">("Mia");
 
   const completed = stats?.complete ?? 0;
   const estimatedReach = completed * 5400;
@@ -164,6 +180,29 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* ── Advantage strip ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 20, padding: "0 4px", flexWrap: "wrap" as const }}>
+        {[
+          "AI Script Writer",
+          "AI Presenters",
+          "Teleprompter",
+          "Social Reels",
+          "Property Videos",
+          "Listing Campaigns",
+        ].map((feat, i, arr) => (
+          <React.Fragment key={feat}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 18px", background: i % 2 === 0 ? C.panel : "transparent", borderRadius: 8, border: i % 2 === 0 ? `1px solid ${C.line}` : "none" }}>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="7" cy="7" r="7" fill={C.gold} fillOpacity="0.18" />
+                <path d="M4 7l2 2 4-4" stroke={C.gold} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span style={{ color: C.ink, fontSize: 13, fontWeight: 700, whiteSpace: "nowrap" as const }}>{feat}</span>
+            </div>
+            {i < arr.length - 1 && <div style={{ width: 1, height: 20, background: C.line, margin: "0 2px", flexShrink: 0 }} />}
+          </React.Fragment>
+        ))}
+      </div>
+
       {/* ── Metrics ── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 14, marginBottom: 20 }}>
         {[
@@ -228,7 +267,9 @@ export default function Dashboard() {
                   failed: "Failed",
                 };
                 const color = statusColors[job.status] ?? C.muted;
-                const img = PROPERTY_IMAGES[i % PROPERTY_IMAGES.length];
+                const fallbackImg = PROPERTY_IMAGES[i % PROPERTY_IMAGES.length];
+                const videoUrl = (job as unknown as { videoUrl?: string }).videoUrl;
+                const hasVideo = job.status === "complete" && videoUrl;
                 const tags = job.status === "complete"
                   ? ["Reel", "Script", "Voiceover"]
                   : job.status === "processing"
@@ -237,7 +278,27 @@ export default function Dashboard() {
                 return (
                   <Link key={job.id} href={`/jobs/${job.id}`}>
                     <article style={{ border: `1px solid ${C.line}`, borderRadius: 8, overflow: "hidden", background: C.panel, cursor: "pointer", transition: "border-color 0.2s" }}>
-                      <div style={{ aspectRatio: "16/10", backgroundImage: `url('${img}')`, backgroundSize: "cover", backgroundPosition: "center" }} />
+                      <div style={{ aspectRatio: "16/10", position: "relative", background: "black" }}>
+                        {hasVideo ? (
+                          <video
+                            src={videoUrl}
+                            muted
+                            loop
+                            playsInline
+                            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                            onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
+                            onMouseLeave={e => { (e.currentTarget as HTMLVideoElement).pause(); (e.currentTarget as HTMLVideoElement).currentTime = 0; }}
+                          />
+                        ) : (
+                          <div style={{ width: "100%", height: "100%", backgroundImage: `url('${fallbackImg}')`, backgroundSize: "cover", backgroundPosition: "center" }} />
+                        )}
+                        {hasVideo && (
+                          <div style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,0.7)", borderRadius: 4, padding: "3px 7px", display: "flex", alignItems: "center", gap: 4 }}>
+                            <svg width="8" height="8" viewBox="0 0 8 8" fill={C.gold}><polygon points="1,0 7,4 1,8" /></svg>
+                            <span style={{ color: "white", fontSize: 10, fontWeight: 700 }}>Preview</span>
+                          </div>
+                        )}
+                      </div>
                       <div style={{ padding: 14 }}>
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 7, color, fontSize: 12, fontWeight: 850, textTransform: "uppercase", marginBottom: 8 }}>
                           <div style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />
@@ -281,39 +342,39 @@ export default function Dashboard() {
           {/* Presenter panel */}
           <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, background: C.panel, padding: 18 }}>
             <Eyebrow>AI Presenter Ready</Eyebrow>
-            <div style={{ display: "grid", gridTemplateColumns: "82px minmax(0,1fr)", gap: 14, alignItems: "center", marginTop: 14 }}>
+
+            {/* Selected presenter hero */}
+            <div style={{ display: "grid", gridTemplateColumns: "72px minmax(0,1fr)", gap: 12, alignItems: "center", marginTop: 14 }}>
               <div style={{
-                width: 82, height: 92, borderRadius: 8,
-                background: `linear-gradient(135deg, ${C.deep} 0%, #2a1f3a 50%, ${C.gold} 100%)`,
+                width: 72, height: 80, borderRadius: 8, flexShrink: 0,
+                background: PRESENTER_GRADIENT[selectedPresenter],
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 30, fontWeight: 900, color: C.goldLight,
-                flexShrink: 0,
+                fontSize: 26, fontWeight: 900, color: C.goldLight,
               }}>
                 {selectedPresenter[0]}
               </div>
               <div>
-                <h3 style={{ color: C.ink, margin: "0 0 6px", fontSize: 18, fontWeight: 800 }}>{selectedPresenter}</h3>
-                <p style={{ margin: 0, color: C.muted, lineHeight: 1.4, fontSize: 13 }}>
-                  {selectedPresenter === "Mia"
-                    ? "Polished, warm and premium. Best for luxury homes and prestige brand campaigns."
-                    : selectedPresenter === "Oliver"
-                    ? "Confident, refined, direct. Best for market updates and high-value appraisals."
-                    : "Approachable and modern. Best for social-first residential campaigns."}
+                <h3 style={{ color: C.ink, margin: "0 0 4px", fontSize: 17, fontWeight: 800 }}>{selectedPresenter}</h3>
+                <p style={{ margin: 0, color: C.muted, lineHeight: 1.4, fontSize: 12 }}>
+                  {PRESENTER_DESC[selectedPresenter]}
                 </p>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginTop: 14 }}>
-              {(["Mia", "Oliver"] as const).map(p => (
+
+            {/* 2×2 picker grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 14 }}>
+              {(["Mia", "Oliver", "Sophie", "Liam"] as const).map(p => (
                 <button
                   key={p}
                   type="button"
                   onClick={() => setSelectedPresenter(p)}
                   style={{
-                    border: selectedPresenter === p ? "0" : `1px solid ${C.line}`,
-                    borderRadius: 8, padding: 10,
-                    background: selectedPresenter === p ? C.gold : C.card,
-                    color: selectedPresenter === p ? "white" : C.text,
-                    fontWeight: 800, cursor: "pointer", fontSize: 14,
+                    border: selectedPresenter === p ? `1px solid ${C.gold}` : `1px solid ${C.line}`,
+                    borderRadius: 8, padding: "9px 6px",
+                    background: selectedPresenter === p ? `${C.gold}18` : C.card,
+                    color: selectedPresenter === p ? C.goldLight : C.muted,
+                    fontWeight: 800, cursor: "pointer", fontSize: 13,
+                    transition: "all 0.15s",
                   }}
                 >
                   {p}
@@ -337,7 +398,7 @@ export default function Dashboard() {
 
           {/* Marketing value panel */}
           <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, background: C.panel, padding: 18 }}>
-            <Eyebrow>Estimated Marketing Value</Eyebrow>
+            <Eyebrow>Marketing Value Generated</Eyebrow>
             <div style={{ display: "grid", gap: 12, marginTop: 14 }}>
               {[
                 { label: "Script Creation", val: 50 },
