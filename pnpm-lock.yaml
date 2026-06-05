@@ -48,6 +48,12 @@ catalogs:
     lucide-react:
       specifier: ^0.545.0
       version: 0.545.0
+    stripe:
+      specifier: ^17.7.0
+      version: 17.7.0
+    stripe-replit-sync:
+      specifier: ^1.0.0
+      version: 1.0.0
     tailwind-merge:
       specifier: ^3.3.1
       version: 3.5.0
@@ -1015,6 +1021,13 @@ importers:
         version: 7.3.3(@types/node@25.6.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(tsx@4.21.0)(yaml@2.8.4)
 
   scripts:
+    dependencies:
+      stripe:
+        specifier: 'catalog:'
+        version: 17.7.0
+      stripe-replit-sync:
+        specifier: 'catalog:'
+        version: 1.0.0(stripe@17.7.0)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -7230,6 +7243,10 @@ packages:
     resolution: {integrity: sha512-Bkbih3k+IX/GugN8bKWNpwDiI2xkSLOAR+P34W7pjaR8fXyVay/QqztbrvbHZcU1JlfXncmBhuODY5TYY6DXlw==}
     peerDependencies:
       stripe: '> 11'
+
+  stripe@17.7.0:
+    resolution: {integrity: sha512-aT2BU9KkizY9SATf14WhhYVv2uOapBWX0OFWF4xvcj1mPaNotlSc2CsxpS4DS46ZueSppmCF5BX1sNYBtwBvfw==}
+    engines: {node: '>=12.*'}
 
   stripe@22.2.0:
     resolution: {integrity: sha512-WFGpMOom9QZqso1kcnSwJsCdC1QHDlMoCOxBZRf3JraMzhkfw7dgSdD2a1CFZrqC+mzAfqeEtYILrZhWKIDruA==}
@@ -14850,6 +14867,18 @@ snapshots:
 
   strip-json-comments@5.0.3: {}
 
+  stripe-replit-sync@1.0.0(stripe@17.7.0):
+    dependencies:
+      pg: 8.20.0
+      pg-node-migrations: 0.0.8
+      stripe: 17.7.0
+      ws: 8.21.0
+      yesql: 7.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - pg-native
+      - utf-8-validate
+
   stripe-replit-sync@1.0.0(stripe@22.2.0(@types/node@25.6.2)):
     dependencies:
       pg: 8.20.0
@@ -14861,6 +14890,11 @@ snapshots:
       - bufferutil
       - pg-native
       - utf-8-validate
+
+  stripe@17.7.0:
+    dependencies:
+      '@types/node': 25.6.2
+      qs: 6.15.1
 
   stripe@22.2.0(@types/node@25.6.2):
     optionalDependencies:
