@@ -2,16 +2,29 @@ import { logger } from "./logger";
 
 const HEYGEN_API_BASE = "https://api.heygen.com";
 
-// ── Per-presenter avatar IDs ──────────────────────────────────────────────────
+// ── Per-presenter avatar / look IDs ──────────────────────────────────────────
 // Set these env vars in Secrets to lock each presenter to a specific HeyGen avatar.
 // To find valid IDs for your account call GET /api/heygen/avatars.
 //
-// Fallbacks use known HeyGen v2 public avatar IDs. If a fallback is still
-// returning the wrong avatar, override it via the env var for that presenter.
+// IMPORTANT: HeyGen has two ID types:
+//   - avatar_id (e.g. "Gala_standing_businesssofa_front") — public/library avatars
+//   - look_id   (e.g. "2d06d0f7cca14fe0a9c03e92bd059e27") — custom studio looks
+// These are sent differently in the API payload. This code auto-detects which type
+// based on whether the ID looks like a UUID (hex with dashes).
 const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Gala_standing_businesssofa_front";
 const AVATAR_SOPHIE  = process.env.HEYGEN_AVATAR_SOPHIE  ?? process.env.HEYGEN_AVATAR_FEMALE ?? "Freja_public_1";
 const AVATAR_OLIVER  = process.env.HEYGEN_AVATAR_OLIVER  ?? process.env.HEYGEN_AVATAR_MALE   ?? "Onat_Suit_Front_public";
 const AVATAR_LIAM    = process.env.HEYGEN_AVATAR_LIAM    ?? process.env.HEYGEN_AVATAR_MALE   ?? "Bryan_Suit_Front_public";
+
+// Returns the correct HeyGen character payload depending on whether the ID is
+// a UUID-style look_id or a named avatar_id.
+function buildCharacterPayload(avatarId: string): Record<string, unknown> {
+  const isLookId = /^[0-9a-f]{8}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{12}$/.test(avatarId.replace(/-/g, ""));
+  if (isLookId) {
+    return { type: "avatar", avatar_id: avatarId };
+  }
+  return { type: "avatar", avatar_id: avatarId, avatar_style: "normal" };
+}
 
 // ── Per-presenter HeyGen voice IDs ───────────────────────────────────────────
 // These are HeyGen-side voices (not ElevenLabs). Override per presenter if needed.
@@ -33,10 +46,11 @@ function getAvatarConfig(
 ): { avatarId: string; voiceId: string } {
   const name = (voiceName ?? "").toLowerCase().trim();
 
-  if (name === "mia"    || name === "emma")                              return { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE };
-  if (name === "sophie" || name === "australian real estate agent")      return { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE };
-  if (name === "oliver" || name === "aussie voice")                      return { avatarId: AVATAR_OLIVER, voiceId: VOICE_OLIVER };
-  if (name === "liam"   || name === "morgan voice")                      return { avatarId: AVATAR_LIAM,   voiceId: VOICE_LIAM };
+  if (name === "mia"    || name === "emma")                                        return { avatarId: AVATAR_MIA,    voiceId: VOICE_FEMALE };
+  if (name === "sophie" || name === "sophia" || name === "australian real estate agent") return { avatarId: AVATAR_SOPHIE, voiceId: VOICE_FEMALE };
+  if (name === "oliver" || name === "aussie voice")                                return { avatarId: AVATAR_OLIVER, voiceId: VOICE_OLIVER };
+  if (name === "liam"   || name === "morgan voice")                                return { avatarId: AVATAR_LIAM,   voiceId: VOICE_LIAM };
+  if (name === "james")                                                            return { avatarId: AVATAR_LIAM,   voiceId: VOICE_LIAM };
 
   // Fallback: infer from voice gender
   const isMale =
@@ -96,11 +110,7 @@ export async function generatePresenterVideo(
     body: JSON.stringify({
       video_inputs: [
         {
-          character: {
-            type: "avatar",
-            avatar_id: avatarId,
-            avatar_style: "normal",
-          },
+          character: buildCharacterPayload(avatarId),
           voice: voiceInput,
           background: {
             type: "color",

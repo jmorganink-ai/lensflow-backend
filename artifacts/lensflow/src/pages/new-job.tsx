@@ -18,7 +18,7 @@ const PRESENTER_PRESETS = [
     name: "Mia",
     specialty: "Waterfront · Lifestyle",
     voiceId: "z9fH9S068t9I3i8Y9u4",
-    voiceName: "emma",
+    voiceName: "mia",
     photo: "/presenters/mia-poster.jpg",
   },
   {
@@ -26,7 +26,7 @@ const PRESENTER_PRESETS = [
     name: "Oliver",
     specialty: "Inner-City · Investment",
     voiceId: "Xb7hH9S068t9I3i8Y9u4",
-    voiceName: "aussie voice",
+    voiceName: "oliver",
     photo: "/presenters/oliver-poster.jpg",
   },
   {
@@ -34,7 +34,7 @@ const PRESENTER_PRESETS = [
     name: "Sophie",
     specialty: "Family · Suburban",
     voiceId: "u8fH9S068t9I3i8Y9u4",
-    voiceName: "Australian real estate agent",
+    voiceName: "sophie",
     photo: "/presenters/sophie-poster.jpg",
   },
   {
@@ -42,7 +42,7 @@ const PRESENTER_PRESETS = [
     name: "Liam",
     specialty: "Commercial · Rural · Development",
     voiceId: "nzYv9Z868t9I3i8Y9u4",
-    voiceName: "morgan voice",
+    voiceName: "liam",
     photo: "/presenters/liam-poster.jpg",
   },
   {
