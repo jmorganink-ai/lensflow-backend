@@ -4,3 +4,4 @@ attached_assets/LensFlow-Reel-Creator-May-v4_1780233746149.mp4 filter=lfs diff=l
 artifacts/lensflow/public/backgrounds/bg-reel-2.mp4 filter=lfs diff=lfs merge=lfs -text
 attached_assets/LensFlow-Reel-Creator-May-v4_1780494350935.mp4 filter=lfs diff=lfs merge=lfs -text
 attached_assets/LensFlow__The_Future_of_Real_Estate_Marketing_1080p_1780650741305.mp4 filter=lfs diff=lfs merge=lfs -text
+artifacts/lensflow-site/public/videos/how-it-works.mp4 filter=lfs diff=lfs merge=lfs -text

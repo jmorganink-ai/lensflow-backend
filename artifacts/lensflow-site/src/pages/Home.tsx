@@ -152,6 +152,73 @@ function PresenterCard({ presenter }: { presenter: typeof PRESENTERS[0] }) {
   );
 }
 
+function HowItWorksVideo() {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(false);
+
+  const toggle = () => {
+    if (!ref.current) return;
+    if (playing) { ref.current.pause(); setPlaying(false); }
+    else { ref.current.play().catch(() => {}); setPlaying(true); }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!ref.current) return;
+    ref.current.muted = !ref.current.muted;
+    setMuted(ref.current.muted);
+  };
+
+  return (
+    <div className="relative w-full h-full cursor-pointer" onClick={toggle}>
+      <video
+        ref={ref}
+        src="/videos/how-it-works.mp4"
+        playsInline
+        onEnded={() => setPlaying(false)}
+        className="w-full h-full object-cover"
+      />
+
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+
+      {/* Centre play button — hides while playing */}
+      <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${playing ? "opacity-0" : "opacity-100"}`}>
+        <div className="w-20 h-20 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-2xl transition-transform hover:scale-110">
+          <Play className="w-8 h-8 text-primary-foreground ml-1" />
+        </div>
+      </div>
+
+      {/* Bottom-left label */}
+      <div className="absolute bottom-4 left-4 flex items-center gap-2 pointer-events-none">
+        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+        <span className="text-xs font-mono text-white/80 uppercase tracking-widest">The LensFlow Pipeline</span>
+      </div>
+
+      {/* Bottom-right controls */}
+      <div className="absolute bottom-4 right-4 flex items-center gap-2">
+        <button
+          onClick={toggleMute}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 text-white transition-all backdrop-blur-sm"
+        >
+          {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+          <span className="text-[10px] font-mono uppercase tracking-widest">{muted ? "Unmute" : "Mute"}</span>
+        </button>
+        {playing && (
+          <button
+            onClick={(e) => { e.stopPropagation(); toggle(); }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 text-white transition-all backdrop-blur-sm"
+          >
+            <Pause className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-mono uppercase tracking-widest">Pause</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" as const } }
@@ -428,19 +495,37 @@ export default function Home() {
       </section>
 
       {/* 3. How It Works */}
-      <section id="how-it-works" className="py-24 relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div 
+      <section id="how-it-works" className="py-24 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+
+          {/* Heading */}
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
-            className="text-center mb-20"
+            className="text-center mb-14"
           >
-            <h2 className="font-serif text-3xl md:text-[34px] font-bold mb-6">Create listing videos in minutes</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">No cameras, no lighting setup, no awkward retakes. Paste a URL and let Claude AI and ElevenLabs do the heavy lifting.</p>
+            <div className="text-xs font-mono uppercase tracking-widest text-primary mb-3">The LensFlow Pipeline</div>
+            <h2 className="font-serif text-3xl md:text-[42px] font-bold mb-4">See exactly how it works</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              No cameras. No lighting. No awkward retakes. Paste a URL and your professional video is ready in minutes.
+            </p>
           </motion.div>
 
+          {/* Video player */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl aspect-video max-w-4xl mx-auto bg-black mb-16 group"
+          >
+            <HowItWorksVideo />
+          </motion.div>
+
+          {/* 4-step grid */}
           <div className="grid md:grid-cols-4 gap-8">
             {[
               { step: "01", title: "Paste the URL", desc: "Drop any realestate.com.au, Domain, or agent website listing URL into LensFlow." },
@@ -462,6 +547,21 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+
+          {/* CTA below steps */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+            className="text-center mt-14"
+          >
+            <a href="#hero-form">
+              <Button size="lg" className="rounded-full h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 font-medium">
+                Try It Now — Free <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </a>
+          </motion.div>
         </div>
       </section>
 
