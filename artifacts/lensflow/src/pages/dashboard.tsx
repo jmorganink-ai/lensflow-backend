@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useGetJobStats, useGetMarketBrief, useRefreshMarketBrief, getGetMarketBriefQueryKey } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { FileText, CheckCircle2, XCircle, ArrowRight, Play, ChevronDown, Clock, TrendingUp, TrendingDown, Minus, RefreshCw, MapPin, MessageSquare, BarChart2 } from "lucide-react";
+import { FileText, CheckCircle2, XCircle, ArrowRight, Play, ChevronDown, Clock, TrendingUp, TrendingDown, Minus, RefreshCw, MapPin, MessageSquare, BarChart2, Sparkles, Link2, ImageIcon, Video, Mic, DollarSign, Star, Users } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import buildKitImage from "@assets/LensFlow-The-Build-Kit-every-tool-you-need_1780215479239.png";
 import { useAuth } from "@workspace/replit-auth-web";
@@ -21,7 +21,7 @@ export default function Dashboard() {
 
   if (isLoading) {
     return <div className="space-y-6 animate-pulse">
-      <div className="h-8 w-48 bg-muted rounded"></div>
+      <div className="h-32 bg-muted rounded-xl"></div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-muted rounded"></div>)}
       </div>
@@ -29,24 +29,68 @@ export default function Dashboard() {
     </div>;
   }
 
+  const completed = stats?.complete ?? 0;
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-1">
-          {firstName ? `${getGreeting()}, ${firstName}.` : "Pipeline Overview"}
-        </h1>
-        <p className="text-muted-foreground">
-          {stats?.total === 0
-            ? "No videos yet — paste your first listing URL to get started."
-            : `${stats?.complete ?? 0} video${(stats?.complete ?? 0) !== 1 ? "s" : ""} completed · ${stats?.processing ?? 0} running · ${stats?.queued ?? 0} queued.`}
-        </p>
+
+      {/* ── Hero ── */}
+      <div className="relative rounded-xl overflow-hidden border border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 p-6 md:p-8">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/8 via-transparent to-transparent pointer-events-none" />
+        <div className="relative space-y-3 max-w-2xl">
+          {firstName && (
+            <p className="text-sm text-muted-foreground font-mono">{getGreeting()}, {firstName}.</p>
+          )}
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">
+            Create Luxury Property Campaigns{" "}
+            <span className="text-primary">in Minutes</span>
+          </h1>
+          <p className="text-muted-foreground leading-relaxed max-w-xl">
+            Turn listings, photos and videos into AI-powered marketing campaigns, presenter reels,
+            property walkthroughs and social media content designed to help agents win more listings.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/jobs/new"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Sparkles className="w-4 h-4" />
+              Generate Property Campaign
+            </Link>
+          </div>
+        </div>
+
+        {/* Quick launch cards */}
+        <div className="relative grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+          {[
+            { icon: Link2, label: "Property URL", href: "/jobs/new", desc: "Paste listing link" },
+            { icon: ImageIcon, label: "Upload Photos", href: "/jobs/new", desc: "Photo walkthrough" },
+            { icon: Video, label: "Upload Video", href: "/jobs/new", desc: "Your own footage" },
+            { icon: Mic, label: "Teleprompter", href: "/teleprompter", desc: "Self-record mode" },
+          ].map(({ icon: Icon, label, href, desc }) => (
+            <Link
+              key={label}
+              href={href}
+              className="flex flex-col gap-1.5 p-3 rounded-lg border border-border bg-background/60 hover:border-primary/40 hover:bg-primary/5 transition-all group"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Icon className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <span className="text-xs font-semibold text-foreground">{label}</span>
+              </div>
+              <span className="text-[11px] text-muted-foreground font-mono">{desc}</span>
+            </Link>
+          ))}
+        </div>
       </div>
 
+      {/* ── Stats ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Videos Completed" value={stats?.complete ?? 0} icon={CheckCircle2} color="text-primary" />
-        <StatCard title="Scripts Generated" value={stats?.scriptsGenerated ?? 0} icon={FileText} color="text-blue-400" />
+        <StatCard title="Campaigns Created" value={completed} icon={CheckCircle2} color="text-primary" />
+        <StatCard title="Properties Processed" value={stats?.scriptsGenerated ?? 0} icon={FileText} color="text-blue-400" />
         <StatCard
-          title="Hours Saved"
+          title="Marketing Hours Saved"
           value={stats?.timeSavedHours ?? 0}
           icon={Clock}
           color="text-emerald-400"
@@ -56,17 +100,19 @@ export default function Dashboard() {
         <StatCard title="Failed" value={stats?.failed ?? 0} icon={XCircle} color="text-destructive" />
       </div>
 
-      <MarketBriefCard />
+      {/* ── Presenter Studio ── */}
+      <PresenterStudioCard />
 
+      {/* ── Recent Campaigns ── */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Recent Jobs</h2>
+          <h2 className="text-xl font-semibold">Recent Campaigns</h2>
           <div className="flex items-center gap-4">
             <Link href="/jobs" className="text-xs text-muted-foreground font-mono hover:text-primary transition-colors">
               View all
             </Link>
             <Link href="/jobs/new" className="text-sm text-primary hover:underline font-mono flex items-center gap-1">
-              Start New <ArrowRight className="w-4 h-4" />
+              New Campaign <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -78,7 +124,7 @@ export default function Dashboard() {
                 <Play className="w-6 h-6 text-primary ml-0.5" />
               </div>
               <div className="space-y-1.5">
-                <p className="font-semibold text-foreground">No videos yet</p>
+                <p className="font-semibold text-foreground">No campaigns yet</p>
                 <p className="text-sm text-muted-foreground max-w-xs">
                   Paste a property listing URL and LensFlow will automatically write the script, record the voiceover, and render a presenter video.
                 </p>
@@ -87,14 +133,14 @@ export default function Dashboard() {
                 href="/jobs/new"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded text-sm font-mono font-medium hover:bg-primary/90 transition-colors"
               >
-                Generate Your First Video <ArrowRight className="w-4 h-4" />
+                Generate Your First Campaign <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           ) : (
             <div className="divide-y divide-border">
               {stats?.recentJobs?.map((job) => (
-                <Link 
-                  key={job.id} 
+                <Link
+                  key={job.id}
                   href={`/jobs/${job.id}`}
                   className="flex items-center justify-between p-4 hover:bg-secondary/50 transition-colors group"
                 >
@@ -117,13 +163,150 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Example Videos */}
+      {/* ── Marketing Value Generated ── */}
+      <MarketingValueCard completed={completed} />
+
+      {/* ── Example Videos ── */}
       <SampleVideos />
+
+      {/* ── Market Intelligence (moved below sample videos) ── */}
+      <MarketBriefCard />
 
       <RoadmapCard />
     </div>
   );
 }
+
+// ── Presenter Studio Card ─────────────────────────────────────────────────────
+
+const PRESENTERS = [
+  {
+    name: "Mia",
+    specialty: "Luxury listings",
+    initials: "M",
+    color: "from-rose-500/20 to-rose-500/5",
+    accent: "text-rose-400",
+    border: "border-rose-500/20",
+  },
+  {
+    name: "Oliver",
+    specialty: "Corporate premium",
+    initials: "O",
+    color: "from-blue-500/20 to-blue-500/5",
+    accent: "text-blue-400",
+    border: "border-blue-500/20",
+  },
+  {
+    name: "Liam",
+    specialty: "Confident sales",
+    initials: "L",
+    color: "from-amber-500/20 to-amber-500/5",
+    accent: "text-amber-400",
+    border: "border-amber-500/20",
+  },
+  {
+    name: "Sophie",
+    specialty: "Lifestyle reels",
+    initials: "S",
+    color: "from-emerald-500/20 to-emerald-500/5",
+    accent: "text-emerald-400",
+    border: "border-emerald-500/20",
+  },
+];
+
+function PresenterStudioCard() {
+  return (
+    <div className="border border-border rounded-lg bg-card overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex items-center gap-2.5">
+          <Users className="w-4 h-4 text-primary" />
+          <span className="text-sm font-mono font-medium uppercase tracking-wider">AI Presenter Studio</span>
+          <span className="text-[10px] font-mono text-emerald-400 border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+            Ready
+          </span>
+        </div>
+        <Link href="/jobs/new" className="text-xs text-primary hover:underline font-mono flex items-center gap-1">
+          Choose presenter <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+      <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+        {PRESENTERS.map((p) => (
+          <div
+            key={p.name}
+            className={`relative rounded-lg border ${p.border} bg-gradient-to-br ${p.color} p-4 flex flex-col items-center gap-2 text-center`}
+          >
+            <div className={`w-12 h-12 rounded-full border ${p.border} bg-background/60 flex items-center justify-center text-lg font-bold ${p.accent}`}>
+              {p.initials}
+            </div>
+            <div>
+              <p className="font-semibold text-sm text-foreground">{p.name}</p>
+              <p className={`text-[11px] font-mono ${p.accent}`}>{p.specialty}</p>
+            </div>
+            <div className="flex items-center gap-1">
+              {[1,2,3,4,5].map(i => (
+                <Star key={i} className={`w-2.5 h-2.5 fill-current ${p.accent}`} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Marketing Value Card ──────────────────────────────────────────────────────
+
+const VALUE_ITEMS = [
+  { label: "Script Creation", value: 50 },
+  { label: "Voiceover", value: 75 },
+  { label: "Video Production", value: 250 },
+  { label: "Social Package", value: 150 },
+];
+const VALUE_PER_CAMPAIGN = VALUE_ITEMS.reduce((s, i) => s + i.value, 0);
+
+function MarketingValueCard({ completed }: { completed: number }) {
+  const totalValue = completed > 0 ? completed * VALUE_PER_CAMPAIGN : VALUE_PER_CAMPAIGN;
+  const label = completed > 0 ? `${completed} campaign${completed !== 1 ? "s" : ""}` : "Per campaign";
+
+  return (
+    <div className="border border-border rounded-lg bg-card overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex items-center gap-2.5">
+          <DollarSign className="w-4 h-4 text-primary" />
+          <span className="text-sm font-mono font-medium uppercase tracking-wider">Marketing Value Generated</span>
+        </div>
+        <span className="text-[10px] font-mono text-muted-foreground border border-border px-1.5 py-0.5 rounded">
+          {label}
+        </span>
+      </div>
+      <div className="p-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          {VALUE_ITEMS.map(({ label: l, value }) => (
+            <div key={l} className="bg-background border border-border rounded-lg p-3">
+              <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wide mb-1">{l}</p>
+              <p className="text-lg font-bold font-mono text-foreground">
+                ${completed > 0 ? (value * completed).toLocaleString() : value}
+              </p>
+              {completed > 0 && (
+                <p className="text-[10px] font-mono text-muted-foreground">${value} × {completed}</p>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-primary/10 border border-primary/20">
+          <span className="text-sm font-mono font-semibold text-primary uppercase tracking-wider">
+            Estimated Value {completed > 0 ? "Today" : "Per Campaign"}
+          </span>
+          <span className="text-2xl font-bold font-mono text-primary">
+            ${totalValue.toLocaleString()}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Existing components (unchanged) ──────────────────────────────────────────
 
 function TrendIcon({ trend }: { trend: string }) {
   if (trend === "up") return <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />;
@@ -150,12 +333,11 @@ function MarketBriefCard() {
 
   return (
     <div className="border border-border rounded-lg bg-card overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2.5">
           <BarChart2 className="w-4 h-4 text-primary" />
           <span className="text-sm font-mono font-medium uppercase tracking-wider">
-            AU Market Brief
+            AU Market Intelligence
           </span>
           {updatedAgo && (
             <span className="text-[10px] font-mono text-muted-foreground border border-border px-1.5 py-0.5 rounded">
@@ -185,14 +367,12 @@ function MarketBriefCard() {
         </div>
       ) : isError ? (
         <div className="p-6 text-center text-sm text-muted-foreground">
-          Could not load market brief. <button type="button" onClick={handleRefresh} className="text-primary underline">Try again</button>
+          Could not load market intelligence. <button type="button" onClick={handleRefresh} className="text-primary underline">Try again</button>
         </div>
       ) : brief ? (
         <div className="p-4 space-y-4">
-          {/* Headline */}
           <p className="text-base font-semibold text-foreground leading-snug">{brief.headline}</p>
 
-          {/* Key Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {brief.keyStats.map((stat) => (
               <div key={stat.label} className="bg-background border border-border rounded-lg p-3">
@@ -207,10 +387,8 @@ function MarketBriefCard() {
             ))}
           </div>
 
-          {/* Snapshot */}
           <p className="text-sm text-muted-foreground leading-relaxed">{brief.snapshot}</p>
 
-          {/* Talking Points */}
           <div className="space-y-1.5">
             <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
               <MessageSquare className="w-3 h-3" /> Agent Talking Points
@@ -225,7 +403,6 @@ function MarketBriefCard() {
             ))}
           </div>
 
-          {/* Hot Markets + Outlook */}
           <div className="flex flex-col sm:flex-row gap-3 pt-1 border-t border-border">
             <div className="flex-1">
               <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
@@ -286,7 +463,6 @@ function SampleVideos() {
       {expanded && (
         <div className="border-t border-border p-4 space-y-3">
           <p className="text-xs text-muted-foreground font-mono mb-4">Real LensFlow output — hover to preview, click to play with sound.</p>
-          {/* Featured */}
           <div className="relative rounded-xl overflow-hidden border border-white/10 aspect-video bg-black group">
             <video
               src={featured.src}
@@ -305,7 +481,6 @@ function SampleVideos() {
               AI Generated
             </div>
           </div>
-          {/* Grid */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
             {grid.map((v, i) => (
               <div
@@ -398,7 +573,7 @@ export function JobStatusBadge({ status }: { status: string }) {
     complete: "bg-primary/10 text-primary border-primary/20",
     failed: "bg-destructive/10 text-destructive border-destructive/20"
   };
-  
+
   return (
     <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-mono border ${colors[status as keyof typeof colors] || colors.queued}`}>
       {status}
