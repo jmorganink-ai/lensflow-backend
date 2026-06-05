@@ -159,7 +159,7 @@ export async function composePresenterVideo(
     length: TOTAL_DURATION,
     fit: "contain",
     scale: hasPhotos ? 0.65 : 1.0,
-    position: hasPhotos ? "bottomCenter" : "center",
+    position: hasPhotos ? "bottom" : "center",
     offset: hasPhotos ? { x: 0, y: 0.06 } : undefined,
     transition: { in: "fade" },
   };
@@ -180,8 +180,8 @@ export async function composePresenterVideo(
     transition: { in: "fade", out: "fade" },
   };
 
-  // ── Presenter name badge: slides in at 8s, stays visible ──
-  const presenterBadge = {
+  // ── Presenter name badge: slides in at 8s (skip if timeline too short) ──
+  const presenterBadge = TOTAL_DURATION > 9 ? {
     asset: {
       type: "title",
       text: `PRESENTED BY  ${presenterLabel.toUpperCase()}`,
@@ -191,13 +191,13 @@ export async function composePresenterVideo(
     },
     start: 8,
     length: TOTAL_DURATION - 8,
-    position: "bottomCenter",
+    position: "bottom",
     offset: { x: 0, y: -0.03 },
     transition: { in: "slideUp" },
-  };
+  } : null;
 
-  // ── Mid-video callout: domain branding slides in at 15s ──
-  const midCallout = {
+  // ── Mid-video callout: domain branding (skip if timeline too short) ──
+  const midCallout = TOTAL_DURATION > 16 ? {
     asset: {
       type: "title",
       text: `lensflow.com.au  ·  ${domain}`,
@@ -210,10 +210,10 @@ export async function composePresenterVideo(
     position: "topRight",
     offset: { x: -0.02, y: -0.04 },
     transition: { in: "fade" },
-  };
+  } : null;
 
-  // ── Closing CTA: last 8 seconds ──
-  const closingCta = {
+  // ── Closing CTA: last 8 seconds (skip if timeline too short) ──
+  const closingCta = TOTAL_DURATION > 9 ? {
     asset: {
       type: "title",
       text: "Book Your Inspection Today",
@@ -221,21 +221,21 @@ export async function composePresenterVideo(
       color: "#C9962A",
       size: "medium",
     },
-    start: TOTAL_DURATION - 8,
-    length: 7,
+    start: Math.max(0, TOTAL_DURATION - 8),
+    length: Math.min(7, TOTAL_DURATION),
     position: "center",
     offset: { x: 0, y: 0.22 },
     transition: { in: "fade", out: "fade" },
-  };
+  } : null;
 
   const tracks = [
     buildPhotoTrack(),
     ...(vignetteTrack ? [vignetteTrack] : []),
     { clips: [presenterClip] },
     { clips: [openingTitle] },
-    { clips: [presenterBadge] },
-    { clips: [midCallout] },
-    { clips: [closingCta] },
+    ...(presenterBadge ? [{ clips: [presenterBadge] }] : []),
+    ...(midCallout ? [{ clips: [midCallout] }] : []),
+    ...(closingCta ? [{ clips: [closingCta] }] : []),
   ];
 
   const musicUrl = musicTrack ? MUSIC_TRACK_URLS[musicTrack] : MUSIC_TRACK_URLS["uplifting"];

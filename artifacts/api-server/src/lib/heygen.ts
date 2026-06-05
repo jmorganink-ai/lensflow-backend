@@ -156,7 +156,16 @@ export async function generatePresenterVideo(
     }
 
     const statusData = (await statusRes.json()) as {
-      data?: { status: string; video_url?: string };
+      data?: {
+        status: string;
+        video_url?: string;
+        error?: {
+          code?: string;
+          message?: string;
+          detail?: string;
+          activity_name?: string;
+        };
+      };
     };
 
     const status = statusData.data?.status;
@@ -170,7 +179,13 @@ export async function generatePresenterVideo(
     }
 
     if (status === "failed") {
-      throw new Error(`HeyGen video generation failed (id=${videoId})`);
+      const heygenError = statusData.data?.error;
+      logger.error(
+        { videoId, errorCode: heygenError?.code, errorMessage: heygenError?.message, errorDetail: heygenError?.detail, activity: heygenError?.activity_name },
+        "HeyGen video generation failed — full error detail",
+      );
+      const reason = heygenError?.message ?? heygenError?.detail ?? heygenError?.code ?? "unknown reason";
+      throw new Error(`HeyGen video generation failed (id=${videoId}): ${reason}`);
     }
   }
 
