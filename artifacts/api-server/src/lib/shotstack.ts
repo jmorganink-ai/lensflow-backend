@@ -601,7 +601,11 @@ export async function composeVoicePhotosVideo(
     const statusRes = await fetch(`${SHOTSTACK_API_BASE}/renders/${renderId}`, {
       headers: { "x-api-key": apiKey },
     });
-    if (!statusRes.ok) { logger.warn({ attempt }, "Shotstack voice-photos poll failed — retrying"); continue; }
+    if (!statusRes.ok) {
+      const errText = await statusRes.text().catch(() => "(unreadable)");
+      logger.warn({ attempt, httpStatus: statusRes.status, body: errText.slice(0, 300) }, "Shotstack voice-photos poll failed — retrying");
+      continue;
+    }
     const statusData = (await statusRes.json()) as { success: boolean; response?: { status: string; url?: string } };
     const status = statusData.response?.status;
     logger.info({ renderId, status, attempt }, "Shotstack voice-photos poll");
