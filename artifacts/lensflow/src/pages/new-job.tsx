@@ -55,6 +55,15 @@ const PRESENTER_PRESETS = [
   },
 ];
 
+const PRESENTER_VOICE_NEUTRAL: Record<string, string> = {
+  "x3PfG9wL6FOEApZ1VJ9H": "Female — Warm",
+  "jfIS2w2yJi0grJZPyEsk": "Male — Confident",
+  "69h9o7wh5u0isWHzdogD": "Female — Energetic",
+  "nzYv9Z868t9I3i8Y9u4": "Male — Relaxed",
+  "yXFr3XVHzrViCIHi1yoc": "Male — Authoritative",
+  "g5fH9S068t9I3i8Y9u4": "Female — Friendly",
+};
+
 const MUSIC_PRESETS = [
   { id: "uplifting", label: "Uplifting", emoji: "✨", desc: "Bright & positive — lifestyle properties" },
   { id: "cinematic", label: "Cinematic", emoji: "🎬", desc: "Epic & dramatic — premium listings" },

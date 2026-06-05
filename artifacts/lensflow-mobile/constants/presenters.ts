@@ -2,6 +2,8 @@ export interface Presenter {
   id: string;
   name: string;
   specialty: string;
+  neutralName: string;
+  neutralSpecialty: string;
   voiceId: string;
   voiceName: string;
   photo: string;
@@ -12,6 +14,8 @@ export const PRESENTERS: Presenter[] = [
     id: "mia",
     name: "Mia",
     specialty: "Waterfront · Lifestyle",
+    neutralName: "Female — Warm",
+    neutralSpecialty: "Natural · Conversational",
     voiceId: "x3PfG9wL6FOEApZ1VJ9H",
     voiceName: "mia",
     photo: "https://files2.heygen.ai/avatar/v3/96a78a5d17d04e75adc4b53a89eb3fe4_38970/preview_talk_7.webp",
@@ -20,6 +24,8 @@ export const PRESENTERS: Presenter[] = [
     id: "oliver",
     name: "Oliver",
     specialty: "Inner-City · Investment",
+    neutralName: "Male — Confident",
+    neutralSpecialty: "Clear · Authoritative",
     voiceId: "jfIS2w2yJi0grJZPyEsk",
     voiceName: "oliver",
     photo: "https://files2.heygen.ai/avatar/v3/e2811ccbb3b247fabf76a93d288a75a6_43160/preview_target.webp",
@@ -28,6 +34,8 @@ export const PRESENTERS: Presenter[] = [
     id: "sophie",
     name: "Sophie",
     specialty: "Family · Suburban",
+    neutralName: "Female — Energetic",
+    neutralSpecialty: "Bright · Engaging",
     voiceId: "69h9o7wh5u0isWHzdogD",
     voiceName: "sophie",
     photo: "https://files2.heygen.ai/avatar/v3/5ea97a1a6cbf4a96b5ee910aa8f4f08d_62450/preview_target.webp",
@@ -36,6 +44,8 @@ export const PRESENTERS: Presenter[] = [
     id: "liam",
     name: "Liam",
     specialty: "Commercial · Rural · Development",
+    neutralName: "Male — Relaxed",
+    neutralSpecialty: "Warm · Approachable",
     voiceId: "nzYv9Z868t9I3i8Y9u4",
     voiceName: "liam",
     photo: "https://files2.heygen.ai/avatar/v3/4a77fc7cc1cb4304b40c61ac1e11921a_43310/preview_target.webp",
