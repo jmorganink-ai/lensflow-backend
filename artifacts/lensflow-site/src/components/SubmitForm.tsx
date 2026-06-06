@@ -36,7 +36,7 @@ const PRESENTER_PRESETS = [
   {
     id: "james",
     name: "James",
-    specialty: "Commercial / Rural / Development",
+    specialty: "Commercial / Rural",
     voiceId: "J5tYJbZpL62OrQsj70q6",
     voiceName: "morgan voice",
     photo: "/presenters/james-poster.jpg",
