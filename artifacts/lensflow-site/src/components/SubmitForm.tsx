@@ -230,8 +230,8 @@ export function SubmitForm() {
                   isSelected ? "border-primary shadow-[0_0_14px_rgba(201,154,46,0.35)]" : "border-white/10 hover:border-white/30"
                 }`}
               >
-                {/* Photo — 4:5 rectangle */}
-                <div className="relative aspect-[4/5] overflow-hidden bg-black">
+                {/* Photo — 3:4 rectangle */}
+                <div className="relative aspect-[3/4] overflow-hidden bg-black">
                   <img src={p.photo} alt={p.name} className="w-full h-full object-cover object-top" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                   {isSelected && (
@@ -249,9 +249,9 @@ export function SubmitForm() {
                   </button>
                 </div>
                 {/* Footer label — always visible, never clipped */}
-                <div className="bg-card px-1.5 py-1.5">
+                <div className="bg-card px-1.5 py-1.5 min-h-[2.75rem]">
                   <div className="text-[11px] font-semibold text-white leading-none">{p.name}</div>
-                  <div className="text-[9px] text-primary font-mono leading-tight mt-0.5 truncate">{p.specialty}</div>
+                  <div className="text-[9px] text-primary font-mono leading-tight mt-0.5 line-clamp-2">{p.specialty}</div>
                 </div>
                 <audio
                   ref={(el) => { audioRefs.current[p.id] = el; }}
