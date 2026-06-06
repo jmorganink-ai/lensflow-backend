@@ -83,7 +83,7 @@ export default function Slide10Close() {
           Start your first listing video in under 10 minutes. No production team, no scheduling, no waiting.
         </p>
 
-        <div style={{ display: "flex", gap: "4vw", alignItems: "center' }}>
+        <div style={{ display: "flex", gap: "4vw", alignItems: "center" }}>
           <div>
             <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.8vw", fontWeight: 900, color: "#F0EDE8", letterSpacing: "-0.03em" }}>14-day</div>
             <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.85vw", color: "#8892A4" }}>free trial</div>

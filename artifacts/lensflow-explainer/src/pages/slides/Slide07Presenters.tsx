@@ -57,9 +57,9 @@ export default function Slide07Presenters() {
 
         {/* Mia */}
         <div style={{ flex: 1, backgroundColor: "#111827", border: "1px solid #1E2A3A", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <div style={{ height: "32vh", backgroundColor: "#1A2535", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden' }}>
+          <div style={{ height: "32vh", backgroundColor: "#1A2535", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
             <img
-              src={`${base}presenters/mia-poster.jpg`}
+              src={`${base}mia-poster.jpg`}
               crossOrigin="anonymous"
               alt="Mia"
               style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
@@ -78,7 +78,7 @@ export default function Slide07Presenters() {
         <div style={{ flex: 1, backgroundColor: "#111827", border: "1px solid #1E2A3A", display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <div style={{ height: "32vh", backgroundColor: "#1A2535", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
             <img
-              src={`${base}presenters/oliver-poster.jpg`}
+              src={`${base}oliver-poster.jpg`}
               crossOrigin="anonymous"
               alt="Oliver"
               style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
@@ -97,7 +97,7 @@ export default function Slide07Presenters() {
         <div style={{ flex: 1, backgroundColor: "#111827", border: "1px solid #1E2A3A", display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <div style={{ height: "32vh", backgroundColor: "#1A2535", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
             <img
-              src={`${base}presenters/sophie-poster.jpg`}
+              src={`${base}sophie-poster.jpg`}
               crossOrigin="anonymous"
               alt="Sophie"
               style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
@@ -116,7 +116,7 @@ export default function Slide07Presenters() {
         <div style={{ flex: 1, backgroundColor: "#111827", border: "1px solid #1E2A3A", display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <div style={{ height: "32vh", backgroundColor: "#1A2535", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
             <img
-              src={`${base}presenters/james-poster.jpg`}
+              src={`${base}james-poster.jpg`}
               crossOrigin="anonymous"
               alt="James"
               style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}

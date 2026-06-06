@@ -1,1 +1,82 @@
-[]
+[
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000001",
+    "position": 1,
+    "filepath": "src/pages/slides/Slide01Title.tsx",
+    "title": "LensFlow — Title",
+    "description": "Opening title slide: 'Your Listing Goes Live Today. Your Video Should Too.'",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0002-4000-8000-000000000002",
+    "position": 2,
+    "filepath": "src/pages/slides/Slide02Problem.tsx",
+    "title": "The Problem",
+    "description": "The 48-hour listing window: why video matters and why traditional production misses it.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0003-4000-8000-000000000003",
+    "position": 3,
+    "filepath": "src/pages/slides/Slide03Cost.tsx",
+    "title": "The Real Cost",
+    "description": "Time and money comparison: 5–8 days, $2,500 average, 12% attention remaining after peak.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0004-4000-8000-000000000004",
+    "position": 4,
+    "filepath": "src/pages/slides/Slide04Intro.tsx",
+    "title": "The Solution",
+    "description": "LensFlow introduction: paste a URL, get a video in under 10 minutes for $79/month.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0005-4000-8000-000000000005",
+    "position": 5,
+    "filepath": "src/pages/slides/Slide05Pipeline.tsx",
+    "title": "How It Works",
+    "description": "5-step pipeline: URL parse → Claude AI → ElevenLabs → HeyGen → Shotstack MP4.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0006-4000-8000-000000000006",
+    "position": 6,
+    "filepath": "src/pages/slides/Slide06Speed.tsx",
+    "title": "Speed Comparison",
+    "description": "Side-by-side: traditional 5–8 days vs LensFlow under 10 minutes.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0007-4000-8000-000000000007",
+    "position": 7,
+    "filepath": "src/pages/slides/Slide07Presenters.tsx",
+    "title": "The Presenters",
+    "description": "Mia (Residential), Oliver (Luxury), Sophie (Investment), James (Commercial/Rural).",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0008-4000-8000-000000000008",
+    "position": 8,
+    "filepath": "src/pages/slides/Slide08Pricing.tsx",
+    "title": "Pricing",
+    "description": "Three tiers: Starter $79, Elite $199, Concierge $399 per month.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0009-4000-8000-000000000009",
+    "position": 9,
+    "filepath": "src/pages/slides/Slide09Tech.tsx",
+    "title": "Built On",
+    "description": "Technology stack: Anthropic Claude, ElevenLabs, HeyGen, Shotstack.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0010-4000-8000-000000000010",
+    "position": 10,
+    "filepath": "src/pages/slides/Slide10Close.tsx",
+    "title": "Closing",
+    "description": "CTA: 14-day free trial, no credit card, cancel anytime.",
+    "speakerNotes": ""
+  }
+]

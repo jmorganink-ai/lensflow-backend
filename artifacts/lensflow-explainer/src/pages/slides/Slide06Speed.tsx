@@ -49,7 +49,7 @@ export default function Slide06Speed() {
       {/* Main comparison */}
       <div style={{ display: "flex", gap: "3vw", flex: 1 }}>
         {/* Traditional */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column', gap: '3vh' }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "3vh" }}>
           <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.85vw", color: "#8892A4", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "2vh" }}>
             Traditional Production
           </div>

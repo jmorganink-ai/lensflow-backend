@@ -50,58 +50,58 @@ export default function Slide05Pipeline() {
       <div style={{ display: "flex", gap: "0", flex: 1, alignItems: "stretch" }}>
 
         {/* Step 1 */}
-        <div style={{ flex: 1, backgroundColor: "#111827", border: "1px solid #1E2A3A", borderRight: "none", padding: "3.5vh 2vw", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", fontWeight: 600, marginBottom: "2vh" }}>01</div>
-          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#F0EDE8", marginBottom: "1.5vh", lineHeight: 1.2 }}>Listing URL</div>
-          <div style={{ width: "2vw", height: "1px", backgroundColor: "#C99A2E", opacity: 0.5, marginBottom: "2vh" }} />
-          <div style={{ fontSize: "1vw", color: "#8892A4", lineHeight: 1.55, flex: 1 }}>
+        <div style={{ flex: 1, backgroundColor: "#111827", border: "1px solid #1E2A3A", borderRight: "none", padding: "3vh 1.8vw 2.5vh", display: "flex", flexDirection: "column" }}>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", fontWeight: 600, marginBottom: "1.5vh" }}>01</div>
+          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#F0EDE8", marginBottom: "1.2vh", lineHeight: 1.2 }}>Listing URL</div>
+          <div style={{ width: "2vw", height: "1px", backgroundColor: "#C99A2E", opacity: 0.5, marginBottom: "1.5vh" }} />
+          <div style={{ fontSize: "0.95vw", color: "#8892A4", lineHeight: 1.5, flex: 1 }}>
             Paste any Domain, realestate.com.au, or agency URL. LensFlow extracts suburb, property type, beds, and key features automatically.
           </div>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", marginTop: "2.5vh" }}>URL parse</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.75vw", color: "#C99A2E", marginTop: "2vh", borderTop: "1px solid #1E2A3A", paddingTop: "1.2vh" }}>URL parse</div>
         </div>
 
         {/* Step 2 */}
-        <div style={{ flex: 1, backgroundColor: "#0E1829", border: "1px solid #1E2A3A", borderRight: "none", padding: "3.5vh 2vw", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", fontWeight: 600, marginBottom: "2vh" }}>02</div>
-          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#F0EDE8", marginBottom: "1.5vh", lineHeight: 1.2 }}>Claude AI</div>
-          <div style={{ width: "2vw", height: "1px", backgroundColor: "#C99A2E", opacity: 0.5, marginBottom: "2vh" }} />
-          <div style={{ fontSize: "1vw", color: "#8892A4", lineHeight: 1.55, flex: 1 }}>
+        <div style={{ flex: 1, backgroundColor: "#0E1829", border: "1px solid #1E2A3A", borderRight: "none", padding: "3vh 1.8vw 2.5vh", display: "flex", flexDirection: "column" }}>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", fontWeight: 600, marginBottom: "1.5vh" }}>02</div>
+          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#F0EDE8", marginBottom: "1.2vh", lineHeight: 1.2 }}>Claude AI</div>
+          <div style={{ width: "2vw", height: "1px", backgroundColor: "#C99A2E", opacity: 0.5, marginBottom: "1.5vh" }} />
+          <div style={{ fontSize: "0.95vw", color: "#8892A4", lineHeight: 1.5, flex: 1 }}>
             Anthropic Claude writes a property-specific 90-second script. Tone, suburb highlights, and lifestyle cues tailored to each listing.
           </div>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", marginTop: "2.5vh" }}>Script generation</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.75vw", color: "#C99A2E", marginTop: "2vh", borderTop: "1px solid #1E2A3A", paddingTop: "1.2vh" }}>Script generation</div>
         </div>
 
         {/* Step 3 */}
-        <div style={{ flex: 1, backgroundColor: "#111827", border: "1px solid #1E2A3A", borderRight: "none", padding: "3.5vh 2vw", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", fontWeight: 600, marginBottom: "2vh" }}>03</div>
-          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#F0EDE8", marginBottom: "1.5vh", lineHeight: 1.2 }}>ElevenLabs</div>
-          <div style={{ width: "2vw", height: "1px", backgroundColor: "#C99A2E", opacity: 0.5, marginBottom: "2vh" }} />
-          <div style={{ fontSize: "1vw", color: "#8892A4", lineHeight: 1.55, flex: 1 }}>
+        <div style={{ flex: 1, backgroundColor: "#111827", border: "1px solid #1E2A3A", borderRight: "none", padding: "3vh 1.8vw 2.5vh", display: "flex", flexDirection: "column" }}>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", fontWeight: 600, marginBottom: "1.5vh" }}>03</div>
+          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#F0EDE8", marginBottom: "1.2vh", lineHeight: 1.2 }}>ElevenLabs</div>
+          <div style={{ width: "2vw", height: "1px", backgroundColor: "#C99A2E", opacity: 0.5, marginBottom: "1.5vh" }} />
+          <div style={{ fontSize: "0.95vw", color: "#8892A4", lineHeight: 1.5, flex: 1 }}>
             The script is voiced by a natural-sounding AI presenter — Mia, Oliver, Sophie, or James — using ElevenLabs neural voice synthesis.
           </div>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", marginTop: "2.5vh" }}>Voiceover synthesis</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.75vw", color: "#C99A2E", marginTop: "2vh", borderTop: "1px solid #1E2A3A", paddingTop: "1.2vh" }}>Voiceover synthesis</div>
         </div>
 
         {/* Step 4 */}
-        <div style={{ flex: 1, backgroundColor: "#0E1829", border: "1px solid #1E2A3A", borderRight: "none", padding: "3.5vh 2vw", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", fontWeight: 600, marginBottom: "2vh" }}>04</div>
-          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#F0EDE8", marginBottom: "1.5vh", lineHeight: 1.2 }}>HeyGen</div>
-          <div style={{ width: "2vw", height: "1px", backgroundColor: "#C99A2E", opacity: 0.5, marginBottom: "2vh" }} />
-          <div style={{ fontSize: "1vw", color: "#8892A4", lineHeight: 1.55, flex: 1 }}>
+        <div style={{ flex: 1, backgroundColor: "#0E1829", border: "1px solid #1E2A3A", borderRight: "none", padding: "3vh 1.8vw 2.5vh", display: "flex", flexDirection: "column" }}>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", fontWeight: 600, marginBottom: "1.5vh" }}>04</div>
+          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#F0EDE8", marginBottom: "1.2vh", lineHeight: 1.2 }}>HeyGen</div>
+          <div style={{ width: "2vw", height: "1px", backgroundColor: "#C99A2E", opacity: 0.5, marginBottom: "1.5vh" }} />
+          <div style={{ fontSize: "0.95vw", color: "#8892A4", lineHeight: 1.5, flex: 1 }}>
             HeyGen syncs the voiceover to a photorealistic AI avatar, producing a lip-synced presenter video indistinguishable from live footage.
           </div>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#C99A2E", marginTop: "2.5vh" }}>Lip-sync render</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.75vw", color: "#C99A2E", marginTop: "2vh", borderTop: "1px solid #1E2A3A", paddingTop: "1.2vh" }}>Lip-sync render</div>
         </div>
 
         {/* Step 5 */}
-        <div style={{ flex: 1, backgroundColor: "#C99A2E", border: "1px solid #C99A2E", padding: "3.5vh 2vw", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#7A5C14", fontWeight: 600, marginBottom: "2vh" }}>05</div>
-          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#0A1020", marginBottom: "1.5vh", lineHeight: 1.2 }}>Shotstack</div>
-          <div style={{ width: "2vw", height: "1px", backgroundColor: "#0A1020", opacity: 0.4, marginBottom: "2vh" }} />
-          <div style={{ fontSize: "1vw", color: "#5C4210", lineHeight: 1.55, flex: 1 }}>
+        <div style={{ flex: 1, backgroundColor: "#C99A2E", border: "1px solid #C99A2E", padding: "3vh 1.8vw 2.5vh", display: "flex", flexDirection: "column" }}>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#7A5C14", fontWeight: 600, marginBottom: "1.5vh" }}>05</div>
+          <div style={{ fontSize: "1.2vw", fontWeight: 700, color: "#0A1020", marginBottom: "1.2vh", lineHeight: 1.2 }}>Shotstack</div>
+          <div style={{ width: "2vw", height: "1px", backgroundColor: "#0A1020", opacity: 0.4, marginBottom: "1.5vh" }} />
+          <div style={{ fontSize: "0.95vw", color: "#5C4210", lineHeight: 1.5, flex: 1 }}>
             Shotstack composes the final branded MP4 with property overlays, logo, agent contact info, and a polished outro sequence.
           </div>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#7A5C14", marginTop: "2.5vh" }}>Final MP4 ready</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.75vw", color: "#7A5C14", marginTop: "2vh", borderTop: "1px solid rgba(10,16,32,0.2)", paddingTop: "1.2vh" }}>Final MP4 ready</div>
         </div>
       </div>
 

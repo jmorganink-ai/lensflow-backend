@@ -87,7 +87,7 @@ export default function Slide08Pricing() {
         </div>
 
         {/* Elite — highlighted */}
-        <div style={{ flex: 1, backgroundColor: "#C99A2E", padding: "4vh 2.5vw", display: "flex", flexDirection: "column", position: "relative' }}>
+        <div style={{ flex: 1, backgroundColor: "#C99A2E", padding: "4vh 2.5vw", display: "flex", flexDirection: "column", position: "relative" }}>
           <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8vw", color: "#7A5C14", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "2vh" }}>
             Elite
           </div>

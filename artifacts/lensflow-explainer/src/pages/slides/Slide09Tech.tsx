@@ -86,7 +86,7 @@ export default function Slide09Tech() {
         </div>
 
         {/* Right: tech stack boxes */}
-        <div style={{ flex: 0.85, display: "flex", flexDirection: "column", gap: "2vh' }}>
+        <div style={{ flex: 0.85, display: "flex", flexDirection: "column", gap: "2vh" }}>
           <div style={{ flex: 1, backgroundColor: "#111827", border: "1px solid #1E2A3A", padding: "2.5vh 2.5vw", display: "flex", flexDirection: "column", gap: "0.8vh", marginBottom: "1.8vh" }}>
             <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.75vw", color: "#C99A2E" }}>Script</div>
             <div style={{ fontSize: "1.4vw", fontWeight: 700, color: "#F0EDE8" }}>Anthropic Claude</div>
