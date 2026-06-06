@@ -321,6 +321,28 @@ export default function Home() {
                 </motion.article>
               ))}
             </div>
+
+            {/* Campaign strategy showcase */}
+            <div className="mt-8 overflow-hidden rounded-[1.75rem] border border-white/10">
+              <div className="relative">
+                <img
+                  src="/campaign-showcase.png"
+                  alt="LensFlow campaign strategies: The Morgan Marketing Method, The Silent Listing Killer, The 24/7 Digital Salesperson"
+                  className="w-full object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-black/70 to-transparent px-8 pb-6 pt-16">
+                  <p className="text-sm font-medium text-white/80">
+                    Three campaign strategies — generated from one listing URL.
+                  </p>
+                  <a
+                    href="/pricing"
+                    className="shrink-0 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+                  >
+                    Start free →
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
