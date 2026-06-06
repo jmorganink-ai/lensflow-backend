@@ -35,3 +35,9 @@ id = "LphFaLVDLxl4kQ78yS9tF"
 uri = "file://lensflow-presenters-heygen.zip"
 type = "unspecified"
 title = "LensFlow Presenters — HeyGen Package"
+
+[[outputs]]
+id = "gbSN_xWWRXELv-AGx7vs0"
+uri = "file://.local/outputs/LensFlow-Explainer-Deck.pdf"
+type = "pdf"
+title = "LensFlow Explainer Deck (PDF)"

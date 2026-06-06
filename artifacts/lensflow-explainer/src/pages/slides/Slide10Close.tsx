@@ -68,7 +68,7 @@ export default function Slide10Close() {
             position: "relative",
             zIndex: 1,
           }}>
-            Your video is ready.
+            Your listing presentation is ready.
           </h2>
         </div>
 
