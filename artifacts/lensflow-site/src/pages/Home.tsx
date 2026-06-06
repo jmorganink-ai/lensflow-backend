@@ -82,18 +82,18 @@ const presenters = [
 
 const workflow = [
   {
-    title: "Paste the listing",
-    detail: "Start with a property URL, upload photos, add video or use the teleprompter.",
+    title: "Paste your listing URL",
+    detail: "LensFlow reads the property — suburb, bedrooms, style, price point — and Claude AI writes a listing-specific script in seconds. No brief, no back-and-forth.",
     icon: Sparkles,
   },
   {
-    title: "Choose the presenter",
-    detail: "Select Mia, Oliver or another LensFlow voice to match the listing style.",
+    title: "Pick your AI presenter",
+    detail: "Mia or Oliver deliver your script with a natural Australian voice and lipsync. No videographer to book, no studio, no waiting days for an edit.",
     icon: Users,
   },
   {
-    title: "Launch the campaign",
-    detail: "Get the video, script, captions and presentation assets ready to publish.",
+    title: "Post before the open home",
+    detail: "Your finished MP4, social reels and captions are ready inside the 48-hour traffic window — when your listing has the most eyes on it.",
     icon: Zap,
   },
 ];
@@ -125,10 +125,10 @@ const pricingHighlights = [
 ];
 
 const proofPoints = [
-  "Listing URL to campaign kit",
-  "Mia and Oliver ready",
-  "Real estate focused outputs",
-  "Built for Australian agents",
+  "Campaign ready in minutes, not days",
+  "Mia and Oliver — Australian AI presenters",
+  "Script by Claude AI · Voice by ElevenLabs",
+  "Built for Australian real estate agents",
 ];
 
 export default function Home() {
@@ -163,23 +163,24 @@ export default function Home() {
                 className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary"
               >
                 <Sparkles className="h-4 w-4" />
-                LensFlow AI marketing department
+                Solve the 48-hour listing window
               </motion.div>
 
               <motion.h1
                 variants={fadeInUp}
                 className="font-serif text-5xl font-bold leading-[1.03] tracking-normal text-foreground md:text-6xl lg:text-[76px]"
               >
-                Create Luxury Property Campaigns in Minutes
+                Your Listing Goes Live Today. Your Video Should Too.
               </motion.h1>
 
               <motion.p
                 variants={fadeInUp}
                 className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl"
               >
-                Turn listings, photos and videos into AI presenter campaigns,
-                social reels and premium property presentations without chasing
-                a videographer.
+                Most agents lose their listing's peak traffic window waiting on
+                a videographer. LensFlow turns your listing URL into a
+                professional AI presenter video, social reels and campaign kit
+                — same day, no bookings, no editing.
               </motion.p>
 
               <motion.div
@@ -312,6 +313,9 @@ export default function Home() {
                     <h3 className="text-xl font-semibold">{item.title}</h3>
                     <p className="mt-3 text-sm leading-6 text-muted-foreground">
                       {item.detail}
+                    </p>
+                    <p className="mt-4 text-[10px] uppercase tracking-[0.18em] text-primary/60">
+                      Claude AI · ElevenLabs · HeyGen · Shotstack
                     </p>
                   </div>
                 </motion.article>
