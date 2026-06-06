@@ -1,0 +1,31 @@
+kind = "slides"
+previewPath = "/lensflow-explainer/"
+title = "LensFlow Explainer Deck"
+version = "1.0.0"
+id = "artifacts/lensflow-explainer"
+router = "path"
+
+[[integratedSkills]]
+name = "slides"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/lensflow-explainer/" ]
+localPort = 18224
+
+[services.development]
+run = "pnpm --filter @workspace/lensflow-explainer run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/lensflow-explainer", "run", "build" ]
+publicDir = "artifacts/lensflow-explainer/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18224"
+BASE_PATH = "/lensflow-explainer/"
