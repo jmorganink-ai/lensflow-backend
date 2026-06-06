@@ -30,7 +30,7 @@ const PRESENTER_PRESETS = [
     specialty: "Family / Suburban",
     voiceId: "69h9o7wh5u0isWHzdogD",
     voiceName: "Australian real estate agent",
-    photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
+    photo: "/presenters/sophie-poster.jpg",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/69h9o7wh5u0isWHzdogD/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzBlMWJmMjUtZDEwNC00ZjY1LTg1ZTctNjE3ZDU5MjhmMDk5Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
   },
   {
@@ -192,7 +192,7 @@ export function SubmitForm() {
   const busy = uploadingCount > 0 || submitting || authLoading;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 pb-14">
+    <form onSubmit={handleSubmit} className="space-y-4 pb-2">
       {/* Listing URL */}
       <div>
         <div className="relative">
@@ -218,7 +218,7 @@ export function SubmitForm() {
       {/* Presenter Picker */}
       <div>
         <label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2 block">Choose Presenter</label>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {PRESENTER_PRESETS.map((p) => {
             const isSelected = selectedPresenter.id === p.id;
             const isPlaying = playingId === p.id;
@@ -226,30 +226,32 @@ export function SubmitForm() {
               <div
                 key={p.id}
                 onClick={() => setSelectedPresenter(p)}
-                className={`relative rounded-xl overflow-hidden aspect-[3/4] cursor-pointer group border-2 transition-all ${
-                  isSelected ? "border-primary shadow-[0_0_16px_rgba(201,154,46,0.3)]" : "border-white/5 hover:border-white/20"
+                className={`relative flex flex-col rounded-2xl overflow-hidden cursor-pointer border-2 transition-all ${
+                  isSelected ? "border-primary shadow-[0_0_14px_rgba(201,154,46,0.35)]" : "border-white/10 hover:border-white/30"
                 }`}
               >
-                <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                {isSelected && (
-                  <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 rounded-full bg-black" />
-                  </div>
-                )}
-                <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between">
-                  <div>
-                    <div className="text-xs font-semibold text-white leading-tight">{p.name}</div>
-                    <div className="text-[9px] text-primary font-mono leading-tight mt-0.5">{p.specialty}</div>
-                  </div>
+                {/* Photo — 4:5 rectangle */}
+                <div className="relative aspect-[4/5] overflow-hidden bg-black">
+                  <img src={p.photo} alt={p.name} className="w-full h-full object-cover object-top" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                  {isSelected && (
+                    <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 rounded-full bg-black" />
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={(e) => toggleVoicePreview(p, e)}
-                    className="w-6 h-6 rounded-full bg-white/10 hover:bg-primary/80 flex items-center justify-center transition-colors"
+                    className="absolute bottom-1.5 right-1.5 w-5 h-5 rounded-full bg-black/50 hover:bg-primary/80 flex items-center justify-center transition-colors"
                     title="Preview voice"
                   >
-                    {isPlaying ? <Pause className="w-3 h-3 text-white" /> : <Play className="w-3 h-3 text-white ml-0.5" />}
+                    {isPlaying ? <Pause className="w-2.5 h-2.5 text-white" /> : <Play className="w-2.5 h-2.5 text-white ml-px" />}
                   </button>
+                </div>
+                {/* Footer label — always visible, never clipped */}
+                <div className="bg-card px-1.5 py-1.5">
+                  <div className="text-[11px] font-semibold text-white leading-none">{p.name}</div>
+                  <div className="text-[9px] text-primary font-mono leading-tight mt-0.5 truncate">{p.specialty}</div>
                 </div>
                 <audio
                   ref={(el) => { audioRefs.current[p.id] = el; }}

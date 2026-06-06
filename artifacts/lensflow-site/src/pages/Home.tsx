@@ -44,18 +44,21 @@ const campaignOutputs = [
     title: "AI presenter video",
     detail: "Mia or Oliver introduces the property with polished, listing-aware copy.",
     video: "/videos/sample-v1.mp4",
+    poster: "/presenters/mia-poster.jpg",
     icon: Video,
   },
   {
     title: "Social reel package",
     detail: "Short-form clips built for Instagram, Facebook, TikTok and LinkedIn.",
     video: "/videos/sample-v3.mp4",
+    poster: "/presenters/oliver-poster.jpg",
     icon: Film,
   },
   {
     title: "Property presentation",
     detail: "Premium visuals, captions and agent-ready story beats from the same listing.",
     video: "/videos/sample-v5.mp4",
+    poster: "/quality-presenter.jpg",
     icon: PlayCircle,
   },
 ];
@@ -283,13 +286,19 @@ export default function Home() {
                   className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-card"
                 >
                   <div className="relative aspect-[9/13] overflow-hidden bg-black">
+                    <img
+                      src={item.poster}
+                      alt={item.title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
                     <video
                       src={item.video}
+                      poster={item.poster}
                       autoPlay
                       muted
                       loop
                       playsInline
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      className="relative h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                     <div className="absolute left-4 top-4 rounded-full bg-black/45 px-3 py-1 text-xs font-medium text-white backdrop-blur">
