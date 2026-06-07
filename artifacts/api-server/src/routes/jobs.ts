@@ -23,6 +23,7 @@ import { scrapeListing } from "../lib/apify";
 import { isDomainUrl, extractDomainListingId, fetchDomainListing, getSuburbPerformance } from "../lib/domain";
 import { analysePropertyPhotos } from "../lib/analyse-photos";
 import { enhancePropertyPhotos } from "../lib/enhance-photos";
+import { getStreetViewImages } from "../lib/street-view";
 
 const router: IRouter = Router();
 
@@ -244,6 +245,26 @@ export async function runSimulation(jobId: string): Promise<void> {
             bedrooms: apifyResult.bedrooms?.toString() ?? listingContext.bedrooms,
             suburb: listingContext.suburb ?? (apifyResult.address?.split(",")[1]?.trim() ?? null),
           });
+
+          // Fetch Google Street View shots for the property address (non-blocking)
+          if (apifyResult.address) {
+            try {
+              const streetViewUrls = await getStreetViewImages(apifyResult.address);
+              if (streetViewUrls.length > 0) {
+                // Prepend street view as cinematic opening scenes before property photos
+                const existingImages = job.propertyImages ?? [];
+                const combined = [...streetViewUrls, ...existingImages.filter(u => !streetViewUrls.includes(u))];
+                await db.update(jobsTable)
+                  .set({ propertyImages: combined })
+                  .where(eq(jobsTable.id, jobId));
+                scrapedImages = combined;
+                effectivePhotos = combined;
+                logger.info({ jobId, streetViewCount: streetViewUrls.length, total: combined.length }, "Street View images prepended to photo set");
+              }
+            } catch (err) {
+              logger.warn({ err, jobId }, "Street View fetch failed (non-critical) — continuing without");
+            }
+          }
 
           // Fetch live suburb market data from Domain API (non-blocking enrichment)
           const suburbForStats = listingContext.suburb;
