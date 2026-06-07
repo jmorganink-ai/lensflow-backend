@@ -1,14 +1,15 @@
 import { logger } from "./logger";
 
+// Premium royalty-free tracks — varied genres with distinct energy
 const MUSIC_TRACK_URLS: Record<string, string> = {
-  uplifting: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
-  cinematic: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
-  calm:      "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
-  corporate: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
-  luxury:    "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
-  summer:    "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
-  country:   "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
-  urban:     "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
+  uplifting:  "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
+  cinematic:  "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
+  calm:       "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/ambisax.mp3",
+  corporate:  "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/ambisax.mp3",
+  luxury:     "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
+  summer:     "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
+  country:    "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/ambisax.mp3",
+  urban:      "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
 };
 
 function getShotstackConfig(): { apiKey: string; baseUrl: string } {
@@ -75,14 +76,16 @@ export interface ShotstackResult {
 }
 
 /**
- * Premium real estate presenter video:
- * - Cinematic opener: property title full-screen with dramatic fade-in (0–6s)
- * - Property photos: fast-cycling full-bleed background with energetic Ken Burns + slide effects
- * - AI presenter: large and prominent (65% scale), bottom-center, clearly visible
- * - Warm gold vignette overlay — depth without muddiness
- * - Animated lower thirds and callout text throughout
- * - Subtle music bed (voice stays front-and-centre)
- * - LensFlow brand mark — top-right, persistent
+ * Premium real estate presenter video — cinematic broadcast quality:
+ * - True 1080p output at 30fps
+ * - Dramatic 4-second property title opener before presenter reveals
+ * - Full-bleed property photos with cinematic Ken Burns + slide effects (6s per photo)
+ * - AI presenter: large (82% scale), bottom-centre, enters at 4s with fade-in
+ * - Vibrant photos — lighter vignette so property looks its best
+ * - Professional lower-third presenter badge
+ * - Animated callout text and closing CTA
+ * - Music bed at presence-filling volume, fades in/out
+ * - LensFlow brand watermark — top-right, persistent
  */
 export async function composePresenterVideo(
   presenterVideoUrl: string,
@@ -107,17 +110,21 @@ export async function composePresenterVideo(
   const images = (propertyImages ?? []).filter(Boolean);
   const hasPhotos = images.length > 0;
 
-  // testMode: cheap 10s SD render for pipeline validation under low credits (~0.15 credits)
-  const PHOTO_DURATION = testMode ? 5 : 5;
+  // testMode: cheap short SD render for pipeline validation
+  const PHOTO_DURATION = testMode ? 5 : 6;
   const TOTAL_DURATION = testMode ? 10 : 65;
+
+  // Presenter enters at 4s — after the opening title card has landed
+  const PRESENTER_START = testMode ? 0 : 4;
+  const PRESENTER_LENGTH = TOTAL_DURATION - PRESENTER_START;
 
   logger.info(
     { presenterVideoUrl, subtitle, photoCount: images.length, presenterLabel, env: process.env.SHOTSTACK_PROD_API_KEY ? "production" : "sandbox" },
-    "Submitting Shotstack render — premium layout",
+    "Submitting Shotstack render — premium 1080p layout",
   );
 
-  // ── Photo track: full-bleed background, fast cycling, alternating effects ──
-  const PHOTO_EFFECTS = ["zoomIn", "zoomOut", "slideLeft", "slideRight", "zoomIn", "zoomOut"];
+  // ── Photo track: vibrant full-bleed, cinematic Ken Burns + directional slides ──
+  const PHOTO_EFFECTS = ["zoomIn", "zoomOut", "slideLeft", "slideRight", "zoomIn", "slideLeft"];
   const PHOTO_TRANSITIONS_IN = ["fade", "wipeLeft", "wipeRight", "slideLeft", "slideRight", "fade"];
 
   const buildPhotoTrack = () => {
@@ -147,16 +154,16 @@ export async function composePresenterVideo(
     return { clips };
   };
 
-  // ── Vignette: warm-dark overlay so presenter pops, but photos still vibrant ──
+  // ── Vignette: light touch — frames the presenter without killing photo vibrancy ──
   const vignetteTrack = hasPhotos
-    ? { clips: [colourClip("#0d0a05", 0, TOTAL_DURATION, 0.45)] }
+    ? { clips: [colourClip("#080500", 0, TOTAL_DURATION, 0.28)] }
     : null;
 
-  // ── Presenter: large and prominent, bottom-centre ──
+  // ── Presenter: large, bottom-centre, reveals at 4s after title opener ──
   const presenterClip = {
     asset: { type: "video", src: presenterVideoUrl, volume: 1 },
-    start: 0,
-    length: TOTAL_DURATION,
+    start: PRESENTER_START,
+    length: PRESENTER_LENGTH,
     fit: "contain",
     scale: hasPhotos ? 0.82 : 1.0,
     position: hasPhotos ? "bottom" : "center",
@@ -164,7 +171,7 @@ export async function composePresenterVideo(
     transition: { in: "fade" },
   };
 
-  // ── Opening title card: property name, bold, centre-stage (1–7s) ──
+  // ── Opening title card: property address, full-screen impact (0–5s) ──
   const openingTitle = {
     asset: {
       type: "title",
@@ -173,14 +180,30 @@ export async function composePresenterVideo(
       color: "#FFFFFF",
       size: "large",
     },
-    start: 1,
-    length: 6,
+    start: 0.5,
+    length: 5,
     position: "center",
-    offset: { x: 0, y: 0.2 },
+    offset: { x: 0, y: 0.15 },
     transition: { in: "fade", out: "fade" },
   };
 
-  // ── Presenter name badge: slides in at 8s (skip if timeline too short) ──
+  // ── "Exclusive Listing" badge: appears at 1s, holds through opening (0–5s) ──
+  const exclusiveBadge = {
+    asset: {
+      type: "title",
+      text: "EXCLUSIVE LISTING",
+      style: "minimal",
+      color: "#C9962A",
+      size: "x-small",
+    },
+    start: 1,
+    length: 4,
+    position: "center",
+    offset: { x: 0, y: 0.28 },
+    transition: { in: "fade", out: "fade" },
+  };
+
+  // ── Presenter name badge: lower-third, slides up at 7s ──
   const presenterBadge = TOTAL_DURATION > 9 ? {
     asset: {
       type: "title",
@@ -189,15 +212,15 @@ export async function composePresenterVideo(
       color: "#C9962A",
       size: "x-small",
     },
-    start: 8,
-    length: TOTAL_DURATION - 8,
+    start: 7,
+    length: TOTAL_DURATION - 7,
     position: "bottom",
-    offset: { x: 0, y: -0.03 },
+    offset: { x: 0, y: -0.02 },
     transition: { in: "slideUp" },
   } : null;
 
-  // ── Mid-video callout: domain branding (skip if timeline too short) ──
-  const midCallout = TOTAL_DURATION > 16 ? {
+  // ── Mid-video domain watermark (persistent top-right) ──
+  const watermarkClip = {
     asset: {
       type: "title",
       text: `lensflow.com.au  ·  ${domain}`,
@@ -205,14 +228,30 @@ export async function composePresenterVideo(
       color: "#F5E6C8",
       size: "x-small",
     },
-    start: 15,
-    length: TOTAL_DURATION - 15,
+    start: 0,
+    length: TOTAL_DURATION,
     position: "topRight",
     offset: { x: -0.02, y: -0.04 },
     transition: { in: "fade" },
+  };
+
+  // ── Mid-video callout: "Book an inspection" prompt at the midpoint ──
+  const midCallout = TOTAL_DURATION > 20 ? {
+    asset: {
+      type: "title",
+      text: "ENQUIRE TODAY",
+      style: "minimal",
+      color: "#C9962A",
+      size: "x-small",
+    },
+    start: Math.floor(TOTAL_DURATION * 0.55),
+    length: 6,
+    position: "topLeft",
+    offset: { x: 0.04, y: -0.04 },
+    transition: { in: "slideRight", out: "fade" },
   } : null;
 
-  // ── Closing CTA: last 8 seconds (skip if timeline too short) ──
+  // ── Closing CTA: last 8 seconds — bold, centred above presenter ──
   const closingCta = TOTAL_DURATION > 9 ? {
     asset: {
       type: "title",
@@ -224,7 +263,7 @@ export async function composePresenterVideo(
     start: Math.max(0, TOTAL_DURATION - 8),
     length: Math.min(7, TOTAL_DURATION),
     position: "center",
-    offset: { x: 0, y: 0.22 },
+    offset: { x: 0, y: 0.3 },
     transition: { in: "fade", out: "fade" },
   } : null;
 
@@ -233,20 +272,24 @@ export async function composePresenterVideo(
     ...(vignetteTrack ? [vignetteTrack] : []),
     { clips: [presenterClip] },
     { clips: [openingTitle] },
+    { clips: [exclusiveBadge] },
     ...(presenterBadge ? [{ clips: [presenterBadge] }] : []),
+    { clips: [watermarkClip] },
     ...(midCallout ? [{ clips: [midCallout] }] : []),
     ...(closingCta ? [{ clips: [closingCta] }] : []),
   ];
 
   const musicUrl = musicTrack ? MUSIC_TRACK_URLS[musicTrack] : MUSIC_TRACK_URLS["uplifting"];
-  const soundtrack = { src: musicUrl, effect: "fadeInFadeOut", volume: 0.12 };
+  // 0.18 volume: present enough to feel premium, voice still sits on top
+  const soundtrack = { src: musicUrl, effect: "fadeInFadeOut", volume: 0.18 };
 
   const renderRes = await fetch(`${baseUrl}/render`, {
     method: "POST",
     headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({
       timeline: { background: "#0d1117", soundtrack, tracks },
-      output: { format: "mp4", resolution: testMode ? "sd" : "hd", fps: 25 },
+      // "1080" = true 1080p; "hd" is only 720p in Shotstack's scale; 30fps for broadcast smoothness
+      output: { format: "mp4", resolution: testMode ? "sd" : "1080", fps: 30 },
     }),
   });
 
@@ -271,7 +314,7 @@ export async function composePresenterVideo(
 }
 
 /**
- * Compose a selfie (self-recorded) job video.
+ * Compose a selfie (self-recorded) job video — 1080p 30fps.
  */
 export async function composeSelfieVideo(
   agentVideoUrl: string,
@@ -300,7 +343,7 @@ export async function composeSelfieVideo(
     ? { clips: [{ asset: isVideoBackground ? { type: "video", src: backgroundUrl, volume: 0 } : { type: "image", src: backgroundUrl }, start: 0, length: TOTAL_DURATION, fit: "cover", position: "center" }] }
     : { clips: [colourClip("#0d1117", 0, TOTAL_DURATION)] };
 
-  const overlayTrack = { clips: [colourClip("#000000", 0, TOTAL_DURATION, 0.35)] };
+  const overlayTrack = { clips: [colourClip("#000000", 0, TOTAL_DURATION, 0.30)] };
 
   const agentTrack = { clips: [{ asset: { type: "video", src: agentVideoUrl, volume: 1 }, start: 0, length: TOTAL_DURATION, fit: "contain", scale: 0.75, position: "center", transition: { in: "fade", out: "fade" } }] };
 
@@ -319,7 +362,7 @@ export async function composeSelfieVideo(
   const renderRes = await fetch(`${baseUrl}/render`, {
     method: "POST",
     headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
-    body: JSON.stringify({ timeline: { background: "#0d1117", soundtrack, tracks }, output: { format: "mp4", resolution: "hd", fps: 25 } }),
+    body: JSON.stringify({ timeline: { background: "#0d1117", soundtrack, tracks }, output: { format: "mp4", resolution: "1080", fps: 30 } }),
   });
 
   if (!renderRes.ok) throw new Error(`Shotstack selfie render submit failed (${renderRes.status}): ${await renderRes.text()}`);
@@ -333,7 +376,7 @@ export async function composeSelfieVideo(
 }
 
 /**
- * Compose a voice + photos video (no AI presenter).
+ * Compose a voice + photos video (no AI presenter) — 1080p 30fps.
  */
 export async function composeVoicePhotosVideo(
   voiceoverUrl: string | null | undefined,
@@ -370,7 +413,7 @@ export async function composeVoicePhotosVideo(
     return { clips };
   };
 
-  const vignetteTrack = hasPhotos ? { clips: [colourClip("#0d0a05", 0, TOTAL_DURATION, 0.35)] } : null;
+  const vignetteTrack = hasPhotos ? { clips: [colourClip("#0d0a05", 0, TOTAL_DURATION, 0.28)] } : null;
   const voiceoverTrack = voiceoverUrl ? { clips: [{ asset: { type: "audio", src: voiceoverUrl, volume: 1 }, start: 0, length: TOTAL_DURATION }] } : null;
 
   const titleClip = { asset: { type: "title", text: subtitle, style: "future", color: "#FFFFFF", size: "large" }, start: 1, length: 6, position: "center", offset: { x: 0, y: 0.1 }, transition: { in: "fade", out: "fade" } };
@@ -378,14 +421,14 @@ export async function composeVoicePhotosVideo(
   const watermarkClip = { asset: { type: "title", text: `lensflow.com.au  ·  ${domain}`, style: "minimal", color: "#C9962A", size: "x-small" }, start: 0, length: TOTAL_DURATION, position: "topRight", offset: { x: -0.02, y: -0.04 } };
 
   const musicUrl = musicTrack ? MUSIC_TRACK_URLS[musicTrack] : MUSIC_TRACK_URLS["uplifting"];
-  const soundtrack = { src: musicUrl, effect: "fadeInFadeOut", volume: voiceoverUrl ? 0.12 : 0.45 };
+  const soundtrack = { src: musicUrl, effect: "fadeInFadeOut", volume: voiceoverUrl ? 0.18 : 0.45 };
 
   const tracks = [buildPhotoTrack(), ...(vignetteTrack ? [vignetteTrack] : []), ...(voiceoverTrack ? [voiceoverTrack] : []), { clips: [titleClip] }, { clips: [ctaClip] }, { clips: [watermarkClip] }];
 
   const renderRes = await fetch(`${baseUrl}/render`, {
     method: "POST",
     headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
-    body: JSON.stringify({ timeline: { background: "#0d1117", soundtrack, tracks }, output: { format: "mp4", resolution: "hd", fps: 25 } }),
+    body: JSON.stringify({ timeline: { background: "#0d1117", soundtrack, tracks }, output: { format: "mp4", resolution: "1080", fps: 30 } }),
   });
 
   if (!renderRes.ok) throw new Error(`Shotstack voice-photos render submit failed (${renderRes.status}): ${await renderRes.text()}`);
