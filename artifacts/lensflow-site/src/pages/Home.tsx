@@ -201,6 +201,14 @@ export default function Home() {
                     View Campaign Examples
                   </Button>
                 </a>
+                <a href="/mobile/">
+                  <Button
+                    variant="outline"
+                    className="h-12 rounded-full border-primary/40 bg-primary/10 px-7 text-base text-primary hover:bg-primary/20"
+                  >
+                    Download the App
+                  </Button>
+                </a>
               </motion.div>
 
               <motion.div
