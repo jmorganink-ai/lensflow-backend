@@ -137,7 +137,7 @@ export default function Home() {
       <Navbar />
 
       <main>
-        <section className="relative overflow-hidden border-b border-white/5 pt-28 lg:pt-32">
+        <section className="relative overflow-x-hidden border-b border-white/5 pt-28 lg:pt-32">
           <div className="absolute inset-0">
             <video
               src="/videos/lensflow-reel-creator-v1.mp4"
@@ -168,14 +168,14 @@ export default function Home() {
 
               <motion.h1
                 variants={fadeInUp}
-                className="font-serif text-5xl font-bold leading-[1.03] tracking-normal text-foreground md:text-6xl lg:text-[76px]"
+                className="font-serif text-4xl font-bold leading-[1.08] tracking-normal text-foreground sm:text-5xl md:text-6xl lg:text-[76px] lg:leading-[1.03] break-words"
               >
                 Your Listing Goes Live Today. Your Video Should Too.
               </motion.h1>
 
               <motion.p
                 variants={fadeInUp}
-                className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl"
+                className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8 md:text-xl"
               >
                 Most agents lose their listing's peak traffic window waiting on
                 a videographer. LensFlow turns your listing URL into a

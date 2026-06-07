@@ -303,7 +303,7 @@ export default function MorganChat() {
     <>
       <button
         onClick={() => { setOpen(true); setUnread(false); }}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-full shadow-2xl shadow-violet-900/50 transition-all duration-300 hover:scale-105 active:scale-95"
+        className="fixed bottom-6 left-6 sm:left-auto sm:right-6 z-50 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-full shadow-2xl shadow-violet-900/50 transition-all duration-300 hover:scale-105 active:scale-95"
         style={{ display: open ? "none" : "flex", padding: "14px 20px" }}
         aria-label="Chat with Morgan"
       >
@@ -313,7 +313,7 @@ export default function MorganChat() {
       </button>
 
       {open && (
-        <div className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-24px)] flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-black/60 border border-white/10 bg-[#0f0f1a]" style={{ height: "540px" }}>
+        <div className="fixed bottom-6 left-6 sm:left-auto sm:right-6 z-50 w-[380px] max-w-[calc(100vw-24px)] flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-black/60 border border-white/10 bg-[#0f0f1a]" style={{ height: "540px" }}>
           <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-violet-900/80 to-indigo-900/80 border-b border-white/10 shrink-0">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center shrink-0">
               <Bot size={18} className="text-white" />

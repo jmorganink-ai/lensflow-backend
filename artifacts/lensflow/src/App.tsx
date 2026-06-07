@@ -24,9 +24,9 @@ import { Loader2 } from "lucide-react";
 const queryClient = new QueryClient();
 
 const PRESENTERS = [
-  { name: "Mia", tag: "Waterfront & Lifestyle", src: "/videos/Mia_Presenter_1780756646182.mp4", poster: "/posters/mia.jpg" },
-  { name: "Sophie", tag: "Family & Suburban", src: "/videos/Sophie_Presenter_1780765611409.mp4", poster: "/posters/sophie.jpg" },
-  { name: "James", tag: "Commercial & Rural", src: "/videos/James_Presenter_1780765611405.mp4", poster: "/posters/james.jpg" },
+  { name: "Mia", tag: "Waterfront & Lifestyle", src: "/presenters/mia.mp4", poster: "/presenters/mia-poster.jpg" },
+  { name: "Sophie", tag: "Family & Suburban", src: "/presenters/sophie.mp4", poster: "/presenters/sophie-poster.jpg" },
+  { name: "James", tag: "Commercial & Rural", src: "/presenters/james.mp4", poster: "/presenters/james-poster.jpg" },
 ];
 
 function AuthGate({ children }: { children: React.ReactNode }) {

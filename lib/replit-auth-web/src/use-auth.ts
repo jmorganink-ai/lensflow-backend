@@ -17,8 +17,10 @@ export function useAuth(): AuthState {
 
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 6000);
 
-    fetch("/api/auth/user", { credentials: "include" })
+    fetch("/api/auth/user", { credentials: "include", signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json() as Promise<{ user: AuthUser | null }>;
@@ -34,10 +36,13 @@ export function useAuth(): AuthState {
           setUser(null);
           setIsLoading(false);
         }
-      });
+      })
+      .finally(() => clearTimeout(timer));
 
     return () => {
       cancelled = true;
+      controller.abort();
+      clearTimeout(timer);
     };
   }, []);
 

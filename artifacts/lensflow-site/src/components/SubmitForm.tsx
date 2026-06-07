@@ -231,8 +231,13 @@ export function SubmitForm() {
                 }`}
               >
                 {/* Photo — 3:4 rectangle */}
-                <div className="relative aspect-[3/4] overflow-hidden bg-black">
-                  <img src={p.photo} alt={p.name} className="w-full h-full object-cover object-top" />
+                <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-b from-[#1a1430] to-[#0f0f1a]">
+                  <img
+                    src={p.photo}
+                    alt={p.name}
+                    className="w-full h-full object-cover object-[center_15%]"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                   {isSelected && (
                     <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
