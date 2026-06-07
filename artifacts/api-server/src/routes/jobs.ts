@@ -324,6 +324,7 @@ export async function runSimulation(jobId: string): Promise<void> {
           const result = await generateListingScript(job.listingUrl, listingContext, job.voiceName);
           outputData = result.script;
           generatedScript = result.script;
+          scriptHighlights = extractHighlights(result.script);
           // Use AI title if available; else fall back to URL-parsed summary
           if (!result.title && listingContext.summary) {
             await db.update(jobsTable).set({ listingTitle: listingContext.summary }).where(eq(jobsTable.id, jobId));
@@ -433,6 +434,7 @@ export async function runSimulation(jobId: string): Promise<void> {
               job.musicTrack,
               job.voiceName,
               shotstackTestMode,
+              scriptHighlights.length > 0 ? scriptHighlights : null,
             );
             outputUrl = result.videoUrl;
             finalVideoUrl = result.videoUrl;
