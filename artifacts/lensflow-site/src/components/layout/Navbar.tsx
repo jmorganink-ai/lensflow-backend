@@ -25,6 +25,9 @@ export function Navbar() {
           <a href="/#presenters" className="transition-colors hover:text-foreground">
             AI Presenters
           </a>
+          <Link href="/twin-avatar" className="transition-colors hover:text-foreground">
+            Twin Avatar
+          </Link>
           <a href="/#how-it-works" className="transition-colors hover:text-foreground">
             How It Works
           </a>
