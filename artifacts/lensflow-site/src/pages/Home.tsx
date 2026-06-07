@@ -262,6 +262,38 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Brand explainer video */}
+        <section className="border-b border-white/5 bg-card/30 py-20 lg:py-24">
+          <div className="mx-auto max-w-5xl px-6">
+            <div className="mb-8 text-center">
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                See It In Action
+              </p>
+              <h2 className="font-serif text-3xl font-semibold leading-tight md:text-4xl">
+                From listing URL to live campaign — in minutes.
+              </h2>
+            </div>
+            <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-2xl">
+              <video
+                controls
+                playsInline
+                poster="/presenters/mia-poster.jpg"
+                className="w-full"
+                style={{ aspectRatio: "16/9" }}
+              >
+                <source src="/lensflow-hero.mp4" type="video/mp4" />
+                <track
+                  kind="subtitles"
+                  src="/lensflow-hero.vtt"
+                  srcLang="en"
+                  label="English"
+                  default
+                />
+              </video>
+            </div>
+          </div>
+        </section>
+
         <section id="examples" className="bg-background py-24 lg:py-28">
           <div className="mx-auto max-w-7xl px-6">
             <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">

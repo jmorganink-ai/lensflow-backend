@@ -1,0 +1,138 @@
+1
+00:00:00,000 --> 00:00:02,897
+The appraisal is in two hours, and I'm still waiting on the marketing.
+
+2
+00:00:03,097 --> 00:00:04,946
+This happens every single time.
+
+3
+00:00:05,146 --> 00:00:07,052
+Most real estate agents do not lose time selling.
+
+4
+00:00:07,252 --> 00:00:08,682
+They lose time waiting.
+
+5
+00:00:09,082 --> 00:00:10,279
+Waiting for copy.
+
+6
+00:00:10,679 --> 00:00:11,923
+Waiting for video.
+
+7
+00:00:12,323 --> 00:00:13,567
+Waiting for edits.
+
+8
+00:00:13,767 --> 00:00:17,126
+Waiting for someone to turn the listing into a proper campaign.
+
+9
+00:00:17,126 --> 00:00:23,275
+And while all of that is happening, the vendor is waiting, buyers are
+moving on, and the deal starts losing momentum.
+
+10
+00:00:23,275 --> 00:00:27,055
+That is the number one problem LensFlow was built to solve.
+
+11
+00:00:27,055 --> 00:00:31,530
+LensFlow Pipeline was created specifically for real estate agents.
+
+12
+00:00:31,530 --> 00:00:37,407
+You paste in a property listing URL, and LensFlow starts building the
+campaign around it.
+
+13
+00:00:37,407 --> 00:00:41,874
+It reads the listing, writes the script, and creates the voiceover.
+
+14
+00:00:41,874 --> 00:00:46,304
+It builds the presenter video and prepares the marketing assets you
+need to start promoting the property.
+
+15
+00:00:46,504 --> 00:00:47,602
+No blank page.
+
+16
+00:00:48,002 --> 00:00:49,746
+No chasing a production team.
+
+17
+00:00:49,946 --> 00:00:52,171
+No waiting days just to get the first version back.
+
+18
+00:00:52,371 --> 00:00:54,249
+But here is the real advantage.
+
+19
+00:00:54,449 --> 00:00:57,310
+LensFlow does not just help you market a listing after you win it.
+
+20
+00:00:57,310 --> 00:00:59,376
+It helps you win the listing in the first place.
+
+21
+00:00:59,376 --> 00:01:04,929
+Before an appraisal, you can create a sample campaign and walk into
+the room with the marketing already prepared.
+
+22
+00:01:04,929 --> 00:01:07,500
+Every other agent can say, “Here is what we would do.”
+
+23
+00:01:07,500 --> 00:01:13,695
+With LensFlow, you can say, “Here is what I have already built for
+you.” That changes the conversation.
+
+24
+00:01:13,695 --> 00:01:17,009
+It makes the seller feel the campaign before they sign.
+
+25
+00:01:17,009 --> 00:01:20,077
+It makes you look faster, sharper and more prepared.
+
+26
+00:01:20,077 --> 00:01:25,447
+And it removes the biggest delay between getting the listing and
+getting the property seen.
+
+27
+00:01:25,647 --> 00:01:27,538
+That is the LensFlow Pipeline.
+
+28
+00:01:27,938 --> 00:01:29,454
+Built for real estate.
+
+29
+00:01:29,854 --> 00:01:31,210
+Built to save time.
+
+30
+00:01:31,410 --> 00:01:34,407
+Built to help agents launch faster and close with more confidence.
+
+31
+00:01:34,607 --> 00:01:35,790
+Paste the URL.
+
+32
+00:01:36,190 --> 00:01:37,829
+Let the pipeline build.
+
+33
+00:01:38,029 --> 00:01:40,023
+Walk in with the campaign already moving.
+
