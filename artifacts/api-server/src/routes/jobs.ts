@@ -442,10 +442,14 @@ export async function runSimulation(jobId: string): Promise<void> {
           }
         } catch (err) {
           const errMsg = err instanceof Error ? err.message : String(err);
+          const isCreditsError = errMsg.includes("credits") || errMsg.includes("plan limits");
+          const userFacingMsg = isCreditsError
+            ? "⚠️ Shotstack credits depleted — top up at dashboard.shotstack.io/subscription then re-run this job."
+            : errMsg;
           logger.error({ err, jobId }, "Shotstack compose failed — marking job failed");
           await db
             .update(pipelineStepsTable)
-            .set({ status: "failed", completedAt: new Date(), outputData: errMsg })
+            .set({ status: "failed", completedAt: new Date(), outputData: userFacingMsg })
             .where(eq(pipelineStepsTable.id, step.id));
           await db
             .update(jobsTable)
