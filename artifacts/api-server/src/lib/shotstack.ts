@@ -158,9 +158,9 @@ export async function composePresenterVideo(
     start: 0,
     length: TOTAL_DURATION,
     fit: "contain",
-    scale: hasPhotos ? 0.65 : 1.0,
+    scale: hasPhotos ? 0.82 : 1.0,
     position: hasPhotos ? "bottom" : "center",
-    offset: hasPhotos ? { x: 0, y: 0.06 } : undefined,
+    offset: hasPhotos ? { x: 0, y: 0.12 } : undefined,
     transition: { in: "fade" },
   };
 

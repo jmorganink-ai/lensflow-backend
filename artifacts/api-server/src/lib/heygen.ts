@@ -119,7 +119,7 @@ export async function generatePresenterVideo(
           },
         },
       ],
-      dimension: { width: 1280, height: 720 },
+      dimension: { width: 1920, height: 1080 },
     }),
   });
 
