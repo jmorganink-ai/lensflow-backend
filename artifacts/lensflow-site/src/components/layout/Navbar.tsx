@@ -37,6 +37,12 @@ export function Navbar() {
           <Link href="/pricing" className="transition-colors hover:text-foreground">
             Pricing
           </Link>
+          <a href="/mobile/" className="transition-colors hover:text-foreground">
+            Mobile App
+          </a>
+          <a href="/lensflow-explainer/" className="transition-colors hover:text-foreground">
+            Explainer
+          </a>
         </div>
 
         <div className="flex items-center gap-3">
