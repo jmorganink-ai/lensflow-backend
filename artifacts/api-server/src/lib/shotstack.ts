@@ -95,6 +95,7 @@ export async function composePresenterVideo(
   musicTrack?: string | null,
   voiceName?: string | null,
   testMode = false,
+  highlights?: string[] | null,
 ): Promise<ShotstackResult> {
   const { apiKey, baseUrl } = getShotstackConfig();
 
@@ -235,21 +236,31 @@ export async function composePresenterVideo(
     transition: { in: "fade" },
   };
 
-  // ── Mid-video callout: "Book an inspection" prompt at the midpoint ──
-  const midCallout = TOTAL_DURATION > 20 ? {
-    asset: {
-      type: "title",
-      text: "ENQUIRE TODAY",
-      style: "minimal",
-      color: "#C9962A",
-      size: "x-small",
-    },
-    start: Math.floor(TOTAL_DURATION * 0.55),
-    length: 6,
-    position: "topLeft",
-    offset: { x: 0.04, y: -0.04 },
-    transition: { in: "slideRight", out: "fade" },
-  } : null;
+  // ── Property highlight captions: 3-5 elegant phrases timed to photo changes ──
+  // Appear in upper-left, staggered every ~11s starting at 8s — feels like premium campaign cards
+  const highlightClips: object[] = [];
+  if (!testMode && highlights && highlights.length > 0) {
+    const startTimes = [8, 19, 30, 41, 52];
+    highlights.slice(0, 5).forEach((phrase, i) => {
+      const start = startTimes[i] ?? 8 + i * 11;
+      if (start + 4 < TOTAL_DURATION - 9) {
+        highlightClips.push({
+          asset: {
+            type: "title",
+            text: phrase,
+            style: "minimal",
+            color: "#FFFFFF",
+            size: "small",
+          },
+          start,
+          length: 4,
+          position: "topLeft",
+          offset: { x: 0.04, y: -0.12 },
+          transition: { in: "fade", out: "fade" },
+        });
+      }
+    });
+  }
 
   // ── Closing CTA: last 8 seconds — bold, centred above presenter ──
   const closingCta = TOTAL_DURATION > 9 ? {
@@ -275,7 +286,7 @@ export async function composePresenterVideo(
     { clips: [exclusiveBadge] },
     ...(presenterBadge ? [{ clips: [presenterBadge] }] : []),
     { clips: [watermarkClip] },
-    ...(midCallout ? [{ clips: [midCallout] }] : []),
+    ...(highlightClips.length > 0 ? highlightClips.map(c => ({ clips: [c] })) : []),
     ...(closingCta ? [{ clips: [closingCta] }] : []),
   ];
 

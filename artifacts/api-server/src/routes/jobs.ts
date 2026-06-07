@@ -13,7 +13,7 @@ import { ReplitConnectors } from "@replit/connectors-sdk";
 import { randomUUID } from "crypto";
 import { logger } from "../lib/logger";
 import { generateVoiceover } from "./elevenlabs";
-import { generateListingScript, type ListingContext } from "../lib/generate-script";
+import { generateListingScript, extractHighlights, type ListingContext } from "../lib/generate-script";
 import { parseListingUrl } from "../lib/parse-listing-url";
 import { generatePresenterVideo, HeyGenTimeoutError } from "../lib/heygen";
 import { generatePresenterVideoDID } from "../lib/did";
@@ -114,6 +114,7 @@ export async function runSimulation(jobId: string): Promise<void> {
       .orderBy(pipelineStepsTable.order);
 
     let generatedScript: string | null = null;
+    let scriptHighlights: string[] = [];
     let presenterVideoUrl: string | null = null;
     let voiceoverPublicUrl: string | null = null;
     let finalVideoUrl: string | null = null;

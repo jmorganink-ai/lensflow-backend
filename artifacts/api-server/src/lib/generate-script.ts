@@ -8,6 +8,46 @@ export interface ScriptResult {
   title: string;
 }
 
+/**
+ * Extract 3–5 short, punchy highlight phrases from a generated script.
+ * These become cinematic caption overlays in the final video.
+ */
+export function extractHighlights(script: string): string[] {
+  const sentences = script
+    .replace(/\n+/g, " ")
+    .split(/(?<=[.!?])\s+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 15 && s.length < 80);
+
+  // Prefer sentences with strong property marketing language
+  const SIGNAL_WORDS = [
+    "bedroom", "bathroom", "kitchen", "living", "outdoor", "garden",
+    "garage", "location", "school", "stunning", "modern", "contemporary",
+    "entertainer", "family", "ocean", "pool", "renovated", "open plan",
+    "natural light", "north-facing", "views", "prestige", "exceptional",
+    "rare", "opportunity", "lifestyle", "luxury", "space",
+  ];
+
+  const scored = sentences.map(s => {
+    const lower = s.toLowerCase();
+    const score = SIGNAL_WORDS.reduce((acc, w) => acc + (lower.includes(w) ? 1 : 0), 0);
+    return { s, score };
+  });
+
+  // Sort by score descending, take top 5
+  const top = scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
+    .map(({ s }) => {
+      // Trim to max 60 chars cleanly
+      if (s.length <= 60) return s;
+      const cut = s.slice(0, 60).lastIndexOf(" ");
+      return s.slice(0, cut > 30 ? cut : 60) + "…";
+    });
+
+  return top;
+}
+
 export interface ListingContext {
   suburb?: string | null;
   state?: string | null;
