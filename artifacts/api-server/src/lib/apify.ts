@@ -42,7 +42,7 @@ async function pageFunction(context) {
       let url = img?.url || img?.src || img?.server?.baseUrl;
       if (url) {
         // Replace size tokens
-        url = url.replace('{size}', '800x600').replace('{width}', '800').replace('{height}', '600').replace('%7Bsize%7D', '800x600');
+        url = url.replace('{size}', '1600x1200').replace('{width}', '1600').replace('{height}', '1200').replace('%7Bsize%7D', '1600x1200');
         images.push(url);
       }
     }
