@@ -19,6 +19,8 @@ export const jobsTable = pgTable("jobs", {
   backgroundImageUrl: text("background_image_url"),
   // "presenter" = AI avatar video; "voice_photos" = voiceover + photo slideshow only
   outputType: text("output_type").default("presenter"),
+  // Matterport Lite: agent pastes share URL → embedded 3D tour on campaign reveal page
+  matterportUrl: text("matterport_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

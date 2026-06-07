@@ -858,6 +858,69 @@ router.post("/jobs/:id/simulate", async (req, res): Promise<void> => {
   res.json({ message: "Simulation started", jobId: raw });
 });
 
+// ── Matterport Lite ───────────────────────────────────────────────────────────
+// Extract Space ID from any Matterport share URL or accept a raw ID directly
+function parseMatterportSpaceId(input: string): string | null {
+  const trimmed = input.trim();
+  // Raw space ID: alphanumeric, 10-12 chars (e.g. SxQL3iGyvW7)
+  if (/^[A-Za-z0-9]{8,16}$/.test(trimmed)) return trimmed;
+  try {
+    const url = new URL(trimmed);
+    // https://my.matterport.com/show/?m=SPACE_ID
+    const m = url.searchParams.get("m");
+    if (m && /^[A-Za-z0-9]{8,16}$/.test(m)) return m;
+    // https://matterport.com/3d-models/SPACE_ID or similar path-based URLs
+    const pathParts = url.pathname.split("/").filter(Boolean);
+    const last = pathParts[pathParts.length - 1];
+    if (last && /^[A-Za-z0-9]{8,16}$/.test(last)) return last;
+  } catch {
+    // Not a URL
+  }
+  return null;
+}
+
+router.patch("/jobs/:id/matterport", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const input = (req.body?.matterportUrl ?? "").toString().trim();
+
+  if (!input) {
+    res.status(400).json({ error: "matterportUrl is required" });
+    return;
+  }
+
+  const spaceId = parseMatterportSpaceId(input);
+  if (!spaceId) {
+    res.status(400).json({ error: "Could not extract a valid Matterport Space ID from the URL provided. Paste the full share link (my.matterport.com/show/?m=…) or the Space ID directly." });
+    return;
+  }
+
+  const [job] = await db
+    .select()
+    .from(jobsTable)
+    .where(and(eq(jobsTable.id, raw), eq(jobsTable.userId, req.user.id)));
+
+  if (!job) {
+    res.status(404).json({ error: "Job not found" });
+    return;
+  }
+
+  const matterportUrl = `https://my.matterport.com/show/?m=${spaceId}`;
+  const embedUrl = `https://my.matterport.com/show/?m=${spaceId}&play=1&qs=1&brand=0`;
+
+  await db
+    .update(jobsTable)
+    .set({ matterportUrl })
+    .where(eq(jobsTable.id, raw));
+
+  logger.info({ jobId: raw, spaceId }, "Matterport tour attached to job");
+  res.json({ spaceId, embedUrl, matterportUrl });
+});
+
 router.post("/jobs/:id/send-to-crm", async (req, res): Promise<void> => {
   if (!req.isAuthenticated()) {
     res.status(401).json({ error: "Unauthorized" });

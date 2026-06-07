@@ -50,6 +50,8 @@ import type {
   SelfRecordedJobInput,
   SendToCrmBody,
   SendToCrmResult,
+  SetMatterportUrlRequest,
+  SetMatterportUrlResponse,
   SimulateResult,
   SupportTicketInput,
   SupportTicketResult,
@@ -1038,6 +1040,78 @@ export const useSimulateJob = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getSimulateJobMutationOptions(options));
+    }
+
+export const getSetJobMatterportUrlUrl = (id: string,) => {
+
+
+
+
+  return `/api/jobs/${id}/matterport`
+}
+
+/**
+ * @summary Attach a Matterport Interactive Tour to a job
+ */
+export const setJobMatterportUrl = async (id: string,
+    setMatterportUrlRequest: SetMatterportUrlRequest, options?: RequestInit): Promise<SetMatterportUrlResponse> => {
+
+  return customFetch<SetMatterportUrlResponse>(getSetJobMatterportUrlUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      setMatterportUrlRequest,)
+  }
+);}
+
+
+
+
+export const getSetJobMatterportUrlMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setJobMatterportUrl>>, TError,{id: string;data: BodyType<SetMatterportUrlRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setJobMatterportUrl>>, TError,{id: string;data: BodyType<SetMatterportUrlRequest>}, TContext> => {
+
+const mutationKey = ['setJobMatterportUrl'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setJobMatterportUrl>>, {id: string;data: BodyType<SetMatterportUrlRequest>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  setJobMatterportUrl(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetJobMatterportUrlMutationResult = NonNullable<Awaited<ReturnType<typeof setJobMatterportUrl>>>
+    export type SetJobMatterportUrlMutationBody = BodyType<SetMatterportUrlRequest>
+    export type SetJobMatterportUrlMutationError = ErrorType<void>
+
+    /**
+ * @summary Attach a Matterport Interactive Tour to a job
+ */
+export const useSetJobMatterportUrl = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setJobMatterportUrl>>, TError,{id: string;data: BodyType<SetMatterportUrlRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setJobMatterportUrl>>,
+        TError,
+        {id: string;data: BodyType<SetMatterportUrlRequest>},
+        TContext
+      > => {
+      return useMutation(getSetJobMatterportUrlMutationOptions(options));
     }
 
 export const getSendJobToCrmUrl = (id: string,) => {

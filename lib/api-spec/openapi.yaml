@@ -237,6 +237,35 @@ paths:
         "404":
           description: Job not found
 
+  /jobs/{id}/matterport:
+    patch:
+      operationId: setJobMatterportUrl
+      tags: [jobs]
+      summary: Attach a Matterport Interactive Tour to a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetMatterportUrlRequest"
+      responses:
+        "200":
+          description: Matterport URL saved and embed URL returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetMatterportUrlResponse"
+        "400":
+          description: Invalid Matterport URL or Space ID
+        "404":
+          description: Job not found
+
   /jobs/{id}/send-to-crm:
     post:
       operationId: sendJobToCrm
@@ -765,6 +794,9 @@ components:
         backgroundImageUrl:
           type: ["string", "null"]
           description: URL of the virtual background image or clip used in selfie job composition
+        matterportUrl:
+          type: ["string", "null"]
+          description: Matterport share URL — embedded as an Interactive Tour on the campaign reveal page
         createdAt:
           type: string
           format: date-time
@@ -816,12 +848,34 @@ components:
           type: ["string", "null"]
         voiceName:
           type: ["string", "null"]
+        matterportUrl:
+          type: ["string", "null"]
+          description: Matterport share URL — embedded as an Interactive Tour on the campaign reveal page
         createdAt:
           type: string
           format: date-time
         updatedAt:
           type: string
           format: date-time
+
+    SetMatterportUrlRequest:
+      type: object
+      required: [matterportUrl]
+      properties:
+        matterportUrl:
+          type: string
+          description: A Matterport share link (my.matterport.com/show/?m=...) or raw Space ID
+
+    SetMatterportUrlResponse:
+      type: object
+      required: [spaceId, embedUrl]
+      properties:
+        spaceId:
+          type: string
+        embedUrl:
+          type: string
+        matterportUrl:
+          type: string
 
     PipelineStep:
       type: object

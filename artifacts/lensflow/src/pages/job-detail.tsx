@@ -1,8 +1,8 @@
 import { useParams, useLocation } from "wouter";
-import { useGetJob, useDeleteJob, useSimulateJob, useSendJobToCrm, getGetJobQueryKey, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
+import { useGetJob, useDeleteJob, useSimulateJob, useSendJobToCrm, useSetJobMatterportUrl, getGetJobQueryKey, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, useCallback, useRef } from "react";
-import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic, Copy, Check, Download, Plus, Share2, Video, Camera, Send, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { useState, useCallback } from "react";
+import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic, Copy, Check, Download, Plus, Share2, Video, Camera, Send, ChevronDown, ChevronUp, Sparkles, Box, MapPin } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -337,6 +337,9 @@ function CampaignReveal({ job, onRerun }: { job: any; onRerun: () => void }) {
       {/* ── Share section ── */}
       <SocialSharePanel videoUrl={job.videoUrl} title={propertyName} />
 
+      {/* ── Matterport Interactive Tour ── */}
+      <MatterportTourSection job={job} />
+
       {/* ── Script panel ── */}
       {job.steps?.find((s: any) => s.name === "generate_script" && s.status === "complete" && s.outputData) && (
         <ScriptPanel
@@ -664,6 +667,158 @@ function SendToCrmButton({ jobId }: { jobId: string }) {
        sent ? <Check className="w-4 h-4 text-primary" /> : <Send className="w-4 h-4" />}
       {sent ? "Sent to CRM" : "Send to HubSpot"}
     </button>
+  );
+}
+
+// ── Matterport Interactive Tour Section ───────────────────────────────────────
+
+function MatterportTourSection({ job }: { job: any }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const setMatterport = useSetJobMatterportUrl();
+  const [input, setInput] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const spaceId = job.matterportUrl
+    ? (() => { try { return new URL(job.matterportUrl).searchParams.get("m") ?? ""; } catch { return ""; } })()
+    : null;
+  const embedUrl = spaceId
+    ? `https://my.matterport.com/show/?m=${spaceId}&play=1&qs=1&brand=0`
+    : null;
+
+  function handleSave() {
+    if (!input.trim()) return;
+    setSaving(true);
+    setMatterport.mutate(
+      { id: job.id, data: { matterportUrl: input.trim() } },
+      {
+        onSuccess: () => {
+          toast({ title: "Interactive tour added!", description: "The 3D tour is now embedded in your campaign." });
+          queryClient.invalidateQueries({ queryKey: getGetJobQueryKey(job.id) });
+          setInput("");
+        },
+        onError: (err: any) => {
+          toast({
+            title: "Couldn't add tour",
+            description: err?.response?.data?.error ?? "Check the URL and try again.",
+            variant: "destructive",
+          });
+        },
+        onSettled: () => setSaving(false),
+      }
+    );
+  }
+
+  return (
+    <div className="bg-card border border-border rounded-xl overflow-hidden">
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <Box className="w-4 h-4 text-primary" />
+          <span className="text-sm font-semibold text-foreground">Interactive 3D Tour</span>
+          {embedUrl && (
+            <span className="text-[10px] font-mono text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5">
+              Matterport
+            </span>
+          )}
+        </div>
+        {embedUrl && (
+          <a
+            href={job.matterportUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+          >
+            Open full screen <ExternalLink className="w-3 h-3" />
+          </a>
+        )}
+      </div>
+
+      {embedUrl ? (
+        /* ── Embed ── */
+        <div className="space-y-0">
+          <div style={{ aspectRatio: "16/9" }} className="relative bg-black">
+            <iframe
+              src={embedUrl}
+              className="absolute inset-0 w-full h-full"
+              allowFullScreen
+              allow="xr-spatial-tracking; gyroscope; accelerometer"
+              title="Matterport 3D Tour"
+            />
+          </div>
+          <div className="px-5 py-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground border-t border-border bg-muted/20">
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-3 h-3 text-primary" /> Floor plan accessible inside the tour
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Box className="w-3 h-3 text-primary" /> Walk-through mode available
+            </span>
+            <button
+              type="button"
+              onClick={() => setInput(job.matterportUrl ?? "")}
+              className="ml-auto text-muted-foreground/60 hover:text-primary transition-colors underline text-[11px]"
+            >
+              Replace URL
+            </button>
+          </div>
+          {input && (
+            <div className="px-5 py-3 border-t border-border flex gap-2">
+              <input
+                type="text"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                placeholder="Paste new Matterport link or Space ID…"
+                className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+              />
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving || !input.trim()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-all"
+              >
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* ── No tour yet — prompt ── */
+        <div className="px-5 py-6 space-y-4">
+          <div className="flex gap-4">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+              <Box className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">Add a Matterport 3D tour</p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Paste your Matterport share link or Space ID and it will be embedded directly in this campaign — your vendor can walk through the property in 3D before the inspection.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSave()}
+              placeholder="https://my.matterport.com/show/?m=… or Space ID"
+              className="flex-1 bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
+            />
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving || !input.trim()}
+              className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-all shadow-lg shadow-primary/10"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add Tour"}
+            </button>
+          </div>
+          <p className="text-[11px] text-muted-foreground/60">
+            Agent captures the walk-through using the Matterport mobile app → copies the share link → pastes here. Floor plan is accessible within the tour.
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
 

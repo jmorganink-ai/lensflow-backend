@@ -94,6 +94,11 @@ export interface Job {
      * @nullable
      */
   backgroundImageUrl?: string | null;
+  /**
+     * Matterport share URL — embedded as an Interactive Tour on the campaign reveal page
+     * @nullable
+     */
+  matterportUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -190,8 +195,24 @@ export interface JobDetail {
   voiceId?: string | null;
   /** @nullable */
   voiceName?: string | null;
+  /**
+     * Matterport share URL — embedded as an Interactive Tour on the campaign reveal page
+     * @nullable
+     */
+  matterportUrl?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface SetMatterportUrlRequest {
+  /** A Matterport share link (my.matterport.com/show/?m=...) or raw Space ID */
+  matterportUrl: string;
+}
+
+export interface SetMatterportUrlResponse {
+  spaceId: string;
+  embedUrl: string;
+  matterportUrl?: string;
 }
 
 /**

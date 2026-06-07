@@ -94,6 +94,7 @@ export const ListJobsResponseItem = zod.object({
   "enhancedImages": zod.array(zod.string()).nullish(),
   "musicTrack": zod.string().nullish().describe('Music preset used in the final video (uplifting, cinematic, calm, corporate)'),
   "backgroundImageUrl": zod.string().nullish().describe('URL of the virtual background image or clip used in selfie job composition'),
+  "matterportUrl": zod.string().nullish().describe('Matterport share URL — embedded as an Interactive Tour on the campaign reveal page'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -175,6 +176,7 @@ export const GetJobStatsResponse = zod.object({
   "enhancedImages": zod.array(zod.string()).nullish(),
   "musicTrack": zod.string().nullish().describe('Music preset used in the final video (uplifting, cinematic, calm, corporate)'),
   "backgroundImageUrl": zod.string().nullish().describe('URL of the virtual background image or clip used in selfie job composition'),
+  "matterportUrl": zod.string().nullish().describe('Matterport share URL — embedded as an Interactive Tour on the campaign reveal page'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 }))
@@ -191,6 +193,24 @@ export const SimulateJobParams = zod.object({
 export const SimulateJobResponse = zod.object({
   "message": zod.string(),
   "jobId": zod.string()
+})
+
+
+/**
+ * @summary Attach a Matterport Interactive Tour to a job
+ */
+export const SetJobMatterportUrlParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const SetJobMatterportUrlBody = zod.object({
+  "matterportUrl": zod.string().describe('A Matterport share link (my.matterport.com\/show\/?m=...) or raw Space ID')
+})
+
+export const SetJobMatterportUrlResponse = zod.object({
+  "spaceId": zod.string(),
+  "embedUrl": zod.string(),
+  "matterportUrl": zod.string().optional()
 })
 
 
@@ -244,6 +264,7 @@ export const GetJobResponse = zod.object({
   "backgroundImageUrl": zod.string().nullish().describe('URL of the virtual background image or clip used in selfie job composition'),
   "voiceId": zod.string().nullish(),
   "voiceName": zod.string().nullish(),
+  "matterportUrl": zod.string().nullish().describe('Matterport share URL — embedded as an Interactive Tour on the campaign reveal page'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
