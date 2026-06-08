@@ -14,6 +14,7 @@
     },
     "android": {
       "package": "au.com.lensflow.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#070a12"
