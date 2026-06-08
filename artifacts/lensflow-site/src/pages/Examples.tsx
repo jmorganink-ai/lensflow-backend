@@ -15,7 +15,7 @@ const campaigns = [
     icon: Video,
     tag: "Most popular",
     format: "16:9 · 60–90s · MP4",
-    specs: ["Property-specific script by Claude AI", "Voice by ElevenLabs · Lipsync by HeyGen", "Broadcast-quality 1080p render"],
+    specs: ["Property-specific script by Claude AI", "Voice by ElevenLabs · Lipsync by D-ID", "Broadcast-quality 1080p render"],
     accent: "border-amber-500/30",
   },
   {
@@ -34,12 +34,12 @@ const campaigns = [
     title: "Oliver — Investment Presenter",
     subtitle: "Pyrmont, NSW · Apartments · Off-the-plan",
     detail: "Oliver positions the property around yield, lifestyle upside and capital growth — exactly how investors actually think. Confident tone, data-aware delivery.",
-    video: "/videos/oliver-presenter.mp4",
+    video: "/videos/oliver-sample.mp4",
     poster: "/presenters/oliver-poster.jpg",
     icon: Video,
     tag: "Investment ready",
     format: "16:9 · 60–90s · MP4",
-    specs: ["Investor-focused copy", "Voice by ElevenLabs · Lipsync by HeyGen", "Broadcast-quality 1080p render"],
+    specs: ["Investor-focused copy", "Voice by ElevenLabs · Lipsync by D-ID", "Broadcast-quality render"],
     accent: "border-blue-500/20",
   },
   {
@@ -51,7 +51,7 @@ const campaigns = [
     icon: Video,
     tag: "Family homes",
     format: "16:9 · 60–90s · MP4",
-    specs: ["Family lifestyle framing", "Voice by ElevenLabs · Lipsync by HeyGen", "Broadcast-quality 1080p render"],
+    specs: ["Family lifestyle framing", "Voice by ElevenLabs · Lipsync by D-ID", "Broadcast-quality 1080p render"],
     accent: "border-rose-500/20",
   },
   {
