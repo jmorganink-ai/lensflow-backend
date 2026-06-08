@@ -15,7 +15,7 @@ const HEYGEN_API_BASE = "https://api.heygen.com";
 // AVATAR_* must be a valid LOOK ID (not a group ID) — group IDs cause
 // "avatar look not found" errors from HeyGen video generation. Use the first
 // look ID from each presenter group as the default. Verified 2026-06-08.
-const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? "6efa13ba628e4f9db8aee1164864fdb5"; // Radiant Professional
+const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? "0d920f93ee904c78b4fd026d379597ae"; // Sunny Real Estate Guide
 const AVATAR_SOPHIE  = process.env.HEYGEN_AVATAR_SOPHIE  ?? "b1a01a6df4e141d7ab71999b95403455"; // The Elegant, Smiling Real Estate Director
 const AVATAR_OLIVER  = process.env.HEYGEN_AVATAR_OLIVER  ?? "072d3a64f1884dedaaca04d6ac6e7be7"; // Oliver in blue suite
 const AVATAR_JAMES   = process.env.HEYGEN_AVATAR_JAMES   ?? "426df1e119054477a2188b41dbca60cf"; // James Presenter in blue suit
@@ -34,13 +34,13 @@ export interface PresenterLook {
 // Fetching /v2/avatar_group/{groupId}/avatars returns every look with its thumbnail.
 //
 // Verified group IDs (2026-06-08):
-//   Mia:    1602766f0e7344199b7b1a8bcf7b7855 — Radiant Professional, Elegant Office, etc. (10 looks)
-//           (91141b5f57114fccb565ab32ca058a1a is a second smaller group — not used)
+//   Mia:    91141b5f57114fccb565ab32ca058a1a — Sunny Real Estate Guide, Mia grey jacket, etc. (approved)
+//           (1602766f0e7344199b7b1a8bcf7b7855 is an older group — not used)
 //   Sophie: 267832a040cd46998928c37498777215 — blue blazer, blue sweater, grey blazer, etc.
 //   Oliver: b88ace7a30a34a76ae92a16dd84c18af — confirmed via app.heygen.com. Looks were originally
 //           named "James in..." but belong to Oliver. Renamed via v3 API to "Oliver in...".
 //   James:  9f2454deef0840008f9d6f6753c6de7b — blue suit, blue shirt, beige blazer, navy suit, etc.
-const GROUP_MIA    = process.env.HEYGEN_GROUP_MIA    ?? "1602766f0e7344199b7b1a8bcf7b7855";
+const GROUP_MIA    = process.env.HEYGEN_GROUP_MIA    ?? "91141b5f57114fccb565ab32ca058a1a";
 const GROUP_SOPHIE = process.env.HEYGEN_GROUP_SOPHIE ?? "267832a040cd46998928c37498777215";
 const GROUP_OLIVER = process.env.HEYGEN_GROUP_OLIVER ?? "b88ace7a30a34a76ae92a16dd84c18af";
 const GROUP_JAMES  = process.env.HEYGEN_GROUP_JAMES  ?? "9f2454deef0840008f9d6f6753c6de7b";
