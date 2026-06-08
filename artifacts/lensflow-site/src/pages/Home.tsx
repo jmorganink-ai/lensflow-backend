@@ -393,9 +393,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="presenters" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
-          <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-            <div>
+        <section id="presenters" className="border-y border-white/5 bg-card/40 py-16 lg:py-28">
+          <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+            <div className="text-center lg:text-left">
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
                 Mia and Oliver
               </p>
@@ -409,15 +409,15 @@ export default function Home() {
               </p>
               <div className="mt-8 grid gap-3 sm:grid-cols-2">
                 {["Mia for lifestyle listings", "Oliver for investment listings"].map((line) => (
-                  <div key={line} className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <Star className="h-4 w-4 text-primary" />
+                  <div key={line} className="flex items-center justify-center lg:justify-start gap-3 text-sm text-muted-foreground">
+                    <Star className="h-4 w-4 flex-none text-primary" />
                     {line}
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-5 grid-cols-2">
               {presenters.map((presenter) => (
                 <article
                   key={presenter.name}
@@ -452,9 +452,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="how-it-works" className="bg-background py-24 lg:py-28">
+        <section id="how-it-works" className="bg-background py-16 lg:py-28">
           <div className="mx-auto max-w-7xl px-6">
-            <div className="mb-12 max-w-2xl">
+            <div className="mb-10 text-center lg:text-left max-w-2xl mx-auto lg:mx-0">
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
                 How It Works
               </p>
@@ -487,9 +487,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="compare" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
+        <section id="compare" className="border-y border-white/5 bg-card/40 py-16 lg:py-28">
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[1fr_0.85fr] lg:items-start">
-            <div>
+            <div className="text-center lg:text-left">
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
                 Marketing Value
               </p>
@@ -542,9 +542,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-background py-24 lg:py-28">
+        <section className="bg-background py-16 lg:py-28">
           <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-            <div>
+            <div className="text-center lg:text-left">
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
                 Output Quality
               </p>
@@ -558,7 +558,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 grid-cols-3">
               {[
                 { src: "/quality-before.jpg", label: "Listing media" },
                 { src: "/quality-presenter.jpg", label: "AI presenter" },
@@ -582,10 +582,10 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="pricing" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
+        <section id="pricing" className="border-y border-white/5 bg-card/40 py-16 lg:py-28">
           <div className="mx-auto max-w-7xl px-6">
-            <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <div className="max-w-2xl">
+            <div className="mb-10 text-center lg:text-left lg:flex lg:flex-row lg:justify-between lg:items-end">
+              <div className="max-w-2xl mx-auto lg:mx-0">
                 <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
                   Packages
                 </p>
@@ -593,7 +593,7 @@ export default function Home() {
                   Price the platform like an AI marketing team.
                 </h2>
               </div>
-              <Link href="/pricing">
+              <Link href="/pricing" className="hidden lg:block">
                 <Button
                   variant="outline"
                   className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-foreground hover:bg-white/10"
@@ -636,9 +636,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-background py-24 lg:py-28">
+        <section className="bg-background py-16 lg:py-28">
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-            <div>
+            <div className="text-center lg:text-left">
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
                 Trust Layer
               </p>
@@ -646,7 +646,7 @@ export default function Home() {
                 A calm, premium system agents can trust.
               </h2>
             </div>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
               {[
                 { icon: Shield, title: "Brand safe", detail: "Property-first copy and professional presenter tone." },
                 { icon: Clock, title: "Fast turnaround", detail: "Campaign creation starts from a listing URL." },
@@ -687,21 +687,31 @@ export default function Home() {
               Start with the campaign, show the presenter, prove the output and
               make the value obvious.
             </p>
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <a href="#hero-form">
-                <Button className="h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground hover:bg-primary/90">
+            <div className="mt-8">
+              {/* Mobile: single full-width CTA */}
+              <a href="#hero-form" className="block sm:hidden">
+                <Button className="w-full h-14 rounded-2xl bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90">
                   Generate Property Campaign
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </a>
-              <Link href="/pricing">
-                <Button
-                  variant="outline"
-                  className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-foreground hover:bg-white/10"
-                >
-                  Compare Packages
-                </Button>
-              </Link>
+              {/* Desktop: two buttons */}
+              <div className="hidden sm:flex justify-center gap-3">
+                <a href="#hero-form">
+                  <Button className="h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground hover:bg-primary/90">
+                    Generate Property Campaign
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </a>
+                <Link href="/pricing">
+                  <Button
+                    variant="outline"
+                    className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-foreground hover:bg-white/10"
+                  >
+                    Compare Packages
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </section>
