@@ -20,6 +20,9 @@ export function Footer() {
           <a href="mailto:hello@lensflow.com.au" className="hover:text-foreground">
             Support
           </a>
+          <a href="/privacy" className="hover:text-foreground">
+            Privacy Policy
+          </a>
         </div>
       </div>
     </footer>

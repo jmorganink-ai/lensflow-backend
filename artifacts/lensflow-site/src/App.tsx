@@ -9,6 +9,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
 import TwinAvatar from "@/pages/TwinAvatar";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import MorganChat from "@/components/MorganChat";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/advantage" component={Advantage} />
       <Route path="/origin" component={Origin} />
       <Route path="/concierge" component={Concierge} />
+      <Route path="/privacy" component={PrivacyPolicy} />
       <Route component={NotFound} />
     </Switch>
   );
