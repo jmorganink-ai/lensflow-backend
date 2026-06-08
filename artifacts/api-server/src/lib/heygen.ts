@@ -26,51 +26,63 @@ export interface PresenterLook {
   previewImageUrl?: string;
 }
 
-export const PRESENTER_LOOKS: Record<string, PresenterLook[]> = {
-  mia: [
-    { id: AVATAR_MIA,                            name: "Default" },
-    { id: "46214c5723134232b60e6783b20509f2",    name: "White Outfit" },
-    { id: "9868f07cb9804006adf1bb4cd7b9dbd1",    name: "Grey Jacket" },
-    { id: "2b7d85f25abf4f6a9f0d8ac20438d586",    name: "Studio Look",  previewImageUrl: "https://resource2.heygen.ai/best_frame_selection/candidates/c6f3cfdc94ff4ee494f70806b66ca28b.jpg" },
-    { id: "bbed326b42fc45778ac396cdc194a0c6",    name: "Blazer",        previewImageUrl: "https://resource2.heygen.ai/best_frame_selection/candidates/a9abe68d714d4cf187aa99eb78ec5647.jpg" },
-  ],
-  oliver: [
-    { id: AVATAR_OLIVER, name: "Default" },
-  ],
-  sophie: [
-    { id: AVATAR_SOPHIE, name: "Default" },
-  ],
-  james: [
-    { id: AVATAR_JAMES, name: "Default" },
-  ],
+// HeyGen avatar group IDs — each group holds all looks for that presenter.
+// Fetching /v2/avatar_group/{groupId}/avatars returns every look with its thumbnail.
+const GROUP_MIA    = process.env.HEYGEN_GROUP_MIA    ?? "1602766f0e7344199b7b1a8bcf7b7855";
+const GROUP_SOPHIE = process.env.HEYGEN_GROUP_SOPHIE ?? "";
+const GROUP_OLIVER = process.env.HEYGEN_GROUP_OLIVER ?? "";
+const GROUP_JAMES  = process.env.HEYGEN_GROUP_JAMES  ?? "";
+
+const PRESENTER_GROUP_IDS: Record<string, string> = {
+  mia:    GROUP_MIA,
+  sophie: GROUP_SOPHIE,
+  oliver: GROUP_OLIVER,
+  james:  GROUP_JAMES,
 };
 
-// Fetch preview images from HeyGen for a set of look IDs
+// Static fallback — used when no group ID is configured for a presenter.
+export const PRESENTER_LOOKS: Record<string, PresenterLook[]> = {
+  mia:    [{ id: AVATAR_MIA,    name: "Default" }],
+  oliver: [{ id: AVATAR_OLIVER, name: "Default" }],
+  sophie: [{ id: AVATAR_SOPHIE, name: "Default" }],
+  james:  [{ id: AVATAR_JAMES,  name: "Default" }],
+};
+
+// Fetch all looks for a presenter from their HeyGen avatar group.
+// Falls back to the static list if no group is configured or the call fails.
 export async function getPresenterLooks(presenter: string): Promise<PresenterLook[]> {
-  const apiKey = process.env.HEYGEN_API_KEY;
-  const looks = PRESENTER_LOOKS[presenter.toLowerCase()] ?? [];
-  if (!apiKey || looks.length === 0) return looks;
+  const apiKey  = process.env.HEYGEN_API_KEY;
+  const key     = presenter.toLowerCase();
+  const groupId = PRESENTER_GROUP_IDS[key] ?? "";
+  const fallback = PRESENTER_LOOKS[key] ?? [];
 
-  try {
-    const res = await fetch(`${HEYGEN_API_BASE}/v2/avatars?include_private=true`, {
-      headers: { "X-Api-Key": apiKey },
-      signal: AbortSignal.timeout(12_000),
-    });
-    if (!res.ok) return looks;
+  if (!apiKey) return fallback;
 
-    const data = (await res.json()) as { data?: { avatars?: Array<{ avatar_id: string; preview_image_url?: string }> } };
-    const avatarMap = new Map<string, string>();
-    for (const a of (data.data?.avatars ?? [])) {
-      if (a.preview_image_url) avatarMap.set(a.avatar_id, a.preview_image_url);
+  if (groupId) {
+    try {
+      const res = await fetch(`${HEYGEN_API_BASE}/v2/avatar_group/${groupId}/avatars`, {
+        headers: { "X-Api-Key": apiKey },
+        signal: AbortSignal.timeout(12_000),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as {
+          data?: { avatar_list?: Array<{ id: string; name?: string; image_url?: string }> };
+        };
+        const list = (data.data?.avatar_list ?? []).filter((a) => a.id);
+        if (list.length > 0) {
+          return list.map((a) => ({
+            id: a.id,
+            name: a.name ?? a.id,
+            previewImageUrl: a.image_url,
+          }));
+        }
+      }
+    } catch {
+      // fall through to static list
     }
-
-    return looks.map((l) => ({
-      ...l,
-      previewImageUrl: avatarMap.get(l.id) ?? l.previewImageUrl,
-    }));
-  } catch {
-    return looks;
   }
+
+  return fallback;
 }
 
 // Returns the correct HeyGen character payload depending on whether the ID is
