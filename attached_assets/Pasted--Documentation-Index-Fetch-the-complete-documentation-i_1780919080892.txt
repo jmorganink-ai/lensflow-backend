@@ -1,0 +1,274 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://heygen-1fa696a7.mintlify.app/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Prompt to Video
+
+> Create AI avatar videos from a single text prompt with the HeyGen Video Agent API. The agent picks the avatar, voice, and style, then renders in minutes.
+
+<Note>
+  This is the **one-shot** workflow — send a prompt, get a video. For multi-turn collaboration with the agent, see [Interactive Sessions](/docs/interactive-sessions).
+</Note>
+
+<Info>
+  **API reference:** [Create Session](/reference/create-video-agent-session) · [Get Session](/reference/get-video-agent-session) · [List Sessions](/reference/list-video-agent-sessions) · [Stop Session](/reference/stop-video-agent-session) · [Get Video](/reference/get-video) · [List Videos](/reference/list-videos) · [Delete Video](/reference/delete-video)
+</Info>
+
+[`POST /v3/video-agents`](/reference/create-video-agent-session)
+
+Send a text prompt describing the video you want. The agent handles scripting, avatar selection, scene composition, and rendering. The video is generated asynchronously — use the returned `session_id` to track progress and retrieve the `video_id` once rendering begins.
+
+### Request body
+
+| Parameter      | Type   | Required | Description                                                                                                                                                                   |
+| -------------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prompt`       | string | **Yes**  | Text description of the video you want (1–10,000 characters).                                                                                                                 |
+| `avatar_id`    | string | No       | Specific avatar look ID. Omit to let the agent choose automatically.                                                                                                          |
+| `voice_id`     | string | No       | Specific voice ID for narration. Omit to let the agent choose automatically.                                                                                                  |
+| `style_id`     | string | No       | Style ID from [`GET /v3/video-agents/styles`](/reference/list-video-agent-styles). Applies a curated visual template. See [Styles & References](/docs/styles-and-references). |
+| `orientation`  | string | No       | `"landscape"` or `"portrait"`. Auto-detected from content if omitted.                                                                                                         |
+| `files`        | array  | No       | Up to 20 file attachments. See [File input formats](#file-input-formats) below.                                                                                               |
+| `callback_url` | string | No       | Webhook URL to receive a POST notification on completion or failure.                                                                                                          |
+| `callback_id`  | string | No       | Caller-defined ID echoed back in the webhook payload.                                                                                                                         |
+
+### File input formats
+
+Each item in the `files` array uses a `type` discriminator to specify how the file is provided:
+
+<CodeGroup>
+  ```json URL theme={null}
+  { "type": "url", "url": "https://example.com/slide-deck.pdf" }
+  ```
+
+  ```json Asset ID theme={null}
+  { "type": "asset_id", "asset_id": "asset_abc123" }
+  ```
+
+  ```json Base64 theme={null}
+  { "type": "base64", "media_type": "image/png", "data": "iVBORw0KGgo..." }
+  ```
+</CodeGroup>
+
+Supported file types: image (png, jpeg), video (mp4, webm), audio (mp3, wav), and pdf. Upload files in advance via [`POST /v3/assets`](/reference/upload-asset) to get an `asset_id` — see [Upload Assets](/docs/upload-assets).
+
+### Example request
+
+<CodeGroup>
+  ```bash curl theme={null}
+  curl -X POST "https://api.heygen.com/v3/video-agents" \
+    -H "X-Api-Key: $HEYGEN_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "prompt": "Create a 45-second explainer about our Q3 product launch. Use a friendly, upbeat tone. Include the attached slides as visual context.",
+      "orientation": "landscape",
+      "files": [
+        { "type": "url", "url": "https://example.com/q3-launch-deck.pdf" }
+      ]
+    }'
+  ```
+
+  ```python Python theme={null}
+  import requests
+
+  resp = requests.post(
+      "https://api.heygen.com/v3/video-agents",
+      headers={"X-Api-Key": HEYGEN_API_KEY},
+      json={
+          "prompt": "Create a 45-second explainer about our Q3 product launch. Use a friendly, upbeat tone.",
+          "orientation": "landscape",
+          "files": [
+              {"type": "url", "url": "https://example.com/q3-launch-deck.pdf"}
+          ],
+      },
+  )
+  data = resp.json()["data"]
+  session_id = data["session_id"]
+  ```
+
+  ```javascript Node.js theme={null}
+  const resp = await fetch("https://api.heygen.com/v3/video-agents", {
+    method: "POST",
+    headers: {
+      "X-Api-Key": process.env.HEYGEN_API_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt: "Create a 45-second explainer about our Q3 product launch.",
+      orientation: "landscape",
+      files: [
+        { type: "url", url: "https://example.com/q3-launch-deck.pdf" },
+      ],
+    }),
+  });
+  const { data } = await resp.json();
+  const sessionId = data.session_id;
+  ```
+</CodeGroup>
+
+### Response
+
+```json theme={null}
+{
+  "data": {
+    "session_id": "sess_abc123",
+    "status": "generating",
+    "video_id": null,
+    "created_at": 1711382400
+  }
+}
+```
+
+| Field        | Type           | Description                                                                                                                                                                                                                            |
+| ------------ | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `session_id` | string         | Primary identifier for this Video Agent session. Use to track progress.                                                                                                                                                                |
+| `status`     | string         | Session status: `"thinking"`, `"generating"`, `"completed"`, or `"failed"`.                                                                                                                                                            |
+| `video_id`   | string \| null | Video ID for polling via [`GET /v3/videos/{video_id}`](/reference/get-video). `null` until rendering begins — poll [`GET /v3/video-agents/{session_id}`](/reference/get-video-agent-session) to get the `video_id` once it's assigned. |
+| `created_at` | integer        | Unix timestamp of session creation.                                                                                                                                                                                                    |
+
+## Poll for completion
+
+Video generation is asynchronous. First, poll the session to get the `video_id`, then poll the video for its final status:
+
+* [`GET /v3/video-agents/{session_id}`](/reference/get-video-agent-session) — session status and assigned `video_id`
+* [`GET /v3/videos/{video_id}`](/reference/get-video) — final render status and `video_url`
+
+<CodeGroup>
+  ```bash curl theme={null}
+  curl -X GET "https://api.heygen.com/v3/videos/vid_xyz789" \
+    -H "X-Api-Key: $HEYGEN_API_KEY"
+  ```
+
+  ```python Python theme={null}
+  import time, requests
+
+  # Step 1: wait for video_id to be assigned
+  video_id = None
+  while not video_id:
+      sess = requests.get(
+          f"https://api.heygen.com/v3/video-agents/{session_id}",
+          headers={"X-Api-Key": HEYGEN_API_KEY},
+      ).json()["data"]
+      video_id = sess.get("video_id")
+      if not video_id:
+          time.sleep(5)
+
+  # Step 2: poll video until complete
+  while True:
+      video = requests.get(
+          f"https://api.heygen.com/v3/videos/{video_id}",
+          headers={"X-Api-Key": HEYGEN_API_KEY},
+      ).json()["data"]
+      if video["status"] in ("completed", "failed"):
+          break
+      time.sleep(10)
+
+  print(video["video_url"])
+  ```
+</CodeGroup>
+
+### Response (completed)
+
+```json theme={null}
+{
+  "data": {
+    "id": "vid_xyz789",
+    "title": "Q3 Product Launch Explainer",
+    "status": "completed",
+    "video_url": "https://files.heygen.ai/video/vid_xyz789.mp4",
+    "thumbnail_url": "https://files.heygen.ai/thumb/vid_xyz789.jpg",
+    "duration": 45.2,
+    "created_at": 1711382400,
+    "completed_at": 1711382680
+  }
+}
+```
+
+### Video status transitions
+
+The `status` field progresses through these values:
+
+| Status       | Description                                                    |
+| ------------ | -------------------------------------------------------------- |
+| `pending`    | Video creation request accepted, queued for processing.        |
+| `processing` | The agent is generating the video.                             |
+| `completed`  | Video is ready. `video_url` contains the download link.        |
+| `failed`     | Generation failed. Check `failure_code` and `failure_message`. |
+
+### Response fields
+
+| Field                 | Type            | Description                                                        |
+| --------------------- | --------------- | ------------------------------------------------------------------ |
+| `id`                  | string          | Unique video identifier.                                           |
+| `title`               | string \| null  | Video title.                                                       |
+| `status`              | string          | Current status: `pending`, `processing`, `completed`, or `failed`. |
+| `video_url`           | string \| null  | Presigned download URL. Present when `completed`.                  |
+| `thumbnail_url`       | string \| null  | Thumbnail image URL.                                               |
+| `gif_url`             | string \| null  | Animated GIF preview URL.                                          |
+| `captioned_video_url` | string \| null  | Video with burned-in captions.                                     |
+| `subtitle_url`        | string \| null  | SRT subtitle file download URL.                                    |
+| `duration`            | number \| null  | Video duration in seconds.                                         |
+| `created_at`          | integer \| null | Unix timestamp of creation.                                        |
+| `completed_at`        | integer \| null | Unix timestamp when generation finished.                           |
+| `failure_code`        | string \| null  | Machine-readable failure reason. Only when `failed`.               |
+| `failure_message`     | string \| null  | Human-readable failure description. Only when `failed`.            |
+| `video_page_url`      | string \| null  | Link to the video in the HeyGen app.                               |
+
+## Use webhooks instead of polling
+
+Pass a `callback_url` in the creation request to receive a POST notification when the video completes or fails, instead of polling:
+
+```bash theme={null}
+curl -X POST "https://api.heygen.com/v3/video-agents" \
+  -H "X-Api-Key: $HEYGEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "Create a short welcome video for new employees",
+    "callback_url": "https://your-server.com/webhooks/heygen",
+    "callback_id": "onboarding-video-001"
+  }'
+```
+
+The `callback_id` is echoed back in the webhook payload so you can correlate notifications with requests.
+
+## List videos
+
+Retrieve all videos in your account with pagination. Full schema: [`GET /v3/videos`](/reference/list-videos).
+
+| Parameter   | Type    | Default | Description                                            |
+| ----------- | ------- | ------- | ------------------------------------------------------ |
+| `limit`     | integer | 10      | Results per page (1–100).                              |
+| `token`     | string  | —       | Opaque cursor from a previous response's `next_token`. |
+| `folder_id` | string  | —       | Filter by folder ID.                                   |
+| `title`     | string  | —       | Filter by title substring.                             |
+
+```bash theme={null}
+curl "https://api.heygen.com/v3/videos?limit=5" \
+  -H "X-Api-Key: $HEYGEN_API_KEY"
+```
+
+## Delete a video
+
+Permanently remove a video. Full schema: [`DELETE /v3/videos/{video_id}`](/reference/delete-video).
+
+```bash theme={null}
+curl -X DELETE "https://api.heygen.com/v3/videos/vid_xyz789" \
+  -H "X-Api-Key: $HEYGEN_API_KEY"
+```
+
+```json Response theme={null}
+{
+  "data": {
+    "id": "vid_xyz789",
+    "deleted": true
+  }
+}
+```
+
+## Tips for better results
+
+1. **Be descriptive in your prompt.** Include details about tone, target audience, visual style, and pacing — the agent uses all of this to make better decisions.
+2. **Attach reference files.** Pass slides, images, or documents in the `files` array to give the agent visual context.
+3. **Use `orientation`** when you know the target platform (e.g. `"portrait"` for mobile/social, `"landscape"` for presentations).
+4. **Apply a style** for consistent visual branding across videos. See [Styles & References](/docs/styles-and-references) and [`GET /v3/video-agents/styles`](/reference/list-video-agent-styles).
+5. **Pin a specific avatar or voice** with `avatar_id` (see [Avatars](/docs/avatars)) and `voice_id` (see [Browse Voices](/docs/voices/search-voices)) for brand consistency, or omit them to let the agent choose.
+6. **Need multi-turn revisions?** Use [Interactive Sessions](/docs/interactive-sessions) instead of one-shot prompts.
