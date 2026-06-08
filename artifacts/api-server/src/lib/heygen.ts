@@ -29,7 +29,7 @@ export interface PresenterLook {
 // HeyGen avatar group IDs — each group holds all looks for that presenter.
 // Fetching /v2/avatar_group/{groupId}/avatars returns every look with its thumbnail.
 const GROUP_MIA    = process.env.HEYGEN_GROUP_MIA    ?? "1602766f0e7344199b7b1a8bcf7b7855";
-const GROUP_SOPHIE = process.env.HEYGEN_GROUP_SOPHIE ?? "";
+const GROUP_SOPHIE = process.env.HEYGEN_GROUP_SOPHIE ?? "267832a040cd46998928c37498777215";
 const GROUP_OLIVER = process.env.HEYGEN_GROUP_OLIVER ?? "b88ace7a30a34a76ae92a16dd84c18af";
 const GROUP_JAMES  = process.env.HEYGEN_GROUP_JAMES  ?? "";
 
