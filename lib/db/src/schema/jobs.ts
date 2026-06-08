@@ -23,6 +23,12 @@ export const jobsTable = pgTable("jobs", {
   lookId: text("look_id"),
   // Matterport Lite: agent pastes share URL → embedded 3D tour on campaign reveal page
   matterportUrl: text("matterport_url"),
+  // Auto-music metadata — set by LF-AUTO-MUSIC-MOOD during pipeline
+  musicMood: text("music_mood"),
+  musicTrackId: text("music_track_id"),
+  musicTrackName: text("music_track_name"),
+  musicTrackUrl: text("music_track_url"),
+  musicProvider: text("music_provider"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

@@ -101,6 +101,7 @@ export async function composePresenterVideoPremiumLuxuryV1(
   voiceName?: string | null,
   testMode = false,
   highlights?: string[] | null,
+  musicUrl?: string | null,
 ): Promise<ShotstackResult> {
   const { apiKey, baseUrl } = getShotstackConfig();
 
@@ -382,10 +383,13 @@ export async function composePresenterVideoPremiumLuxuryV1(
     ...(closingDomain ? [{ clips: [closingDomain] }] : []),
   ];
 
-  // Luxury music at subdued level — voice sits cleanly on top
-  const musicKey = (musicTrack && MUSIC_TRACK_URLS[musicTrack]) ? musicTrack : "luxury";
-  const musicUrl = MUSIC_TRACK_URLS[musicKey]!;
-  const soundtrack = { src: musicUrl, effect: "fadeInFadeOut", volume: 0.15 };
+  // Music URL: prefer caller-supplied URL (HeyGen auto-music) over static map key
+  const MUSIC_VOLUME = 0.15; // voice sits cleanly on top
+  const resolvedMusicUrl = musicUrl
+    ?? (musicTrack && MUSIC_TRACK_URLS[musicTrack] ? MUSIC_TRACK_URLS[musicTrack] : null)
+    ?? MUSIC_TRACK_URLS["luxury"]!;
+  logger.info({ resolvedMusicUrl, volume: MUSIC_VOLUME }, "Shotstack soundtrack");
+  const soundtrack = { src: resolvedMusicUrl, effect: "fadeInFadeOut", volume: MUSIC_VOLUME };
 
   const renderRes = await fetch(`${baseUrl}/render`, {
     method: "POST",
@@ -488,6 +492,7 @@ export async function composeVoicePhotosVideo(
   listingUrl?: string | null,
   propertyImages?: string[] | null,
   musicTrack?: string | null,
+  musicUrl?: string | null,
 ): Promise<ShotstackResult> {
   const { apiKey, baseUrl } = getShotstackConfig();
 
@@ -524,8 +529,12 @@ export async function composeVoicePhotosVideo(
   const ctaClip = { asset: { type: "title", text: "Book Your Inspection Today", style: "future", color: "#C9962A", size: "medium" }, start: TOTAL_DURATION - 8, length: 7, position: "center", offset: { x: 0, y: 0.1 }, transition: { in: "fade", out: "fade" } };
   const watermarkClip = { asset: { type: "title", text: `lensflow.com.au  ·  ${domain}`, style: "minimal", color: "#C9962A", size: "x-small" }, start: 0, length: TOTAL_DURATION, position: "topRight", offset: { x: -0.02, y: -0.04 } };
 
-  const musicUrl = musicTrack ? MUSIC_TRACK_URLS[musicTrack] : MUSIC_TRACK_URLS["uplifting"];
-  const soundtrack = { src: musicUrl, effect: "fadeInFadeOut", volume: voiceoverUrl ? 0.18 : 0.45 };
+  const VOICE_PHOTOS_VOLUME = voiceoverUrl ? 0.15 : 0.45;
+  const resolvedVPMusicUrl = musicUrl
+    ?? (musicTrack && MUSIC_TRACK_URLS[musicTrack] ? MUSIC_TRACK_URLS[musicTrack] : null)
+    ?? MUSIC_TRACK_URLS["uplifting"]!;
+  logger.info({ resolvedVPMusicUrl, volume: VOICE_PHOTOS_VOLUME }, "Shotstack voice-photos soundtrack");
+  const soundtrack = { src: resolvedVPMusicUrl, effect: "fadeInFadeOut", volume: VOICE_PHOTOS_VOLUME };
 
   const tracks = [buildPhotoTrack(), ...(vignetteTrack ? [vignetteTrack] : []), ...(voiceoverTrack ? [voiceoverTrack] : []), { clips: [titleClip] }, { clips: [ctaClip] }, { clips: [watermarkClip] }];
 

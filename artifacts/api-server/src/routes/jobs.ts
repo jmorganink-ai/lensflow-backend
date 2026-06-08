@@ -14,6 +14,7 @@ import { randomUUID } from "crypto";
 import { logger } from "../lib/logger";
 import { generateVoiceover } from "./elevenlabs";
 import { generateListingScript, extractHighlights, type ListingContext } from "../lib/generate-script";
+import { selectAndFetchMusic } from "../lib/music";
 import { parseListingUrl } from "../lib/parse-listing-url";
 import { generatePresenterVideo, HeyGenTimeoutError } from "../lib/heygen";
 import { generatePresenterVideoDID } from "../lib/did";
@@ -121,6 +122,7 @@ export async function runSimulation(jobId: string): Promise<void> {
     let voiceoverPublicUrl: string | null = null;
     let finalVideoUrl: string | null = null;
     let scrapedImages: string[] = [];
+    let selectedMusicUrl: string | null = null;
     const isVoicePhotos = job.outputType === "voice_photos";
     // Photos used by downstream steps (analysis, video). Starts as the originals
     // and is replaced by the AI-enhanced versions once the glow-up step runs.
@@ -341,6 +343,29 @@ export async function runSimulation(jobId: string): Promise<void> {
               .set({ listingTitle: result.title })
               .where(eq(jobsTable.id, jobId));
           }
+
+          // ── Auto-music selection (LF-AUTO-MUSIC-MOOD) ──────────────────────
+          // Non-blocking: if this fails the pipeline continues with static fallback.
+          try {
+            const music = await selectAndFetchMusic(listingContext, result.script);
+            selectedMusicUrl = music.trackUrl;
+            logger.info(
+              { jobId, mood: music.mood, trackId: music.trackId, trackName: music.trackName, provider: music.provider, volume: 0.15 },
+              "Auto-music selection complete",
+            );
+            await db
+              .update(jobsTable)
+              .set({
+                musicMood: music.mood,
+                musicTrackId: music.trackId ?? undefined,
+                musicTrackName: music.trackName ?? undefined,
+                musicTrackUrl: music.trackUrl,
+                musicProvider: music.provider,
+              })
+              .where(eq(jobsTable.id, jobId));
+          } catch (musicErr) {
+            logger.warn({ err: musicErr, jobId }, "Auto-music selection failed — compose_video will use static fallback");
+          }
         } catch (err) {
           logger.error({ err, jobId }, "Script generation failed — continuing");
         }
@@ -415,13 +440,14 @@ export async function runSimulation(jobId: string): Promise<void> {
         try {
           if (isVoicePhotos) {
             // Option B: voiceover narration over photo slideshow — no presenter clip
-            logger.info({ jobId, voiceoverPublicUrl }, "Composing voice-photos video with Shotstack");
+            logger.info({ jobId, voiceoverPublicUrl, musicUrl: selectedMusicUrl ?? "(static fallback)" }, "Composing voice-photos video with Shotstack");
             const result = await composeVoicePhotosVideo(
               voiceoverPublicUrl,
               job.listingTitle,
               job.listingUrl,
               photos,
               job.musicTrack,
+              selectedMusicUrl,
             );
             outputUrl = result.videoUrl;
             finalVideoUrl = result.videoUrl;
@@ -431,7 +457,7 @@ export async function runSimulation(jobId: string): Promise<void> {
             if (!presenterVideoUrl) throw new Error("No presenter video URL from presenter_video step");
             // testMode: dev jobs (userId=null) use 10s SD renders to keep credit cost low
             const shotstackTestMode = job.userId === null;
-            logger.info({ jobId, presenterVideoUrl, testMode: shotstackTestMode }, "Composing final video with Shotstack");
+            logger.info({ jobId, presenterVideoUrl, testMode: shotstackTestMode, musicUrl: selectedMusicUrl ?? "(static fallback)" }, "Composing final video with Shotstack");
             const result = await composePresenterVideoPremiumLuxuryV1(
               presenterVideoUrl,
               job.listingTitle,
@@ -441,6 +467,7 @@ export async function runSimulation(jobId: string): Promise<void> {
               job.voiceName,
               shotstackTestMode,
               scriptHighlights.length > 0 ? scriptHighlights : null,
+              selectedMusicUrl,
             );
             outputUrl = result.videoUrl;
             finalVideoUrl = result.videoUrl;
