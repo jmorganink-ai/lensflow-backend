@@ -211,11 +211,24 @@ export class ObjectStorageService {
    * objectKey is relative to PRIVATE_OBJECT_DIR, e.g. "voiceovers/jobId.mp3"
    */
   async uploadPublicAudio(buffer: Buffer, objectKey: string): Promise<string> {
+    return this.uploadPublicBuffer(buffer, objectKey, "audio/mpeg");
+  }
+
+  /**
+   * Upload any Buffer to object storage and make it publicly readable.
+   * Returns the public URL via the REPLIT_DOMAINS proxy.
+   * objectKey is relative to PRIVATE_OBJECT_DIR, e.g. "test-images/uuid.jpg"
+   */
+  async uploadPublicBuffer(
+    buffer: Buffer,
+    objectKey: string,
+    contentType: string,
+  ): Promise<string> {
     const privateDir = this.getPrivateObjectDir().replace(/\/$/, "");
     const fullPath = `${privateDir}/${objectKey}`;
     const { bucketName, objectName } = parseObjectPath(fullPath);
     const file = objectStorageClient.bucket(bucketName).file(objectName);
-    await file.save(buffer, { contentType: "audio/mpeg", resumable: false });
+    await file.save(buffer, { contentType, resumable: false });
     await setObjectAclPolicy(file, { owner: "", visibility: "public" });
     const domain =
       (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim() || "localhost";

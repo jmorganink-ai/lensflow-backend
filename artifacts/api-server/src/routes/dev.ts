@@ -4,8 +4,41 @@ import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { runSimulation } from "./jobs";
 import { composePresenterVideoPremiumLuxuryV1 } from "../lib/shotstack";
+import { ObjectStorageService } from "../lib/objectStorage";
+import { logger } from "../lib/logger";
 
 const router = Router();
+const objectStorageService = new ObjectStorageService();
+
+/**
+ * Fetch external image URLs and re-host them in object storage so they get
+ * /api/storage/ paths that pass the SSRF allowlist in fetchImageAsBase64.
+ * This lets the dev test exercise real Gemini enhancement on all photos.
+ */
+async function prefetchAndUploadTestImages(urls: string[]): Promise<string[]> {
+  const uploaded: string[] = [];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+      if (!res.ok) {
+        logger.warn({ url, status: res.status }, "Dev test: failed to fetch image for pre-upload — using original");
+        uploaded.push(url);
+        continue;
+      }
+      const buf = Buffer.from(await res.arrayBuffer());
+      const ct = res.headers.get("content-type") ?? "image/jpeg";
+      const ext = ct.includes("png") ? "png" : ct.includes("webp") ? "webp" : "jpg";
+      const key = `test-images/${randomUUID()}.${ext}`;
+      const storageUrl = await objectStorageService.uploadPublicBuffer(buf, key, ct);
+      logger.info({ url, storageUrl, bytes: buf.length }, "Dev test: image pre-uploaded to storage");
+      uploaded.push(storageUrl);
+    } catch (err) {
+      logger.warn({ err, url }, "Dev test: image pre-upload failed — using original URL");
+      uploaded.push(url);
+    }
+  }
+  return uploaded;
+}
 
 const PRESENTER_STEPS = [
   { name: "scrape_listing",  label: "Scrape Listing",       order: 1 },
@@ -45,18 +78,25 @@ router.post("/dev/run-test", async (req, res): Promise<void> => {
     ?? PRESENTER_VOICE_IDS[voiceName.toLowerCase()]
     ?? "x3PfG9wL6FOEApZ1VJ9H";
 
+  // Pre-upload test images to object storage so they get /api/storage/ URLs
+  // that pass the SSRF allowlist and allow Gemini to enhance them.
+  const RAW_TEST_IMAGES = [
+    "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1280",
+    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1280",
+    "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1280",
+    "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1280",
+  ];
+  logger.info({ count: RAW_TEST_IMAGES.length }, "Dev test: pre-uploading test images to object storage");
+  const propertyImages = await prefetchAndUploadTestImages(RAW_TEST_IMAGES);
+  logger.info({ propertyImages }, "Dev test: test images ready in object storage");
+
   await db.insert(jobsTable).values({
     id,
     userId: null,
     listingUrl,
     listingTitle: "Test Property — Richmond VIC",
     propertyAddress: "24 Church Street, Richmond VIC 3121",
-    propertyImages: [
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1280",
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1280",
-      "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1280",
-      "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1280",
-    ],
+    propertyImages,
     voiceName,
     voiceId,
     status: "pending",
