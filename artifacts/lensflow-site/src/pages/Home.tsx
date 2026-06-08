@@ -263,8 +263,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-background py-16">
-          <div className="mx-auto grid max-w-7xl gap-4 px-6 md:grid-cols-4">
+        <section className="border-b border-white/5 bg-background py-10">
+          <div className="mx-auto grid max-w-7xl gap-3 px-6 grid-cols-2 md:grid-cols-4">
             {proofPoints.map((point) => (
               <div
                 key={point}
@@ -278,7 +278,7 @@ export default function Home() {
         </section>
 
         {/* Brand explainer video */}
-        <section className="border-b border-white/5 bg-card/30 py-20 lg:py-24">
+        <section className="border-b border-white/5 bg-card/30 py-14 lg:py-24">
           <div className="mx-auto max-w-5xl px-6">
             <div className="mb-8 text-center">
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
@@ -309,10 +309,10 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="examples" className="bg-background py-24 lg:py-28">
+        <section id="examples" className="bg-background py-16 lg:py-28">
           <div className="mx-auto max-w-7xl px-6">
-            <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <div className="max-w-2xl">
+            <div className="mb-10 text-center lg:text-left lg:flex lg:flex-row lg:justify-between lg:items-end">
+              <div className="max-w-2xl mx-auto lg:mx-0">
                 <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
                   Campaign Output
                 </p>
@@ -320,7 +320,7 @@ export default function Home() {
                   One listing becomes a full marketing launch.
                 </h2>
               </div>
-              <p className="max-w-md text-base leading-7 text-muted-foreground">
+              <p className="mt-4 lg:mt-0 max-w-md text-base leading-7 text-muted-foreground mx-auto lg:mx-0">
                 LensFlow should feel like an AI marketing department. That means
                 video, social, presenter and campaign assets in one flow.
               </p>
