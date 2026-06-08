@@ -18,7 +18,7 @@ function getShotstackConfig(): { apiKey: string; baseUrl: string } {
   if (prodKey) return { apiKey: prodKey, baseUrl: "https://api.shotstack.io/edit/v1" };
   if (sandboxKey) {
     logger.warn("Using Shotstack sandbox key — set SHOTSTACK_PROD_API_KEY for production renders");
-    return { apiKey: sandboxKey, baseUrl: "https://api.shotstack.io/edit/stage" };
+    return { apiKey: sandboxKey, baseUrl: "https://api.shotstack.io/edit/v1" };
   }
   throw new Error("No Shotstack API key set (SHOTSTACK_PROD_API_KEY or SHOTSTACK_API_KEY)");
 }
