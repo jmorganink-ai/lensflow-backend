@@ -31,10 +31,11 @@ const connectors = new ReplitConnectors();
 
 const PIPELINE_STEPS_URL = [
   { name: "scrape_listing", label: "Scrape Listing", order: 1 },
-  { name: "generate_script", label: "Generate Script", order: 2 },
-  { name: "create_voiceover", label: "Generate Voiceover", order: 3 },
-  { name: "presenter_video", label: "Generate Presenter", order: 4 },
-  { name: "compose_video", label: "Final Video Render", order: 5 },
+  { name: "enhance_photos", label: "AI Photo Glow-up", order: 2 },
+  { name: "generate_script", label: "Generate Script", order: 3 },
+  { name: "create_voiceover", label: "Generate Voiceover", order: 4 },
+  { name: "presenter_video", label: "Generate Presenter", order: 5 },
+  { name: "compose_video", label: "Final Video Render", order: 6 },
 ];
 
 const PIPELINE_STEPS_PHOTOS = [
@@ -49,9 +50,10 @@ const PIPELINE_STEPS_PHOTOS = [
 // Steps for "voice_photos" output type — no HeyGen presenter, Shotstack composes voice + slideshow
 const PIPELINE_STEPS_URL_VOICE_PHOTOS = [
   { name: "scrape_listing", label: "Scrape Listing", order: 1 },
-  { name: "generate_script", label: "Generate Script", order: 2 },
-  { name: "create_voiceover", label: "Create Voiceover", order: 3 },
-  { name: "compose_video", label: "Compose Video", order: 4 },
+  { name: "enhance_photos", label: "AI Photo Glow-up", order: 2 },
+  { name: "generate_script", label: "Generate Script", order: 3 },
+  { name: "create_voiceover", label: "Create Voiceover", order: 4 },
+  { name: "compose_video", label: "Compose Video", order: 5 },
 ];
 
 const PIPELINE_STEPS_PHOTOS_VOICE_PHOTOS = [
@@ -232,7 +234,10 @@ export async function runSimulation(jobId: string): Promise<void> {
               .where(eq(jobsTable.id, jobId));
             // Reload job so downstream steps see the scraped images
             const [updated] = await db.select().from(jobsTable).where(eq(jobsTable.id, jobId));
-            if (updated) Object.assign(job, updated);
+            if (updated) {
+              Object.assign(job, updated);
+              effectivePhotos = job.propertyImages ?? [];
+            }
             logger.info({ jobId, count: scrapedImages.length }, "Saved scraped property images to job");
           }
 
@@ -559,12 +564,11 @@ router.post("/jobs", async (req, res): Promise<void> => {
       ? PIPELINE_STEPS_PHOTOS
       : PIPELINE_STEPS_URL;
 
-  const pipelineSteps =
-    inputMode === "photos" && !enhancePhotos
-      ? basePipelineSteps
-          .filter((s) => s.name !== "enhance_photos")
-          .map((s, i) => ({ ...s, order: i + 1 }))
-      : basePipelineSteps;
+  const pipelineSteps = !enhancePhotos
+    ? basePipelineSteps
+        .filter((s) => s.name !== "enhance_photos")
+        .map((s, i) => ({ ...s, order: i + 1 }))
+    : basePipelineSteps;
 
   const stepRows = pipelineSteps.map((step) => ({
     id: randomUUID(),

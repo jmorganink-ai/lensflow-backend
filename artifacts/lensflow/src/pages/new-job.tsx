@@ -424,7 +424,7 @@ export default function NewJob() {
           voiceName: values.voiceName || undefined,
           propertyImages: readyPhotos.map((p) => p.publicUrl),
           musicTrack: values.musicTrack || undefined,
-          enhancePhotos: inputMode === "photos" && enhancePhotos ? true : undefined,
+          enhancePhotos: enhancePhotos ? true : undefined,
           outputType: outputType as "presenter" | "voice_photos",
           lookId: selectedLookId ?? undefined,
         },
@@ -1047,8 +1047,8 @@ export default function NewJob() {
                 );
               })()}
 
-              {/* AI Photo Enhancement toggle — only relevant in photo mode */}
-              {inputMode === "photos" && (
+              {/* AI Photo Enhancement toggle — available for both URL and photo modes */}
+              {(
                 <button
                   type="button"
                   onClick={() => setEnhancePhotos((v) => !v)}
