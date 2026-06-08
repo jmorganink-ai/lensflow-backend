@@ -183,32 +183,39 @@ export default function Home() {
                 — same day, no bookings, no editing.
               </motion.p>
 
-              <motion.div
-                variants={fadeInUp}
-                className="mt-8 flex flex-col gap-3 sm:flex-row"
-              >
-                <a href="#hero-form">
-                  <Button className="h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground hover:bg-primary/90">
+              <motion.div variants={fadeInUp} className="mt-8">
+                {/* Mobile: single bold full-width CTA */}
+                <a href="#hero-form" className="block sm:hidden">
+                  <Button className="w-full h-14 rounded-2xl bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90">
                     Generate Property Campaign
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </a>
-                <a href="#examples">
-                  <Button
-                    variant="outline"
-                    className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-foreground hover:bg-white/10"
-                  >
-                    View Campaign Examples
-                  </Button>
-                </a>
-                <a href="/mobile/">
-                  <Button
-                    variant="outline"
-                    className="h-12 rounded-full border-primary/40 bg-primary/10 px-7 text-base text-primary hover:bg-primary/20"
-                  >
-                    Download the App
-                  </Button>
-                </a>
+                {/* Desktop: three buttons side by side */}
+                <div className="hidden sm:flex flex-wrap gap-3">
+                  <a href="#hero-form">
+                    <Button className="h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground hover:bg-primary/90">
+                      Generate Property Campaign
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </a>
+                  <a href="#examples">
+                    <Button
+                      variant="outline"
+                      className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-foreground hover:bg-white/10"
+                    >
+                      View Campaign Examples
+                    </Button>
+                  </a>
+                  <a href="/mobile/">
+                    <Button
+                      variant="outline"
+                      className="h-12 rounded-full border-primary/40 bg-primary/10 px-7 text-base text-primary hover:bg-primary/20"
+                    >
+                      Download the App
+                    </Button>
+                  </a>
+                </div>
               </motion.div>
 
               <motion.div
