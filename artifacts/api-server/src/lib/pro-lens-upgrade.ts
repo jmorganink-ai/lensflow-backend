@@ -6,7 +6,7 @@ import {
 } from "./analyse-photos";
 import { ObjectStorageService } from "./objectStorage";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_LENSFLOW_API_KEY ?? process.env.GEMINI_API_KEY });
 const objectStorageService = new ObjectStorageService();
 
 const UPGRADE_MODEL = "gemini-2.5-flash-image";
