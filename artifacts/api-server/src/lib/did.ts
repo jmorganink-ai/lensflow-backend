@@ -2,25 +2,50 @@ import { logger } from "./logger";
 
 const DID_API_BASE = "https://api.d-id.com";
 
-// Presenter-specific images — public URLs of real Mia/Oliver/Sophie stills.
-// Falls back to a neutral D-ID stock avatar if none match.
-const PRESENTER_IMAGES: Record<string, string> = {
+/**
+ * D-ID /clips presenter IDs — trained video presenters, full natural movement.
+ * Overridable per-presenter via env vars.
+ *
+ * Defaults chosen to best match LensFlow's Mia / Oliver / Sophie personas:
+ *   mia    → Amber (warm professional female, outdoor)
+ *   oliver → Matt  (Australian voice, male, outdoor) — env DID_PRESENTER_OLIVER_YOUNG
+ *            Frank (older distinguished male, grey jacket) — env DID_PRESENTER_OLIVER_SENIOR
+ *   sophie → Alyssa (polished female, lobby setting)
+ */
+const CLIP_PRESENTER_IDS: Record<string, string> = {
   mia:
-    process.env.DID_IMAGE_MIA ??
-    "https://resource2.heygen.ai/best_frame_selection/candidates/a9abe68d714d4cf187aa99eb78ec5647.jpg",
+    process.env.DID_PRESENTER_MIA ??
+    "v2_public_Amber_WhiteBlueShirt_Outdoor@k_pw06LqHE",
   oliver:
-    process.env.DID_IMAGE_OLIVER ??
-    "https://resource2.heygen.ai/best_frame_selection/candidates/a9abe68d714d4cf187aa99eb78ec5647.jpg",
+    process.env.DID_PRESENTER_OLIVER ??
+    "v2_public_Matt_NoHands_GreyTshirt_Outdoor@rwE9avfhZE",
   sophie:
-    process.env.DID_IMAGE_SOPHIE ??
-    "https://resource2.heygen.ai/best_frame_selection/candidates/a9abe68d714d4cf187aa99eb78ec5647.jpg",
+    process.env.DID_PRESENTER_SOPHIE ??
+    "v2_public_Alyssa_NoHands_RedSuite_Lobby@qtzjxMSwEa",
 };
 
-const DEFAULT_PRESENTER_IMAGE =
+const DEFAULT_CLIP_PRESENTER_ID =
+  process.env.DID_PRESENTER_DEFAULT ??
+  "v2_public_Matt_NoHands_GreyTshirt_Outdoor@rwE9avfhZE";
+
+/** Fallback: /talks image-warp presenter images (used only if clips fails) */
+const FALLBACK_PRESENTER_IMAGES: Record<string, string> = {
+  mia:
+    process.env.DID_IMAGE_MIA ??
+    "https://create-images-results.d-id.com/DefaultPresenters/Noelle_f/image.jpeg",
+  oliver:
+    process.env.DID_IMAGE_OLIVER ??
+    "https://create-images-results.d-id.com/DefaultPresenters/Noelle_f/image.jpeg",
+  sophie:
+    process.env.DID_IMAGE_SOPHIE ??
+    "https://create-images-results.d-id.com/DefaultPresenters/Noelle_f/image.jpeg",
+};
+
+const DEFAULT_FALLBACK_IMAGE =
   process.env.DID_PRESENTER_IMAGE_URL ??
   "https://create-images-results.d-id.com/DefaultPresenters/Noelle_f/image.jpeg";
 
-const DEFAULT_VOICE_ID = process.env.DID_VOICE_ID ?? "en-US-JennyNeural";
+const DEFAULT_VOICE_ID = process.env.DID_VOICE_ID ?? "en-AU-WilliamNeural";
 
 export class DIDTimeoutError extends Error {
   constructor() {
@@ -35,24 +60,137 @@ export interface DIDResult {
 }
 
 export interface DIDOptions {
-  /** Presenter name to pick the right source image (mia / oliver / sophie). */
+  /** Presenter name to pick the right presenter (mia / oliver / sophie). */
   presenterName?: string;
-  /** Pre-generated ElevenLabs audio URL. When provided D-ID uses this instead of its own TTS. */
+  /** Pre-generated ElevenLabs audio URL. When provided D-ID uses this for lipsync — no extra TTS cost. */
   audioUrl?: string | null;
-  /** Maximum ms to wait for the video (default 120 s). */
+  /** Maximum ms to wait for the video (default 180 s — clips take longer than talks). */
   timeoutMs?: number;
 }
 
+function getAuthHeaders(apiKey: string) {
+  const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
+  return {
+    Authorization: `Basic ${basicAuth}`,
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+}
+
 /**
- * Generate a talking-head presenter video via D-ID.
+ * Generate a presenter video using D-ID /clips — trained video presenters.
+ * Looks completely natural (full body, real motion, proper lipsync).
  *
- * Preferred path: pass `audioUrl` (the ElevenLabs voiceover we already generated)
- * so D-ID only does lipsync — no extra TTS cost and the voice is consistent with
- * the rest of the pipeline.
- *
- * Fallback path (no audioUrl): D-ID generates its own TTS from `script`.
+ * Pass `audioUrl` (ElevenLabs voiceover) to sync lips to our voice.
+ * Falls back to Microsoft TTS if no audioUrl.
  */
-export async function generatePresenterVideoDID(
+async function generateClip(
+  script: string,
+  options: DIDOptions = {},
+): Promise<DIDResult> {
+  const { presenterName, audioUrl, timeoutMs = 180_000 } = options;
+
+  const apiKey = process.env.DID_API_KEY;
+  if (!apiKey) throw new Error("DID_API_KEY not set");
+
+  const headers = getAuthHeaders(apiKey);
+
+  const presenterId =
+    (presenterName
+      ? CLIP_PRESENTER_IDS[presenterName.toLowerCase()]
+      : null) ?? DEFAULT_CLIP_PRESENTER_ID;
+
+  const scriptBlock = audioUrl
+    ? { type: "audio", audio_url: audioUrl }
+    : {
+        type: "text",
+        input: script,
+        provider: { type: "microsoft", voice_id: DEFAULT_VOICE_ID },
+      };
+
+  logger.info(
+    { presenterName, presenterId, usingAudioUrl: !!audioUrl },
+    "Submitting D-ID clip generation job",
+  );
+
+  const createRes = await fetch(`${DID_API_BASE}/clips`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      presenter_id: presenterId,
+      script: scriptBlock,
+      config: { result_format: "mp4" },
+    }),
+  });
+
+  if (!createRes.ok) {
+    const text = await createRes.text();
+    throw new Error(`D-ID clip create failed (${createRes.status}): ${text}`);
+  }
+
+  const createData = (await createRes.json()) as {
+    id?: string;
+    error?: { description: string };
+    kind?: string;
+    description?: string;
+  };
+
+  if (createData.kind === "NotFoundError" || createData.error) {
+    throw new Error(
+      `D-ID clip error: ${createData.description ?? createData.error?.description ?? "unknown"}`,
+    );
+  }
+
+  const clipId = createData.id;
+  if (!clipId) throw new Error("D-ID did not return a clip id");
+
+  logger.info({ clipId }, "D-ID clip queued — polling for completion");
+
+  const POLL_INTERVAL_MS = 5_000;
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+
+    const statusRes = await fetch(`${DID_API_BASE}/clips/${clipId}`, {
+      headers,
+    });
+
+    if (!statusRes.ok) {
+      logger.warn({ status: statusRes.status }, "D-ID clip status poll failed — retrying");
+      continue;
+    }
+
+    const statusData = (await statusRes.json()) as {
+      status?: string;
+      result_url?: string;
+      error?: { description: string };
+    };
+
+    logger.info({ clipId, status: statusData.status }, "D-ID clip poll");
+
+    if (statusData.status === "done") {
+      const videoUrl = statusData.result_url;
+      if (!videoUrl) throw new Error("D-ID clip completed but no result_url");
+      logger.info({ clipId, videoUrl }, "D-ID clip video ready");
+      return { videoUrl, videoId: clipId };
+    }
+
+    if (statusData.status === "error") {
+      throw new Error(
+        `D-ID clip failed (id=${clipId}): ${statusData.error?.description ?? "unknown"}`,
+      );
+    }
+  }
+
+  throw new DIDTimeoutError();
+}
+
+/**
+ * Fallback: generate via D-ID /talks (animates a static image).
+ * Looks robotic compared to /clips — only used when clips fails.
+ */
+async function generateTalk(
   script: string,
   options: DIDOptions = {},
 ): Promise<DIDResult> {
@@ -61,18 +199,13 @@ export async function generatePresenterVideoDID(
   const apiKey = process.env.DID_API_KEY;
   if (!apiKey) throw new Error("DID_API_KEY not set");
 
-  const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
-  const headers = {
-    Authorization: `Basic ${basicAuth}`,
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  };
+  const headers = getAuthHeaders(apiKey);
 
   const sourceImage =
-    (presenterName ? PRESENTER_IMAGES[presenterName.toLowerCase()] : null) ??
-    DEFAULT_PRESENTER_IMAGE;
+    (presenterName
+      ? FALLBACK_PRESENTER_IMAGES[presenterName.toLowerCase()]
+      : null) ?? DEFAULT_FALLBACK_IMAGE;
 
-  // Build script block: audio URL (lipsync) or TTS text
   const scriptBlock = audioUrl
     ? { type: "audio", audio_url: audioUrl }
     : {
@@ -83,7 +216,7 @@ export async function generatePresenterVideoDID(
 
   logger.info(
     { presenterName, usingAudioUrl: !!audioUrl },
-    "Submitting D-ID talk generation job",
+    "Submitting D-ID talk generation job (fallback)",
   );
 
   const createRes = await fetch(`${DID_API_BASE}/talks`, {
@@ -98,7 +231,7 @@ export async function generatePresenterVideoDID(
 
   if (!createRes.ok) {
     const text = await createRes.text();
-    throw new Error(`D-ID create failed (${createRes.status}): ${text}`);
+    throw new Error(`D-ID talk create failed (${createRes.status}): ${text}`);
   }
 
   const createData = (await createRes.json()) as {
@@ -106,7 +239,7 @@ export async function generatePresenterVideoDID(
     error?: { description: string };
   };
   if (createData.error)
-    throw new Error(`D-ID error: ${createData.error.description}`);
+    throw new Error(`D-ID talk error: ${createData.error.description}`);
 
   const talkId = createData.id;
   if (!talkId) throw new Error("D-ID did not return a talk id");
@@ -124,7 +257,7 @@ export async function generatePresenterVideoDID(
     });
 
     if (!statusRes.ok) {
-      logger.warn({ status: statusRes.status }, "D-ID status poll failed — retrying");
+      logger.warn({ status: statusRes.status }, "D-ID talk poll failed — retrying");
       continue;
     }
 
@@ -134,21 +267,41 @@ export async function generatePresenterVideoDID(
       error?: { description: string };
     };
 
-    logger.info({ talkId, status: statusData.status }, "D-ID poll");
+    logger.info({ talkId, status: statusData.status }, "D-ID talk poll");
 
     if (statusData.status === "done") {
       const videoUrl = statusData.result_url;
-      if (!videoUrl) throw new Error("D-ID completed but no result_url returned");
-      logger.info({ talkId, videoUrl }, "D-ID video ready");
+      if (!videoUrl) throw new Error("D-ID talk completed but no result_url");
+      logger.info({ talkId, videoUrl }, "D-ID talk video ready");
       return { videoUrl, videoId: talkId };
     }
 
     if (statusData.status === "error") {
       throw new Error(
-        `D-ID talk generation failed (id=${talkId}): ${statusData.error?.description ?? "unknown"}`,
+        `D-ID talk failed (id=${talkId}): ${statusData.error?.description ?? "unknown"}`,
       );
     }
   }
 
   throw new DIDTimeoutError();
+}
+
+/**
+ * Primary entry point. Tries /clips first (natural trained presenter),
+ * falls back to /talks (image-warp) if clips fails.
+ */
+export async function generatePresenterVideoDID(
+  script: string,
+  options: DIDOptions = {},
+): Promise<DIDResult> {
+  try {
+    return await generateClip(script, options);
+  } catch (clipErr) {
+    const reason = clipErr instanceof Error ? clipErr.message : String(clipErr);
+    logger.warn(
+      { reason, presenterName: options.presenterName },
+      "D-ID clips failed — falling back to /talks",
+    );
+    return generateTalk(script, options);
+  }
 }
