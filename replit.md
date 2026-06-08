@@ -67,7 +67,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 - HeyGen avatars (custom, set via env vars): Mia=`91141b5f57114fccb565ab32ca058a1a`, Oliver=`b88ace7a30a34a76ae92a16dd84c18af`, Sophie=`267832a040cd46998928c37498777215`, James=`9f2454deef0840008f9d6f6753c6de7b` — all on jmorganink HeyGen account; set via HEYGEN_AVATAR_MIA/OLIVER/SOPHIE/JAMES env vars
 - HeyGen avatar **group** IDs (same values used in HEYGEN_GROUP_* env vars / hardcoded defaults): Mia=`1602766f0e7344199b7b1a8bcf7b7855`, Oliver=`b88ace7a30a34a76ae92a16dd84c18af`, Sophie=`267832a040cd46998928c37498777215`, James=`9f2454deef0840008f9d6f6753c6de7b` — verified 2026-06-08 via `/v2/avatar_group/{id}/avatars`
 - Oliver's looks were originally named "James in ..." in HeyGen and were renamed in the dashboard on 2026-06-08; server also applies `replace(/^James/i, "Oliver")` as safety net
-- Shotstack: both sandbox + prod keys use `https://api.shotstack.io/v1` (stage URL removed 2025); `colour` asset type removed — use `shape`; `fadeOut`/`fadeIn` → `fade`; trim whitespace from keys
+- Shotstack: sandbox key → `https://api.shotstack.io/edit/stage`; prod key → `https://api.shotstack.io/edit/v1`; `colour` asset type removed — use `shape`; `fadeOut`/`fadeIn` → `fade`; trim whitespace from keys; HeyGen CDN video URLs expire — always use freshly-generated URLs in Shotstack renders
 
 ## Pointers
 
