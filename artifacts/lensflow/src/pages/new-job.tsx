@@ -221,7 +221,7 @@ export default function NewJob() {
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [enhancePhotos, setEnhancePhotos] = useState(false);
+  const [enhancePhotos, setEnhancePhotos] = useState(true);
   const [outputType, setOutputType] = useState<"presenter" | "voice_photos" | "film_myself">("presenter");
   const [selectedBackground, setSelectedBackground] = useState<string>("studio");
   const [filmStep, setFilmStep] = useState<"configure" | "script-ready" | "recording" | "uploading">("configure");
