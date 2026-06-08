@@ -42,19 +42,21 @@ async function prefetchAndUploadTestImages(urls: string[]): Promise<string[]> {
 
 const PRESENTER_STEPS = [
   { name: "scrape_listing",  label: "Scrape Listing",       order: 1 },
-  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 2 },
-  { name: "generate_script", label: "Generate Script",      order: 3 },
-  { name: "create_voiceover",label: "Generate Voiceover",   order: 4 },
-  { name: "presenter_video", label: "Generate Presenter",   order: 5 },
-  { name: "compose_video",   label: "Final Video Render",   order: 6 },
+  { name: "pro_lens_upgrade",label: "Pro Lens Upgrade",     order: 2 },
+  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 3 },
+  { name: "generate_script", label: "Generate Script",      order: 4 },
+  { name: "create_voiceover",label: "Generate Voiceover",   order: 5 },
+  { name: "presenter_video", label: "Generate Presenter",   order: 6 },
+  { name: "compose_video",   label: "Final Video Render",   order: 7 },
 ];
 
 const VOICE_PHOTOS_STEPS = [
   { name: "scrape_listing",  label: "Scrape Listing",       order: 1 },
-  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 2 },
-  { name: "generate_script", label: "Generate Script",      order: 3 },
-  { name: "create_voiceover",label: "Create Voiceover",     order: 4 },
-  { name: "compose_video",   label: "Compose Video",        order: 5 },
+  { name: "pro_lens_upgrade",label: "Pro Lens Upgrade",     order: 2 },
+  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 3 },
+  { name: "generate_script", label: "Generate Script",      order: 4 },
+  { name: "create_voiceover",label: "Create Voiceover",     order: 5 },
+  { name: "compose_video",   label: "Compose Video",        order: 6 },
 ];
 
 router.post("/dev/run-test", async (req, res): Promise<void> => {

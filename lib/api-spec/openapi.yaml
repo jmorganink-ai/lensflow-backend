@@ -237,6 +237,56 @@ paths:
         "404":
           description: Job not found
 
+  /jobs/{id}/approve-upgrade:
+    post:
+      operationId: approveProLensUpgrade
+      tags: [jobs]
+      summary: Approve the Pro Lens Upgrade images — pipeline uses upgraded photos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Upgrade approved
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message]
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: Job not found
+
+  /jobs/{id}/reject-upgrade:
+    post:
+      operationId: rejectProLensUpgrade
+      tags: [jobs]
+      summary: Reject the Pro Lens Upgrade — pipeline reverts to original photos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Upgrade rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message]
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: Job not found
+
   /jobs/{id}/matterport:
     patch:
       operationId: setJobMatterportUrl
@@ -816,7 +866,7 @@ components:
           type: ["string", "null"]
         status:
           type: string
-          enum: [queued, processing, complete, failed]
+          enum: [queued, processing, complete, failed, awaiting_approval]
         steps:
           type: array
           items:
@@ -838,6 +888,19 @@ components:
           items:
             type: string
           nullable: true
+        proLensImages:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: Pro Lens Upgrade corrected image URLs (separate from originals)
+        proLensUpgradedCount:
+          type: ["integer", "null"]
+          description: Number of images successfully upgraded by Pro Lens
+        proLensApproved:
+          type: ["string", "null"]
+          enum: [approved, rejected, null]
+          description: Approval decision for Pro Lens Upgrade — null means awaiting review
         musicTrack:
           type: ["string", "null"]
           description: Music preset used in the final video (uplifting, cinematic, calm, corporate)
@@ -885,12 +948,12 @@ components:
           type: string
         name:
           type: string
-          enum: [enhance_photos, analyse_photos, scrape_listing, generate_script, create_voiceover, presenter_video, compose_video]
+          enum: [pro_lens_upgrade, enhance_photos, analyse_photos, scrape_listing, generate_script, create_voiceover, presenter_video, compose_video]
         label:
           type: string
         status:
           type: string
-          enum: [pending, running, complete, failed]
+          enum: [pending, running, complete, failed, awaiting_approval]
         order:
           type: integer
         startedAt:
@@ -933,6 +996,9 @@ components:
         enhancePhotos:
           type: boolean
           description: Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos
+        proLensUpgrade:
+          type: boolean
+          description: Apply Pro Lens Upgrade (professional photographic corrections — lens distortion, exposure, colour, noise, sharpening, dynamic range) requiring before/after approval before Shotstack renders
         outputType:
           type: string
           enum: [presenter, voice_photos]

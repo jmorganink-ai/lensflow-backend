@@ -26,6 +26,7 @@ import type {
   AnthropicError,
   AnthropicMessage,
   AnthropicMessageInput,
+  ApproveProLensUpgrade200,
   AuthUserEnvelope,
   AvatarSettings,
   BeginBrowserLoginParams,
@@ -45,6 +46,7 @@ import type {
   MarketBrief,
   MobileTokenExchangeRequest,
   MobileTokenExchangeSuccess,
+  RejectProLensUpgrade200,
   RequestUploadUrl200,
   RequestUploadUrlBody,
   SelfRecordedJobInput,
@@ -1040,6 +1042,146 @@ export const useSimulateJob = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getSimulateJobMutationOptions(options));
+    }
+
+export const getApproveProLensUpgradeUrl = (id: string,) => {
+
+
+
+
+  return `/api/jobs/${id}/approve-upgrade`
+}
+
+/**
+ * @summary Approve the Pro Lens Upgrade images — pipeline uses upgraded photos
+ */
+export const approveProLensUpgrade = async (id: string, options?: RequestInit): Promise<ApproveProLensUpgrade200> => {
+
+  return customFetch<ApproveProLensUpgrade200>(getApproveProLensUpgradeUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getApproveProLensUpgradeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveProLensUpgrade>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof approveProLensUpgrade>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['approveProLensUpgrade'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof approveProLensUpgrade>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  approveProLensUpgrade(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ApproveProLensUpgradeMutationResult = NonNullable<Awaited<ReturnType<typeof approveProLensUpgrade>>>
+
+    export type ApproveProLensUpgradeMutationError = ErrorType<void>
+
+    /**
+ * @summary Approve the Pro Lens Upgrade images — pipeline uses upgraded photos
+ */
+export const useApproveProLensUpgrade = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveProLensUpgrade>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof approveProLensUpgrade>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getApproveProLensUpgradeMutationOptions(options));
+    }
+
+export const getRejectProLensUpgradeUrl = (id: string,) => {
+
+
+
+
+  return `/api/jobs/${id}/reject-upgrade`
+}
+
+/**
+ * @summary Reject the Pro Lens Upgrade — pipeline reverts to original photos
+ */
+export const rejectProLensUpgrade = async (id: string, options?: RequestInit): Promise<RejectProLensUpgrade200> => {
+
+  return customFetch<RejectProLensUpgrade200>(getRejectProLensUpgradeUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRejectProLensUpgradeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rejectProLensUpgrade>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof rejectProLensUpgrade>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['rejectProLensUpgrade'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof rejectProLensUpgrade>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  rejectProLensUpgrade(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RejectProLensUpgradeMutationResult = NonNullable<Awaited<ReturnType<typeof rejectProLensUpgrade>>>
+
+    export type RejectProLensUpgradeMutationError = ErrorType<void>
+
+    /**
+ * @summary Reject the Pro Lens Upgrade — pipeline reverts to original photos
+ */
+export const useRejectProLensUpgrade = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rejectProLensUpgrade>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof rejectProLensUpgrade>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getRejectProLensUpgradeMutationOptions(options));
     }
 
 export const getSetJobMatterportUrlUrl = (id: string,) => {

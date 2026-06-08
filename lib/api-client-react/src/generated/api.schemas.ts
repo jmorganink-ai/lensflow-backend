@@ -111,6 +111,7 @@ export const JobDetailStatus = {
   processing: 'processing',
   complete: 'complete',
   failed: 'failed',
+  awaiting_approval: 'awaiting_approval',
 } as const;
 
 /**
@@ -125,10 +126,23 @@ export const JobDetailInputMode = {
   selfie: 'selfie',
 } as const;
 
+/**
+ * Approval decision for Pro Lens Upgrade — null means awaiting review
+ * @nullable
+ */
+export type JobDetailProLensApproved = typeof JobDetailProLensApproved[keyof typeof JobDetailProLensApproved] | null;
+
+
+export const JobDetailProLensApproved = {
+  approved: 'approved',
+  rejected: 'rejected',
+} as const;
+
 export type PipelineStepName = typeof PipelineStepName[keyof typeof PipelineStepName];
 
 
 export const PipelineStepName = {
+  pro_lens_upgrade: 'pro_lens_upgrade',
   enhance_photos: 'enhance_photos',
   analyse_photos: 'analyse_photos',
   scrape_listing: 'scrape_listing',
@@ -146,6 +160,7 @@ export const PipelineStepStatus = {
   running: 'running',
   complete: 'complete',
   failed: 'failed',
+  awaiting_approval: 'awaiting_approval',
 } as const;
 
 export interface PipelineStep {
@@ -181,6 +196,18 @@ export interface JobDetail {
   propertyAddress?: string | null;
   propertyImages?: string[] | null;
   enhancedImages?: string[] | null;
+  /** Pro Lens Upgrade corrected image URLs (separate from originals) */
+  proLensImages?: string[] | null;
+  /**
+     * Number of images successfully upgraded by Pro Lens
+     * @nullable
+     */
+  proLensUpgradedCount?: number | null;
+  /**
+     * Approval decision for Pro Lens Upgrade — null means awaiting review
+     * @nullable
+     */
+  proLensApproved?: JobDetailProLensApproved;
   /**
      * Music preset used in the final video (uplifting, cinematic, calm, corporate)
      * @nullable
@@ -251,6 +278,8 @@ export interface JobInput {
   musicTrack?: string;
   /** Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos */
   enhancePhotos?: boolean;
+  /** Apply Pro Lens Upgrade (professional photographic corrections — lens distortion, exposure, colour, noise, sharpening, dynamic range) requiring before/after approval before Shotstack renders */
+  proLensUpgrade?: boolean;
   /** presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow */
   outputType?: JobInputOutputType;
   /** Optional HeyGen avatar look ID — overrides the default presenter look with a specific outfit */
@@ -480,6 +509,14 @@ export type AuthorizationSessionHeaderParameter = string;
 
 export type BeginBrowserLoginParams = {
 returnTo?: string;
+};
+
+export type ApproveProLensUpgrade200 = {
+  message: string;
+};
+
+export type RejectProLensUpgrade200 = {
+  message: string;
 };
 
 export type RequestUploadUrlBody = {

@@ -113,6 +113,7 @@ export const CreateJobBody = zod.object({
   "propertyAddress": zod.string().optional().describe('Property address entered manually (used in photo mode)'),
   "musicTrack": zod.string().optional().describe('Music preset ID for the final video (uplifting, cinematic, calm, corporate)'),
   "enhancePhotos": zod.boolean().optional().describe('Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos'),
+  "proLensUpgrade": zod.boolean().optional().describe('Apply Pro Lens Upgrade (professional photographic corrections — lens distortion, exposure, colour, noise, sharpening, dynamic range) requiring before\/after approval before Shotstack renders'),
   "outputType": zod.enum(['presenter', 'voice_photos']).optional().describe('presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow'),
   "lookId": zod.string().optional().describe('Optional HeyGen avatar look ID — overrides the default presenter look with a specific outfit')
 })
@@ -198,6 +199,30 @@ export const SimulateJobResponse = zod.object({
 
 
 /**
+ * @summary Approve the Pro Lens Upgrade images — pipeline uses upgraded photos
+ */
+export const ApproveProLensUpgradeParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const ApproveProLensUpgradeResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Reject the Pro Lens Upgrade — pipeline reverts to original photos
+ */
+export const RejectProLensUpgradeParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const RejectProLensUpgradeResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
  * @summary Attach a Matterport Interactive Tour to a job
  */
 export const SetJobMatterportUrlParams = zod.object({
@@ -243,12 +268,12 @@ export const GetJobResponse = zod.object({
   "id": zod.string(),
   "listingUrl": zod.string(),
   "listingTitle": zod.string().nullable(),
-  "status": zod.enum(['queued', 'processing', 'complete', 'failed']),
+  "status": zod.enum(['queued', 'processing', 'complete', 'failed', 'awaiting_approval']),
   "steps": zod.array(zod.object({
   "id": zod.string(),
-  "name": zod.enum(['enhance_photos', 'analyse_photos', 'scrape_listing', 'generate_script', 'create_voiceover', 'presenter_video', 'compose_video']),
+  "name": zod.enum(['pro_lens_upgrade', 'enhance_photos', 'analyse_photos', 'scrape_listing', 'generate_script', 'create_voiceover', 'presenter_video', 'compose_video']),
   "label": zod.string().optional(),
-  "status": zod.enum(['pending', 'running', 'complete', 'failed']),
+  "status": zod.enum(['pending', 'running', 'complete', 'failed', 'awaiting_approval']),
   "order": zod.number(),
   "startedAt": zod.coerce.date().nullish(),
   "completedAt": zod.coerce.date().nullish(),
@@ -261,6 +286,9 @@ export const GetJobResponse = zod.object({
   "propertyAddress": zod.string().nullish(),
   "propertyImages": zod.array(zod.string()).nullish(),
   "enhancedImages": zod.array(zod.string()).nullish(),
+  "proLensImages": zod.array(zod.string()).nullish().describe('Pro Lens Upgrade corrected image URLs (separate from originals)'),
+  "proLensUpgradedCount": zod.number().nullish().describe('Number of images successfully upgraded by Pro Lens'),
+  "proLensApproved": zod.union([zod.literal('approved'),zod.literal('rejected'),zod.literal(null)]).nullish().describe('Approval decision for Pro Lens Upgrade — null means awaiting review'),
   "musicTrack": zod.string().nullish().describe('Music preset used in the final video (uplifting, cinematic, calm, corporate)'),
   "backgroundImageUrl": zod.string().nullish().describe('URL of the virtual background image or clip used in selfie job composition'),
   "voiceId": zod.string().nullish(),

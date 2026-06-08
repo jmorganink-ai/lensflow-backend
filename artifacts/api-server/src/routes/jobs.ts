@@ -24,6 +24,7 @@ import { scrapeListing } from "../lib/apify";
 import { isDomainUrl, extractDomainListingId, fetchDomainListing, getSuburbPerformance } from "../lib/domain";
 import { analysePropertyPhotos } from "../lib/analyse-photos";
 import { enhancePropertyPhotos } from "../lib/enhance-photos";
+import { upgradePropertyPhotos } from "../lib/pro-lens-upgrade";
 import { getStreetViewImages } from "../lib/street-view";
 
 const router: IRouter = Router();
@@ -32,37 +33,41 @@ const connectors = new ReplitConnectors();
 
 const PIPELINE_STEPS_URL = [
   { name: "scrape_listing", label: "Scrape Listing", order: 1 },
-  { name: "enhance_photos", label: "AI Photo Glow-up", order: 2 },
-  { name: "generate_script", label: "Generate Script", order: 3 },
-  { name: "create_voiceover", label: "Generate Voiceover", order: 4 },
-  { name: "presenter_video", label: "Generate Presenter", order: 5 },
-  { name: "compose_video", label: "Final Video Render", order: 6 },
+  { name: "pro_lens_upgrade", label: "Pro Lens Upgrade", order: 2 },
+  { name: "enhance_photos", label: "AI Photo Glow-up", order: 3 },
+  { name: "generate_script", label: "Generate Script", order: 4 },
+  { name: "create_voiceover", label: "Generate Voiceover", order: 5 },
+  { name: "presenter_video", label: "Generate Presenter", order: 6 },
+  { name: "compose_video", label: "Final Video Render", order: 7 },
 ];
 
 const PIPELINE_STEPS_PHOTOS = [
-  { name: "enhance_photos", label: "AI Photo Glow-up", order: 1 },
-  { name: "analyse_photos", label: "Analyse Photos", order: 2 },
-  { name: "generate_script", label: "Generate Script", order: 3 },
-  { name: "create_voiceover", label: "Create Voiceover", order: 4 },
-  { name: "presenter_video", label: "Presenter Video", order: 5 },
-  { name: "compose_video", label: "Compose Video", order: 6 },
+  { name: "pro_lens_upgrade", label: "Pro Lens Upgrade", order: 1 },
+  { name: "enhance_photos", label: "AI Photo Glow-up", order: 2 },
+  { name: "analyse_photos", label: "Analyse Photos", order: 3 },
+  { name: "generate_script", label: "Generate Script", order: 4 },
+  { name: "create_voiceover", label: "Create Voiceover", order: 5 },
+  { name: "presenter_video", label: "Presenter Video", order: 6 },
+  { name: "compose_video", label: "Compose Video", order: 7 },
 ];
 
 // Steps for "voice_photos" output type — no HeyGen presenter, Shotstack composes voice + slideshow
 const PIPELINE_STEPS_URL_VOICE_PHOTOS = [
   { name: "scrape_listing", label: "Scrape Listing", order: 1 },
-  { name: "enhance_photos", label: "AI Photo Glow-up", order: 2 },
-  { name: "generate_script", label: "Generate Script", order: 3 },
-  { name: "create_voiceover", label: "Create Voiceover", order: 4 },
-  { name: "compose_video", label: "Compose Video", order: 5 },
+  { name: "pro_lens_upgrade", label: "Pro Lens Upgrade", order: 2 },
+  { name: "enhance_photos", label: "AI Photo Glow-up", order: 3 },
+  { name: "generate_script", label: "Generate Script", order: 4 },
+  { name: "create_voiceover", label: "Create Voiceover", order: 5 },
+  { name: "compose_video", label: "Compose Video", order: 6 },
 ];
 
 const PIPELINE_STEPS_PHOTOS_VOICE_PHOTOS = [
-  { name: "enhance_photos", label: "AI Photo Glow-up", order: 1 },
-  { name: "analyse_photos", label: "Analyse Photos", order: 2 },
-  { name: "generate_script", label: "Generate Script", order: 3 },
-  { name: "create_voiceover", label: "Create Voiceover", order: 4 },
-  { name: "compose_video", label: "Compose Video", order: 5 },
+  { name: "pro_lens_upgrade", label: "Pro Lens Upgrade", order: 1 },
+  { name: "enhance_photos", label: "AI Photo Glow-up", order: 2 },
+  { name: "analyse_photos", label: "Analyse Photos", order: 3 },
+  { name: "generate_script", label: "Generate Script", order: 4 },
+  { name: "create_voiceover", label: "Create Voiceover", order: 5 },
+  { name: "compose_video", label: "Compose Video", order: 6 },
 ];
 
 // Track in-progress simulations to prevent double-starts
@@ -143,8 +148,89 @@ export async function runSimulation(jobId: string): Promise<void> {
 
       let outputUrl: string | null = null;
       let outputData: string | null = null;
+      // Set to true inside a step that manages its own DB completion (e.g. approval gate)
+      let stepAlreadyCompleted = false;
 
-      if (step.name === "enhance_photos") {
+      if (step.name === "pro_lens_upgrade") {
+        try {
+          const originals = job.propertyImages ?? [];
+          logger.info({ jobId, count: originals.length }, "Pro Lens Upgrade: starting photographic corrections");
+          const { upgraded, upgradedCount } = await upgradePropertyPhotos(originals);
+
+          await db.update(jobsTable)
+            .set({ proLensImages: upgraded, proLensUpgradedCount: upgradedCount })
+            .where(eq(jobsTable.id, jobId));
+
+          if (upgradedCount > 0) {
+            outputData = [
+              `Photos upgraded: ${upgradedCount} of ${originals.length}`,
+              "Professional lens corrections applied — awaiting your approval before video render.",
+            ].join("\n");
+
+            // Pause pipeline and wait for user approval decision
+            await db.update(pipelineStepsTable)
+              .set({ status: "awaiting_approval", outputData, startedAt: new Date() })
+              .where(eq(pipelineStepsTable.id, step.id));
+            await db.update(jobsTable)
+              .set({ status: "awaiting_approval" })
+              .where(eq(jobsTable.id, jobId));
+
+            logger.info({ jobId, upgradedCount }, "Pro Lens Upgrade: awaiting approval");
+
+            const POLL_MS = 5_000;
+            const DEADLINE = Date.now() + 30 * 60 * 1000; // 30 min timeout
+            let decision: string | null = null;
+
+            while (Date.now() < DEADLINE) {
+              await new Promise((r) => setTimeout(r, POLL_MS));
+              const [latest] = await db
+                .select({ proLensApproved: jobsTable.proLensApproved })
+                .from(jobsTable)
+                .where(eq(jobsTable.id, jobId));
+              if (latest?.proLensApproved) {
+                decision = latest.proLensApproved;
+                break;
+              }
+            }
+
+            if (decision === "approved") {
+              effectivePhotos = upgraded;
+              logger.info({ jobId, upgradedCount }, "Pro Lens Upgrade approved — using upgraded photos");
+            } else {
+              effectivePhotos = originals;
+              logger.info({ jobId, decision: decision ?? "timeout" }, "Pro Lens Upgrade not approved — using originals");
+            }
+
+            // Resume pipeline
+            await db.update(jobsTable)
+              .set({ status: "processing" })
+              .where(eq(jobsTable.id, jobId));
+
+            await db.update(pipelineStepsTable)
+              .set({
+                status: "complete",
+                completedAt: new Date(),
+                outputData: outputData + (decision === "approved" ? "\nApproved ✓" : "\nRejected — originals used."),
+              })
+              .where(eq(pipelineStepsTable.id, step.id));
+
+            stepAlreadyCompleted = true;
+          } else {
+            // Nothing upgraded — just continue with originals
+            effectivePhotos = originals;
+            outputData = [
+              `Photos checked: ${originals.length}`,
+              "No corrections applied — original photos used.",
+            ].join("\n");
+            logger.info({ jobId }, "Pro Lens Upgrade: no images upgraded — continuing with originals");
+          }
+        } catch (err) {
+          logger.error({ err, jobId }, "Pro Lens Upgrade failed — continuing with originals");
+          effectivePhotos = job.propertyImages ?? [];
+          outputData = "Pro Lens Upgrade unavailable — original photos used.";
+          await new Promise((r) => setTimeout(r, baseDuration));
+        }
+      } else if (step.name === "enhance_photos") {
         // AI "Glow-up" — relight / declutter / sky-replace each uploaded photo
         try {
           const originals = job.propertyImages ?? [];
@@ -495,15 +581,17 @@ export async function runSimulation(jobId: string): Promise<void> {
         await new Promise((resolve) => setTimeout(resolve, baseDuration));
       }
 
-      await db
-        .update(pipelineStepsTable)
-        .set({
-          status: "complete",
-          completedAt: new Date(),
-          ...(outputUrl ? { outputUrl } : {}),
-          ...(outputData ? { outputData } : {}),
-        })
-        .where(eq(pipelineStepsTable.id, step.id));
+      if (!stepAlreadyCompleted) {
+        await db
+          .update(pipelineStepsTable)
+          .set({
+            status: "complete",
+            completedAt: new Date(),
+            ...(outputUrl ? { outputUrl } : {}),
+            ...(outputData ? { outputData } : {}),
+          })
+          .where(eq(pipelineStepsTable.id, step.id));
+      }
 
       logger.info({ jobId, step: step.name, order: i + 1 }, "Pipeline step complete");
     }
@@ -549,6 +637,7 @@ router.post("/jobs", async (req, res): Promise<void> => {
 
   const inputMode = parsed.data.inputMode === "photos" ? "photos" : "url";
   const enhancePhotos = parsed.data.enhancePhotos === true;
+  const proLensUpgrade = (parsed.data as Record<string, unknown>).proLensUpgrade === true;
   const outputType = parsed.data.outputType === "voice_photos" ? "voice_photos" : "presenter";
 
   if (inputMode === "url" && !parsed.data.listingUrl?.trim()) {
@@ -591,11 +680,10 @@ router.post("/jobs", async (req, res): Promise<void> => {
       ? PIPELINE_STEPS_PHOTOS
       : PIPELINE_STEPS_URL;
 
-  const pipelineSteps = !enhancePhotos
-    ? basePipelineSteps
-        .filter((s) => s.name !== "enhance_photos")
-        .map((s, i) => ({ ...s, order: i + 1 }))
-    : basePipelineSteps;
+  const pipelineSteps = basePipelineSteps
+    .filter((s) => enhancePhotos || s.name !== "enhance_photos")
+    .filter((s) => proLensUpgrade || s.name !== "pro_lens_upgrade")
+    .map((s, i) => ({ ...s, order: i + 1 }));
 
   const stepRows = pipelineSteps.map((step) => ({
     id: randomUUID(),
@@ -879,20 +967,66 @@ router.post("/jobs/:id/simulate", async (req, res): Promise<void> => {
     return;
   }
 
-  if (job.status === "complete" || job.status === "failed") {
+  if (job.status === "complete" || job.status === "failed" || job.status === "awaiting_approval") {
     await db
       .update(pipelineStepsTable)
       .set({ status: "pending", startedAt: null, completedAt: null, errorMessage: null, outputUrl: null })
       .where(eq(pipelineStepsTable.jobId, raw));
     await db
       .update(jobsTable)
-      .set({ status: "queued", enhancedImages: [] })
+      .set({ status: "queued", enhancedImages: [], proLensImages: [], proLensUpgradedCount: 0, proLensApproved: null })
       .where(eq(jobsTable.id, raw));
   }
 
   activeSimulations.add(raw);
   runSimulation(raw);
   res.json({ message: "Simulation started", jobId: raw });
+});
+
+// ── Pro Lens Upgrade — approve / reject ──────────────────────────────────────
+
+router.post("/jobs/:id/approve-upgrade", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const [job] = await db
+    .select()
+    .from(jobsTable)
+    .where(and(eq(jobsTable.id, raw), eq(jobsTable.userId, req.user.id)));
+  if (!job) {
+    res.status(404).json({ error: "Job not found" });
+    return;
+  }
+  await db
+    .update(jobsTable)
+    .set({ proLensApproved: "approved" })
+    .where(eq(jobsTable.id, raw));
+  logger.info({ jobId: raw }, "Pro Lens Upgrade: approved by user");
+  res.json({ message: "Upgrade approved — pipeline will continue with corrected photos." });
+});
+
+router.post("/jobs/:id/reject-upgrade", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const [job] = await db
+    .select()
+    .from(jobsTable)
+    .where(and(eq(jobsTable.id, raw), eq(jobsTable.userId, req.user.id)));
+  if (!job) {
+    res.status(404).json({ error: "Job not found" });
+    return;
+  }
+  await db
+    .update(jobsTable)
+    .set({ proLensApproved: "rejected" })
+    .where(eq(jobsTable.id, raw));
+  logger.info({ jobId: raw }, "Pro Lens Upgrade: rejected by user — will use originals");
+  res.json({ message: "Upgrade rejected — pipeline will continue with original photos." });
 });
 
 // ── Matterport Lite ───────────────────────────────────────────────────────────

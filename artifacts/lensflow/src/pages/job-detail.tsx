@@ -1,8 +1,8 @@
 import { useParams, useLocation } from "wouter";
-import { useGetJob, useDeleteJob, useSimulateJob, useSendJobToCrm, useSetJobMatterportUrl, getGetJobQueryKey, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
+import { useGetJob, useDeleteJob, useSimulateJob, useSendJobToCrm, useSetJobMatterportUrl, useApproveProLensUpgrade, useRejectProLensUpgrade, getGetJobQueryKey, getGetJobStatsQueryKey, getListJobsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useCallback } from "react";
-import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic, Copy, Check, Download, Plus, Share2, Video, Camera, Send, ChevronDown, ChevronUp, Sparkles, Box, MapPin } from "lucide-react";
+import { ArrowLeft, Trash2, ExternalLink, CheckCircle2, Loader2, Circle, XCircle, Play, RotateCcw, Volume2, Mic, Copy, Check, Download, Plus, Share2, Video, Camera, Send, ChevronDown, ChevronUp, Sparkles, Box, MapPin, ThumbsUp, ThumbsDown, ZoomIn } from "lucide-react";
 import { Link } from "wouter";
 import { formatDistanceToNow, format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { JobStatusBadge } from "@/pages/dashboard";
 
 const STEP_LABELS: Record<string, string> = {
+  pro_lens_upgrade: "Pro Lens Upgrade",
   enhance_photos: "AI Photo Glow-up",
   analyse_photos: "Analyse Photos",
   scrape_listing: "Scrape Listing",
@@ -20,6 +21,7 @@ const STEP_LABELS: Record<string, string> = {
 };
 
 const STEP_DESCRIPTIONS: Record<string, string> = {
+  pro_lens_upgrade: "Professional photographic corrections: lens distortion, exposure, colour balance, noise reduction, sharpening and dynamic range — no creative changes, no structural alterations.",
   enhance_photos: "AI relights, colour-balances, declutters and sky-replaces your photos for a premium magazine-listing look.",
   analyse_photos: "Claude Vision analyses your uploaded photos to identify the property type, features, and selling points.",
   scrape_listing: "Extract property data and metadata from the listing URL.",
@@ -33,6 +35,7 @@ function StepIcon({ status }: { status: string }) {
   if (status === "complete") return <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />;
   if (status === "running") return <Loader2 className="w-5 h-5 text-blue-400 shrink-0 animate-spin" />;
   if (status === "failed") return <XCircle className="w-5 h-5 text-destructive shrink-0" />;
+  if (status === "awaiting_approval") return <ZoomIn className="w-5 h-5 text-amber-400 shrink-0 animate-pulse" />;
   return <Circle className="w-5 h-5 text-muted-foreground/30 shrink-0" />;
 }
 
@@ -63,13 +66,14 @@ export default function JobDetail() {
       queryKey: getGetJobQueryKey(id!),
       refetchInterval: (query) => {
         const status = (query.state.data as any)?.status;
-        return (status === "queued" || status === "processing") ? 1500 : false;
+        return (status === "queued" || status === "processing" || status === "awaiting_approval") ? 1500 : false;
       },
     },
   });
 
-  const isSimulating = job?.status === "processing" || job?.status === "queued";
-  const canSimulate = !!id && job?.status !== "processing" && job?.status !== "queued";
+  const isSimulating = job?.status === "processing" || job?.status === "queued" || job?.status === "awaiting_approval";
+  const isAwaitingApproval = job?.status === "awaiting_approval";
+  const canSimulate = !!id && job?.status !== "processing" && job?.status !== "queued" && job?.status !== "awaiting_approval";
 
   function handleSimulate() {
     if (!id) return;
@@ -225,6 +229,18 @@ export default function JobDetail() {
         </div>
       ) : (
         <PipelineStepsCard job={job} isSimulating={isSimulating} id={id!} />
+      )}
+
+      {/* ── Pro Lens Upgrade approval gate ── */}
+      {(job.proLensImages?.length ?? 0) > 0 && (
+        <ProLensUpgradePanel
+          jobId={id!}
+          originals={job.propertyImages ?? []}
+          upgraded={job.proLensImages ?? []}
+          upgradedCount={job.proLensUpgradedCount ?? 0}
+          approved={job.proLensApproved ?? null}
+          isAwaitingApproval={isAwaitingApproval}
+        />
       )}
 
       {/* ── AI Photo Glow-up ── */}
@@ -827,6 +843,156 @@ function MetaCard({ label, value }: { label: string; value: string }) {
     <div className="bg-card border border-border rounded-lg p-4">
       <div className="text-[10px] uppercase tracking-wider font-mono text-muted-foreground mb-1">{label}</div>
       <div className="text-sm text-foreground truncate">{value}</div>
+    </div>
+  );
+}
+
+// ── Pro Lens Upgrade Panel ─────────────────────────────────────────────────────
+
+function ProLensUpgradePanel({
+  jobId,
+  originals,
+  upgraded,
+  upgradedCount,
+  approved,
+  isAwaitingApproval,
+}: {
+  jobId: string;
+  originals: string[];
+  upgraded: string[];
+  upgradedCount: number;
+  approved: string | null;
+  isAwaitingApproval: boolean;
+}) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const approveUpgrade = useApproveProLensUpgrade();
+  const rejectUpgrade = useRejectProLensUpgrade();
+
+  function handleApprove() {
+    approveUpgrade.mutate({ id: jobId }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetJobQueryKey(jobId) });
+        toast({ title: "Upgrade approved", description: "Pipeline will continue with corrected photos." });
+      },
+      onError: () => toast({ title: "Could not approve", variant: "destructive" }),
+    });
+  }
+
+  function handleReject() {
+    rejectUpgrade.mutate({ id: jobId }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetJobQueryKey(jobId) });
+        toast({ title: "Upgrade rejected", description: "Pipeline will continue with original photos." });
+      },
+      onError: () => toast({ title: "Could not reject", variant: "destructive" }),
+    });
+  }
+
+  const isPending = approveUpgrade.isPending || rejectUpgrade.isPending;
+  const hasDecision = approved === "approved" || approved === "rejected";
+
+  return (
+    <div className={`bg-card border rounded-xl p-5 space-y-4 ${
+      isAwaitingApproval && !hasDecision
+        ? "border-amber-500/40 ring-1 ring-amber-500/20"
+        : "border-border"
+    }`}>
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <ZoomIn className="w-4 h-4 text-amber-400" />
+          <span className="text-sm font-semibold text-foreground">Pro Lens Upgrade</span>
+          {upgradedCount > 0 && (
+            <span className="text-[10px] font-mono text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-full px-2 py-0.5">
+              {upgradedCount} corrected
+            </span>
+          )}
+          {approved === "approved" && (
+            <span className="text-[10px] font-mono text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5">
+              Approved ✓
+            </span>
+          )}
+          {approved === "rejected" && (
+            <span className="text-[10px] font-mono text-muted-foreground bg-muted/30 border border-border rounded-full px-2 py-0.5">
+              Rejected — originals used
+            </span>
+          )}
+        </div>
+
+        {/* Approve / Reject buttons — only shown when awaiting */}
+        {isAwaitingApproval && !hasDecision && (
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleReject}
+              disabled={isPending}
+              className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive/60"
+            >
+              {rejectUpgrade.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <ThumbsDown className="w-3.5 h-3.5 mr-1" />}
+              Use originals
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleApprove}
+              disabled={isPending}
+              className="bg-amber-500 hover:bg-amber-600 text-white"
+            >
+              {approveUpgrade.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <ThumbsUp className="w-3.5 h-3.5 mr-1" />}
+              Use corrected
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Instruction copy */}
+      {isAwaitingApproval && !hasDecision && (
+        <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+          <p className="text-xs text-amber-300/90 leading-relaxed">
+            Review the before/after below. Professional corrections have been applied: lens distortion, exposure, colour balance, noise reduction and sharpening. <strong>No creative changes</strong> were made — the property is represented truthfully. Approve to use the corrected photos in your video, or reject to keep the originals.
+          </p>
+        </div>
+      )}
+
+      {/* Before / after grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {originals.slice(0, Math.min(upgradedCount, 4)).map((orig, i) => {
+          const after = upgraded[i];
+          return (
+            <div key={i} className="grid grid-cols-2 gap-2">
+              <figure className="space-y-1">
+                <img
+                  src={orig}
+                  alt={`Original photo ${i + 1}`}
+                  loading="lazy"
+                  className="w-full aspect-[4/3] object-cover rounded border border-border"
+                />
+                <figcaption className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground/70 text-center">Original</figcaption>
+              </figure>
+              <figure className="space-y-1">
+                {after ? (
+                  <img
+                    src={after}
+                    alt={`Corrected photo ${i + 1}`}
+                    loading="lazy"
+                    className={`w-full aspect-[4/3] object-cover rounded border ${
+                      approved === "approved"
+                        ? "border-primary/40 ring-1 ring-primary/20"
+                        : "border-amber-400/40 ring-1 ring-amber-400/20"
+                    }`}
+                  />
+                ) : (
+                  <div className="w-full aspect-[4/3] rounded border border-dashed border-border flex items-center justify-center bg-muted/30">
+                    <Loader2 className="w-4 h-4 text-muted-foreground/50 animate-spin" />
+                  </div>
+                )}
+                <figcaption className="text-[9px] font-mono uppercase tracking-wider text-amber-400 text-center">Corrected</figcaption>
+              </figure>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

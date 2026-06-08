@@ -29,6 +29,11 @@ export const jobsTable = pgTable("jobs", {
   musicTrackName: text("music_track_name"),
   musicTrackUrl: text("music_track_url"),
   musicProvider: text("music_provider"),
+  // Pro Lens Upgrade — photographic corrections (LF-PRO-LENS-UPGRADE)
+  proLensImages: jsonb("pro_lens_images").$type<string[]>().default([]),
+  proLensUpgradedCount: integer("pro_lens_upgraded_count").default(0),
+  // null = awaiting decision, "approved" = use upgraded, "rejected" = use originals
+  proLensApproved: text("pro_lens_approved"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
