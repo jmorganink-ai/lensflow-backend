@@ -937,6 +937,9 @@ components:
           type: string
           enum: [presenter, voice_photos]
           description: "presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow"
+        lookId:
+          type: string
+          description: Optional HeyGen avatar look ID — overrides the default presenter look with a specific outfit
 
     GenerateScriptInput:
       type: object

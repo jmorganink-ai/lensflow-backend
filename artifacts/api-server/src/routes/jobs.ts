@@ -370,7 +370,7 @@ export async function runSimulation(jobId: string): Promise<void> {
           // AI Presenter — generate HeyGen avatar video (5 min budget), with D-ID fallback
           const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
           try {
-            logger.info({ jobId, voiceName: job.voiceName, customAvatar: userSettings?.heygenAvatarId ?? null }, "Generating presenter video with HeyGen (10 min budget)");
+            logger.info({ jobId, voiceName: job.voiceName, lookId: job.lookId ?? null, customAvatar: userSettings?.heygenAvatarId ?? null }, "Generating presenter video with HeyGen (10 min budget)");
             const result = await generatePresenterVideo(
               script,
               job.voiceName,
@@ -379,6 +379,7 @@ export async function runSimulation(jobId: string): Promise<void> {
               userSettings?.heygenVoiceId ?? null,
               600_000,
               voiceoverPublicUrl ?? null,
+              job.lookId ?? null,
             );
             presenterVideoUrl = result.videoUrl;
             // Do NOT set finalVideoUrl here — Shotstack compose_video is the only step
@@ -541,6 +542,7 @@ router.post("/jobs", async (req, res): Promise<void> => {
       propertyAddress: parsed.data.propertyAddress ?? null,
       musicTrack: parsed.data.musicTrack ?? null,
       outputType,
+      lookId: (parsed.data as Record<string, unknown>).lookId as string | null ?? null,
       status: "queued",
     })
     .returning();

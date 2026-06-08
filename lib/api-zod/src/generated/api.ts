@@ -113,7 +113,8 @@ export const CreateJobBody = zod.object({
   "propertyAddress": zod.string().optional().describe('Property address entered manually (used in photo mode)'),
   "musicTrack": zod.string().optional().describe('Music preset ID for the final video (uplifting, cinematic, calm, corporate)'),
   "enhancePhotos": zod.boolean().optional().describe('Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos'),
-  "outputType": zod.enum(['presenter', 'voice_photos']).optional().describe('presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow')
+  "outputType": zod.enum(['presenter', 'voice_photos']).optional().describe('presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow'),
+  "lookId": zod.string().optional().describe('Optional HeyGen avatar look ID — overrides the default presenter look with a specific outfit')
 })
 
 

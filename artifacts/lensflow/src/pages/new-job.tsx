@@ -196,6 +196,27 @@ export default function NewJob() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const dragPhotoIndex = useRef<number | null>(null);
 
+  // Presenter look picker
+  const [selectedLookId, setSelectedLookId] = useState<string | null>(null);
+  const [presenterLooks, setPresenterLooks] = useState<Array<{ id: string; name: string; previewImageUrl?: string }>>([]);
+  const [looksLoading, setLooksLoading] = useState(false);
+
+  const fetchPresenterLooks = async (presenterName: string) => {
+    setLooksLoading(true);
+    setSelectedLookId(null);
+    try {
+      const res = await fetch(`/api/heygen/presenter-looks?presenter=${encodeURIComponent(presenterName)}`);
+      if (res.ok) {
+        const data = await res.json() as Array<{ id: string; name: string; previewImageUrl?: string }>;
+        setPresenterLooks(Array.isArray(data) ? data : []);
+      }
+    } catch {
+      setPresenterLooks([]);
+    } finally {
+      setLooksLoading(false);
+    }
+  };
+
   // Property photo uploads
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
   const [uploadingCount, setUploadingCount] = useState(0);
@@ -405,6 +426,7 @@ export default function NewJob() {
           musicTrack: values.musicTrack || undefined,
           enhancePhotos: inputMode === "photos" && enhancePhotos ? true : undefined,
           outputType: outputType as "presenter" | "voice_photos",
+          lookId: selectedLookId ?? undefined,
         },
       },
       {
@@ -615,6 +637,7 @@ export default function NewJob() {
                         onClick={() => {
                           form.setValue("voiceId", p.voiceId);
                           form.setValue("voiceName", p.voiceName);
+                          fetchPresenterLooks(p.id);
                         }}
                         className={`relative rounded-lg overflow-hidden aspect-[3/4] group border-2 transition-all ${
                           isSelected ? "border-primary shadow-[0_0_12px_rgba(var(--primary),0.4)]" : "border-border hover:border-primary/40"
@@ -635,6 +658,57 @@ export default function NewJob() {
                     );
                   })}
                 </div>
+
+                {/* ── Outfit / look picker (shown when presenter has >1 looks) ── */}
+                {presenterLooks.length > 1 && (
+                  <div className="mt-3 space-y-2">
+                    <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
+                      <Layers className="w-3.5 h-3.5" />
+                      Choose Outfit
+                      {looksLoading && <Loader2 className="w-3 h-3 animate-spin" />}
+                    </label>
+                    <div className="flex gap-2 flex-wrap">
+                      {presenterLooks.map((look, i) => {
+                        const isSelected = selectedLookId === look.id || (selectedLookId === null && i === 0);
+                        return (
+                          <button
+                            key={look.id}
+                            type="button"
+                            onClick={() => setSelectedLookId(i === 0 ? null : look.id)}
+                            className={`relative rounded-lg overflow-hidden border-2 transition-all group flex-shrink-0 ${
+                              isSelected
+                                ? "border-primary shadow-[0_0_10px_rgba(var(--primary),0.35)]"
+                                : "border-border hover:border-primary/40"
+                            }`}
+                            style={{ width: "72px" }}
+                          >
+                            {look.previewImageUrl ? (
+                              <img
+                                src={look.previewImageUrl}
+                                alt={look.name}
+                                className="w-full aspect-[3/4] object-cover object-top"
+                              />
+                            ) : (
+                              <div className="w-full aspect-[3/4] bg-muted flex items-center justify-center">
+                                <User className="w-5 h-5 text-muted-foreground/40" />
+                              </div>
+                            )}
+                            {isSelected && (
+                              <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-primary flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
+                              </div>
+                            )}
+                            <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm px-1 py-0.5">
+                              <div className="text-[8px] font-mono font-semibold truncate text-center leading-tight">
+                                {look.name}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

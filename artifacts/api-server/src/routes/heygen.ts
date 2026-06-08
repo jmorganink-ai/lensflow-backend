@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { listHeyGenAvatars, listHeyGenVoices, getPresenterAvatarMap } from "../lib/heygen";
+import { listHeyGenAvatars, listHeyGenVoices, getPresenterAvatarMap, getPresenterLooks, PRESENTER_LOOKS } from "../lib/heygen";
 
 const router = Router();
 
@@ -19,6 +19,23 @@ router.get("/heygen/avatars", async (req, res): Promise<void> => {
     req.log.error({ err }, "Failed to list HeyGen avatars");
     res.status(500).json({ error: String(err) });
   }
+});
+
+// GET /heygen/presenter-looks?presenter=mia — return available looks for a presenter
+router.get("/heygen/presenter-looks", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const presenter = (req.query.presenter as string | undefined)?.toLowerCase() ?? "";
+  if (!presenter || !PRESENTER_LOOKS[presenter]) {
+    // Return all presenters if no specific one requested
+    const all: Record<string, unknown> = {};
+    for (const key of Object.keys(PRESENTER_LOOKS)) {
+      all[key] = await getPresenterLooks(key);
+    }
+    res.json(all);
+    return;
+  }
+  const looks = await getPresenterLooks(presenter);
+  res.json(looks);
 });
 
 // GET /heygen/voices — list every voice available in this HeyGen account

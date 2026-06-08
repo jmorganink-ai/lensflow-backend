@@ -16,6 +16,63 @@ const AVATAR_SOPHIE  = process.env.HEYGEN_AVATAR_SOPHIE  ?? process.env.HEYGEN_A
 const AVATAR_OLIVER  = process.env.HEYGEN_AVATAR_OLIVER  ?? process.env.HEYGEN_AVATAR_MALE   ?? "Onat_Suit_Front_public";
 const AVATAR_JAMES   = process.env.HEYGEN_AVATAR_JAMES   ?? process.env.HEYGEN_AVATAR_MALE   ?? "Bryan_Suit_Front_public";
 
+// ── Presenter look catalogue ──────────────────────────────────────────────────
+// Each presenter can have multiple HeyGen avatar looks (outfits/scenes).
+// The first entry in each array is the default; the id must match the avatar_id
+// used in HeyGen (either a group/default ID or a specific look ID).
+export interface PresenterLook {
+  id: string;
+  name: string;
+  previewImageUrl?: string;
+}
+
+export const PRESENTER_LOOKS: Record<string, PresenterLook[]> = {
+  mia: [
+    { id: AVATAR_MIA,                            name: "Default" },
+    { id: "46214c5723134232b60e6783b20509f2",    name: "White Outfit" },
+    { id: "9868f07cb9804006adf1bb4cd7b9dbd1",    name: "Grey Jacket" },
+    { id: "2b7d85f25abf4f6a9f0d8ac20438d586",    name: "Studio Look" },
+    { id: "bbed326b42fc45778ac396cdc194a0c6",    name: "Blazer" },
+  ],
+  oliver: [
+    { id: AVATAR_OLIVER, name: "Default" },
+  ],
+  sophie: [
+    { id: AVATAR_SOPHIE, name: "Default" },
+  ],
+  james: [
+    { id: AVATAR_JAMES, name: "Default" },
+  ],
+};
+
+// Fetch preview images from HeyGen for a set of look IDs
+export async function getPresenterLooks(presenter: string): Promise<PresenterLook[]> {
+  const apiKey = process.env.HEYGEN_API_KEY;
+  const looks = PRESENTER_LOOKS[presenter.toLowerCase()] ?? [];
+  if (!apiKey || looks.length === 0) return looks;
+
+  try {
+    const res = await fetch(`${HEYGEN_API_BASE}/v2/avatars`, {
+      headers: { "X-Api-Key": apiKey },
+      signal: AbortSignal.timeout(12_000),
+    });
+    if (!res.ok) return looks;
+
+    const data = (await res.json()) as { data?: { avatars?: Array<{ avatar_id: string; preview_image_url?: string }> } };
+    const avatarMap = new Map<string, string>();
+    for (const a of (data.data?.avatars ?? [])) {
+      if (a.preview_image_url) avatarMap.set(a.avatar_id, a.preview_image_url);
+    }
+
+    return looks.map((l) => ({
+      ...l,
+      previewImageUrl: avatarMap.get(l.id) ?? l.previewImageUrl,
+    }));
+  } catch {
+    return looks;
+  }
+}
+
 // Returns the correct HeyGen character payload depending on whether the ID is
 // a UUID-style look_id or a named avatar_id.
 function buildCharacterPayload(avatarId: string): Record<string, unknown> {
@@ -83,13 +140,14 @@ export async function generatePresenterVideo(
   customHeygenVoiceId?: string | null,
   timeoutMs = 90_000,
   elevenLabsAudioUrl?: string | null,
+  lookId?: string | null,
 ): Promise<HeyGenResult> {
   const apiKey = process.env.HEYGEN_API_KEY;
   if (!apiKey) throw new Error("HEYGEN_API_KEY not set");
 
-  // Prefer custom digital-twin avatar saved in user settings over the defaults
+  // Priority: lookId (user-chosen outfit) > customAvatarId (user settings) > presenter default
   const fallback = getAvatarConfig(voiceName, elevenLabsVoiceId);
-  const avatarId = customAvatarId ?? fallback.avatarId;
+  const avatarId = lookId ?? customAvatarId ?? fallback.avatarId;
   const voiceId  = customHeygenVoiceId ?? fallback.voiceId;
 
   // If an ElevenLabs audio URL is provided, use it for lip-sync instead of HeyGen's own TTS

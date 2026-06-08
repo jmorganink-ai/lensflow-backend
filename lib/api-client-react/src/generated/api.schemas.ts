@@ -253,6 +253,8 @@ export interface JobInput {
   enhancePhotos?: boolean;
   /** presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow */
   outputType?: JobInputOutputType;
+  /** Optional HeyGen avatar look ID — overrides the default presenter look with a specific outfit */
+  lookId?: string;
 }
 
 export type GenerateScriptInputInputMode = typeof GenerateScriptInputInputMode[keyof typeof GenerateScriptInputInputMode];
