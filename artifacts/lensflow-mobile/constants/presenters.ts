@@ -48,7 +48,7 @@ export const PRESENTERS: Presenter[] = [
     neutralSpecialty: "Sharp · Commanding",
     voiceId: "yXFr3XVHzrViCIHi1yoc",
     voiceName: "james",
-    photo: "https://files2.heygen.ai/avatar/v3/placeholder_james/preview_target.webp",
+    photo: "https://files2.heygen.ai/talking_photo/426df1e119054477a2188b41dbca60cf/555da619ed0642ab8e8bf8d5070ab8a1.WEBP",
   },
 ];
 
