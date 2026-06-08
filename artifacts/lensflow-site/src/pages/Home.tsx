@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Clock,
   Film,
+  Link2,
   PlayCircle,
   Shield,
   Sparkles,
@@ -12,7 +13,6 @@ import {
   Users,
   Video,
   Zap,
-  Link2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
@@ -29,12 +29,6 @@ const staggerContainer = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
 };
-
-const presenters = [
-  { name: "Mia", role: "Waterfront / Lifestyle", poster: "/presenters/mia-poster.jpg", video: "/presenters/mia.mp4", color: "from-amber-900/40" },
-  { name: "Oliver", role: "Inner-City / Investment", poster: "/presenters/oliver-poster.jpg", video: "/presenters/oliver.mp4", color: "from-blue-900/40" },
-  { name: "Sophie", role: "Family / Suburban", poster: "/presenters/sophie-poster.jpg", video: "/presenters/sophie.mp4", color: "from-rose-900/40" },
-];
 
 const steps = [
   { num: "01", icon: Link2, title: "Paste your listing URL", body: "LensFlow reads the suburb, bedrooms, style and price point from the URL. Claude AI writes a listing-specific script in under 10 seconds. No brief. No back-and-forth." },
@@ -55,101 +49,108 @@ const trustPoints = [
   { icon: Users, title: "Built for agents", detail: "Designed around how Australian real estate agents actually work." },
 ];
 
+const propertyPhotos = [
+  "/property-1.jpg",
+  "/property-2.jpg",
+  "/property-3.jpg",
+  "/property-4.jpg",
+  "/property-5.jpg",
+  "/property-6.jpg",
+];
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <Navbar />
 
       {/* ── HERO ──────────────────────────────────────────────── */}
-      <section className="relative pt-20 lg:pt-28 border-b border-white/5 overflow-hidden">
-        {/* background reel */}
+      <section className="relative pt-20 lg:pt-0 border-b border-white/5 overflow-hidden min-h-[92vh] flex items-center">
+        {/* Full-bleed property photo background */}
         <div className="absolute inset-0 pointer-events-none">
-          <video
-            src="/videos/lensflow-reel-creator-v1.mp4"
-            autoPlay muted loop playsInline
-            className="h-full w-full object-cover opacity-25"
+          <img
+            src="/hero-villa.jpg"
+            alt="Luxury property"
+            className="h-full w-full object-cover"
+            style={{ objectPosition: "center 30%" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0c16] via-[#0a0c16]/80 to-[#0a0c16]/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0c16] via-transparent to-[#0a0c16]/40" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-5">
-          {/* top copy — always full width */}
-          <motion.div
-            initial="hidden" animate="visible" variants={staggerContainer}
-            className="max-w-3xl pb-8 pt-6 lg:pb-12"
-          >
-            <motion.div variants={fadeInUp} className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
-              <Sparkles className="h-3.5 w-3.5" /> Solve the 48-hour listing window
+        <div className="relative z-10 mx-auto max-w-7xl w-full px-5 py-24 lg:py-0">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left — copy */}
+            <motion.div
+              initial="hidden" animate="visible" variants={staggerContainer}
+              className="max-w-2xl"
+            >
+              <motion.div variants={fadeInUp} className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-3 py-1.5 text-sm font-medium text-primary">
+                <Sparkles className="h-3.5 w-3.5" /> Australia's AI real estate video platform
+              </motion.div>
+
+              <motion.h1 variants={fadeInUp} className="font-serif text-4xl font-bold leading-[1.06] sm:text-5xl md:text-6xl lg:text-[4.25rem]">
+                Your listing goes live.<br />
+                <span className="text-primary">Your video should too.</span>
+              </motion.h1>
+
+              <motion.p variants={fadeInUp} className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
+                Real estate agents lose their listing's peak 48-hour traffic window waiting on a videographer. LensFlow turns your listing URL into a professional AI presenter video, social reels and full campaign kit — same day.
+              </motion.p>
+
+              <motion.div variants={fadeInUp} className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <a href="#hero-form">
+                  <Button className="w-full sm:w-auto h-13 rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground">
+                    Generate Campaign Now <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </a>
+                <a href="/examples">
+                  <Button variant="outline" className="w-full sm:w-auto h-12 rounded-full border-white/20 bg-white/5 px-7 text-base text-foreground backdrop-blur">
+                    <PlayCircle className="mr-2 h-4 w-4" /> Watch Examples
+                  </Button>
+                </a>
+              </motion.div>
+
+              {/* Stat strip */}
+              <motion.div variants={fadeInUp} className="mt-10 grid grid-cols-3 gap-4">
+                {[
+                  { value: "< 10 min", label: "Turnaround" },
+                  { value: "$525", label: "Value created" },
+                  { value: "3 formats", label: "Per campaign" },
+                ].map((m) => (
+                  <div key={m.label} className="rounded-2xl border border-white/10 bg-background/70 px-4 py-4 backdrop-blur">
+                    <div className="text-xl font-bold text-primary">{m.value}</div>
+                    <div className="mt-0.5 text-xs uppercase tracking-[0.14em] text-muted-foreground">{m.label}</div>
+                  </div>
+                ))}
+              </motion.div>
             </motion.div>
 
-            <motion.h1 variants={fadeInUp} className="font-serif text-4xl font-bold leading-[1.08] sm:text-5xl md:text-6xl lg:text-7xl">
-              Your Listing Goes Live Today.<br className="hidden sm:block" /> Your Video Should Too.
-            </motion.h1>
-
-            <motion.p variants={fadeInUp} className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-              Most agents lose their listing's peak traffic window waiting on a videographer. LensFlow turns your listing URL into a professional AI presenter video, social reels and full campaign kit — same day, no bookings, no editing.
-            </motion.p>
-
-            {/* ── MOBILE CTA — visible on phones, hidden ≥sm ── */}
-            <motion.div variants={fadeInUp} className="mt-7 flex flex-col gap-3 sm:hidden">
-              <a href="/pipeline/">
-                <Button className="w-full h-14 rounded-2xl bg-primary text-base font-semibold text-primary-foreground">
-                  Start Free — No Credit Card <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </a>
-              <a href="#examples">
-                <Button variant="outline" className="w-full h-12 rounded-2xl border-white/15 bg-white/5 text-base text-foreground">
-                  See Examples
-                </Button>
-              </a>
-            </motion.div>
-
-            {/* ── DESKTOP CTA row — hidden on phones ── */}
-            <motion.div variants={fadeInUp} className="mt-7 hidden sm:flex flex-wrap gap-3">
-              <a href="#hero-form">
-                <Button className="h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground">
-                  Generate Property Campaign <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </a>
-              <a href="#examples">
-                <Button variant="outline" className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-foreground">
-                  View Campaign Examples
-                </Button>
-              </a>
-              <a href="/mobile/">
-                <Button variant="outline" className="h-12 rounded-full border-primary/40 bg-primary/10 px-7 text-base text-primary">
-                  Download the App
-                </Button>
-              </a>
-            </motion.div>
-          </motion.div>
-
-          {/* stats strip — always visible */}
-          <div className="grid grid-cols-2 gap-3 pb-10 sm:grid-cols-4 lg:pb-14">
-            {[
-              { value: "4 assets", label: "Per campaign" },
-              { value: "< 10 min", label: "Turnaround" },
-              { value: "$525", label: "Value created" },
-              { value: "Social ready", label: "Every output" },
-            ].map((m) => (
-              <div key={m.label} className="rounded-2xl border border-white/10 bg-background/60 px-4 py-4 backdrop-blur">
-                <div className="text-2xl font-semibold">{m.value}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.16em] text-muted-foreground">{m.label}</div>
+            {/* Right — hero form (desktop) */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              id="hero-form"
+              className="hidden lg:block"
+            >
+              <div className="rounded-[2rem] border border-white/15 bg-card/90 p-7 shadow-2xl shadow-black/50 backdrop-blur-xl">
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.22em] text-primary">Start New Campaign</p>
+                    <h2 className="mt-2 font-serif text-2xl font-semibold">Generate Property Campaign</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">Paste a listing URL · pick a presenter · done.</p>
+                  </div>
+                  <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">AI Ready</span>
+                </div>
+                <SubmitForm />
               </div>
-            ))}
+            </motion.div>
           </div>
 
-          {/* desktop form — hidden on mobile (they tapped the CTA above) */}
-          <div id="hero-form" className="hidden sm:block max-w-xl pb-14 lg:pb-20">
-            <div className="rounded-[2rem] border border-white/10 bg-card/90 p-6 shadow-2xl shadow-black/35 backdrop-blur-xl">
-              <div className="mb-5 flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.22em] text-primary">Start New Campaign</p>
-                  <h2 className="mt-2 font-serif text-2xl font-semibold">Generate Property Campaign</h2>
-                </div>
-                <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">AI Presenter Ready</span>
-              </div>
+          {/* Mobile form */}
+          <div id="hero-form-mobile" className="mt-10 block lg:hidden">
+            <div className="rounded-[1.75rem] border border-white/10 bg-card/90 p-5 backdrop-blur-xl">
+              <p className="mb-4 text-sm font-medium text-primary uppercase tracking-wider">Start New Campaign</p>
               <SubmitForm />
             </div>
           </div>
@@ -157,24 +158,44 @@ export default function Home() {
       </section>
 
       {/* ── PROOF STRIP ────────────────────────────────────────── */}
-      <section className="border-b border-white/5 bg-background py-8">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-3 px-5 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            "Campaign ready in minutes, not days",
-            "Mia · Oliver · Sophie — Australian AI presenters",
-            "Script by Claude AI · Voice by ElevenLabs",
-            "Built for Australian real estate agents",
-          ].map((p) => (
-            <div key={p} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-4">
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
-              <span className="text-sm text-muted-foreground">{p}</span>
-            </div>
-          ))}
+      <section className="border-b border-white/5 bg-card/20 py-6">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+            {[
+              "Campaign ready in minutes, not days",
+              "Mia · Oliver · Sophie — Australian AI presenters",
+              "Script by Claude AI · Voice by ElevenLabs",
+              "No videographer · No studio · No waiting",
+            ].map((p) => (
+              <div key={p} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+                {p}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PROPERTY PHOTO STRIP ─────────────────────────────── */}
+      <section className="bg-background py-12 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-5">
+          <p className="mb-6 text-center text-xs uppercase tracking-[0.24em] text-muted-foreground">Properties listed and marketed with LensFlow</p>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+            {propertyPhotos.map((src, i) => (
+              <div key={i} className="overflow-hidden rounded-2xl aspect-[4/3] group">
+                <img
+                  src={src}
+                  alt={`Listed property ${i + 1}`}
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ── BEFORE / AFTER ──────────────────────────────────────── */}
-      <section className="bg-background py-16 lg:py-24">
+      <section className="border-t border-white/5 bg-card/30 py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-5">
           <div className="mb-10 text-center">
             <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">The LensFlow Difference</p>
@@ -186,8 +207,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Before → After comparison */}
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-3">
             <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-card">
               <div className="relative aspect-[4/3] overflow-hidden">
                 <img src="/property-1.jpg" alt="Raw listing photo" className="h-full w-full object-cover" />
@@ -220,7 +240,7 @@ export default function Home() {
 
             <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-card">
               <div className="relative aspect-[4/3] overflow-hidden">
-                <img src="/hero-villa.jpg" alt="Campaign-ready property" className="h-full w-full object-cover" />
+                <img src="/property-luxury.jpg" alt="Campaign-ready property" className="h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <span className="absolute bottom-4 left-4 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur">After — campaign ready</span>
               </div>
@@ -230,141 +250,13 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          {/* Property photo strip */}
-          <div className="mt-6 grid grid-cols-4 gap-3">
-            {["/property-2.jpg", "/property-3.jpg", "/property-4.jpg", "/property-5.jpg"].map((src, i) => (
-              <div key={i} className="overflow-hidden rounded-2xl aspect-[4/3]">
-                <img src={src} alt={`Property ${i + 2}`} className="h-full w-full object-cover" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── EXAMPLES / CAMPAIGN OUTPUTS ─────────────────────────── */}
-      <section id="examples" className="border-t border-white/5 bg-card/30 py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-5">
-          <div className="mb-10 lg:flex lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">Campaign Output</p>
-              <h2 className="font-serif text-3xl font-semibold sm:text-4xl lg:text-5xl">
-                One listing. A full marketing launch.
-              </h2>
-            </div>
-            <p className="mt-4 max-w-sm text-base leading-7 text-muted-foreground lg:mt-0">
-              LensFlow acts like an AI marketing department — video, social and presenter assets from a single listing URL.
-            </p>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { title: "AI Presenter Video", detail: "Mia introduces the property with polished, listing-aware narration and full lipsync.", video: "/videos/mia-presenter.mp4", poster: "/presenters/mia-poster.jpg", icon: Video, badge: "Main deliverable" },
-              { title: "Social Reel", detail: "Short-form vertical cuts for Instagram, TikTok and Facebook Stories — ready to post.", video: "/videos/mia-reel.mp4", poster: "/presenters/mia-poster.jpg", icon: Film, badge: "Social ready" },
-              { title: "Reel Creator", detail: "LensFlow assembles property highlights, presenter narration and social-ready cuts from one listing URL.", video: "/videos/reel-creator.mp4", poster: "/presenters/oliver-poster.jpg", icon: PlayCircle, badge: "Campaign kit" },
-            ].map((item) => (
-              <motion.article
-                key={item.title}
-                whileHover={{ y: -5 }}
-                className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-card"
-              >
-                <div className="relative aspect-[9/13] overflow-hidden bg-black">
-                  <img src={item.poster} alt={item.title} className="absolute inset-0 h-full w-full object-cover" />
-                  <video
-                    src={item.video}
-                    poster={item.poster}
-                    autoPlay muted loop playsInline
-                    className="relative h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-                  <span className="absolute left-4 top-4 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur">{item.badge}</span>
-                </div>
-                <div className="p-6">
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-                    <item.icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="text-xl font-semibold">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{item.detail}</p>
-                  <p className="mt-4 text-[10px] uppercase tracking-[0.18em] text-primary/60">Claude AI · ElevenLabs · HeyGen · Shotstack</p>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── BRAND VIDEO ─────────────────────────────────────────── */}
-      <section className="bg-background py-14 lg:py-20">
-        <div className="mx-auto max-w-5xl px-5">
-          <div className="mb-8 text-center">
-            <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">See It In Action</p>
-            <h2 className="font-serif text-3xl font-semibold sm:text-4xl">
-              From listing URL to live campaign — in minutes.
-            </h2>
-          </div>
-          <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-2xl">
-            <video controls playsInline poster="/presenters/mia-poster.jpg" className="w-full" style={{ aspectRatio: "16/9" }}>
-              <source src="/videos/lensflow-brand.mp4" type="video/mp4" />
-            </video>
-          </div>
-        </div>
-      </section>
-
-      {/* ── PRESENTERS ──────────────────────────────────────────── */}
-      <section id="presenters" className="border-y border-white/5 bg-card/40 py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-5">
-          <div className="mb-10 text-center">
-            <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">AI Presenters</p>
-            <h2 className="font-serif text-3xl font-semibold sm:text-4xl lg:text-5xl">
-              Your AI presenters are the product difference.
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground">
-              Three Australian AI presenters, each matched to a different property type. Pick one per listing — or let LensFlow suggest the best fit.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {presenters.map((p) => (
-              <article key={p.name} className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-background group">
-                <div className={`relative aspect-[3/4] overflow-hidden bg-gradient-to-b ${p.color} to-black`}>
-                  <video
-                    src={p.video}
-                    poster={p.poster}
-                    autoPlay muted loop playsInline
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <div className="text-xl font-semibold text-white sm:text-2xl">{p.name}</div>
-                    <div className="mt-0.5 text-xs text-primary sm:text-sm">{p.role}</div>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            {[
-              { name: "Mia", line: "Warm, polished and ideal for coastal, prestige and family listings." },
-              { name: "Oliver", line: "Sharper, confident and suited to apartments, developers and investor campaigns." },
-              { name: "Sophie", line: "Friendly and relatable — perfect for family homes and suburban lifestyle." },
-            ].map((p) => (
-              <div key={p.name} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
-                <Star className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <div>
-                  <div className="text-sm font-semibold">{p.name}</div>
-                  <div className="mt-1 text-xs leading-5 text-muted-foreground">{p.line}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
       {/* ── HOW IT WORKS ────────────────────────────────────────── */}
       <section id="how-it-works" className="bg-background py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-5">
-          <div className="mb-10 text-center">
+          <div className="mb-12 text-center">
             <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">How It Works</p>
             <h2 className="font-serif text-3xl font-semibold sm:text-4xl lg:text-5xl">
               Three steps. Full campaign.
@@ -383,6 +275,150 @@ export default function Home() {
                 <h3 className="text-xl font-semibold">{step.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">{step.body}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── BRAND VIDEO ─────────────────────────────────────────── */}
+      <section className="border-y border-white/5 bg-card/30 py-14 lg:py-20">
+        <div className="mx-auto max-w-5xl px-5">
+          <div className="mb-8 text-center">
+            <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">See It In Action</p>
+            <h2 className="font-serif text-3xl font-semibold sm:text-4xl">
+              From listing URL to live campaign — in minutes.
+            </h2>
+          </div>
+          <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-2xl">
+            <video controls playsInline poster="/presenters/mia-poster.jpg" className="w-full" style={{ aspectRatio: "16/9" }}>
+              <source src="/videos/lensflow-brand.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </section>
+
+      {/* ── MOBILE TELEPROMPTER ─────────────────────────────────── */}
+      <section id="mobile-app" className="bg-background py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+            {/* Left — phone mockups */}
+            <div className="order-2 lg:order-1">
+              <div className="relative mx-auto max-w-sm lg:max-w-none">
+                {/* Main phone — teleprompter screen */}
+                <div className="overflow-hidden rounded-[2.5rem] border-4 border-white/15 bg-black shadow-2xl shadow-black/60">
+                  <img
+                    src="/mobile-1.jpg"
+                    alt="LensFlow mobile app — teleprompter recording"
+                    className="w-full"
+                  />
+                </div>
+                {/* Floating mini phone — script screen */}
+                <div className="absolute -bottom-4 -right-4 w-36 overflow-hidden rounded-[1.5rem] border-4 border-white/15 bg-black shadow-xl sm:w-44 lg:w-40">
+                  <img
+                    src="/mobile-3.jpg"
+                    alt="LensFlow mobile — script"
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right — copy */}
+            <div className="order-1 lg:order-2">
+              <p className="mb-4 text-sm uppercase tracking-[0.24em] text-primary">Mobile App</p>
+              <h2 className="font-serif text-3xl font-semibold sm:text-4xl lg:text-5xl">
+                Film yourself. LensFlow writes the script.
+              </h2>
+              <p className="mt-5 text-base leading-7 text-muted-foreground">
+                The LensFlow mobile app lets you record yourself presenting a property — with a scrolling teleprompter reading the AI-generated script directly on your camera screen. No memorising, no retakes, no crew.
+              </p>
+
+              <div className="mt-8 space-y-4">
+                {[
+                  { title: "AI script from your listing URL", detail: "Claude AI reads the listing and writes a property-specific script delivered to your phone before you hit record." },
+                  { title: "Scrolling teleprompter on camera", detail: "Read naturally while filming. Slow, normal or fast scroll speed — controlled live during your take." },
+                  { title: "Enhance with AI voice & background", detail: "Add an AI presenter voice narration, background music and property image slideshow to your selfie video." },
+                ].map((f) => (
+                  <div key={f.title} className="flex gap-4">
+                    <div className="mt-1 h-6 w-6 shrink-0 flex items-center justify-center rounded-full bg-primary/20 text-primary">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground">{f.title}</div>
+                      <div className="mt-1 text-sm leading-6 text-muted-foreground">{f.detail}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a href="/mobile/">
+                  <Button className="h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground">
+                    Download the App <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </a>
+                <a href="/pipeline/">
+                  <Button variant="outline" className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-foreground">
+                    Use Web Version
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRESENTERS TEASER ──────────────────────────────────── */}
+      <section id="presenters" className="bg-background py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="mb-10 lg:flex lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">AI Presenters</p>
+              <h2 className="font-serif text-3xl font-semibold sm:text-4xl lg:text-5xl">
+                Meet Mia, Oliver and Sophie.
+              </h2>
+              <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
+                Three Australian AI presenters, each matched to a different property type and buyer audience. LensFlow writes them a property-specific script from your listing URL.
+              </p>
+            </div>
+            <a href="/presenters" className="mt-5 inline-block lg:mt-0">
+              <Button variant="outline" className="h-11 rounded-full border-white/15 bg-white/5 px-6 text-sm">
+                Meet the full team <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+            {[
+              { name: "Mia", role: "Waterfront / Lifestyle", poster: "/presenters/mia-poster.jpg", video: "/videos/mia-presenter.mp4", color: "from-amber-900/40", tagline: "Warm, polished and ideal for coastal, prestige and family listings." },
+              { name: "Oliver", role: "Inner-City / Investment", poster: "/presenters/oliver-poster.jpg", video: "/videos/oliver-presenter.mp4", color: "from-blue-900/40", tagline: "Sharper, confident and suited to apartments, developers and investor campaigns." },
+              { name: "Sophie", role: "Family / Suburban", poster: "/presenters/sophie-poster.jpg", video: "/videos/sophie-presenter.mp4", color: "from-rose-900/40", tagline: "Friendly and relatable — perfect for family homes and suburban lifestyle." },
+            ].map((p) => (
+              <motion.article
+                key={p.name}
+                whileHover={{ y: -4 }}
+                className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-card"
+              >
+                <div className={`relative aspect-[3/4] overflow-hidden bg-gradient-to-b ${p.color} to-black`}>
+                  <video
+                    src={p.video}
+                    poster={p.poster}
+                    autoPlay muted loop playsInline
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="text-2xl font-bold text-white">{p.name}</div>
+                    <div className="mt-0.5 text-sm text-primary">{p.role}</div>
+                  </div>
+                </div>
+                <div className="p-5">
+                  <p className="text-sm leading-6 text-muted-foreground">{p.tagline}</p>
+                  <a href={`/pipeline/?presenter=${p.name.toLowerCase()}`} className="mt-4 inline-flex items-center text-xs font-semibold text-primary hover:underline">
+                    Use {p.name} for my listing <ArrowRight className="ml-1 h-3 w-3" />
+                  </a>
+                </div>
+              </motion.article>
             ))}
           </div>
         </div>
@@ -439,19 +475,18 @@ export default function Home() {
         </div>
       </section>
 
-
       {/* ── TRUST ───────────────────────────────────────────────── */}
-      <section className="border-y border-white/5 bg-card/40 py-16 lg:py-24">
+      <section className="bg-background py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-5">
           <div className="mb-10 text-center">
-            <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">Trust Layer</p>
+            <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">Built for Agents</p>
             <h2 className="font-serif text-3xl font-semibold sm:text-4xl">
               A calm, premium system agents can rely on.
             </h2>
           </div>
           <div className="grid gap-5 sm:grid-cols-3">
             {trustPoints.map((item) => (
-              <div key={item.title} className="rounded-[1.75rem] border border-white/10 bg-background p-7">
+              <div key={item.title} className="rounded-[1.75rem] border border-white/10 bg-card p-7">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
                   <item.icon className="h-5 w-5" />
                 </div>
@@ -466,8 +501,8 @@ export default function Home() {
       {/* ── FINAL CTA ───────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-card py-20">
         <div className="absolute inset-0 pointer-events-none">
-          <video src="/videos/oliver-featured.mp4" autoPlay muted loop playsInline className="h-full w-full object-cover opacity-20" />
-          <div className="absolute inset-0 bg-background/80" />
+          <img src="/property-luxury.jpg" alt="" className="h-full w-full object-cover opacity-15" />
+          <div className="absolute inset-0 bg-background/85" />
         </div>
         <div className="relative z-10 mx-auto max-w-3xl px-5 text-center">
           <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">Ready to Start</p>

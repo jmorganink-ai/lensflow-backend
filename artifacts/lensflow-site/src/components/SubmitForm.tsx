@@ -33,15 +33,6 @@ const PRESENTER_PRESETS = [
     photo: "/presenters/sophie-poster.jpg",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/69h9o7wh5u0isWHzdogD/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzBlMWJmMjUtZDEwNC00ZjY1LTg1ZTctNjE3ZDU5MjhmMDk5Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
   },
-  {
-    id: "james",
-    name: "James",
-    specialty: "Commercial / Rural",
-    voiceId: "J5tYJbZpL62OrQsj70q6",
-    voiceName: "morgan voice",
-    photo: "/presenters/james-poster.jpg",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/IKne3meq5aSn9XLyUdCD/102de6f2-22ed-43e0-a1f1-111fa75c5481.mp3",
-  },
 ];
 
 const PENDING_JOB_KEY = "lensflow_pending_job";
@@ -218,7 +209,7 @@ export function SubmitForm() {
       {/* Presenter Picker */}
       <div>
         <label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2 block">Choose Presenter</label>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-2">
           {PRESENTER_PRESETS.map((p) => {
             const isSelected = selectedPresenter.id === p.id;
             const isPlaying = playingId === p.id;
