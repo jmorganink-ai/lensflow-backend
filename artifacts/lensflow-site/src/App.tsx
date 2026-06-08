@@ -10,6 +10,8 @@ import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
 import TwinAvatar from "@/pages/TwinAvatar";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import Examples from "@/pages/Examples";
+import Presenters from "@/pages/Presenters";
 import MorganChat from "@/components/MorganChat";
 
 const queryClient = new QueryClient();
@@ -18,6 +20,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/examples" component={Examples} />
+      <Route path="/presenters" component={Presenters} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/twin-avatar" component={TwinAvatar} />
       <Route path="/advantage" component={Advantage} />
@@ -44,4 +48,3 @@ function App() {
 }
 
 export default App;
-

@@ -6,14 +6,12 @@ import favicon from "@assets/lensflow-brand/favicon.png";
 import { useAuth } from "@workspace/replit-auth-web";
 
 const navLinks = [
-  { label: "Examples", href: "/#examples" },
-  { label: "AI Presenters", href: "/#presenters" },
+  { label: "Examples", href: "/examples" },
+  { label: "AI Presenters", href: "/presenters" },
   { label: "Twin Avatar", href: "/twin-avatar" },
   { label: "How It Works", href: "/#how-it-works" },
-  { label: "Value", href: "/#compare" },
   { label: "Pricing", href: "/pricing" },
   { label: "Mobile App", href: "/mobile/" },
-  { label: "Explainer", href: "/lensflow-explainer/" },
 ];
 
 export function Navbar() {

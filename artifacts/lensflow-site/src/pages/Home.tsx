@@ -445,63 +445,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── PRICING HIGHLIGHTS ──────────────────────────────────── */}
-      <section id="pricing" className="bg-background py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-5">
-          <div className="mb-10 lg:flex lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">Pricing</p>
-              <h2 className="font-serif text-3xl font-semibold sm:text-4xl lg:text-5xl">
-                Price it like an AI marketing team.
-              </h2>
-            </div>
-            <Link href="/pricing" className="hidden lg:block mt-4">
-              <Button variant="outline" className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-foreground hover:bg-white/10">
-                See Full Pricing <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-3">
-            {[
-              { name: "Starter", price: "$79", period: "/mo", detail: "Scripts, teleprompter flow and one AI campaign per month.", featured: false },
-              { name: "Elite", price: "$199", period: "/mo", detail: "AI presenter videos, social reels and a faster listing workflow.", featured: true },
-              { name: "Concierge", price: "$399", period: "/mo", detail: "Full campaign copy, captions, launch support and team access.", featured: false },
-            ].map((plan) => (
-              <div
-                key={plan.name}
-                className={`flex flex-col rounded-[1.75rem] border p-7 ${plan.featured ? "border-primary/50 bg-primary/10 shadow-[0_0_40px_rgba(201,154,46,0.1)]" : "border-white/10 bg-background"}`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-xl font-semibold">{plan.name}</h3>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{plan.detail}</p>
-                  </div>
-                  {plan.featured && <span className="shrink-0 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Popular</span>}
-                </div>
-                <div className="mt-8 font-serif text-4xl font-semibold">
-                  {plan.price}<span className="text-lg font-normal text-muted-foreground">{plan.period}</span>
-                </div>
-                <div className="mt-6">
-                  <a href="/pipeline/">
-                    <Button className={`w-full h-11 rounded-xl text-sm font-semibold ${plan.featured ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-white/8 text-foreground hover:bg-white/12"}`}>
-                      Get Started <ArrowRight className="ml-1.5 h-4 w-4" />
-                    </Button>
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-5 lg:hidden">
-            <Link href="/pricing">
-              <Button variant="outline" className="w-full h-12 rounded-2xl border-white/15 bg-white/5 text-foreground">
-                See Full Pricing <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* ── TRUST ───────────────────────────────────────────────── */}
       <section className="border-y border-white/5 bg-card/40 py-16 lg:py-24">
