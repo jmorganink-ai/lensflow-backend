@@ -60,18 +60,18 @@ const campaigns = [
 const beforeAfter = [
   {
     label: "Before — raw listing",
-    src: "/quality-before.jpg",
+    src: "/property-1.jpg",
     caption: "The standard listing photo every agent has. Decent image, zero engagement when posted to socials.",
   },
   {
     label: "LensFlow output",
-    src: "/quality-presenter.jpg",
+    src: "/presenters/mia-poster.jpg",
     caption: "Mia narrates the listing on camera. Property-specific script, professional lipsync, broadcast quality.",
     highlight: true,
   },
   {
     label: "After — campaign ready",
-    src: "/quality-after.jpg",
+    src: "/hero-villa.jpg",
     caption: "Final MP4 delivered. Social reels packaged. Caption copy included. Ready to post in minutes.",
   },
 ];
@@ -90,8 +90,8 @@ export default function Examples() {
               What LensFlow actually creates.
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl">
-              Every example below was generated from a real listing URL — no videographer, no editor, no studio.
-              Paste a URL, pick a presenter, and this is what comes out.
+              Real presenter videos — Mia, Oliver and Sophie — delivering property-specific scripts.
+              No videographer, no studio, no waiting. This is what LensFlow produces.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="/pipeline/">

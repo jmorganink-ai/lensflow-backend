@@ -190,20 +190,20 @@ export default function Home() {
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-card">
               <div className="relative aspect-[4/3] overflow-hidden">
-                <img src="/quality-before.jpg" alt="Raw listing photo" className="h-full w-full object-cover" />
+                <img src="/property-1.jpg" alt="Raw listing photo" className="h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <span className="absolute bottom-4 left-4 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur">Before — raw listing</span>
               </div>
               <div className="p-5">
                 <h3 className="font-semibold text-foreground">Standard listing photo</h3>
-                <p className="mt-2 text-sm text-muted-foreground">What you send to your photographer. Decent. Generic. Does nothing when shared on socials.</p>
+                <p className="mt-2 text-sm text-muted-foreground">What every agent has. Decent photo, zero engagement when posted to socials.</p>
               </div>
             </div>
 
             <div className="overflow-hidden rounded-[1.75rem] border border-primary/30 bg-card shadow-[0_0_32px_rgba(201,154,46,0.12)]">
               <div className="relative aspect-[4/3] overflow-hidden bg-black">
                 <video
-                  src="/presenters/mia.mp4"
+                  src="/videos/mia-presenter.mp4"
                   poster="/presenters/mia-poster.jpg"
                   autoPlay muted loop playsInline
                   className="h-full w-full object-cover"
@@ -220,28 +220,24 @@ export default function Home() {
 
             <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-card">
               <div className="relative aspect-[4/3] overflow-hidden">
-                <img src="/quality-after.jpg" alt="Campaign output" className="h-full w-full object-cover" />
+                <img src="/hero-villa.jpg" alt="Campaign-ready property" className="h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <span className="absolute bottom-4 left-4 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur">After — campaign ready</span>
               </div>
               <div className="p-5">
                 <h3 className="font-semibold text-foreground">Full campaign kit</h3>
-                <p className="mt-2 text-sm text-muted-foreground">Social reels, caption pack, presenter MP4 and campaign copy — all in one flow from the same listing URL.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Social reels, caption pack, presenter MP4 and campaign copy — all from the same listing URL.</p>
               </div>
             </div>
           </div>
 
-          {/* campaign showcase image */}
-          <div className="mt-6 overflow-hidden rounded-[1.75rem] border border-white/10">
-            <div className="relative">
-              <img src="/campaign-showcase.png" alt="LensFlow campaign strategies" className="w-full object-cover" />
-              <div className="absolute inset-x-0 bottom-0 flex flex-col gap-3 bg-gradient-to-t from-black/80 to-transparent px-6 pb-6 pt-20 sm:flex-row sm:items-end sm:justify-between">
-                <p className="text-sm font-medium text-white/80">Three campaign strategies — generated from one listing URL.</p>
-                <a href="/pricing" className="shrink-0 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 text-center">
-                  Start free →
-                </a>
+          {/* Property photo strip */}
+          <div className="mt-6 grid grid-cols-4 gap-3">
+            {["/property-2.jpg", "/property-3.jpg", "/property-4.jpg", "/property-5.jpg"].map((src, i) => (
+              <div key={i} className="overflow-hidden rounded-2xl aspect-[4/3]">
+                <img src={src} alt={`Property ${i + 2}`} className="h-full w-full object-cover" />
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
