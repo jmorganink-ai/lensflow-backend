@@ -375,7 +375,7 @@ export default function Home() {
             <div className="max-w-2xl">
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">AI Presenters</p>
               <h2 className="font-serif text-3xl font-semibold sm:text-4xl lg:text-5xl">
-                Meet Mia, Oliver and Sophie.
+                Meet our AI presenters.
               </h2>
               <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
                 Three Australian AI presenters, each matched to a different property type and buyer audience. LensFlow writes them a property-specific script from your listing URL.
@@ -388,38 +388,63 @@ export default function Home() {
             </a>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-            {[
-              { name: "Mia", role: "Waterfront / Lifestyle", poster: "/presenters/mia-poster.jpg", video: "/videos/mia-presenter.mp4", color: "from-amber-900/40", tagline: "Warm, polished and ideal for coastal, prestige and family listings." },
-              { name: "Oliver", role: "Inner-City / Investment", poster: "/presenters/oliver-poster.jpg", video: "/videos/oliver-presenter.mp4", color: "from-blue-900/40", tagline: "Sharper, confident and suited to apartments, developers and investor campaigns." },
-              { name: "Sophie", role: "Family / Suburban", poster: "/presenters/sophie-poster.jpg", video: "/videos/sophie-presenter.mp4", color: "from-rose-900/40", tagline: "Friendly and relatable — perfect for family homes and suburban lifestyle." },
-            ].map((p) => (
-              <motion.article
-                key={p.name}
-                whileHover={{ y: -4 }}
-                className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-card"
-              >
-                <div className={`relative aspect-[3/4] overflow-hidden bg-gradient-to-b ${p.color} to-black`}>
-                  <video
-                    src={p.video}
-                    poster={p.poster}
-                    autoPlay muted loop playsInline
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            {/* Left — D-ID Agentic Video + Mia poster below */}
+            <div className="flex flex-col gap-5">
+              {/* Agentic video widget */}
+              <div
+                id="did-agentic-video"
+                className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-card"
+                style={{ minHeight: 360 }}
+              />
+              {/* Mia poster */}
+              <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-card">
+                <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-b from-amber-900/40 to-black">
+                  <img
+                    src="/presenters/mia-poster.jpg"
+                    alt="Mia — AI Presenter"
+                    className="h-full w-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
-                    <div className="text-2xl font-bold text-white">{p.name}</div>
-                    <div className="mt-0.5 text-sm text-primary">{p.role}</div>
+                    <div className="text-2xl font-bold text-white">Mia</div>
+                    <div className="mt-0.5 text-sm text-primary">Waterfront / Lifestyle</div>
                   </div>
                 </div>
                 <div className="p-5">
-                  <p className="text-sm leading-6 text-muted-foreground">{p.tagline}</p>
-                  <a href={`/pipeline/?presenter=${p.name.toLowerCase()}`} className="mt-4 inline-flex items-center text-xs font-semibold text-primary hover:underline">
-                    Use {p.name} for my listing <ArrowRight className="ml-1 h-3 w-3" />
+                  <p className="text-sm leading-6 text-muted-foreground">Warm, polished and ideal for coastal, prestige and family listings.</p>
+                  <a href="/pipeline/?presenter=mia" className="mt-4 inline-flex items-center text-xs font-semibold text-primary hover:underline">
+                    Use Mia for my listing <ArrowRight className="ml-1 h-3 w-3" />
                   </a>
                 </div>
-              </motion.article>
-            ))}
+              </div>
+            </div>
+
+            {/* Right — Sophie card */}
+            <motion.article
+              whileHover={{ y: -4 }}
+              className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-card"
+            >
+              <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-b from-rose-900/40 to-black">
+                <video
+                  src="/videos/sophie-presenter.mp4"
+                  poster="/presenters/sophie-poster.jpg"
+                  autoPlay muted loop playsInline
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="text-2xl font-bold text-white">Sophie</div>
+                  <div className="mt-0.5 text-sm text-primary">Family / Suburban</div>
+                </div>
+              </div>
+              <div className="p-5">
+                <p className="text-sm leading-6 text-muted-foreground">Friendly and relatable — perfect for family homes and suburban lifestyle.</p>
+                <a href="/pipeline/?presenter=sophie" className="mt-4 inline-flex items-center text-xs font-semibold text-primary hover:underline">
+                  Use Sophie for my listing <ArrowRight className="ml-1 h-3 w-3" />
+                </a>
+              </div>
+            </motion.article>
           </div>
         </div>
       </section>
