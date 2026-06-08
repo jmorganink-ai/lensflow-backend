@@ -3,6 +3,7 @@ import { db, jobsTable, pipelineStepsTable } from "@workspace/db";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { runSimulation } from "./jobs";
+import { composePresenterVideoPremiumLuxuryV1 } from "../lib/shotstack";
 
 const router = Router();
 
@@ -80,6 +81,63 @@ router.post("/dev/run-test", async (req, res): Promise<void> => {
   runSimulation(id).catch((err) => console.error("runSimulation error:", err));
 
   res.json({ jobId: id, message: "Pipeline started — check GET /api/dev/job-status/:id" });
+});
+
+/**
+ * POST /api/dev/test-premium-template
+ * Direct Shotstack-only test for premium_luxury_v1 — no full pipeline needed.
+ * Uses fixed Richmond test assets so you can validate the template in ~2 minutes.
+ */
+router.post("/dev/test-premium-template", async (req, res): Promise<void> => {
+  if (process.env.NODE_ENV !== "development") {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+
+  const body = req.body as Record<string, unknown>;
+
+  const presenterVideoUrl = (body.presenterVideoUrl as string | undefined)
+    ?? "https://files.heygen.ai/sample/sample_presenter.mp4";
+
+  const propertyTitle = (body.propertyTitle as string | undefined)
+    ?? "24 Church Street, Richmond VIC 3121";
+
+  const listingUrl = (body.listingUrl as string | undefined)
+    ?? "https://www.realestate.com.au/property-house-vic-richmond-141826448";
+
+  const propertyImages = (body.propertyImages as string[] | undefined) ?? [
+    "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1280",
+    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1280",
+    "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1280",
+    "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1280",
+  ];
+
+  const highlights = (body.highlights as string[] | undefined) ?? [
+    "Stunning period features throughout",
+    "Gourmet kitchen with stone benchtops",
+    "Private north-facing garden & entertaining",
+  ];
+
+  const testMode = (body.testMode as boolean | undefined) ?? false;
+  const voiceName = (body.voiceName as string | undefined) ?? "mia";
+  const musicTrack = (body.musicTrack as string | undefined) ?? "luxury";
+
+  try {
+    const result = await composePresenterVideoPremiumLuxuryV1(
+      presenterVideoUrl,
+      propertyTitle,
+      listingUrl,
+      propertyImages,
+      musicTrack,
+      voiceName,
+      testMode,
+      highlights,
+    );
+    res.json({ success: true, renderId: result.renderId, videoUrl: result.videoUrl, template: "premium_luxury_v1" });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ success: false, error: message });
+  }
 });
 
 router.get("/dev/job-status/:id", async (req, res): Promise<void> => {
