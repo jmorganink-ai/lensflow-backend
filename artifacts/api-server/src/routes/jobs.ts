@@ -17,7 +17,7 @@ import { generateListingScript, extractHighlights, type ListingContext } from ".
 import { parseListingUrl } from "../lib/parse-listing-url";
 import { generatePresenterVideo, HeyGenTimeoutError } from "../lib/heygen";
 import { generatePresenterVideoDID } from "../lib/did";
-import { composePresenterVideo, composeSelfieVideo, composeVoicePhotosVideo } from "../lib/shotstack";
+import { composePresenterVideoPremiumLuxuryV1, composeSelfieVideo, composeVoicePhotosVideo } from "../lib/shotstack";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { scrapeListing } from "../lib/apify";
 import { isDomainUrl, extractDomainListingId, fetchDomainListing, getSuburbPerformance } from "../lib/domain";
@@ -432,7 +432,7 @@ export async function runSimulation(jobId: string): Promise<void> {
             // testMode: dev jobs (userId=null) use 10s SD renders to keep credit cost low
             const shotstackTestMode = job.userId === null;
             logger.info({ jobId, presenterVideoUrl, testMode: shotstackTestMode }, "Composing final video with Shotstack");
-            const result = await composePresenterVideo(
+            const result = await composePresenterVideoPremiumLuxuryV1(
               presenterVideoUrl,
               job.listingTitle,
               job.listingUrl,

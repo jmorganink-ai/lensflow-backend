@@ -416,31 +416,6 @@ export async function composePresenterVideoPremiumLuxuryV1(
   return { videoUrl, renderId };
 }
 
-/**
- * composePresenterVideo — public pipeline entrypoint.
- * Delegates to premium_luxury_v1 template.
- */
-export async function composePresenterVideo(
-  presenterVideoUrl: string,
-  propertyTitle?: string | null,
-  listingUrl?: string | null,
-  propertyImages?: string[] | null,
-  musicTrack?: string | null,
-  voiceName?: string | null,
-  testMode = false,
-  highlights?: string[] | null,
-): Promise<ShotstackResult> {
-  return composePresenterVideoPremiumLuxuryV1(
-    presenterVideoUrl,
-    propertyTitle,
-    listingUrl,
-    propertyImages,
-    musicTrack,
-    voiceName,
-    testMode,
-    highlights,
-  );
-}
 
 /**
  * Compose a selfie (self-recorded) job video — 1080p 30fps.
