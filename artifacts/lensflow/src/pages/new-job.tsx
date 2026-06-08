@@ -204,6 +204,7 @@ export default function NewJob() {
   const fetchPresenterLooks = async (presenterName: string) => {
     setLooksLoading(true);
     setSelectedLookId(null);
+    setPresenterLooks([]);
     try {
       const res = await fetch(`/api/heygen/presenter-looks?presenter=${encodeURIComponent(presenterName)}`);
       if (res.ok) {
@@ -659,8 +660,8 @@ export default function NewJob() {
                   })}
                 </div>
 
-                {/* ── Outfit / look picker (shown when presenter has >1 looks) ── */}
-                {presenterLooks.length > 1 && (
+                {/* ── Outfit / look picker (shown while loading or when presenter has >1 looks) ── */}
+                {(looksLoading || presenterLooks.length > 1) && (
                   <div className="mt-3 space-y-2">
                     <label className="text-xs uppercase tracking-wider font-mono text-muted-foreground flex items-center gap-2">
                       <Layers className="w-3.5 h-3.5" />
@@ -668,6 +669,11 @@ export default function NewJob() {
                       {looksLoading && <Loader2 className="w-3 h-3 animate-spin" />}
                     </label>
                     <div className="flex gap-2 flex-wrap">
+                      {looksLoading && presenterLooks.length === 0 && (
+                        [1,2,3,4].map(n => (
+                          <div key={n} className="rounded-lg border-2 border-border bg-muted animate-pulse flex-shrink-0" style={{ width: "72px", aspectRatio: "3/4" }} />
+                        ))
+                      )}
                       {presenterLooks.map((look, i) => {
                         const isSelected = selectedLookId === look.id || (selectedLookId === null && i === 0);
                         return (
