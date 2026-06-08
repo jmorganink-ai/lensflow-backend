@@ -173,4 +173,15 @@ router.get("/dev/job-status/:id", async (req, res): Promise<void> => {
   });
 });
 
+// Serve test videos downloaded to /tmp
+router.get("/dev/test-video/:name", (req, res): void => {
+  const allowed = ["mia", "oliver"];
+  const name = req.params.name.toLowerCase();
+  if (!allowed.includes(name)) { res.status(404).json({ error: "not found" }); return; }
+  const file = `/tmp/video_${name}.mp4`;
+  res.setHeader("Content-Type", "video/mp4");
+  res.setHeader("Content-Disposition", `inline; filename="${name}-test.mp4"`);
+  require("fs").createReadStream(file).pipe(res);
+});
+
 export default router;
