@@ -1,0 +1,122 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://heygen-1fa696a7.mintlify.app/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Background music
+
+> Search HeyGen's background-music catalog with natural language and get ready-to-use, pre-signed audio URLs for your videos via the HeyGen API.
+
+Find background music by describing the vibe you want — "upbeat lofi hip-hop", "tense cinematic riser", "subtle ambient corporate" — and get back ranked tracks, each with a pre-signed download URL. Search is semantic, not keyword-based, so plain-language descriptions work best.
+
+## Search the Catalog
+
+Send a `GET` request to `/v3/audio/sounds` with a natural-language `query`:
+
+```bash theme={null}
+curl -X GET "https://api.heygen.com/v3/audio/sounds?query=upbeat%20corporate%20background%20music&limit=3" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+```json Response theme={null}
+{
+  "data": {
+    "items": [
+      {
+        "id": "4cbcca493220487bbae26a2c42dba5e9",
+        "name": "Astral Generated Music: 4cbcca49",
+        "description": "upbeat professional background music",
+        "audio_url": "https://heygen-product.s3-accelerate.amazonaws.com/astral_generated_music/4cbcca49...wav?X-Amz-Algorithm=...",
+        "duration": 30.0,
+        "score": 0.933,
+        "type": "music"
+      },
+      {
+        "id": "93a98c35d9654029be397d8d27a06da0",
+        "name": "Astral Generated Music: 93a98c35",
+        "description": "Modern, upbeat, and inspiring corporate background music with a light electronic beat.",
+        "audio_url": "https://heygen-product.s3-accelerate.amazonaws.com/astral_generated_music/93a98c35...wav?X-Amz-Algorithm=...",
+        "duration": 60.0,
+        "score": 0.911,
+        "type": "music"
+      }
+    ],
+    "has_more": true,
+    "next_token": "eyJvZmZzZXQiOiAzLCAiX3R5cGUiOiAibXVzaWMifQ=="
+  }
+}
+```
+
+## Query Parameters
+
+| Parameter   | Type    | Default | Description                                                                                                                                             |
+| ----------- | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `query`     | string  | —       | **Required.** Natural-language description of the audio you want, e.g. `tense cinematic riser`. Results are ranked by semantic similarity to this text. |
+| `limit`     | integer | `10`    | Maximum number of results to return (1–50).                                                                                                             |
+| `min_score` | number  | `0.7`   | Minimum semantic similarity score (0–1). Tracks scoring below this are omitted. Raise it for tighter matches; lower it to widen the net.                |
+| `type`      | string  | `music` | Audio content type. Only `music` (the background-music catalog) is supported today; `sound_effect` is reserved for a future release.                    |
+| `token`     | string  | —       | Opaque pagination cursor. Pass the `next_token` from a prior response to fetch the next page.                                                           |
+
+## Response Fields
+
+| Field                 | Type    | Description                                                                                           |
+| --------------------- | ------- | ----------------------------------------------------------------------------------------------------- |
+| `items[].id`          | string  | Stable identifier for the track.                                                                      |
+| `items[].name`        | string  | Display name of the track.                                                                            |
+| `items[].description` | string  | Human-readable description of the track's mood and instrumentation.                                   |
+| `items[].audio_url`   | string  | Pre-signed download URL for the audio file (WAV).                                                     |
+| `items[].duration`    | number  | Track length in seconds.                                                                              |
+| `items[].score`       | number  | Semantic similarity score (0–1) against your `query`. Results are returned highest-first.             |
+| `items[].type`        | string  | Always `music` for now.                                                                               |
+| `has_more`            | boolean | `true` if more results are available beyond this page.                                                |
+| `next_token`          | string  | Cursor for the next page. Pass it as `token` on your next request. Absent when `has_more` is `false`. |
+
+<Note>
+  Each `audio_url` is a pre-signed link with a limited lifetime. Download the file (or hand the URL to a downstream step) soon after searching rather than caching it for later.
+</Note>
+
+## Paginate Through Results
+
+When `has_more` is `true`, pass the returned `next_token` as the `token` parameter to fetch the next page:
+
+```bash theme={null}
+curl -X GET "https://api.heygen.com/v3/audio/sounds?query=upbeat%20corporate%20background%20music&limit=3&token=eyJvZmZzZXQiOiAzLCAiX3R5cGUiOiAibXVzaWMifQ==" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## Full Example
+
+```python theme={null}
+import requests
+from urllib.parse import urlencode
+
+API_KEY = "YOUR_API_KEY"
+BASE = "https://api.heygen.com"
+HEADERS = {"x-api-key": API_KEY}
+
+def search_music(query, limit=10, min_score=0.7):
+    """Yield every matching track, following pagination."""
+    token = None
+    while True:
+        params = {"query": query, "limit": limit, "min_score": min_score}
+        if token:
+            params["token"] = token
+        resp = requests.get(
+            f"{BASE}/v3/audio/sounds?{urlencode(params)}",
+            headers=HEADERS,
+        )
+        data = resp.json()["data"]
+        for track in data["items"]:
+            yield track
+        if not data.get("has_more"):
+            break
+        token = data["next_token"]
+
+# Grab the single best-matching track
+best = next(search_music("calm ambient piano for a product walkthrough", limit=1))
+print(f"{best['name']} ({best['duration']}s, score {best['score']:.2f})")
+print(f"Download: {best['audio_url']}")
+```
+
+<Tip>
+  Searching from an AI agent instead of code? The same catalog is available through the [HeyGen MCP](/mcp/overview) via the `search_audio_sounds` tool.
+</Tip>
