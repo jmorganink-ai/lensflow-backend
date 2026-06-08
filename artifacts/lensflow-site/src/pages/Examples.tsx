@@ -9,7 +9,7 @@ const campaigns = [
     title: "AI Presenter Video",
     subtitle: "Mia — Waterfront lifestyle listing",
     detail: "Mia narrates a Mosman waterfront home with property-specific copy written by Claude AI, voice by ElevenLabs, and lipsync rendered in HeyGen.",
-    video: "/videos/sample-v1.mp4",
+    video: "/videos/mia-presenter.mp4",
     poster: "/presenters/mia-poster.jpg",
     icon: Video,
     tag: "Most popular",
@@ -17,23 +17,43 @@ const campaigns = [
   },
   {
     title: "Social Reel",
-    subtitle: "Oliver — Inner-city investment apartment",
+    subtitle: "Mia — Short-form vertical reel",
     detail: "Short-form vertical content cut for Instagram Reels, TikTok and Facebook Stories. Same listing, same AI presenter, different format.",
-    video: "/videos/sample-v3.mp4",
-    poster: "/presenters/oliver-poster.jpg",
+    video: "/videos/mia-reel.mp4",
+    poster: "/presenters/mia-poster.jpg",
     icon: Film,
     tag: "Instagram ready",
     specs: ["9:16 vertical format", "15–30 second runtime", "Caption overlay included"],
   },
   {
-    title: "Property Presentation",
-    subtitle: "Sophie — Family home, suburban",
-    detail: "A longer-form property story with agent-ready beats, clean visuals and a full campaign narrative from the same listing URL.",
-    video: "/videos/sample-v5.mp4",
-    poster: "/presenters/sophie-poster.jpg",
+    title: "Oliver — Investment Presenter",
+    subtitle: "Oliver — Inner-city investment apartment",
+    detail: "Oliver's sharper delivery positions the property around yield, opportunity and lifestyle upside — built for investors and developer campaigns.",
+    video: "/videos/oliver-presenter.mp4",
+    poster: "/presenters/oliver-poster.jpg",
     icon: PlayCircle,
+    tag: "Investment ready",
+    specs: ["60–90 second runtime", "16:9 broadcast format", "MP4 ready to upload"],
+  },
+  {
+    title: "Sophie — Family Home",
+    subtitle: "Sophie — Suburban family listing",
+    detail: "Sophie speaks to families the way they actually think about a home — schools, space and lifestyle. Warm and genuine without overselling.",
+    video: "/videos/sophie-presenter.mp4",
+    poster: "/presenters/sophie-poster.jpg",
+    icon: Video,
+    tag: "Family homes",
+    specs: ["60–90 second runtime", "16:9 broadcast format", "MP4 ready to upload"],
+  },
+  {
+    title: "Reel Creator Showcase",
+    subtitle: "Full campaign reel — multiple listings",
+    detail: "LensFlow's Reel Creator assembles property highlights, presenter narration and social-ready cuts from the same listing URL in one flow.",
+    video: "/videos/reel-creator.mp4",
+    poster: "/presenters/mia-poster.jpg",
+    icon: Film,
     tag: "Campaign kit",
-    specs: ["2–3 minute format", "Slideshow with narration", "Download + share ready"],
+    specs: ["Multi-format output", "Social + broadcast cuts", "Download + share ready"],
   },
 ];
 
@@ -87,7 +107,7 @@ export default function Examples() {
       {/* Video examples */}
       <section className="bg-background py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-5">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
             {campaigns.map((item) => (
               <motion.article
                 key={item.title}

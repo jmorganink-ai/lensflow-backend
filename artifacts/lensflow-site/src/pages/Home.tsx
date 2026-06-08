@@ -263,9 +263,9 @@ export default function Home() {
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { title: "AI Presenter Video", detail: "Mia or Oliver introduces the property with polished, listing-aware narration and full lipsync.", video: "/videos/sample-v1.mp4", poster: "/presenters/mia-poster.jpg", icon: Video, badge: "Main deliverable" },
-              { title: "Social Reel Package", detail: "Short-form clips cut for Instagram, Facebook, TikTok and LinkedIn — ready to post.", video: "/videos/sample-v3.mp4", poster: "/presenters/oliver-poster.jpg", icon: Film, badge: "Social ready" },
-              { title: "Property Presentation", detail: "Premium visuals, captions and agent-ready story beats from the same listing URL.", video: "/videos/sample-v5.mp4", poster: "/quality-presenter.jpg", icon: PlayCircle, badge: "Campaign kit" },
+              { title: "AI Presenter Video", detail: "Mia introduces the property with polished, listing-aware narration and full lipsync.", video: "/videos/mia-presenter.mp4", poster: "/presenters/mia-poster.jpg", icon: Video, badge: "Main deliverable" },
+              { title: "Social Reel", detail: "Short-form vertical cuts for Instagram, TikTok and Facebook Stories — ready to post.", video: "/videos/mia-reel.mp4", poster: "/presenters/mia-poster.jpg", icon: Film, badge: "Social ready" },
+              { title: "Reel Creator", detail: "LensFlow assembles property highlights, presenter narration and social-ready cuts from one listing URL.", video: "/videos/reel-creator.mp4", poster: "/presenters/oliver-poster.jpg", icon: PlayCircle, badge: "Campaign kit" },
             ].map((item) => (
               <motion.article
                 key={item.title}
@@ -308,7 +308,7 @@ export default function Home() {
           </div>
           <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-2xl">
             <video controls playsInline poster="/presenters/mia-poster.jpg" className="w-full" style={{ aspectRatio: "16/9" }}>
-              <source src="/lensflow-hero.mp4" type="video/mp4" />
+              <source src="/videos/lensflow-brand.mp4" type="video/mp4" />
             </video>
           </div>
         </div>

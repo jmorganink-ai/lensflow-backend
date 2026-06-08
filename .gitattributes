@@ -13,3 +13,6 @@ artifacts/lensflow/public/presenters/sophie.mp4 filter=lfs diff=lfs merge=lfs -t
 artifacts/lensflow-site/public/lensflow-hero.mp4 filter=lfs diff=lfs merge=lfs -text
 attached_assets/LensFlow__The_Future_of_Real_Estate_Marketing_1080p_1780813958910.mp4 filter=lfs diff=lfs merge=lfs -text
 attached_assets/LensFlow-Reel-Creator-May-23-17-48-26_1780825847890.mp4 filter=lfs diff=lfs merge=lfs -text
+artifacts/lensflow-site/public/videos/lensflow-brand.mp4 filter=lfs diff=lfs merge=lfs -text
+artifacts/lensflow-site/public/videos/reel-creator.mp4 filter=lfs diff=lfs merge=lfs -text
+artifacts/lensflow-site/public/videos/sophie-presenter.mp4 filter=lfs diff=lfs merge=lfs -text
