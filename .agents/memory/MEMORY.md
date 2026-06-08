@@ -8,6 +8,7 @@
 - [HeyGen avatar routing](heygen-avatar-routing.md) — each presenter (Mia/Sophie/Oliver/Liam) has its own env var override; diagnostic endpoint GET /api/heygen/avatars lists account avatars.
 - [HeyGen group IDs](heygen-group-ids.md) — verified group IDs 2026-06-08; Oliver's group had looks named "James in..." (renamed in dashboard + server-side safety replace); outfit picker condition is (looksLoading || looks.length > 1) so skeletons show during fetch.
 - [HeyGen model gallery](heygen-model-gallery.md) — presenters are Digital Twin Avatar IV; Avatar Realtime is waitlisted; Lipsync (Precision) is used when passing ElevenLabs voiceover URL.
+- [HeyGen v3 API](heygen-v3-api.md) — v3 uses POST /v3/videos (flat body, not video_inputs[]); two engines: avatar_iv (default) and avatar_v (higher quality, check supported_api_engines first); migration from v2 would unlock 1080p, webhooks, motion_prompt.
 - [Presenter voice IDs](presenter-voice-ids.md) — ElevenLabs: Mia=z9fH9S068t9I3i8Y9u4, Oliver=Xb7hH9S068t9I3i8Y9u4, Sophie=u8fH9S068t9I3i8Y9u4, Liam=nzYv9Z868t9I3i8Y9u4, Morgan=g5fH9S068t9I3i8Y9u4; defined in new-job.tsx AND mobile constants/presenters.ts — update both.
 - [Shotstack API 2025 breaking changes](shotstack-api-changes.md) — colour asset type removed; stage URL gone; transition names changed.
 - [Domain API setup](domain-api-setup.md) — sandbox/v1 auto-detected; correct package is "Properties & Locations" not "Listings Management"; production pending approval.

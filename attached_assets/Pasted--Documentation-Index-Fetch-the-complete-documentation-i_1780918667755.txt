@@ -1,0 +1,156 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://heygen-1fa696a7.mintlify.app/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Cinematic Avatar
+
+> Generate cinematic avatar video from a single prompt with the HeyGen API. Combine up to three avatar looks with reference videos and images — no script or voice required.
+
+Cinematic Avatar is a prompt-driven variant of [`POST /v3/videos`](/reference/create-video). Instead of a script and a voice, you describe the shot you want in natural language and hand HeyGen up to three avatar looks (plus optional reference media). The Seedance pipeline composes the scene, motion, and framing for you.
+
+## Prerequisites
+
+<Check>
+  One to three avatar look IDs. Use `GET /v3/avatars/looks` to browse your looks and copy the `id` field for each one you want in the shot.
+</Check>
+
+<Check>
+  A prompt describing the scene, action, and framing. This replaces the `script` + `voice_id` you'd use for a [Digital Twin video](/generate-avatar-video).
+</Check>
+
+## Step 1 — Write your prompt
+
+The `prompt` (1–10,000 characters) is the creative brief for the shot. Describe what the avatar is doing, the setting, the camera, and the mood — e.g. *"A founder walks through a sunlit startup office, gesturing toward a whiteboard, shot handheld in a documentary style."* See [Writing Effective Video Prompts](/writing-effective-video-prompts) for guidance.
+
+## Step 2 — Pick your avatar looks
+
+Pass `avatar_id` as an **array** of 1–3 look IDs. Multiple looks let HeyGen feature more than one avatar in the same shot:
+
+```bash theme={null}
+curl -X GET "https://api.heygen.com/v3/avatars/looks?ownership=private" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+Copy the `id` of each look you want into the array.
+
+## Step 3 — Create the video
+
+Send a `POST` to `/v3/videos` with `type: "cinematic_avatar"`:
+
+```bash theme={null}
+curl -X POST "https://api.heygen.com/v3/videos" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "cinematic_avatar",
+    "prompt": "A founder walks through a sunlit startup office, gesturing toward a whiteboard, shot handheld in a documentary style.",
+    "avatar_id": ["YOUR_LOOK_ID"],
+    "aspect_ratio": "16:9",
+    "resolution": "1080p",
+    "duration": 10,
+    "title": "Founder office walkthrough"
+  }'
+```
+
+The response is the same shape as any other `/v3/videos` job:
+
+```json theme={null}
+{
+  "data": {
+    "video_id": "abc123",
+    "status": "pending",
+    "output_format": "mp4"
+  }
+}
+```
+
+### Adding reference media
+
+Use `references` to steer style, motion, or composition with your own videos and images. Each reference is a `url`, `asset_id`, or `base64` asset input:
+
+```json theme={null}
+{
+  "type": "cinematic_avatar",
+  "prompt": "Match the lighting and camera movement of the reference clip.",
+  "avatar_id": ["YOUR_LOOK_ID"],
+  "references": [
+    { "type": "url", "url": "https://your-cdn.com/reference-clip.mp4" },
+    { "type": "asset_id", "asset_id": "YOUR_UPLOADED_ASSET_ID" }
+  ]
+}
+```
+
+<Note>
+  Avatar looks and references share a combined media budget: **at most 3 videos and 9 images** total across `avatar_id` and `references`. Upload your own files first with [Assets](/assets) to get an `asset_id`.
+</Note>
+
+## Step 4 — Poll for completion
+
+Generation is asynchronous. Poll [`GET /v3/videos/{video_id}`](/reference/create-video) until `status` is `completed`:
+
+```bash theme={null}
+curl -X GET "https://api.heygen.com/v3/videos/YOUR_VIDEO_ID" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+| Status       | Meaning                                        |
+| ------------ | ---------------------------------------------- |
+| `pending`    | Queued for processing                          |
+| `processing` | Video is being generated                       |
+| `completed`  | Ready — `video_url` is available               |
+| `failed`     | Something went wrong — check `failure_message` |
+
+## Full example
+
+```python theme={null}
+import requests
+import time
+
+API_KEY = "YOUR_API_KEY"
+BASE = "https://api.heygen.com"
+HEADERS = {"x-api-key": API_KEY, "Content-Type": "application/json"}
+
+# 1. Create the Cinematic Avatar video
+resp = requests.post(f"{BASE}/v3/videos", headers=HEADERS, json={
+    "type": "cinematic_avatar",
+    "prompt": "A founder walks through a sunlit startup office, gesturing toward a whiteboard, shot handheld in a documentary style.",
+    "avatar_id": ["YOUR_LOOK_ID"],
+    "aspect_ratio": "16:9",
+    "resolution": "1080p",
+    "duration": 10,
+})
+video_id = resp.json()["data"]["video_id"]
+print(f"Video created: {video_id}")
+
+# 2. Poll until done
+while True:
+    status_resp = requests.get(f"{BASE}/v3/videos/{video_id}", headers=HEADERS)
+    data = status_resp.json()["data"]
+    print(f"Status: {data['status']}")
+    if data["status"] == "completed":
+        print(f"Download: {data['video_url']}")
+        break
+    elif data["status"] == "failed":
+        print(f"Error: {data.get('failure_message')}")
+        break
+    time.sleep(10)
+```
+
+## Parameters
+
+| Parameter        | Type    | Required | Description                                                                                  |
+| ---------------- | ------- | -------- | -------------------------------------------------------------------------------------------- |
+| `type`           | string  | Yes      | Must be `"cinematic_avatar"`                                                                 |
+| `prompt`         | string  | Yes      | 1–10,000 characters describing the shot                                                      |
+| `avatar_id`      | array   | Yes      | 1–3 avatar look IDs                                                                          |
+| `references`     | array   | No       | Up to 3 videos / 9 images (shared with `avatar_id`) as `url`, `asset_id`, or `base64` inputs |
+| `aspect_ratio`   | string  | No       | `16:9` (default), `9:16`, or `1:1`                                                           |
+| `resolution`     | string  | No       | `720p` (default) or `1080p`                                                                  |
+| `duration`       | integer | No       | 4–15 seconds, default `10`. Omit when `auto_duration` is `true`                              |
+| `auto_duration`  | boolean | No       | Let HeyGen pick the duration. Default `false`                                                |
+| `enhance_prompt` | boolean | No       | Auto-expand a short prompt into a richer description. Default `false`                        |
+| `title`          | string  | No       | Display name in the HeyGen dashboard                                                         |
+
+## Using webhooks instead of polling
+
+Pass a `callback_url` when creating the video and HeyGen will POST to it when the job finishes — register an endpoint via `POST /v3/webhooks/endpoints` and subscribe to `avatar_video.success` and `avatar_video.fail` as covered in [Webhooks](/docs/webhooks).
