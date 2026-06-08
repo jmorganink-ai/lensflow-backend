@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "LensFlow",
-    "slug": "lensflow-mobile",
+    "slug": "lensflow",
     "version": "1.0.0",
     "owner": "lensflow",
     "extra": {
