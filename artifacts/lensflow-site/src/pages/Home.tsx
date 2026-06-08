@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -59,6 +60,18 @@ const propertyPhotos = [
 ];
 
 export default function Home() {
+  useEffect(() => {
+    const existing = document.querySelector("script[data-agentic-video-id]");
+    if (existing) return;
+    const s = document.createElement("script");
+    s.type = "module";
+    s.src = "https://agentic-videos.d-id.com/v1/index.js";
+    s.setAttribute("data-client-key", "ck_IdXj3Fa0HEI3MMrrUrQqU");
+    s.setAttribute("data-agentic-video-id", "agv_42jSHqnwyMKZxz7EFmM0M");
+    s.setAttribute("data-target-id", "did-agentic-video");
+    document.body.appendChild(s);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <Navbar />
