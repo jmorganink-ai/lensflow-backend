@@ -52,7 +52,7 @@ export async function getPresenterLooks(presenter: string): Promise<PresenterLoo
   if (!apiKey || looks.length === 0) return looks;
 
   try {
-    const res = await fetch(`${HEYGEN_API_BASE}/v2/avatars`, {
+    const res = await fetch(`${HEYGEN_API_BASE}/v2/avatars?include_private=true`, {
       headers: { "X-Api-Key": apiKey },
       signal: AbortSignal.timeout(12_000),
     });
