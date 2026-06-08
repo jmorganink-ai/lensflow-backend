@@ -1,0 +1,140 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://heygen-1fa696a7.mintlify.app/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Hyperframes
+
+> Render programmatic, code-driven video with the HeyGen Hyperframes API. Upload an HTML project bundle, inject runtime variables, and HeyGen renders it to MP4, WebM, or MOV.
+
+Hyperframes turns a self-contained HTML/CSS/JS project into a rendered video. You package your composition as a `.zip`, upload it, and HeyGen runs it through a headless renderer — ideal for motion graphics, data-driven visuals, and templated pipelines. For worked examples, see the [Hyperframes cookbook](/motion-graphics).
+
+## Prerequisites
+
+<Check>
+  A project `.zip` containing an `index.html` at the root (or at the path you set in `composition`), plus any CSS, JS, fonts, and assets it needs. The bundle must render standalone in a browser.
+</Check>
+
+<Check>
+  The zip available as a `url`, an uploaded `asset_id`, or `base64`. Use [Assets](/assets) to upload a file and get an `asset_id`.
+</Check>
+
+## Step 1 — Build your composition
+
+Author an HTML page that renders your scene. To make a render data-driven, read values from `data-composition-variables` on the document — HeyGen overrides these with the `variables` object you send at render time, so one bundle can produce many videos.
+
+## Step 2 — Create a render
+
+`POST /v3/hyperframes/renders` with your project bundle. The call returns `202 Accepted` with a `render_id`:
+
+```bash theme={null}
+curl -X POST "https://api.heygen.com/v3/hyperframes/renders" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project": { "type": "asset_id", "asset_id": "YOUR_PROJECT_ZIP_ASSET_ID" },
+    "fps": 30,
+    "quality": "standard",
+    "format": "mp4",
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "composition": "index.html",
+    "variables": { "headline": "Q2 Revenue", "value": "$1.2M" },
+    "title": "Q2 revenue motion graphic"
+  }'
+```
+
+```json theme={null}
+{
+  "data": {
+    "render_id": "rnd_abc123",
+    "status": "queued"
+  }
+}
+```
+
+## Step 3 — Poll for completion
+
+Poll `GET /v3/hyperframes/renders/{render_id}` until `status` is `completed`:
+
+```bash theme={null}
+curl -X GET "https://api.heygen.com/v3/hyperframes/renders/YOUR_RENDER_ID" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+| Status      | Meaning                                               |
+| ----------- | ----------------------------------------------------- |
+| `queued`    | Accepted and waiting for a renderer                   |
+| `rendering` | Render in progress                                    |
+| `completed` | Ready — `video_url` and `thumbnail_url` are available |
+| `failed`    | Something went wrong — check `failure_message`        |
+
+A completed render returns the full `HyperframesRenderDetail`, including `video_url`, `thumbnail_url`, `duration`, and the settings the render used.
+
+## Managing renders
+
+List your renders (paginated) with `GET /v3/hyperframes/renders`, or remove one with `DELETE /v3/hyperframes/renders/{render_id}`:
+
+```bash theme={null}
+curl -X GET "https://api.heygen.com/v3/hyperframes/renders" \
+  -H "x-api-key: YOUR_API_KEY"
+
+curl -X DELETE "https://api.heygen.com/v3/hyperframes/renders/YOUR_RENDER_ID" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## Full example
+
+```python theme={null}
+import requests
+import time
+
+API_KEY = "YOUR_API_KEY"
+BASE = "https://api.heygen.com"
+HEADERS = {"x-api-key": API_KEY, "Content-Type": "application/json"}
+
+# 1. Submit the render
+resp = requests.post(f"{BASE}/v3/hyperframes/renders", headers=HEADERS, json={
+    "project": {"type": "asset_id", "asset_id": "YOUR_PROJECT_ZIP_ASSET_ID"},
+    "fps": 30,
+    "quality": "standard",
+    "format": "mp4",
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "variables": {"headline": "Q2 Revenue", "value": "$1.2M"},
+})
+render_id = resp.json()["data"]["render_id"]
+print(f"Render queued: {render_id}")
+
+# 2. Poll until done
+while True:
+    status_resp = requests.get(f"{BASE}/v3/hyperframes/renders/{render_id}", headers=HEADERS)
+    data = status_resp.json()["data"]
+    print(f"Status: {data['status']}")
+    if data["status"] == "completed":
+        print(f"Download: {data['video_url']}")
+        break
+    elif data["status"] == "failed":
+        print(f"Error: {data.get('failure_message')}")
+        break
+    time.sleep(10)
+```
+
+## Parameters
+
+| Parameter      | Type    | Required | Description                                                          |
+| -------------- | ------- | -------- | -------------------------------------------------------------------- |
+| `project`      | object  | Yes      | The project `.zip` as a `url`, `asset_id`, or `base64` input         |
+| `fps`          | integer | No       | Frames per second, 1–240. Default `30`                               |
+| `quality`      | string  | No       | `draft`, `standard` (default), or `high`                             |
+| `format`       | string  | No       | `mp4` (default), `webm`, or `mov`                                    |
+| `resolution`   | string  | No       | `1080p` (default) or `4k`. 4k is billed at 1.5×                      |
+| `aspect_ratio` | string  | No       | `16:9` (default), `9:16`, or `1:1`                                   |
+| `composition`  | string  | No       | Entry HTML path inside the zip. Default `index.html`                 |
+| `variables`    | object  | No       | Key–value overrides for `data-composition-variables`                 |
+| `title`        | string  | No       | Display name, ≤500 characters                                        |
+| `callback_id`  | string  | No       | Your own correlation ID, ≤256 characters, echoed back in the webhook |
+| `callback_url` | string  | No       | Webhook URL — receive a POST when the render finishes                |
+
+## Using webhooks instead of polling
+
+Pass a `callback_url` (and optionally a `callback_id` to correlate the response) when you submit the render. HeyGen posts to it on completion. Register an endpoint via `POST /v3/webhooks/endpoints` and subscribe to the `hyperframes_video.success` and `hyperframes_video.fail` events described in [Webhook Events](/docs/webhook-events).

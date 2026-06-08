@@ -178,35 +178,36 @@ export async function generatePresenterVideo(
   const avatarId = lookId ?? customAvatarId ?? fallback.avatarId;
   const voiceId  = customHeygenVoiceId ?? fallback.voiceId;
 
-  // If an ElevenLabs audio URL is provided, use it for lip-sync instead of HeyGen's own TTS
-  const voiceInput = elevenLabsAudioUrl
-    ? { type: "audio", audio_url: elevenLabsAudioUrl }
-    : { type: "text", input_text: script, voice_id: voiceId };
-
   logger.info(
     { avatarId, voiceName, presenter: voiceName ?? "unknown", usingElevenLabs: !!elevenLabsAudioUrl },
-    "Submitting HeyGen video generation job",
+    "Submitting HeyGen v3 video generation job",
   );
 
-  const submitRes = await fetch(`${HEYGEN_API_BASE}/v2/video/generate`, {
+  // Build v3 request body — flat format (POST /v3/videos)
+  const requestBody: Record<string, unknown> = {
+    type: "avatar",
+    avatar_id: avatarId,
+    resolution: "1080p",
+    aspect_ratio: "auto",
+    title: `LensFlow — ${voiceName ?? "Presenter"}`,
+  };
+
+  if (elevenLabsAudioUrl) {
+    // ElevenLabs lip-sync: pass the audio URL directly
+    requestBody.audio_url = elevenLabsAudioUrl;
+  } else {
+    // HeyGen TTS fallback
+    requestBody.script   = script;
+    requestBody.voice_id = voiceId;
+  }
+
+  const submitRes = await fetch(`${HEYGEN_API_BASE}/v3/videos`, {
     method: "POST",
     headers: {
       "X-Api-Key": apiKey,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      video_inputs: [
-        {
-          character: buildCharacterPayload(avatarId),
-          voice: voiceInput,
-          background: {
-            type: "color",
-            value: "#0a0f1e",
-          },
-        },
-      ],
-      dimension: { width: 1920, height: 1080 },
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!submitRes.ok) {
@@ -223,7 +224,7 @@ export async function generatePresenterVideo(
   const videoId = submitData.data?.video_id;
   if (!videoId) throw new Error("HeyGen did not return a video_id");
 
-  logger.info({ videoId }, "HeyGen video queued — polling for completion");
+  logger.info({ videoId }, "HeyGen video queued — polling for completion (v3)");
 
   const POLL_INTERVAL_MS = 6_000;
   const deadline = Date.now() + timeoutMs;
@@ -232,7 +233,7 @@ export async function generatePresenterVideo(
     await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
 
     const statusRes = await fetch(
-      `${HEYGEN_API_BASE}/v1/video_status.get?video_id=${videoId}`,
+      `${HEYGEN_API_BASE}/v3/videos/${videoId}`,
       { headers: { "X-Api-Key": apiKey } },
     );
 
@@ -245,12 +246,7 @@ export async function generatePresenterVideo(
       data?: {
         status: string;
         video_url?: string;
-        error?: {
-          code?: string;
-          message?: string;
-          detail?: string;
-          activity_name?: string;
-        };
+        failure_message?: string;
       };
     };
 
@@ -265,12 +261,8 @@ export async function generatePresenterVideo(
     }
 
     if (status === "failed") {
-      const heygenError = statusData.data?.error;
-      logger.error(
-        { videoId, errorCode: heygenError?.code, errorMessage: heygenError?.message, errorDetail: heygenError?.detail, activity: heygenError?.activity_name },
-        "HeyGen video generation failed — full error detail",
-      );
-      const reason = heygenError?.message ?? heygenError?.detail ?? heygenError?.code ?? "unknown reason";
+      const reason = statusData.data?.failure_message ?? "unknown reason";
+      logger.error({ videoId, reason }, "HeyGen video generation failed");
       throw new Error(`HeyGen video generation failed (id=${videoId}): ${reason}`);
     }
   }
