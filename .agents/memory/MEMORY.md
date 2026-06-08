@@ -12,6 +12,7 @@
 - [HeyGen Cinematic Avatar](heygen-cinematic-avatar.md) — type="cinematic_avatar" on POST /v3/videos; prompt replaces script+voice; 1–3 look IDs as array; reference media for style/motion; good for property walkthrough B-roll and social clips.
 - [HeyGen Image to Video](heygen-image-to-video.md) — type="image" on POST /v3/videos; pass image URL or asset_id; audio_url for ElevenLabs lipsync; no avatar setup needed; good for selfie jobs and one-off content.
 - [HeyGen API decision guide](heygen-api-decision.md) — LensFlow uses Direct Video (POST /v3/videos); Video Agent for low-friction prompts; Cinematic Avatar for b-roll shots (max 1080p, 4–15s, no voice).
+- [HeyGen Lipsync Precision](heygen-lipsync-precision.md) — POST /v3/lipsyncs; applies new audio to existing video; separate from video generation; use for re-dubbing, multi-language, or voice swaps on completed jobs.
 - [Presenter voice IDs](presenter-voice-ids.md) — ElevenLabs: Mia=z9fH9S068t9I3i8Y9u4, Oliver=Xb7hH9S068t9I3i8Y9u4, Sophie=u8fH9S068t9I3i8Y9u4, Liam=nzYv9Z868t9I3i8Y9u4, Morgan=g5fH9S068t9I3i8Y9u4; defined in new-job.tsx AND mobile constants/presenters.ts — update both.
 - [Shotstack API 2025 breaking changes](shotstack-api-changes.md) — colour asset type removed; stage URL gone; transition names changed.
 - [Domain API setup](domain-api-setup.md) — sandbox/v1 auto-detected; correct package is "Properties & Locations" not "Listings Management"; production pending approval.
