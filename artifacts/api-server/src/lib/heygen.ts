@@ -31,8 +31,8 @@ export const PRESENTER_LOOKS: Record<string, PresenterLook[]> = {
     { id: AVATAR_MIA,                            name: "Default" },
     { id: "46214c5723134232b60e6783b20509f2",    name: "White Outfit" },
     { id: "9868f07cb9804006adf1bb4cd7b9dbd1",    name: "Grey Jacket" },
-    { id: "2b7d85f25abf4f6a9f0d8ac20438d586",    name: "Studio Look" },
-    { id: "bbed326b42fc45778ac396cdc194a0c6",    name: "Blazer" },
+    { id: "2b7d85f25abf4f6a9f0d8ac20438d586",    name: "Studio Look",  previewImageUrl: "https://resource2.heygen.ai/best_frame_selection/candidates/c6f3cfdc94ff4ee494f70806b66ca28b.jpg" },
+    { id: "bbed326b42fc45778ac396cdc194a0c6",    name: "Blazer",        previewImageUrl: "https://resource2.heygen.ai/best_frame_selection/candidates/a9abe68d714d4cf187aa99eb78ec5647.jpg" },
   ],
   oliver: [
     { id: AVATAR_OLIVER, name: "Default" },
