@@ -45,19 +45,6 @@ const presenters = [
     color: "from-rose-900/30 to-black",
     accent: "border-rose-500/30",
   },
-  {
-    id: "james",
-    name: "James",
-    role: "Commercial & Rural Presenter",
-    tagline: "Authoritative presence for commercial, rural and large-land listings.",
-    bio: "James commands attention with a measured, authoritative delivery built for serious buyers. He's best suited to commercial assets, large-land holdings and rural properties where credibility and expertise matter more than charm.",
-    poster: "/presenters/james-poster.jpg",
-    video: "/presenters/james.mp4",
-    audio: "/presenters/james-preview.mp3",
-    bestFor: ["Commercial property", "Rural & agricultural", "Industrial & warehouse", "Development sites"],
-    color: "from-green-900/30 to-black",
-    accent: "border-green-500/30",
-  },
 ];
 
 function PresenterCard({ presenter }: { presenter: typeof presenters[0] }) {
@@ -157,7 +144,7 @@ export default function Presenters() {
               Meet your AI presenting team.
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl">
-              Four Australian AI presenters, each matched to a different property type and buyer audience.
+              Three Australian AI presenters, each matched to a different property type and buyer audience.
               Pick one per listing — LensFlow writes them a script specific to your property.
             </p>
           </div>

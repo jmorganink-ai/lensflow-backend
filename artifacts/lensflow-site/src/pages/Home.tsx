@@ -34,12 +34,11 @@ const presenters = [
   { name: "Mia", role: "Waterfront / Lifestyle", poster: "/presenters/mia-poster.jpg", video: "/presenters/mia.mp4", color: "from-amber-900/40" },
   { name: "Oliver", role: "Inner-City / Investment", poster: "/presenters/oliver-poster.jpg", video: "/presenters/oliver.mp4", color: "from-blue-900/40" },
   { name: "Sophie", role: "Family / Suburban", poster: "/presenters/sophie-poster.jpg", video: "/presenters/sophie.mp4", color: "from-rose-900/40" },
-  { name: "James", role: "Commercial / Rural", poster: "/presenters/james-poster.jpg", video: "/presenters/james.mp4", color: "from-green-900/40" },
 ];
 
 const steps = [
   { num: "01", icon: Link2, title: "Paste your listing URL", body: "LensFlow reads the suburb, bedrooms, style and price point from the URL. Claude AI writes a listing-specific script in under 10 seconds. No brief. No back-and-forth." },
-  { num: "02", icon: Users, title: "Pick your AI presenter", body: "Mia, Oliver, Sophie or James deliver your script with a natural Australian voice and lip-sync. No videographer to book, no studio, no waiting days for an edit." },
+  { num: "02", icon: Users, title: "Pick your AI presenter", body: "Mia, Oliver or Sophie deliver your script with a natural Australian voice and lip-sync. No videographer to book, no studio, no waiting days for an edit." },
   { num: "03", icon: Zap, title: "Get your full campaign", body: "Finished MP4 presenter video, social reels, caption pack and campaign copy — all ready inside the 48-hour traffic window when your listing has the most eyes." },
 ];
 
@@ -162,7 +161,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-3 px-5 sm:grid-cols-2 lg:grid-cols-4">
           {[
             "Campaign ready in minutes, not days",
-            "Mia · Oliver · Sophie · James — Australian AI presenters",
+            "Mia · Oliver · Sophie — Australian AI presenters",
             "Script by Claude AI · Voice by ElevenLabs",
             "Built for Australian real estate agents",
           ].map((p) => (
@@ -324,11 +323,11 @@ export default function Home() {
               Your AI presenters are the product difference.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground">
-              Four Australian AI presenters, each matched to a different property type. Pick one per listing — or let LensFlow suggest the best fit.
+              Three Australian AI presenters, each matched to a different property type. Pick one per listing — or let LensFlow suggest the best fit.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {presenters.map((p) => (
               <article key={p.name} className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-background group">
                 <div className={`relative aspect-[3/4] overflow-hidden bg-gradient-to-b ${p.color} to-black`}>
@@ -348,12 +347,11 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {[
               { name: "Mia", line: "Warm, polished and ideal for coastal, prestige and family listings." },
               { name: "Oliver", line: "Sharper, confident and suited to apartments, developers and investor campaigns." },
               { name: "Sophie", line: "Friendly and relatable — perfect for family homes and suburban lifestyle." },
-              { name: "James", line: "Authoritative presence for commercial, rural and large-land listings." },
             ].map((p) => (
               <div key={p.name} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
                 <Star className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
