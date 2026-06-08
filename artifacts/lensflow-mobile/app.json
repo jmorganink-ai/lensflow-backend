@@ -3,6 +3,12 @@
     "name": "LensFlow",
     "slug": "lensflow-mobile",
     "version": "1.0.0",
+    "owner": "lensflow",
+    "extra": {
+      "eas": {
+        "projectId": "97dcd4e3-3b77-4a5f-88e1-d216558d2125"
+      }
+    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "lensflow-mobile",
