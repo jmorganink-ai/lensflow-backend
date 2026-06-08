@@ -138,10 +138,35 @@ export const JobDetailProLensApproved = {
   rejected: 'rejected',
 } as const;
 
+/**
+ * Room Rescue transformation mode — declutter removes clutter, staging adds furniture
+ * @nullable
+ */
+export type JobDetailRoomRescueMode = typeof JobDetailRoomRescueMode[keyof typeof JobDetailRoomRescueMode] | null;
+
+
+export const JobDetailRoomRescueMode = {
+  declutter: 'declutter',
+  staging: 'staging',
+} as const;
+
+/**
+ * Approval decision for AI Room Rescue — null means awaiting review
+ * @nullable
+ */
+export type JobDetailRoomRescueApproved = typeof JobDetailRoomRescueApproved[keyof typeof JobDetailRoomRescueApproved] | null;
+
+
+export const JobDetailRoomRescueApproved = {
+  approved: 'approved',
+  rejected: 'rejected',
+} as const;
+
 export type PipelineStepName = typeof PipelineStepName[keyof typeof PipelineStepName];
 
 
 export const PipelineStepName = {
+  room_rescue: 'room_rescue',
   pro_lens_upgrade: 'pro_lens_upgrade',
   enhance_photos: 'enhance_photos',
   analyse_photos: 'analyse_photos',
@@ -208,6 +233,23 @@ export interface JobDetail {
      * @nullable
      */
   proLensApproved?: JobDetailProLensApproved;
+  /** AI Room Rescue transformed image URLs (stored separately from originals for compliance) */
+  roomRescueImages?: string[] | null;
+  /**
+     * Room Rescue transformation mode — declutter removes clutter, staging adds furniture
+     * @nullable
+     */
+  roomRescueMode?: JobDetailRoomRescueMode;
+  /**
+     * Number of images successfully transformed by AI Room Rescue
+     * @nullable
+     */
+  roomRescueCount?: number | null;
+  /**
+     * Approval decision for AI Room Rescue — null means awaiting review
+     * @nullable
+     */
+  roomRescueApproved?: JobDetailRoomRescueApproved;
   /**
      * Music preset used in the final video (uplifting, cinematic, calm, corporate)
      * @nullable
@@ -254,6 +296,17 @@ export const JobInputInputMode = {
 } as const;
 
 /**
+ * Room Rescue mode — declutter: removes clutter/mess; staging: adds furniture/decor to empty rooms
+ */
+export type JobInputRoomRescueMode = typeof JobInputRoomRescueMode[keyof typeof JobInputRoomRescueMode];
+
+
+export const JobInputRoomRescueMode = {
+  declutter: 'declutter',
+  staging: 'staging',
+} as const;
+
+/**
  * presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow
  */
 export type JobInputOutputType = typeof JobInputOutputType[keyof typeof JobInputOutputType];
@@ -280,6 +333,10 @@ export interface JobInput {
   enhancePhotos?: boolean;
   /** Apply Pro Lens Upgrade (professional photographic corrections — lens distortion, exposure, colour, noise, sharpening, dynamic range) requiring before/after approval before Shotstack renders */
   proLensUpgrade?: boolean;
+  /** Apply AI Room Rescue transformation requiring before/after approval — must pair with roomRescueMode */
+  roomRescue?: boolean;
+  /** Room Rescue mode — declutter: removes clutter/mess; staging: adds furniture/decor to empty rooms */
+  roomRescueMode?: JobInputRoomRescueMode;
   /** presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow */
   outputType?: JobInputOutputType;
   /** Optional HeyGen avatar look ID — overrides the default presenter look with a specific outfit */
@@ -509,6 +566,14 @@ export type AuthorizationSessionHeaderParameter = string;
 
 export type BeginBrowserLoginParams = {
 returnTo?: string;
+};
+
+export type ApproveRoomRescue200 = {
+  message: string;
+};
+
+export type RejectRoomRescue200 = {
+  message: string;
 };
 
 export type ApproveProLensUpgrade200 = {

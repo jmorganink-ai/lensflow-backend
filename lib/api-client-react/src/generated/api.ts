@@ -27,6 +27,7 @@ import type {
   AnthropicMessage,
   AnthropicMessageInput,
   ApproveProLensUpgrade200,
+  ApproveRoomRescue200,
   AuthUserEnvelope,
   AvatarSettings,
   BeginBrowserLoginParams,
@@ -47,6 +48,7 @@ import type {
   MobileTokenExchangeRequest,
   MobileTokenExchangeSuccess,
   RejectProLensUpgrade200,
+  RejectRoomRescue200,
   RequestUploadUrl200,
   RequestUploadUrlBody,
   SelfRecordedJobInput,
@@ -1042,6 +1044,146 @@ export const useSimulateJob = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getSimulateJobMutationOptions(options));
+    }
+
+export const getApproveRoomRescueUrl = (id: string,) => {
+
+
+
+
+  return `/api/jobs/${id}/approve-room-rescue`
+}
+
+/**
+ * @summary Approve AI Room Rescue — pipeline uses transformed photos
+ */
+export const approveRoomRescue = async (id: string, options?: RequestInit): Promise<ApproveRoomRescue200> => {
+
+  return customFetch<ApproveRoomRescue200>(getApproveRoomRescueUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getApproveRoomRescueMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveRoomRescue>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof approveRoomRescue>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['approveRoomRescue'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof approveRoomRescue>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  approveRoomRescue(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ApproveRoomRescueMutationResult = NonNullable<Awaited<ReturnType<typeof approveRoomRescue>>>
+
+    export type ApproveRoomRescueMutationError = ErrorType<void>
+
+    /**
+ * @summary Approve AI Room Rescue — pipeline uses transformed photos
+ */
+export const useApproveRoomRescue = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveRoomRescue>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof approveRoomRescue>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getApproveRoomRescueMutationOptions(options));
+    }
+
+export const getRejectRoomRescueUrl = (id: string,) => {
+
+
+
+
+  return `/api/jobs/${id}/reject-room-rescue`
+}
+
+/**
+ * @summary Reject AI Room Rescue — pipeline reverts to original photos
+ */
+export const rejectRoomRescue = async (id: string, options?: RequestInit): Promise<RejectRoomRescue200> => {
+
+  return customFetch<RejectRoomRescue200>(getRejectRoomRescueUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRejectRoomRescueMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rejectRoomRescue>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof rejectRoomRescue>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['rejectRoomRescue'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof rejectRoomRescue>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  rejectRoomRescue(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RejectRoomRescueMutationResult = NonNullable<Awaited<ReturnType<typeof rejectRoomRescue>>>
+
+    export type RejectRoomRescueMutationError = ErrorType<void>
+
+    /**
+ * @summary Reject AI Room Rescue — pipeline reverts to original photos
+ */
+export const useRejectRoomRescue = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rejectRoomRescue>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof rejectRoomRescue>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getRejectRoomRescueMutationOptions(options));
     }
 
 export const getApproveProLensUpgradeUrl = (id: string,) => {

@@ -34,6 +34,13 @@ export const jobsTable = pgTable("jobs", {
   proLensUpgradedCount: integer("pro_lens_upgraded_count").default(0),
   // null = awaiting decision, "approved" = use upgraded, "rejected" = use originals
   proLensApproved: text("pro_lens_approved"),
+  // AI Room Rescue — compliance-safe declutter / virtual staging (LF-AI-ROOM-RESCUE)
+  roomRescueImages: jsonb("room_rescue_images").$type<string[]>().default([]),
+  // "declutter" | "staging"
+  roomRescueMode: text("room_rescue_mode"),
+  roomRescueCount: integer("room_rescue_count").default(0),
+  // null = awaiting decision, "approved" = use rescued, "rejected" = use originals
+  roomRescueApproved: text("room_rescue_approved"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

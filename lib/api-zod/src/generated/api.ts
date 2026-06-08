@@ -114,6 +114,8 @@ export const CreateJobBody = zod.object({
   "musicTrack": zod.string().optional().describe('Music preset ID for the final video (uplifting, cinematic, calm, corporate)'),
   "enhancePhotos": zod.boolean().optional().describe('Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos'),
   "proLensUpgrade": zod.boolean().optional().describe('Apply Pro Lens Upgrade (professional photographic corrections — lens distortion, exposure, colour, noise, sharpening, dynamic range) requiring before\/after approval before Shotstack renders'),
+  "roomRescue": zod.boolean().optional().describe('Apply AI Room Rescue transformation requiring before\/after approval — must pair with roomRescueMode'),
+  "roomRescueMode": zod.enum(['declutter', 'staging']).optional().describe('Room Rescue mode — declutter: removes clutter\/mess; staging: adds furniture\/decor to empty rooms'),
   "outputType": zod.enum(['presenter', 'voice_photos']).optional().describe('presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow'),
   "lookId": zod.string().optional().describe('Optional HeyGen avatar look ID — overrides the default presenter look with a specific outfit')
 })
@@ -199,6 +201,30 @@ export const SimulateJobResponse = zod.object({
 
 
 /**
+ * @summary Approve AI Room Rescue — pipeline uses transformed photos
+ */
+export const ApproveRoomRescueParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const ApproveRoomRescueResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Reject AI Room Rescue — pipeline reverts to original photos
+ */
+export const RejectRoomRescueParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const RejectRoomRescueResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
  * @summary Approve the Pro Lens Upgrade images — pipeline uses upgraded photos
  */
 export const ApproveProLensUpgradeParams = zod.object({
@@ -271,7 +297,7 @@ export const GetJobResponse = zod.object({
   "status": zod.enum(['queued', 'processing', 'complete', 'failed', 'awaiting_approval']),
   "steps": zod.array(zod.object({
   "id": zod.string(),
-  "name": zod.enum(['pro_lens_upgrade', 'enhance_photos', 'analyse_photos', 'scrape_listing', 'generate_script', 'create_voiceover', 'presenter_video', 'compose_video']),
+  "name": zod.enum(['room_rescue', 'pro_lens_upgrade', 'enhance_photos', 'analyse_photos', 'scrape_listing', 'generate_script', 'create_voiceover', 'presenter_video', 'compose_video']),
   "label": zod.string().optional(),
   "status": zod.enum(['pending', 'running', 'complete', 'failed', 'awaiting_approval']),
   "order": zod.number(),
@@ -289,6 +315,10 @@ export const GetJobResponse = zod.object({
   "proLensImages": zod.array(zod.string()).nullish().describe('Pro Lens Upgrade corrected image URLs (separate from originals)'),
   "proLensUpgradedCount": zod.number().nullish().describe('Number of images successfully upgraded by Pro Lens'),
   "proLensApproved": zod.union([zod.literal('approved'),zod.literal('rejected'),zod.literal(null)]).nullish().describe('Approval decision for Pro Lens Upgrade — null means awaiting review'),
+  "roomRescueImages": zod.array(zod.string()).nullish().describe('AI Room Rescue transformed image URLs (stored separately from originals for compliance)'),
+  "roomRescueMode": zod.union([zod.literal('declutter'),zod.literal('staging'),zod.literal(null)]).nullish().describe('Room Rescue transformation mode — declutter removes clutter, staging adds furniture'),
+  "roomRescueCount": zod.number().nullish().describe('Number of images successfully transformed by AI Room Rescue'),
+  "roomRescueApproved": zod.union([zod.literal('approved'),zod.literal('rejected'),zod.literal(null)]).nullish().describe('Approval decision for AI Room Rescue — null means awaiting review'),
   "musicTrack": zod.string().nullish().describe('Music preset used in the final video (uplifting, cinematic, calm, corporate)'),
   "backgroundImageUrl": zod.string().nullish().describe('URL of the virtual background image or clip used in selfie job composition'),
   "voiceId": zod.string().nullish(),

@@ -42,21 +42,23 @@ async function prefetchAndUploadTestImages(urls: string[]): Promise<string[]> {
 
 const PRESENTER_STEPS = [
   { name: "scrape_listing",  label: "Scrape Listing",       order: 1 },
-  { name: "pro_lens_upgrade",label: "Pro Lens Upgrade",     order: 2 },
-  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 3 },
-  { name: "generate_script", label: "Generate Script",      order: 4 },
-  { name: "create_voiceover",label: "Generate Voiceover",   order: 5 },
-  { name: "presenter_video", label: "Generate Presenter",   order: 6 },
-  { name: "compose_video",   label: "Final Video Render",   order: 7 },
+  { name: "room_rescue",     label: "AI Room Rescue",       order: 2 },
+  { name: "pro_lens_upgrade",label: "Pro Lens Upgrade",     order: 3 },
+  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 4 },
+  { name: "generate_script", label: "Generate Script",      order: 5 },
+  { name: "create_voiceover",label: "Generate Voiceover",   order: 6 },
+  { name: "presenter_video", label: "Generate Presenter",   order: 7 },
+  { name: "compose_video",   label: "Final Video Render",   order: 8 },
 ];
 
 const VOICE_PHOTOS_STEPS = [
   { name: "scrape_listing",  label: "Scrape Listing",       order: 1 },
-  { name: "pro_lens_upgrade",label: "Pro Lens Upgrade",     order: 2 },
-  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 3 },
-  { name: "generate_script", label: "Generate Script",      order: 4 },
-  { name: "create_voiceover",label: "Create Voiceover",     order: 5 },
-  { name: "compose_video",   label: "Compose Video",        order: 6 },
+  { name: "room_rescue",     label: "AI Room Rescue",       order: 2 },
+  { name: "pro_lens_upgrade",label: "Pro Lens Upgrade",     order: 3 },
+  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 4 },
+  { name: "generate_script", label: "Generate Script",      order: 5 },
+  { name: "create_voiceover",label: "Create Voiceover",     order: 6 },
+  { name: "compose_video",   label: "Compose Video",        order: 7 },
 ];
 
 router.post("/dev/run-test", async (req, res): Promise<void> => {

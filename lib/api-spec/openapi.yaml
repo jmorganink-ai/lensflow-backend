@@ -237,6 +237,56 @@ paths:
         "404":
           description: Job not found
 
+  /jobs/{id}/approve-room-rescue:
+    post:
+      operationId: approveRoomRescue
+      tags: [jobs]
+      summary: Approve AI Room Rescue — pipeline uses transformed photos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Room Rescue approved
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message]
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: Job not found
+
+  /jobs/{id}/reject-room-rescue:
+    post:
+      operationId: rejectRoomRescue
+      tags: [jobs]
+      summary: Reject AI Room Rescue — pipeline reverts to original photos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Room Rescue rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message]
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: Job not found
+
   /jobs/{id}/approve-upgrade:
     post:
       operationId: approveProLensUpgrade
@@ -901,6 +951,23 @@ components:
           type: ["string", "null"]
           enum: [approved, rejected, null]
           description: Approval decision for Pro Lens Upgrade — null means awaiting review
+        roomRescueImages:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: AI Room Rescue transformed image URLs (stored separately from originals for compliance)
+        roomRescueMode:
+          type: ["string", "null"]
+          enum: [declutter, staging, null]
+          description: Room Rescue transformation mode — declutter removes clutter, staging adds furniture
+        roomRescueCount:
+          type: ["integer", "null"]
+          description: Number of images successfully transformed by AI Room Rescue
+        roomRescueApproved:
+          type: ["string", "null"]
+          enum: [approved, rejected, null]
+          description: Approval decision for AI Room Rescue — null means awaiting review
         musicTrack:
           type: ["string", "null"]
           description: Music preset used in the final video (uplifting, cinematic, calm, corporate)
@@ -948,7 +1015,7 @@ components:
           type: string
         name:
           type: string
-          enum: [pro_lens_upgrade, enhance_photos, analyse_photos, scrape_listing, generate_script, create_voiceover, presenter_video, compose_video]
+          enum: [room_rescue, pro_lens_upgrade, enhance_photos, analyse_photos, scrape_listing, generate_script, create_voiceover, presenter_video, compose_video]
         label:
           type: string
         status:
@@ -999,6 +1066,13 @@ components:
         proLensUpgrade:
           type: boolean
           description: Apply Pro Lens Upgrade (professional photographic corrections — lens distortion, exposure, colour, noise, sharpening, dynamic range) requiring before/after approval before Shotstack renders
+        roomRescue:
+          type: boolean
+          description: Apply AI Room Rescue transformation requiring before/after approval — must pair with roomRescueMode
+        roomRescueMode:
+          type: string
+          enum: [declutter, staging]
+          description: "Room Rescue mode — declutter: removes clutter/mess; staging: adds furniture/decor to empty rooms"
         outputType:
           type: string
           enum: [presenter, voice_photos]

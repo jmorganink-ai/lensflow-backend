@@ -25,6 +25,7 @@ import { isDomainUrl, extractDomainListingId, fetchDomainListing, getSuburbPerfo
 import { analysePropertyPhotos } from "../lib/analyse-photos";
 import { enhancePropertyPhotos } from "../lib/enhance-photos";
 import { upgradePropertyPhotos } from "../lib/pro-lens-upgrade";
+import { rescuePropertyPhotos, type RoomRescueMode } from "../lib/ai-room-rescue";
 import { getStreetViewImages } from "../lib/street-view";
 
 const router: IRouter = Router();
@@ -32,42 +33,46 @@ const router: IRouter = Router();
 const connectors = new ReplitConnectors();
 
 const PIPELINE_STEPS_URL = [
-  { name: "scrape_listing", label: "Scrape Listing", order: 1 },
-  { name: "pro_lens_upgrade", label: "Pro Lens Upgrade", order: 2 },
-  { name: "enhance_photos", label: "AI Photo Glow-up", order: 3 },
-  { name: "generate_script", label: "Generate Script", order: 4 },
-  { name: "create_voiceover", label: "Generate Voiceover", order: 5 },
-  { name: "presenter_video", label: "Generate Presenter", order: 6 },
-  { name: "compose_video", label: "Final Video Render", order: 7 },
+  { name: "scrape_listing",  label: "Scrape Listing",       order: 1 },
+  { name: "room_rescue",     label: "AI Room Rescue",       order: 2 },
+  { name: "pro_lens_upgrade",label: "Pro Lens Upgrade",     order: 3 },
+  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 4 },
+  { name: "generate_script", label: "Generate Script",      order: 5 },
+  { name: "create_voiceover",label: "Generate Voiceover",   order: 6 },
+  { name: "presenter_video", label: "Generate Presenter",   order: 7 },
+  { name: "compose_video",   label: "Final Video Render",   order: 8 },
 ];
 
 const PIPELINE_STEPS_PHOTOS = [
-  { name: "pro_lens_upgrade", label: "Pro Lens Upgrade", order: 1 },
-  { name: "enhance_photos", label: "AI Photo Glow-up", order: 2 },
-  { name: "analyse_photos", label: "Analyse Photos", order: 3 },
-  { name: "generate_script", label: "Generate Script", order: 4 },
-  { name: "create_voiceover", label: "Create Voiceover", order: 5 },
-  { name: "presenter_video", label: "Presenter Video", order: 6 },
-  { name: "compose_video", label: "Compose Video", order: 7 },
+  { name: "room_rescue",     label: "AI Room Rescue",       order: 1 },
+  { name: "pro_lens_upgrade",label: "Pro Lens Upgrade",     order: 2 },
+  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 3 },
+  { name: "analyse_photos",  label: "Analyse Photos",       order: 4 },
+  { name: "generate_script", label: "Generate Script",      order: 5 },
+  { name: "create_voiceover",label: "Create Voiceover",     order: 6 },
+  { name: "presenter_video", label: "Presenter Video",      order: 7 },
+  { name: "compose_video",   label: "Compose Video",        order: 8 },
 ];
 
 // Steps for "voice_photos" output type — no HeyGen presenter, Shotstack composes voice + slideshow
 const PIPELINE_STEPS_URL_VOICE_PHOTOS = [
-  { name: "scrape_listing", label: "Scrape Listing", order: 1 },
-  { name: "pro_lens_upgrade", label: "Pro Lens Upgrade", order: 2 },
-  { name: "enhance_photos", label: "AI Photo Glow-up", order: 3 },
-  { name: "generate_script", label: "Generate Script", order: 4 },
-  { name: "create_voiceover", label: "Create Voiceover", order: 5 },
-  { name: "compose_video", label: "Compose Video", order: 6 },
+  { name: "scrape_listing",  label: "Scrape Listing",       order: 1 },
+  { name: "room_rescue",     label: "AI Room Rescue",       order: 2 },
+  { name: "pro_lens_upgrade",label: "Pro Lens Upgrade",     order: 3 },
+  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 4 },
+  { name: "generate_script", label: "Generate Script",      order: 5 },
+  { name: "create_voiceover",label: "Create Voiceover",     order: 6 },
+  { name: "compose_video",   label: "Compose Video",        order: 7 },
 ];
 
 const PIPELINE_STEPS_PHOTOS_VOICE_PHOTOS = [
-  { name: "pro_lens_upgrade", label: "Pro Lens Upgrade", order: 1 },
-  { name: "enhance_photos", label: "AI Photo Glow-up", order: 2 },
-  { name: "analyse_photos", label: "Analyse Photos", order: 3 },
-  { name: "generate_script", label: "Generate Script", order: 4 },
-  { name: "create_voiceover", label: "Create Voiceover", order: 5 },
-  { name: "compose_video", label: "Compose Video", order: 6 },
+  { name: "room_rescue",     label: "AI Room Rescue",       order: 1 },
+  { name: "pro_lens_upgrade",label: "Pro Lens Upgrade",     order: 2 },
+  { name: "enhance_photos",  label: "AI Photo Glow-up",     order: 3 },
+  { name: "analyse_photos",  label: "Analyse Photos",       order: 4 },
+  { name: "generate_script", label: "Generate Script",      order: 5 },
+  { name: "create_voiceover",label: "Create Voiceover",     order: 6 },
+  { name: "compose_video",   label: "Compose Video",        order: 7 },
 ];
 
 // Track in-progress simulations to prevent double-starts
@@ -151,7 +156,86 @@ export async function runSimulation(jobId: string): Promise<void> {
       // Set to true inside a step that manages its own DB completion (e.g. approval gate)
       let stepAlreadyCompleted = false;
 
-      if (step.name === "pro_lens_upgrade") {
+      if (step.name === "room_rescue") {
+        const mode: RoomRescueMode =
+          job.roomRescueMode === "staging" ? "staging" : "declutter";
+        const originals = job.propertyImages ?? [];
+        try {
+          logger.info({ jobId, count: originals.length, mode }, "AI Room Rescue: starting transformation");
+          const { rescued, rescuedCount } = await rescuePropertyPhotos(originals, mode);
+
+          await db.update(jobsTable)
+            .set({ roomRescueImages: rescued, roomRescueCount: rescuedCount })
+            .where(eq(jobsTable.id, jobId));
+
+          if (rescuedCount > 0) {
+            const modeLabel = mode === "staging" ? "Virtually staged" : "Decluttered";
+            outputData = [
+              `Photos ${modeLabel.toLowerCase()}: ${rescuedCount} of ${originals.length}`,
+              `${modeLabel} — awaiting your approval before the video render.`,
+              "Compliance: originals are preserved. No structural defects were altered.",
+            ].join("\n");
+
+            await db.update(pipelineStepsTable)
+              .set({ status: "awaiting_approval", outputData, startedAt: new Date() })
+              .where(eq(pipelineStepsTable.id, step.id));
+            await db.update(jobsTable)
+              .set({ status: "awaiting_approval" })
+              .where(eq(jobsTable.id, jobId));
+
+            logger.info({ jobId, rescuedCount, mode }, "AI Room Rescue: awaiting approval");
+
+            const POLL_MS = 5_000;
+            const DEADLINE = Date.now() + 30 * 60 * 1000;
+            let decision: string | null = null;
+
+            while (Date.now() < DEADLINE) {
+              await new Promise((r) => setTimeout(r, POLL_MS));
+              const [latest] = await db
+                .select({ roomRescueApproved: jobsTable.roomRescueApproved })
+                .from(jobsTable)
+                .where(eq(jobsTable.id, jobId));
+              if (latest?.roomRescueApproved) {
+                decision = latest.roomRescueApproved;
+                break;
+              }
+            }
+
+            if (decision === "approved") {
+              effectivePhotos = rescued;
+              logger.info({ jobId, rescuedCount }, "AI Room Rescue approved — using transformed photos");
+            } else {
+              effectivePhotos = originals;
+              logger.info({ jobId, decision: decision ?? "timeout" }, "AI Room Rescue not approved — using originals");
+            }
+
+            await db.update(jobsTable)
+              .set({ status: "processing" })
+              .where(eq(jobsTable.id, jobId));
+            await db.update(pipelineStepsTable)
+              .set({
+                status: "complete",
+                completedAt: new Date(),
+                outputData: outputData + (decision === "approved" ? "\nApproved ✓" : "\nRejected — originals used."),
+              })
+              .where(eq(pipelineStepsTable.id, step.id));
+
+            stepAlreadyCompleted = true;
+          } else {
+            effectivePhotos = originals;
+            outputData = [
+              `Photos checked: ${originals.length}`,
+              "No transformation applied — original photos used.",
+            ].join("\n");
+            logger.info({ jobId, mode }, "AI Room Rescue: no images transformed — continuing with originals");
+          }
+        } catch (err) {
+          logger.error({ err, jobId, mode }, "AI Room Rescue failed — continuing with originals");
+          effectivePhotos = originals;
+          outputData = "AI Room Rescue unavailable — original photos used.";
+          await new Promise((r) => setTimeout(r, baseDuration));
+        }
+      } else if (step.name === "pro_lens_upgrade") {
         try {
           const originals = job.propertyImages ?? [];
           logger.info({ jobId, count: originals.length }, "Pro Lens Upgrade: starting photographic corrections");
@@ -638,6 +722,8 @@ router.post("/jobs", async (req, res): Promise<void> => {
   const inputMode = parsed.data.inputMode === "photos" ? "photos" : "url";
   const enhancePhotos = parsed.data.enhancePhotos === true;
   const proLensUpgrade = (parsed.data as Record<string, unknown>).proLensUpgrade === true;
+  const roomRescue = (parsed.data as Record<string, unknown>).roomRescue === true;
+  const roomRescueMode = ((parsed.data as Record<string, unknown>).roomRescueMode as string) === "staging" ? "staging" : "declutter";
   const outputType = parsed.data.outputType === "voice_photos" ? "voice_photos" : "presenter";
 
   if (inputMode === "url" && !parsed.data.listingUrl?.trim()) {
@@ -664,6 +750,7 @@ router.post("/jobs", async (req, res): Promise<void> => {
       musicTrack: parsed.data.musicTrack ?? null,
       outputType,
       lookId: (parsed.data as Record<string, unknown>).lookId as string | null ?? null,
+      roomRescueMode: roomRescue ? roomRescueMode : null,
       status: "queued",
     })
     .returning();
@@ -683,6 +770,7 @@ router.post("/jobs", async (req, res): Promise<void> => {
   const pipelineSteps = basePipelineSteps
     .filter((s) => enhancePhotos || s.name !== "enhance_photos")
     .filter((s) => proLensUpgrade || s.name !== "pro_lens_upgrade")
+    .filter((s) => roomRescue || s.name !== "room_rescue")
     .map((s, i) => ({ ...s, order: i + 1 }));
 
   const stepRows = pipelineSteps.map((step) => ({
@@ -974,13 +1062,64 @@ router.post("/jobs/:id/simulate", async (req, res): Promise<void> => {
       .where(eq(pipelineStepsTable.jobId, raw));
     await db
       .update(jobsTable)
-      .set({ status: "queued", enhancedImages: [], proLensImages: [], proLensUpgradedCount: 0, proLensApproved: null })
+      .set({
+        status: "queued",
+        enhancedImages: [],
+        proLensImages: [], proLensUpgradedCount: 0, proLensApproved: null,
+        roomRescueImages: [], roomRescueCount: 0, roomRescueApproved: null,
+      })
       .where(eq(jobsTable.id, raw));
   }
 
   activeSimulations.add(raw);
   runSimulation(raw);
   res.json({ message: "Simulation started", jobId: raw });
+});
+
+// ── AI Room Rescue — approve / reject ────────────────────────────────────────
+
+router.post("/jobs/:id/approve-room-rescue", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const [job] = await db
+    .select()
+    .from(jobsTable)
+    .where(and(eq(jobsTable.id, raw), eq(jobsTable.userId, req.user.id)));
+  if (!job) {
+    res.status(404).json({ error: "Job not found" });
+    return;
+  }
+  await db
+    .update(jobsTable)
+    .set({ roomRescueApproved: "approved" })
+    .where(eq(jobsTable.id, raw));
+  logger.info({ jobId: raw }, "AI Room Rescue: approved by user");
+  res.json({ message: "Room Rescue approved — pipeline will continue with transformed photos." });
+});
+
+router.post("/jobs/:id/reject-room-rescue", async (req, res): Promise<void> => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const [job] = await db
+    .select()
+    .from(jobsTable)
+    .where(and(eq(jobsTable.id, raw), eq(jobsTable.userId, req.user.id)));
+  if (!job) {
+    res.status(404).json({ error: "Job not found" });
+    return;
+  }
+  await db
+    .update(jobsTable)
+    .set({ roomRescueApproved: "rejected" })
+    .where(eq(jobsTable.id, raw));
+  logger.info({ jobId: raw }, "AI Room Rescue: rejected by user — will use originals");
+  res.json({ message: "Room Rescue rejected — pipeline will continue with original photos." });
 });
 
 // ── Pro Lens Upgrade — approve / reject ──────────────────────────────────────
