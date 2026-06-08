@@ -21,3 +21,4 @@
 - [Domain API setup](domain-api-setup.md) — sandbox/v1 auto-detected; correct package is "Properties & Locations" not "Listings Management"; production pending approval.
 - [Morgan marketing tab](morgan-marketing-tab.md) — POST /api/morgan/marketing-pack generates Instagram/Facebook/LinkedIn/email pack; page at /morgan in pipeline app; uses useListJobs (not useGetJobs) which returns Job[] directly.
 - [Stripe account identity](stripe-account.md) — Stripe conn is owned by admin@lensflow.com.au (business); user's personal Replit login is jmorganink@gmail.com — do not conflate.
+- [D-ID pipeline integration](did-pipeline.md) — D-ID is primary presenter provider; pre-signed S3 URLs must be mirrored to object storage before passing to Shotstack.

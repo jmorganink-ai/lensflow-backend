@@ -567,40 +567,44 @@ export async function runSimulation(jobId: string): Promise<void> {
           logger.info({ jobId }, "Skipping presenter_video — voice_photos output type");
           await new Promise((resolve) => setTimeout(resolve, baseDuration));
         } else {
-          // AI Presenter — generate HeyGen avatar video (5 min budget), with D-ID fallback
+          // AI Presenter — D-ID is primary; HeyGen is fallback
           const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
           try {
-            logger.info({ jobId, voiceName: job.voiceName, lookId: job.lookId ?? null, customAvatar: userSettings?.heygenAvatarId ?? null }, "Generating presenter video with HeyGen (10 min budget)");
-            const result = await generatePresenterVideo(
-              script,
-              job.voiceName,
-              job.voiceId,
-              userSettings?.heygenAvatarId ?? null,
-              userSettings?.heygenVoiceId ?? null,
-              600_000,
-              voiceoverPublicUrl ?? null,
-              job.lookId ?? null,
-            );
-            presenterVideoUrl = result.videoUrl;
-            // Do NOT set finalVideoUrl here — Shotstack compose_video is the only step
-            // that sets finalVideoUrl. Raw HeyGen URL stays as step output only.
-            outputUrl = result.videoUrl;
-            logger.info({ jobId, videoId: result.videoId }, "HeyGen presenter video ready");
-          } catch (err) {
-            if (err instanceof HeyGenTimeoutError) {
-              logger.warn({ jobId }, "HeyGen timed out after 5 min — switching to D-ID fallback");
-              try {
-                const didResult = await generatePresenterVideoDID(script);
-                presenterVideoUrl = didResult.videoUrl;
-                // Do NOT set finalVideoUrl — compose_video is the only step that sets it.
-                outputUrl = didResult.videoUrl;
-                logger.info({ jobId, videoId: didResult.videoId }, "D-ID fallback presenter video ready");
-              } catch (didErr) {
-                logger.error({ didErr, jobId }, "D-ID fallback also failed — continuing without presenter video");
-                await new Promise((resolve) => setTimeout(resolve, baseDuration));
-              }
-            } else {
-              logger.error({ err, jobId }, "HeyGen presenter video failed — continuing");
+            logger.info({ jobId, voiceName: job.voiceName, usingAudioUrl: !!voiceoverPublicUrl }, "Generating presenter video with D-ID (primary)");
+            const didResult = await generatePresenterVideoDID(script, {
+              presenterName: job.voiceName ?? undefined,
+              audioUrl: voiceoverPublicUrl ?? null,
+            });
+            // D-ID returns a pre-signed S3 URL that Shotstack cannot access.
+            // Mirror the video to our own object storage so Shotstack gets a stable public URL.
+            logger.info({ jobId, videoId: didResult.videoId }, "D-ID presenter video ready — mirroring to object storage");
+            const didVideoRes = await fetch(didResult.videoUrl);
+            if (!didVideoRes.ok) throw new Error(`Failed to fetch D-ID video for mirroring: ${didVideoRes.status}`);
+            const didVideoBuffer = Buffer.from(await didVideoRes.arrayBuffer());
+            const storageForDID = new ObjectStorageService();
+            const mirroredUrl = await storageForDID.uploadPublicBuffer(didVideoBuffer, `presenter-videos/${jobId}.mp4`, "video/mp4");
+            presenterVideoUrl = mirroredUrl;
+            outputUrl = mirroredUrl;
+            logger.info({ jobId, mirroredUrl }, "D-ID presenter video mirrored to storage");
+          } catch (didErr) {
+            const reason = didErr instanceof Error ? didErr.message : String(didErr);
+            logger.warn({ jobId, reason }, "D-ID presenter video failed — switching to HeyGen fallback");
+            try {
+              const result = await generatePresenterVideo(
+                script,
+                job.voiceName,
+                job.voiceId,
+                userSettings?.heygenAvatarId ?? null,
+                userSettings?.heygenVoiceId ?? null,
+                600_000,
+                voiceoverPublicUrl ?? null,
+                job.lookId ?? null,
+              );
+              presenterVideoUrl = result.videoUrl;
+              outputUrl = result.videoUrl;
+              logger.info({ jobId, videoId: result.videoId }, "HeyGen fallback presenter video ready");
+            } catch (heygenErr) {
+              logger.error({ heygenErr, jobId }, "HeyGen fallback also failed — continuing without presenter video");
               await new Promise((resolve) => setTimeout(resolve, baseDuration));
             }
           }
