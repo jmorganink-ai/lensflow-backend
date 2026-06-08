@@ -61,7 +61,7 @@ defaultBucketID = "replit-objstore-dfdae97e-a094-4e9a-8807-6cead5534551"
 [userenv]
 
 [userenv.shared]
-HEYGEN_AVATAR_MIA = "e3b75de02e304bbeacabf1a8d7eba959"
+HEYGEN_AVATAR_MIA = "6efa13ba628e4f9db8aee1164864fdb5"
 HEYGEN_AVATAR_OLIVER = "072d3a64f1884dedaaca04d6ac6e7be7"
 HEYGEN_AVATAR_JAMES = "426df1e119054477a2188b41dbca60cf"
 HEYGEN_AVATAR_SOPHIE = "b1a01a6df4e141d7ab71999b95403455"
