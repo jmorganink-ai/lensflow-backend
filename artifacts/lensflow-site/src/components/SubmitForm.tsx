@@ -218,7 +218,7 @@ export function SubmitForm() {
       {/* Presenter Picker */}
       <div>
         <label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2 block">Choose Presenter</label>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {PRESENTER_PRESETS.map((p) => {
             const isSelected = selectedPresenter.id === p.id;
             const isPlaying = playingId === p.id;
