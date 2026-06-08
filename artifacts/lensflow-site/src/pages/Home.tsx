@@ -52,7 +52,7 @@ const trustPoints = [
 const propertyPhotos = [
   "/property-1.jpg",
   "/property-2.jpg",
-  "/property-3.jpg",
+  "/fronthouse-enhanced.jpg",
   "/property-4.jpg",
   "/property-5.jpg",
   "/property-6.jpg",
@@ -238,15 +238,16 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-card">
+            <div className="overflow-hidden rounded-[1.75rem] border border-primary/20 bg-card shadow-[0_0_24px_rgba(201,154,46,0.08)]">
               <div className="relative aspect-[4/3] overflow-hidden">
-                <img src="/property-luxury.jpg" alt="Campaign-ready property" className="h-full w-full object-cover" />
+                <img src="/fronthouse-enhanced.jpg" alt="LensFlow enhanced property photo" className="h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                <span className="absolute bottom-4 left-4 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur">After — campaign ready</span>
+                <span className="absolute bottom-4 left-4 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">After — LensFlow enhanced</span>
               </div>
               <div className="p-5">
-                <h3 className="font-semibold text-foreground">Full campaign kit</h3>
-                <p className="mt-2 text-sm text-muted-foreground">Social reels, caption pack, presenter MP4 and campaign copy — all from the same listing URL.</p>
+                <div className="mb-2 inline-flex rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">1080p · Enhanced lighting</div>
+                <h3 className="font-semibold text-foreground">Twilight-quality result</h3>
+                <p className="mt-2 text-sm text-muted-foreground">Golden-hour lighting, crisp 1080p render and campaign-ready framing — from a standard phone photo.</p>
               </div>
             </div>
           </div>
