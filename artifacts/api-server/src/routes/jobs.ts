@@ -574,6 +574,7 @@ export async function runSimulation(jobId: string): Promise<void> {
             const didResult = await generatePresenterVideoDID(script, {
               presenterName: job.voiceName ?? undefined,
               audioUrl: voiceoverPublicUrl ?? null,
+              timeoutMs: 420_000, // clips take ~5 min; 7 min ceiling
             });
             // D-ID returns a pre-signed S3 URL that Shotstack cannot access.
             // Mirror the video to our own object storage so Shotstack gets a stable public URL.
