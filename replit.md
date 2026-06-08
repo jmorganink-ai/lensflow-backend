@@ -65,6 +65,8 @@ _Populate as you build — explicit user instructions worth remembering across s
 - HubSpot connector ID: `conn_hubspot_01KSYB2VWDD2DRFF5DDN92TJ1X`
 - ElevenLabs voices: Mia=`x3PfG9wL6FOEApZ1VJ9H`, Oliver=`jfIS2w2yJi0grJZPyEsk`, Sophie=`69h9o7wh5u0isWHzdogD`, James=`yXFr3XVHzrViCIHi1yoc`, Morgan=`g5fH9S068t9I3i8Y9u4`
 - HeyGen avatars (custom, set via env vars): Mia=`91141b5f57114fccb565ab32ca058a1a`, Oliver=`b88ace7a30a34a76ae92a16dd84c18af`, Sophie=`267832a040cd46998928c37498777215`, James=`9f2454deef0840008f9d6f6753c6de7b` — all on jmorganink HeyGen account; set via HEYGEN_AVATAR_MIA/OLIVER/SOPHIE/JAMES env vars
+- HeyGen avatar **group** IDs (same values used in HEYGEN_GROUP_* env vars / hardcoded defaults): Mia=`1602766f0e7344199b7b1a8bcf7b7855`, Oliver=`b88ace7a30a34a76ae92a16dd84c18af`, Sophie=`267832a040cd46998928c37498777215`, James=`9f2454deef0840008f9d6f6753c6de7b` — verified 2026-06-08 via `/v2/avatar_group/{id}/avatars`
+- Oliver's looks were originally named "James in ..." in HeyGen and were renamed in the dashboard on 2026-06-08; server also applies `replace(/^James/i, "Oliver")` as safety net
 - Shotstack: both sandbox + prod keys use `https://api.shotstack.io/v1` (stage URL removed 2025); `colour` asset type removed — use `shape`; `fadeOut`/`fadeIn` → `fade`; trim whitespace from keys
 
 ## Pointers

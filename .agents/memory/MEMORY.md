@@ -6,6 +6,7 @@
 - [ElevenLabs STT](elevenlabs-stt.md) — speechToText.convert({file,model_id:"scribe_v1"}); route uses express.raw (not multipart); browser falls back from Web Speech API to MediaRecorder.
 - [Storage upload auth](storage-upload-auth.md) — presigned upload endpoint must require auth; validate client-supplied videoUrl is our /api/storage/ URL before persisting.
 - [HeyGen avatar routing](heygen-avatar-routing.md) — each presenter (Mia/Sophie/Oliver/Liam) has its own env var override; diagnostic endpoint GET /api/heygen/avatars lists account avatars.
+- [HeyGen group IDs](heygen-group-ids.md) — verified group IDs 2026-06-08; Oliver's group had looks named "James in..." (renamed in dashboard + server-side safety replace); outfit picker condition is (looksLoading || looks.length > 1) so skeletons show during fetch.
 - [Presenter voice IDs](presenter-voice-ids.md) — ElevenLabs: Mia=z9fH9S068t9I3i8Y9u4, Oliver=Xb7hH9S068t9I3i8Y9u4, Sophie=u8fH9S068t9I3i8Y9u4, Liam=nzYv9Z868t9I3i8Y9u4, Morgan=g5fH9S068t9I3i8Y9u4; defined in new-job.tsx AND mobile constants/presenters.ts — update both.
 - [Shotstack API 2025 breaking changes](shotstack-api-changes.md) — colour asset type removed; stage URL gone; transition names changed.
 - [Domain API setup](domain-api-setup.md) — sandbox/v1 auto-detected; correct package is "Properties & Locations" not "Listings Management"; production pending approval.

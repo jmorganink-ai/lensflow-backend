@@ -28,6 +28,13 @@ export interface PresenterLook {
 
 // HeyGen avatar group IDs — each group holds all looks for that presenter.
 // Fetching /v2/avatar_group/{groupId}/avatars returns every look with its thumbnail.
+//
+// Verified group IDs (2026-06-08):
+//   Mia:    1602766f0e7344199b7b1a8bcf7b7855 — Radiant Professional, Elegant Office, etc.
+//   Sophie: 267832a040cd46998928c37498777215 — blue blazer, blue sweater, grey blazer, etc.
+//   Oliver: b88ace7a30a34a76ae92a16dd84c18af — confirmed via app.heygen.com. Looks were originally
+//           named "James in..." but belong to Oliver. Renamed via v3 API to "Oliver in...".
+//   James:  9f2454deef0840008f9d6f6753c6de7b — blue suit, blue shirt, beige blazer, navy suit, etc.
 const GROUP_MIA    = process.env.HEYGEN_GROUP_MIA    ?? "1602766f0e7344199b7b1a8bcf7b7855";
 const GROUP_SOPHIE = process.env.HEYGEN_GROUP_SOPHIE ?? "267832a040cd46998928c37498777215";
 const GROUP_OLIVER = process.env.HEYGEN_GROUP_OLIVER ?? "b88ace7a30a34a76ae92a16dd84c18af";
@@ -70,11 +77,15 @@ export async function getPresenterLooks(presenter: string): Promise<PresenterLoo
         };
         const list = (data.data?.avatar_list ?? []).filter((a) => a.id);
         if (list.length > 0) {
-          return list.map((a) => ({
-            id: a.id,
-            name: a.name ?? a.id,
-            previewImageUrl: a.image_url,
-          }));
+          return list.map((a) => {
+            // Oliver's looks were originally named "James in ..." in HeyGen (now fixed in dashboard).
+            // Keep the server-side rename as a safety net in case HeyGen reverts or adds new looks.
+            let name = a.name ?? a.id;
+            if (key === "oliver") {
+              name = name.replace(/^James\b/i, "Oliver");
+            }
+            return { id: a.id, name, previewImageUrl: a.image_url };
+          });
         }
       }
     } catch {
