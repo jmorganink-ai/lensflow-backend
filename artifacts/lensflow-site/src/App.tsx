@@ -2,6 +2,8 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import Advantage from "@/pages/Advantage";
 import Origin from "@/pages/Origin";
 import Concierge from "@/pages/Concierge";
+import TwinAvatarGuide from "@/pages/TwinAvatarGuide";
+import MorganPage from "@/pages/Morgan";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +26,8 @@ function Router() {
       <Route path="/presenters" component={Presenters} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/twin-avatar" component={TwinAvatar} />
+      <Route path="/twin-avatar-guide" component={TwinAvatarGuide} />
+      <Route path="/morgan" component={MorganPage} />
       <Route path="/advantage" component={Advantage} />
       <Route path="/origin" component={Origin} />
       <Route path="/concierge" component={Concierge} />

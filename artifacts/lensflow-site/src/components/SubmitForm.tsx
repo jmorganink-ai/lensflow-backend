@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link2, ImagePlus, Upload, X, Loader2, ArrowRight, Play, Pause } from "lucide-react";
+import { Link2, ImagePlus, Upload, X, Loader2, ArrowRight, Play, Pause, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@workspace/replit-auth-web";
 import { useUpload } from "@workspace/object-storage-web";
@@ -30,8 +30,17 @@ const PRESENTER_PRESETS = [
     specialty: "Family / Suburban",
     voiceId: "69h9o7wh5u0isWHzdogD",
     voiceName: "Australian real estate agent",
-    photo: "/presenters/sophie-poster.jpg",
+    photo: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=300&h=400",
     previewUrl: "https://api.us.elevenlabs.io/v1/voices/69h9o7wh5u0isWHzdogD/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ3b3Jrc3BhY2VfaWQiOiJmN2M3ZGE0NWI5YTY0NjA1ODNiNzBmYWZkMjQwNTY1MSIsImZpbGVuYW1lIjoiYzBlMWJmMjUtZDEwNC00ZjY1LTg1ZTctNjE3ZDU5MjhmMDk5Lm1wMyIsInRpbWVzdGFtcCI6MTc4MDIxMDgwMDAwMDAwMH0%3D",
+  },
+  {
+    id: "james",
+    name: "James",
+    specialty: "Commercial / Rural / Development",
+    voiceId: "J5tYJbZpL62OrQsj70q6",
+    voiceName: "morgan voice",
+    photo: "/presenters/james-poster.jpg",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/IKne3meq5aSn9XLyUdCD/102de6f2-22ed-43e0-a1f1-111fa75c5481.mp3",
   },
 ];
 
@@ -78,7 +87,6 @@ export function SubmitForm() {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [urlError, setUrlError] = useState("");
-  const [proLensUpgrade, setProLensUpgrade] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
 
@@ -145,7 +153,7 @@ export function SubmitForm() {
       voiceId: selectedPresenter.voiceId,
       voiceName: selectedPresenter.voiceName,
       propertyImages: uploadedPhotos.map((p) => p.publicUrl),
-      proLensUpgrade: proLensUpgrade ? true : undefined,
+      proLensUpgrade: uploadedPhotos.length > 0 && proLensUpgrade ? true : undefined,
     };
 
     if (isAuthenticated) {
@@ -183,10 +191,11 @@ export function SubmitForm() {
     }
   }
 
+  const [proLensUpgrade, setProLensUpgrade] = useState(false);
   const busy = uploadingCount > 0 || submitting || authLoading;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 pb-2">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {/* Listing URL */}
       <div>
         <div className="relative">
@@ -220,37 +229,30 @@ export function SubmitForm() {
               <div
                 key={p.id}
                 onClick={() => setSelectedPresenter(p)}
-                className={`relative flex flex-col rounded-2xl overflow-hidden cursor-pointer border-2 transition-all ${
-                  isSelected ? "border-primary shadow-[0_0_14px_rgba(201,154,46,0.35)]" : "border-white/10 hover:border-white/30"
+                className={`relative rounded-xl overflow-hidden aspect-[3/4] cursor-pointer group border-2 transition-all ${
+                  isSelected ? "border-primary shadow-[0_0_16px_rgba(201,154,46,0.3)]" : "border-white/5 hover:border-white/20"
                 }`}
               >
-                {/* Photo — 3:4 rectangle */}
-                <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-b from-[#1a1430] to-[#0f0f1a]">
-                  <img
-                    src={p.photo}
-                    alt={p.name}
-                    className="w-full h-full object-cover object-[center_15%]"
-                    onError={(e) => { e.currentTarget.style.display = "none"; }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                  {isSelected && (
-                    <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 rounded-full bg-black" />
-                    </div>
-                  )}
+                <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                {isSelected && (
+                  <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-black" />
+                  </div>
+                )}
+                <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between">
+                  <div>
+                    <div className="text-xs font-semibold text-white leading-tight">{p.name}</div>
+                    <div className="text-[9px] text-primary font-mono leading-tight mt-0.5">{p.specialty}</div>
+                  </div>
                   <button
                     type="button"
                     onClick={(e) => toggleVoicePreview(p, e)}
-                    className="absolute bottom-1.5 right-1.5 w-5 h-5 rounded-full bg-black/50 hover:bg-primary/80 flex items-center justify-center transition-colors"
+                    className="w-6 h-6 rounded-full bg-white/10 hover:bg-primary/80 flex items-center justify-center transition-colors"
                     title="Preview voice"
                   >
-                    {isPlaying ? <Pause className="w-2.5 h-2.5 text-white" /> : <Play className="w-2.5 h-2.5 text-white ml-px" />}
+                    {isPlaying ? <Pause className="w-3 h-3 text-white" /> : <Play className="w-3 h-3 text-white ml-0.5" />}
                   </button>
-                </div>
-                {/* Footer label — always visible, never clipped */}
-                <div className="bg-card px-1.5 py-1.5 min-h-[2.75rem]">
-                  <div className="text-[11px] font-semibold text-white leading-none">{p.name}</div>
-                  <div className="text-[9px] text-primary font-mono leading-tight mt-0.5 line-clamp-2">{p.specialty}</div>
                 </div>
                 <audio
                   ref={(el) => { audioRefs.current[p.id] = el; }}
@@ -340,34 +342,36 @@ export function SubmitForm() {
         </AnimatePresence>
       </div>
 
-      <div>
-        <label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2 block">
-          Pro Lens Upgrade
-        </label>
-        <button
-          type="button"
+      {/* Pro Lens Upgrade toggle */}
+      {uploadedPhotos.length > 0 && (
+        <div
           onClick={() => setProLensUpgrade((v) => !v)}
-          className={`w-full rounded-xl border-2 px-4 py-3 text-left transition-all ${
+          className={`flex items-center justify-between rounded-xl border px-4 py-3 cursor-pointer transition-colors ${
             proLensUpgrade
-              ? "border-[#d4a017] bg-[#d4a017]/10 shadow-[0_0_18px_rgba(212,160,23,0.18)]"
-              : "border-white/10 bg-background/40 hover:border-white/20"
+              ? "border-[#d4a017] bg-[#d4a017]/5"
+              : "border-white/10 hover:border-white/20"
           }`}
         >
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                proLensUpgrade ? "bg-[#d4a017] border-[#d4a017]" : "border-white/30"
+              }`}
+            >
+              {proLensUpgrade && <Check className="w-3.5 h-3.5 text-black" />}
+            </div>
             <div>
-              <div className={`text-sm font-semibold ${proLensUpgrade ? "text-[#f3c75f]" : "text-white"}`}>
+              <div className={`text-sm font-medium ${proLensUpgrade ? "text-[#f3c75f]" : "text-foreground"}`}>
                 Upgrade with Pro Lens
               </div>
-              <div className="mt-1 text-xs text-muted-foreground">
-                Professional lens correction, exposure balancing and colour cleanup with before/after approval.
+              <div className="text-[10px] text-muted-foreground">
+                Professional photographic corrections before/after approval
               </div>
             </div>
-            <div className={`w-9 h-5 rounded-full transition-colors flex items-center px-0.5 shrink-0 ${proLensUpgrade ? "bg-[#d4a017]" : "bg-muted"}`}>
-              <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${proLensUpgrade ? "translate-x-4" : "translate-x-0"}`} />
-            </div>
           </div>
-        </button>
-      </div>
+          <span className="text-[10px] font-mono text-muted-foreground">OPTIONAL</span>
+        </div>
+      )}
 
       {/* Submit */}
       <Button

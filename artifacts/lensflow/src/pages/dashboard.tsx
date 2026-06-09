@@ -218,6 +218,89 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* ── AI Room Rescue Showcase ── */}
+      <div style={{ marginBottom: 24, padding: 24, border: `1px solid ${C.line}`, borderRadius: 8, background: C.panel }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, marginBottom: 20 }}>
+          <div>
+            <Eyebrow>AI Photo Rescue</Eyebrow>
+            <h2 style={{ color: C.ink, margin: "8px 0 4px", fontSize: 22, fontWeight: 800 }}>Transform Any Photo into Listing-Ready Marketing</h2>
+            <p style={{ margin: 0, color: C.muted, fontSize: 13, lineHeight: 1.45 }}>See how AI Room Rescue declutters, enhances, and prepares your property photos for professional campaigns.</p>
+          </div>
+          <Link href="/jobs/new">
+            <Ghost>Try AI Rescue</Ghost>
+          </Link>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 16 }}>
+          {/* Example 1: Cluttered Room */}
+          <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, overflow: "hidden", background: C.card }}>
+            <div style={{ position: "relative", aspectRatio: "16/10", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ textAlign: "center", padding: 20 }}>
+                <div style={{ fontSize: 48, marginBottom: 8 }}>👕👖🧦</div>
+                <p style={{ color: C.muted, fontSize: 12 }}>Clothes everywhere, poor lighting</p>
+              </div>
+              <div style={{ position: "absolute", top: 8, left: 8, background: "#ef4444", color: "white", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>BEFORE</div>
+            </div>
+            <div style={{ padding: 14 }}>
+              <h4 style={{ color: C.ink, fontSize: 14, margin: "0 0 4px" }}>Declutter & Clean</h4>
+              <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>AI removes clothes, tidies floors, and restores order</p>
+            </div>
+          </div>
+
+          {/* Example 2: Ugly Furniture */}
+          <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, overflow: "hidden", background: C.card }}>
+            <div style={{ position: "relative", aspectRatio: "16/10", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ textAlign: "center", padding: 20 }}>
+                <div style={{ fontSize: 48, marginBottom: 8 }}>🛋️😬</div>
+                <p style={{ color: C.muted, fontSize: 12 }}>Dated couch, mismatched furniture</p>
+              </div>
+              <div style={{ position: "absolute", top: 8, left: 8, background: "#ef4444", color: "white", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>BEFORE</div>
+            </div>
+            <div style={{ padding: 14 }}>
+              <h4 style={{ color: C.ink, fontSize: 14, margin: "0 0 4px" }}>Furniture Replacement</h4>
+              <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>AI suggests and renders premium staging furniture</p>
+            </div>
+          </div>
+
+          {/* Example 3: Water Damage */}
+          <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, overflow: "hidden", background: C.card }}>
+            <div style={{ position: "relative", aspectRatio: "16/10", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ textAlign: "center", padding: 20 }}>
+                <div style={{ fontSize: 48, marginBottom: 8 }}>💧🚫</div>
+                <p style={{ color: C.muted, fontSize: 12 }}>Water stains, damage, poor condition</p>
+              </div>
+              <div style={{ position: "absolute", top: 8, left: 8, background: "#ef4444", color: "white", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>BEFORE</div>
+            </div>
+            <div style={{ padding: 14 }}>
+              <h4 style={{ color: C.ink, fontSize: 14, margin: "0 0 4px" }}>Damage Repair</h4>
+              <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>AI repairs water damage and restores surfaces</p>
+            </div>
+          </div>
+        </div>
+
+        {/* After examples row */}
+        <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 16 }}>
+          {[1, 2, 3].map((i) => (
+            <div key={i} style={{ border: `1px solid ${C.gold}50`, borderRadius: 8, overflow: "hidden", background: C.card, position: "relative" }}>
+              <div style={{ aspectRatio: "16/10", background: `linear-gradient(135deg, ${C.deep}, ${C.panel})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ textAlign: "center", padding: 20 }}>
+                  <div style={{ fontSize: 36, marginBottom: 8 }}>✨🏠</div>
+                  <p style={{ color: C.gold, fontSize: 12, fontWeight: 700 }}>LISTING-READY</p>
+                </div>
+                <div style={{ position: "absolute", top: 8, left: 8, background: C.gold, color: C.paper, padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>AFTER</div>
+              </div>
+              <div style={{ padding: 14 }}>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  <span style={{ border: `1px solid ${C.line}`, borderRadius: 999, padding: "3px 8px", background: C.deep, color: C.muted, fontSize: 11, fontWeight: 700 }}>1080p</span>
+                  <span style={{ border: `1px solid ${C.line}`, borderRadius: 999, padding: "3px 8px", background: C.deep, color: C.muted, fontSize: 11, fontWeight: 700 }}>Enhanced</span>
+                  <span style={{ border: `1px solid ${C.line}`, borderRadius: 999, padding: "3px 8px", background: `${C.gold}18`, color: C.gold, fontSize: 11, fontWeight: 700 }}>AI Rescue</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ── Main grid ── */}
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.4fr) minmax(280px,0.6fr)", gap: 20, alignItems: "start" }}>
 

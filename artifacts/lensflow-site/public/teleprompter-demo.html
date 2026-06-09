@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LensFlow Playable Demo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{
+background:#000;
+overflow:hidden;
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+.container{
+position:relative;
+width:100%;
+height:100vh;
+overflow:hidden;
+}
+.bg{
+position:absolute;
+width:110%;
+height:110%;
+background:url('https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1600&auto=format&fit=crop') center center/cover;
+animation:zoom 30s ease-in-out infinite alternate;
+filter:brightness(.8);
+}
+@keyframes zoom{
+from{transform:scale(1)}
+to{transform:scale(1.08)}
+}
+.agent{
+position:absolute;
+bottom:0;
+left:50%;
+transform:translateX(-50%);
+height:88%;
+object-fit:contain;
+filter:drop-shadow(0 15px 30px rgba(0,0,0,.6));
+}
+.logo{
+position:absolute;
+top:30px;
+left:50%;
+transform:translateX(-50%);
+font-size:54px;
+font-weight:800;
+letter-spacing:3px;
+color:#ffffff;
+text-shadow:0 0 20px rgba(0,0,0,.6);
+}
+.logo span{
+background:#111;
+padding:4px 10px;
+border-radius:6px;
+font-size:34px;
+vertical-align:middle;
+}
+.sub{
+position:absolute;
+top:95px;
+left:50%;
+transform:translateX(-50%);
+font-size:26px;
+letter-spacing:4px;
+color:#fff;
+}
+.teleprompter{
+position:absolute;
+right:40px;
+top:120px;
+width:360px;
+height:65vh;
+background:rgba(0,0,0,.55);
+border:1px solid rgba(255,255,255,.15);
+backdrop-filter:blur(10px);
+border-radius:24px;
+overflow:hidden;
+padding:30px;
+}
+.scroll{
+position:absolute;
+width:100%;
+animation:scrollText 30s linear infinite;
+color:#fff;
+font-size:30px;
+line-height:1.7;
+padding-right:60px;
+}
+@keyframes scrollText{
+from{top:100%}
+to{top:-140%}
+}
+.controls{
+position:absolute;
+bottom:25px;
+left:50%;
+transform:translateX(-50%);
+width:90%;
+background:rgba(0,0,0,.5);
+padding:16px 24px;
+border-radius:20px;
+display:flex;
+align-items:center;
+gap:20px;
+}
+.play{
+width:65px;
+height:65px;
+border-radius:50%;
+background:#d4a95f;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:28px;
+color:#000;
+font-weight:bold;
+}
+.bar{
+flex:1;
+height:10px;
+background:#444;
+border-radius:10px;
+overflow:hidden;
+}
+.progress{
+width:35%;
+height:100%;
+background:#d4a95f;
+animation:progress 30s linear infinite;
+}
+@keyframes progress{
+from{width:0}
+to{width:100%}
+}
+.time{
+color:#fff;
+font-size:22px;
+}
+.fade{
+position:absolute;
+bottom:0;
+width:100%;
+height:200px;
+background:linear-gradient(transparent,#000);
+}
+@media(max-width:900px){
+.teleprompter{width:90%;left:5%;right:auto;top:auto;bottom:120px;height:220px}
+.scroll{font-size:22px}
+.logo{font-size:36px}
+.sub{top:78px;font-size:16px}
+.agent{height:72%}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="bg"></div>
+
+<div class="logo">LENSFLOW <span>PRO</span></div>
+<div class="sub">ELITE ACCESS</div>
+
+<img class="agent" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=900&auto=format&fit=crop" />
+
+<div class="teleprompter">
+<div class="scroll">
+Thinking about selling your home?<br><br>
+In today's market, you need more than just a sign in the yard.<br><br>
+I use elite marketing, cinematic video, and AI-powered content to showcase your home to the right buyers.<br><br>
+My goal is simple — to get you top dollar in the least amount of time possible.<br><br>
+Luxury presentation. Proven results. Maximum exposure.<br><br>
+Let's make your next move your best move with LensFlow.
+</div>
+</div>
+
+<div class="controls">
+<div class="play">▶</div>
+<div class="time">0:08 / 0:30</div>
+<div class="bar"><div class="progress"></div></div>
+</div>
+
+<div class="fade"></div>
+</div>
+</body>
+</html>

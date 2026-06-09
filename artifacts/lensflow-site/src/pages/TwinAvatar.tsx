@@ -165,6 +165,76 @@ export default function TwinAvatar() {
         </motion.div>
       </section>
 
+      {/* ── AVATAR SHOWCASE ──────────────────────────────────────────────── */}
+      <section className="py-24 bg-background border-y border-white/5">
+        <div className="max-w-6xl mx-auto px-6">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <motion.h2 variants={fadeUp} className="font-serif text-4xl lg:text-5xl font-bold mb-4">
+              The Human Touch. The Machine Speed.
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Meet the digital avatars delivering your listings with real warmth and perfect consistency.
+            </motion.p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Mia Card */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="rounded-3xl border border-white/5 bg-card overflow-hidden group"
+            >
+              <div className="aspect-[4/3] overflow-hidden">
+                <img
+                  src="/presenters/mia-poster.jpg"
+                  alt="Mia — AI Presenter"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <div className="p-6 text-center">
+                <h3 className="text-2xl font-bold mb-1">Mia</h3>
+                <p className="text-sm text-primary font-medium mb-2">Waterfront & Lifestyle Specialist</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Warm, empathetic delivery that makes families feel at home before they’ve stepped through the door.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Oliver Card */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="rounded-3xl border border-white/5 bg-card overflow-hidden group"
+            >
+              <div className="aspect-[4/3] overflow-hidden">
+                <img
+                  src="/presenters/oliver-poster.jpg"
+                  alt="Oliver — AI Presenter"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <div className="p-6 text-center">
+                <h3 className="text-2xl font-bold mb-1">Oliver</h3>
+                <p className="text-sm text-primary font-medium mb-2">Inner-City & Investment Specialist</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Confident, authoritative tone tailored for investors and urban professionals.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* ── COFFEE MOMENT ────────────────────────────────────────────────── */}
       <section className="py-24 bg-card border-y border-white/5">
         <div className="max-w-6xl mx-auto px-6">

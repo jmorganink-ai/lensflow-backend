@@ -66,6 +66,26 @@ const presenters = [
       { label: "Best for", value: "Suburban & regional" },
     ],
   },
+  {
+    id: "james",
+    name: "James",
+    role: "Prestige & Commercial Presenter",
+    tagline: "Authoritative and refined — built for prestige listings, commercial assets, and developer campaigns.",
+    bio: "James delivers with gravitas and precision. His measured, authoritative tone commands attention in high-stakes presentations — perfect for prestige homes, commercial portfolios, off-the-plan developments, and anything where confidence sells.",
+    poster: "/presenters/james-poster.jpg",
+    video: "/videos/james-presenter.mp4",
+    audio: "/presenters/james-preview.mp3",
+    bestFor: ["Prestige & luxury", "Commercial assets", "Developments & off-the-plan", "Portfolio campaigns"],
+    color: "from-emerald-900/40 to-black",
+    accent: "border-emerald-500/30",
+    accentBg: "bg-emerald-500/10",
+    accentText: "text-emerald-400",
+    stats: [
+      { label: "Best buyer match", value: "Investors & prestige" },
+      { label: "Tone", value: "Authoritative & refined" },
+      { label: "Best for", value: "Commercial & developer" },
+    ],
+  },
 ];
 
 function PresenterCard({ presenter }: { presenter: typeof presenters[0] }) {
@@ -170,12 +190,12 @@ export default function Presenters() {
             <div className="py-16 lg:py-32 pr-0 lg:pr-12">
               <p className="mb-4 text-sm uppercase tracking-[0.24em] text-primary">AI Presenters</p>
               <h1 className="font-serif text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-                Three presenters.<br />
+                Four presenters.<br />
                 Every property type<br />
                 <span className="text-primary">covered.</span>
               </h1>
               <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-lg">
-                Mia, Oliver and Sophie are Australian AI presenters — each matched to a different buyer audience. LensFlow writes them a property-specific script from your listing URL and renders a broadcast-quality video in minutes.
+                Mia, Oliver, Sophie and James are Australian AI presenters — each matched to a different buyer audience. LensFlow writes them a property-specific script from your listing URL and renders a broadcast-quality video in minutes.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -193,17 +213,18 @@ export default function Presenters() {
             </div>
 
             {/* Photo collage — desktop only */}
-            <div className="hidden lg:grid grid-cols-3 gap-3 py-8 h-[560px]">
-              <div className="col-span-2 overflow-hidden rounded-t-[2rem]">
+            <div className="hidden lg:grid grid-cols-2 gap-3 py-8 h-[560px]">
+              <div className="overflow-hidden rounded-t-[2rem]">
                 <img src="/presenters/mia-poster.jpg" alt="Mia" className="h-full w-full object-cover object-top" />
               </div>
-              <div className="flex flex-col gap-3">
-                <div className="flex-1 overflow-hidden rounded-t-[2rem]">
-                  <img src="/presenters/oliver-poster.jpg" alt="Oliver" className="h-full w-full object-cover object-top" />
-                </div>
-                <div className="flex-1 overflow-hidden rounded-[1rem]">
-                  <img src="/presenters/sophie-poster.jpg" alt="Sophie" className="h-full w-full object-cover object-top" />
-                </div>
+              <div className="overflow-hidden rounded-t-[2rem]">
+                <img src="/presenters/oliver-poster.jpg" alt="Oliver" className="h-full w-full object-cover object-top" />
+              </div>
+              <div className="overflow-hidden rounded-[1rem]">
+                <img src="/presenters/sophie-poster.jpg" alt="Sophie" className="h-full w-full object-cover object-top" />
+              </div>
+              <div className="overflow-hidden rounded-[1rem]">
+                <img src="/presenters/james-poster.jpg" alt="James" className="h-full w-full object-cover object-top" />
               </div>
             </div>
           </div>
@@ -234,7 +255,7 @@ export default function Presenters() {
           <div className="grid gap-5 sm:grid-cols-3">
             {[
               { step: "01", title: "Claude AI reads your listing", body: "Suburb, bedrooms, style and price point are extracted from the URL and used to write a script tailored to your exact property." },
-              { step: "02", title: "Your presenter delivers it", body: "Mia, Oliver or Sophie narrate the script with a natural Australian accent, emotion and delivery matched to the listing type." },
+              { step: "02", title: "Your presenter delivers it", body: "Mia, Oliver, Sophie or James narrate the script with a natural Australian accent, emotion and delivery matched to the listing type." },
               { step: "03", title: "HeyGen renders the video", body: "Professional lipsync, broadcast-quality render and finished MP4 — ready to post within minutes, not days." },
             ].map((s) => (
               <div key={s.step} className="rounded-[1.75rem] border border-white/10 bg-background p-7">
