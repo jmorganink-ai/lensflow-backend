@@ -17,6 +17,16 @@ async function authHeaders(extra?: Record<string, string>): Promise<Record<strin
   };
 }
 
+export async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
+  return fetch(`${getApiBaseUrl()}/api${path}`, {
+    ...init,
+    headers: {
+      ...(await authHeaders()),
+      ...(init?.headers ?? {}),
+    },
+  });
+}
+
 export async function createMorganConversation(): Promise<number> {
   const res = await fetch(`${getApiBaseUrl()}/api/anthropic/conversations`, {
     method: "POST",
