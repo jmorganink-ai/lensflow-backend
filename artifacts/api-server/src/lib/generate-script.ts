@@ -6,6 +6,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 export interface ScriptResult {
   script: string;
   title: string;
+  musicMood?: "luxury" | "cinematic" | "calm" | "coastal" | "family" | "upbeat" | "prestige" | "modern";
 }
 
 /**
@@ -165,9 +166,10 @@ Your presenting style: ${persona.style}
 ${sourceLine}
 ${contextLines.length > 0 ? contextLines.join("\n") : ""}
 
-Respond with a JSON object with exactly two fields:
+Respond with a JSON object with exactly three fields:
 - "title": a short descriptive property title (max 60 chars, e.g. "3-Bed Family Home in Paddington" or "Luxury Penthouse · Sydney CBD")
 - "script": the spoken presenter script
+- "musicMood": one of luxury, cinematic, calm, coastal, family, upbeat, prestige, modern
 
 The script should:
 - ${persona.opening}
@@ -200,19 +202,26 @@ export async function generateListingScript(
     // Extract JSON from response
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]) as { title?: string; script?: string };
+      const parsed = JSON.parse(jsonMatch[0]) as {
+        title?: string;
+        script?: string;
+        musicMood?: "luxury" | "cinematic" | "calm" | "coastal" | "family" | "upbeat" | "prestige" | "modern";
+      };
       if (parsed.script) {
-        logger.info({ listingUrl, voiceName, chars: parsed.script.length }, "Anthropic script generated");
-        return { script: parsed.script, title: parsed.title ?? "" };
+        logger.info(
+          { listingUrl, voiceName, chars: parsed.script.length, musicMood: parsed.musicMood ?? null },
+          "Anthropic script generated",
+        );
+        return { script: parsed.script, title: parsed.title ?? "", musicMood: parsed.musicMood };
       }
     }
     // If JSON parse fails, treat entire response as script
     logger.info({ listingUrl, voiceName, chars: raw.length }, "Anthropic script generated (raw)");
-    return { script: raw, title: "" };
+    return { script: raw, title: "", musicMood: undefined };
   } catch (err) {
     logger.error({ err, listingUrl, voiceName }, "Anthropic script generation failed — using fallback");
     const fb = buildFallbackScript(listingUrl, domain(listingUrl), voiceName);
-    return { script: fb, title: "" };
+    return { script: fb, title: "", musicMood: undefined };
   }
 }
 

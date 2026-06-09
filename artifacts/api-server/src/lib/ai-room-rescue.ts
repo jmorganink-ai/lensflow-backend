@@ -9,7 +9,7 @@ import { ObjectStorageService } from "./objectStorage";
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_LENSFLOW_API_KEY ?? process.env.GEMINI_API_KEY });
 const objectStorageService = new ObjectStorageService();
 
-const RESCUE_MODEL = "gemini-2.5-flash-image";
+const RESCUE_MODEL = "gemini-2.0-flash-exp";
 
 export type RoomRescueMode = "declutter" | "staging";
 
@@ -135,7 +135,7 @@ export async function rescuePropertyPhotos(
   imageUrls: string[],
   mode: RoomRescueMode,
 ): Promise<{ rescued: string[]; rescuedCount: number }> {
-  const MAX_RESCUE = 8;
+const MAX_RESCUE = 12;
   const toRescue = imageUrls.slice(0, MAX_RESCUE);
   const passthrough = imageUrls.slice(MAX_RESCUE);
   const rescued: string[] = [];

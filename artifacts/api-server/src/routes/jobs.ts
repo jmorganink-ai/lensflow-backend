@@ -517,10 +517,10 @@ export async function runSimulation(jobId: string): Promise<void> {
           // ── Auto-music selection (LF-AUTO-MUSIC-MOOD) ──────────────────────
           // Non-blocking: if this fails the pipeline continues with static fallback.
           try {
-            const music = await selectAndFetchMusic(listingContext, result.script);
+            const music = await selectAndFetchMusic(listingContext, result.script, result.musicMood ?? null);
             selectedMusicUrl = music.trackUrl;
             logger.info(
-              { jobId, mood: music.mood, trackId: music.trackId, trackName: music.trackName, provider: music.provider, volume: 0.15 },
+              { jobId, mood: music.mood, trackId: music.trackId, trackName: music.trackName, provider: music.provider, volume: 0.12 },
               "Auto-music selection complete",
             );
             await db
@@ -569,12 +569,17 @@ export async function runSimulation(jobId: string): Promise<void> {
         } else {
           // AI Presenter — D-ID is primary; HeyGen is fallback
           const script = generatedScript ?? buildVoiceoverScript(job.listingUrl);
+          const didTestMode = job.userId === null || process.env.NODE_ENV === "development";
           try {
-            logger.info({ jobId, voiceName: job.voiceName, usingAudioUrl: !!voiceoverPublicUrl }, "Generating presenter video with D-ID (primary)");
+            logger.info(
+              { jobId, voiceName: job.voiceName, usingAudioUrl: !!voiceoverPublicUrl, testMode: didTestMode },
+              "Generating presenter video with D-ID (primary)",
+            );
             const didResult = await generatePresenterVideoDID(script, {
               presenterName: job.voiceName ?? undefined,
               audioUrl: voiceoverPublicUrl ?? null,
               timeoutMs: 420_000, // clips take ~5 min; 7 min ceiling
+              testMode: didTestMode,
             });
             // D-ID returns a pre-signed S3 URL that Shotstack cannot access.
             // Mirror the video to our own object storage so Shotstack gets a stable public URL.
@@ -586,7 +591,15 @@ export async function runSimulation(jobId: string): Promise<void> {
             const mirroredUrl = await storageForDID.uploadPublicBuffer(didVideoBuffer, `presenter-videos/${jobId}.mp4`, "video/mp4");
             presenterVideoUrl = mirroredUrl;
             outputUrl = mirroredUrl;
-            logger.info({ jobId, mirroredUrl }, "D-ID presenter video mirrored to storage");
+            logger.info(
+              {
+                jobId,
+                mirroredUrl,
+                bytes: didVideoBuffer.length,
+                contentType: didVideoRes.headers.get("content-type") ?? "video/mp4",
+              },
+              "D-ID presenter video mirrored to storage without re-encoding",
+            );
           } catch (didErr) {
             const reason = didErr instanceof Error ? didErr.message : String(didErr);
             logger.warn({ jobId, reason }, "D-ID presenter video failed — switching to HeyGen fallback");

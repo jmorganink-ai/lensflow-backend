@@ -75,6 +75,21 @@ export interface ShotstackResult {
   renderId: string;
 }
 
+interface MusicMixOptions {
+  musicUrl?: string | null;
+  musicVolume?: number;
+  fadeEffect?: "fadeInFadeOut" | "fadeIn" | "fadeOut";
+}
+
+function buildSoundtrack(options?: MusicMixOptions) {
+  if (!options?.musicUrl) return null;
+  return {
+    src: options.musicUrl,
+    effect: options.fadeEffect ?? "fadeInFadeOut",
+    volume: options.musicVolume ?? 0.12,
+  };
+}
+
 /**
  * premium_luxury_v1 — Structured 5-act cinematic real estate presenter video.
  *
@@ -384,18 +399,18 @@ export async function composePresenterVideoPremiumLuxuryV1(
   ];
 
   // Music URL: prefer caller-supplied URL (HeyGen auto-music) over static map key
-  const MUSIC_VOLUME = 0.15; // voice sits cleanly on top
+  const MUSIC_VOLUME = 0.12;
   const resolvedMusicUrl = musicUrl
     ?? (musicTrack && MUSIC_TRACK_URLS[musicTrack] ? MUSIC_TRACK_URLS[musicTrack] : null)
     ?? MUSIC_TRACK_URLS["luxury"]!;
   logger.info({ resolvedMusicUrl, volume: MUSIC_VOLUME }, "Shotstack soundtrack");
-  const soundtrack = { src: resolvedMusicUrl, effect: "fadeInFadeOut", volume: MUSIC_VOLUME };
+  const soundtrack = buildSoundtrack({ musicUrl: resolvedMusicUrl, musicVolume: MUSIC_VOLUME });
 
   const renderRes = await fetch(`${baseUrl}/render`, {
     method: "POST",
     headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({
-      timeline: { background: "#0d1117", soundtrack, tracks },
+      timeline: { background: "#0d1117", ...(soundtrack ? { soundtrack } : {}), tracks },
       output: { format: "mp4", resolution: testMode ? "sd" : "1080", fps: 30 },
     }),
   });
@@ -463,14 +478,14 @@ export async function composeSelfieVideo(
   const watermarkClip = { asset: { type: "title", text: `lensflow.com.au  ·  ${domain}`, style: "minimal", color: "#C9962A", size: "x-small" }, start: 0, length: TOTAL_DURATION, position: "topRight", offset: { x: -0.02, y: -0.04 } };
 
   const musicUrl = musicTrack ? MUSIC_TRACK_URLS[musicTrack] : MUSIC_TRACK_URLS["uplifting"];
-  const soundtrack = { src: musicUrl, effect: "fadeInFadeOut", volume: narrationUrl ? 0.12 : 0.35 };
+  const soundtrack = buildSoundtrack({ musicUrl, musicVolume: narrationUrl ? 0.1 : 0.3 });
 
   const tracks = [backgroundTrack, overlayTrack, agentTrack, ...(narrationTrack ? [narrationTrack] : []), { clips: [titleClip] }, { clips: [watermarkClip] }];
 
   const renderRes = await fetch(`${baseUrl}/render`, {
     method: "POST",
     headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
-    body: JSON.stringify({ timeline: { background: "#0d1117", soundtrack, tracks }, output: { format: "mp4", resolution: "1080", fps: 30 } }),
+    body: JSON.stringify({ timeline: { background: "#0d1117", ...(soundtrack ? { soundtrack } : {}), tracks }, output: { format: "mp4", resolution: "1080", fps: 30 } }),
   });
 
   if (!renderRes.ok) throw new Error(`Shotstack selfie render submit failed (${renderRes.status}): ${await renderRes.text()}`);
@@ -529,19 +544,19 @@ export async function composeVoicePhotosVideo(
   const ctaClip = { asset: { type: "title", text: "Book Your Inspection Today", style: "future", color: "#C9962A", size: "medium" }, start: TOTAL_DURATION - 8, length: 7, position: "center", offset: { x: 0, y: 0.1 }, transition: { in: "fade", out: "fade" } };
   const watermarkClip = { asset: { type: "title", text: `lensflow.com.au  ·  ${domain}`, style: "minimal", color: "#C9962A", size: "x-small" }, start: 0, length: TOTAL_DURATION, position: "topRight", offset: { x: -0.02, y: -0.04 } };
 
-  const VOICE_PHOTOS_VOLUME = voiceoverUrl ? 0.15 : 0.45;
+  const VOICE_PHOTOS_VOLUME = voiceoverUrl ? 0.1 : 0.35;
   const resolvedVPMusicUrl = musicUrl
     ?? (musicTrack && MUSIC_TRACK_URLS[musicTrack] ? MUSIC_TRACK_URLS[musicTrack] : null)
     ?? MUSIC_TRACK_URLS["uplifting"]!;
   logger.info({ resolvedVPMusicUrl, volume: VOICE_PHOTOS_VOLUME }, "Shotstack voice-photos soundtrack");
-  const soundtrack = { src: resolvedVPMusicUrl, effect: "fadeInFadeOut", volume: VOICE_PHOTOS_VOLUME };
+  const soundtrack = buildSoundtrack({ musicUrl: resolvedVPMusicUrl, musicVolume: VOICE_PHOTOS_VOLUME });
 
   const tracks = [buildPhotoTrack(), ...(vignetteTrack ? [vignetteTrack] : []), ...(voiceoverTrack ? [voiceoverTrack] : []), { clips: [titleClip] }, { clips: [ctaClip] }, { clips: [watermarkClip] }];
 
   const renderRes = await fetch(`${baseUrl}/render`, {
     method: "POST",
     headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
-    body: JSON.stringify({ timeline: { background: "#0d1117", soundtrack, tracks }, output: { format: "mp4", resolution: "1080", fps: 30 } }),
+    body: JSON.stringify({ timeline: { background: "#0d1117", ...(soundtrack ? { soundtrack } : {}), tracks }, output: { format: "mp4", resolution: "1080", fps: 30 } }),
   });
 
   if (!renderRes.ok) throw new Error(`Shotstack voice-photos render submit failed (${renderRes.status}): ${await renderRes.text()}`);

@@ -2,6 +2,7 @@ import express, { type Express } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
+import fs from "fs";
 import path from "path";
 import router from "./routes";
 import { logger } from "./lib/logger";
@@ -9,6 +10,26 @@ import { authMiddleware } from "./middlewares/authMiddleware";
 import { WebhookHandlers } from "./webhookHandlers";
 
 const app: Express = express();
+
+function resolveWorkspaceRoot() {
+  const candidates = [
+    process.cwd(),
+    path.resolve(process.cwd(), "..", ".."),
+    path.resolve(process.cwd(), "lensflow"),
+  ];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(path.join(candidate, "artifacts/lensflow-site/dist/public/index.html"))) {
+      return candidate;
+    }
+  }
+
+  return process.cwd();
+}
+
+const workspaceRoot = resolveWorkspaceRoot();
+const marketingSiteDist = path.join(workspaceRoot, "artifacts/lensflow-site/dist/public");
+const pipelineAppDist = path.join(workspaceRoot, "artifacts/lensflow/dist/public");
 
 // Build CORS allowlist from environment + hardcoded custom domains.
 // REPLIT_DOMAINS is a comma-separated list of all domains serving this repl
@@ -85,9 +106,22 @@ app.use(authMiddleware);
 
 // Serve background images/clips used in selfie video composition.
 // These are accessed by Shotstack via the public domain URL at render time.
-const backgroundsDir = path.join(process.cwd(), "artifacts/api-server/public/backgrounds");
+const backgroundsDir = path.join(workspaceRoot, "artifacts/api-server/public/backgrounds");
 app.use("/api/backgrounds", express.static(backgroundsDir, { maxAge: "7d" }));
 
 app.use("/api", router);
+app.use("/pipeline", express.static(pipelineAppDist, { index: false }));
+app.get("/pipeline/*", (_req, res) => {
+  res.sendFile(path.join(pipelineAppDist, "index.html"));
+});
+
+app.use(express.static(marketingSiteDist, { index: false }));
+app.get("/{*splat}", (req, res, next) => {
+  if (req.path.startsWith("/api/") || req.path.startsWith("/pipeline/")) {
+    next();
+    return;
+  }
+  res.sendFile(path.join(marketingSiteDist, "index.html"));
+});
 
 export default app;

@@ -4,9 +4,8 @@ import type { ListingContext } from "./generate-script";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const HEYGEN_API_BASE = "https://api.heygen.com";
+const SHOTSTACK_AUDIO_API_BASE = "https://api.shotstack.io/audio/v1";
 
-// Music moods supported — maps to natural-language queries for HeyGen semantic search
 export type MusicMood =
   | "luxury"
   | "cinematic"
@@ -28,16 +27,15 @@ const MOOD_QUERIES: Record<MusicMood, string> = {
   modern:    "modern contemporary electronic clean minimal corporate",
 };
 
-// Safe static fallback URLs — used only when HeyGen music search fails entirely
-const STATIC_FALLBACK_URLS: Record<MusicMood, string> = {
-  luxury:    "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
-  cinematic: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
-  calm:      "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/ambisax.mp3",
-  coastal:   "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
-  family:    "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
-  upbeat:    "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
-  prestige:  "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3",
-  modern:    "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3",
+const STATIC_FALLBACK_TRACKS: Record<MusicMood, { trackName: string; trackUrl: string; provider: string }> = {
+  luxury:    { trackName: "Berlin", trackUrl: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3", provider: "shotstack-static" },
+  cinematic: { trackName: "Berlin", trackUrl: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3", provider: "shotstack-static" },
+  calm:      { trackName: "Ambisax", trackUrl: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/ambisax.mp3", provider: "shotstack-static" },
+  coastal:   { trackName: "Lit", trackUrl: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3", provider: "shotstack-static" },
+  family:    { trackName: "Lit", trackUrl: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3", provider: "shotstack-static" },
+  upbeat:    { trackName: "Lit", trackUrl: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3", provider: "shotstack-static" },
+  prestige:  { trackName: "Berlin", trackUrl: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/berlin.mp3", provider: "shotstack-static" },
+  modern:    { trackName: "Lit", trackUrl: "https://shotstack-assets.s3-ap-southeast-2.amazonaws.com/music/unminus/lit.mp3", provider: "shotstack-static" },
 };
 
 export interface MusicSelection {
@@ -45,7 +43,7 @@ export interface MusicSelection {
   trackId: string | null;
   trackName: string | null;
   trackUrl: string;
-  provider: "heygen" | "static";
+  provider: string;
 }
 
 /**
@@ -55,7 +53,13 @@ export interface MusicSelection {
 async function selectMoodWithClaude(
   listingContext: ListingContext,
   script: string,
+  preferredMood?: MusicMood | null,
 ): Promise<MusicMood> {
+  if (preferredMood && preferredMood in MOOD_QUERIES) {
+    logger.info({ mood: preferredMood }, "Using script-selected music mood");
+    return preferredMood;
+  }
+
   const contextParts: string[] = [];
   if (listingContext.propertyType) contextParts.push(`Type: ${listingContext.propertyType}`);
   if (listingContext.suburb)       contextParts.push(`Suburb: ${listingContext.suburb}`);
@@ -117,53 +121,81 @@ Respond with ONLY the single mood word from the list above. No explanation.`;
 }
 
 /**
- * Search HeyGen /v3/audio/sounds for the best track matching the mood query.
+ * Search Shotstack /v3/audio/sounds for the best track matching the mood query.
  * Returns the top result or null if search fails.
  */
-async function searchHeyGenTrack(mood: MusicMood): Promise<{ id: string; name: string; url: string } | null> {
-  const apiKey = process.env.HEYGEN_API_KEY;
+async function searchShotstackTrack(
+  mood: MusicMood,
+  listingContext: ListingContext,
+  script: string,
+): Promise<{ id: string; name: string; url: string; provider: string } | null> {
+  const apiKey = (process.env.SHOTSTACK_PROD_API_KEY ?? process.env.SHOTSTACK_PRODUCTION_API_KEY ?? process.env.SHOTSTACK_API_KEY ?? process.env.SHOTSTACK_SANDBOX_API_KEY)?.trim();
   if (!apiKey) {
-    logger.warn("HEYGEN_API_KEY not set — skipping HeyGen music search");
+    logger.warn("Shotstack API key not set — skipping Shotstack music search");
     return null;
   }
 
-  const query = MOOD_QUERIES[mood];
-  const url = `${HEYGEN_API_BASE}/v3/audio/sounds?query=${encodeURIComponent(query)}&limit=3&min_score=0.65`;
+  const contextTerms = [
+    listingContext.propertyType,
+    listingContext.suburb,
+    listingContext.summary,
+    listingContext.scrapedDescription,
+    script.slice(0, 180),
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const query = `${MOOD_QUERIES[mood]} ${contextTerms}`.trim();
+  const url = `${SHOTSTACK_AUDIO_API_BASE}/sounds?query=${encodeURIComponent(query)}&limit=5`;
 
   try {
     const res = await fetch(url, {
-      headers: { "x-api-key": apiKey },
+      headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
       signal: AbortSignal.timeout(10_000),
     });
 
     if (!res.ok) {
-      logger.warn({ status: res.status, mood }, "HeyGen music search HTTP error");
+      logger.warn({ status: res.status, mood }, "Shotstack music search HTTP error");
       return null;
     }
 
     const data = (await res.json()) as {
-      data?: {
-        items?: Array<{
-          id: string;
-          name: string;
-          audio_url: string;
-          duration: number;
-          score: number;
+      response?: {
+        data?: Array<{
+          id?: string;
+          title?: string;
+          name?: string;
+          url?: string;
+          preview?: string;
+          preview_url?: string;
+          provider?: string;
         }>;
       };
     };
 
-    const items = data.data?.items ?? [];
+    const items = data.response?.data ?? [];
     if (items.length === 0) {
-      logger.warn({ mood }, "HeyGen music search returned no results");
+      logger.warn({ mood }, "Shotstack music search returned no results");
       return null;
     }
 
-    const best = items[0]!;
-    logger.info({ mood, trackId: best.id, trackName: best.name, score: best.score, duration: best.duration }, "HeyGen music track selected");
-    return { id: best.id, name: best.name, url: best.audio_url };
+    const best = items.find((item) => item.url || item.preview || item.preview_url) ?? items[0]!;
+    const resolvedUrl = best.url ?? best.preview ?? best.preview_url;
+    if (!resolvedUrl) {
+      logger.warn({ mood, trackId: best.id ?? null }, "Shotstack music result missing usable URL");
+      return null;
+    }
+    logger.info(
+      { mood, trackId: best.id ?? null, trackName: best.title ?? best.name ?? null, provider: best.provider ?? "shotstack" },
+      "Shotstack music track selected",
+    );
+    return {
+      id: best.id ?? "",
+      name: best.title ?? best.name ?? "Untitled track",
+      url: resolvedUrl,
+      provider: best.provider ?? "shotstack",
+    };
   } catch (err) {
-    logger.warn({ err, mood }, "HeyGen music search failed");
+    logger.warn({ err, mood }, "Shotstack music search failed");
     return null;
   }
 }
@@ -179,38 +211,36 @@ async function searchHeyGenTrack(mood: MusicMood): Promise<{ id: string; name: s
 export async function selectAndFetchMusic(
   listingContext: ListingContext,
   script: string,
+  preferredMood?: MusicMood | null,
 ): Promise<MusicSelection> {
-  // Step 1: Claude mood selection
-  const mood = await selectMoodWithClaude(listingContext, script);
+  const mood = await selectMoodWithClaude(listingContext, script, preferredMood);
 
-  // Step 2: HeyGen track search
-  const heygenTrack = await searchHeyGenTrack(mood);
+  const shotstackTrack = await searchShotstackTrack(mood, listingContext, script);
 
-  if (heygenTrack) {
+  if (shotstackTrack) {
     logger.info(
-      { mood, trackId: heygenTrack.id, trackName: heygenTrack.name, provider: "heygen", volume: 0.15 },
-      "Music selection complete — HeyGen track",
+      { mood, trackId: shotstackTrack.id || null, trackName: shotstackTrack.name, provider: shotstackTrack.provider, volume: 0.12 },
+      "Music selection complete — Shotstack track",
     );
     return {
       mood,
-      trackId: heygenTrack.id,
-      trackName: heygenTrack.name,
-      trackUrl: heygenTrack.url,
-      provider: "heygen",
+      trackId: shotstackTrack.id || null,
+      trackName: shotstackTrack.name,
+      trackUrl: shotstackTrack.url,
+      provider: shotstackTrack.provider,
     };
   }
 
-  // Step 3: Static fallback
-  const fallbackUrl = STATIC_FALLBACK_URLS[mood];
+  const fallbackTrack = STATIC_FALLBACK_TRACKS[mood];
   logger.info(
-    { mood, provider: "static", fallbackUrl, volume: 0.15 },
+    { mood, provider: fallbackTrack.provider, fallbackUrl: fallbackTrack.trackUrl, volume: 0.12 },
     "Music selection complete — static fallback track",
   );
   return {
     mood,
     trackId: null,
-    trackName: `${mood} (static fallback)`,
-    trackUrl: fallbackUrl,
-    provider: "static",
+    trackName: fallbackTrack.trackName,
+    trackUrl: fallbackTrack.trackUrl,
+    provider: fallbackTrack.provider,
   };
 }

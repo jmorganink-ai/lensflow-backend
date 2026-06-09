@@ -66,6 +66,34 @@ export interface DIDOptions {
   audioUrl?: string | null;
   /** Maximum ms to wait for the video (default 180 s — clips take longer than talks). */
   timeoutMs?: number;
+  /** Test/dev mode uses shorter scripts to target ~10 second outputs. */
+  testMode?: boolean;
+}
+
+const TEST_MODE_TARGET_SECONDS = 10;
+const PRODUCTION_TARGET_SECONDS = 30;
+const APPROX_WORDS_PER_SECOND = 2.4;
+
+function limitScriptForDuration(script: string, targetSeconds: number): string {
+  const normalized = script.replace(/\s+/g, " ").trim();
+  if (!normalized) return normalized;
+
+  const maxWords = Math.max(1, Math.floor(targetSeconds * APPROX_WORDS_PER_SECOND));
+  const words = normalized.split(" ");
+  if (words.length <= maxWords) return normalized;
+
+  const truncated = words.slice(0, maxWords).join(" ").trim();
+  const lastSentenceBreak = Math.max(
+    truncated.lastIndexOf(". "),
+    truncated.lastIndexOf("! "),
+    truncated.lastIndexOf("? "),
+  );
+
+  if (lastSentenceBreak >= Math.floor(truncated.length * 0.6)) {
+    return truncated.slice(0, lastSentenceBreak + 1).trim();
+  }
+
+  return `${truncated.replace(/[.,;:!?-]*$/, "").trim()}.`;
 }
 
 function getAuthHeaders(apiKey: string) {
@@ -88,7 +116,7 @@ async function generateClip(
   script: string,
   options: DIDOptions = {},
 ): Promise<DIDResult> {
-  const { presenterName, audioUrl, timeoutMs = 180_000 } = options;
+  const { presenterName, audioUrl, timeoutMs = 180_000, testMode = false } = options;
 
   const apiKey = process.env.DID_API_KEY;
   if (!apiKey) throw new Error("DID_API_KEY not set");
@@ -100,16 +128,29 @@ async function generateClip(
       ? CLIP_PRESENTER_IDS[presenterName.toLowerCase()]
       : null) ?? DEFAULT_CLIP_PRESENTER_ID;
 
+  const targetDurationSeconds = testMode
+    ? TEST_MODE_TARGET_SECONDS
+    : PRODUCTION_TARGET_SECONDS;
+  const limitedScript = limitScriptForDuration(script, targetDurationSeconds);
+
   const scriptBlock = audioUrl
     ? { type: "audio", audio_url: audioUrl }
     : {
         type: "text",
-        input: script,
+        input: limitedScript,
         provider: { type: "microsoft", voice_id: DEFAULT_VOICE_ID },
       };
 
   logger.info(
-    { presenterName, presenterId, usingAudioUrl: !!audioUrl },
+    {
+      presenterName,
+      presenterId,
+      usingAudioUrl: !!audioUrl,
+      testMode,
+      targetDurationSeconds,
+      originalScriptLength: script.length,
+      submittedScriptLength: limitedScript.length,
+    },
     "Submitting D-ID clip generation job",
   );
 
@@ -119,7 +160,7 @@ async function generateClip(
     body: JSON.stringify({
       presenter_id: presenterId,
       script: scriptBlock,
-      config: { result_format: "mp4" },
+      config: { result_format: "mp4", output_resolution: 1080 },
     }),
   });
 
@@ -194,7 +235,7 @@ async function generateTalk(
   script: string,
   options: DIDOptions = {},
 ): Promise<DIDResult> {
-  const { presenterName, audioUrl, timeoutMs = 120_000 } = options;
+  const { presenterName, audioUrl, timeoutMs = 120_000, testMode = false } = options;
 
   const apiKey = process.env.DID_API_KEY;
   if (!apiKey) throw new Error("DID_API_KEY not set");
@@ -206,16 +247,29 @@ async function generateTalk(
       ? FALLBACK_PRESENTER_IMAGES[presenterName.toLowerCase()]
       : null) ?? DEFAULT_FALLBACK_IMAGE;
 
+  const targetDurationSeconds = testMode
+    ? TEST_MODE_TARGET_SECONDS
+    : PRODUCTION_TARGET_SECONDS;
+  const limitedScript = limitScriptForDuration(script, targetDurationSeconds);
+
   const scriptBlock = audioUrl
     ? { type: "audio", audio_url: audioUrl }
     : {
         type: "text",
-        input: script,
+        input: limitedScript,
         provider: { type: "microsoft", voice_id: DEFAULT_VOICE_ID },
       };
 
   logger.info(
-    { presenterName, usingAudioUrl: !!audioUrl },
+    {
+      presenterName,
+      sourceImage,
+      usingAudioUrl: !!audioUrl,
+      testMode,
+      targetDurationSeconds,
+      originalScriptLength: script.length,
+      submittedScriptLength: limitedScript.length,
+    },
     "Submitting D-ID talk generation job (fallback)",
   );
 
