@@ -42,6 +42,7 @@ export interface PendingJob {
   voiceId: string;
   voiceName: string;
   propertyImages: string[];
+  proLensUpgrade?: boolean;
 }
 
 export function savePendingJob(job: PendingJob) {
@@ -77,6 +78,7 @@ export function SubmitForm() {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [urlError, setUrlError] = useState("");
+  const [proLensUpgrade, setProLensUpgrade] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
 
@@ -143,6 +145,7 @@ export function SubmitForm() {
       voiceId: selectedPresenter.voiceId,
       voiceName: selectedPresenter.voiceName,
       propertyImages: uploadedPhotos.map((p) => p.publicUrl),
+      proLensUpgrade: proLensUpgrade ? true : undefined,
     };
 
     if (isAuthenticated) {
@@ -335,6 +338,35 @@ export function SubmitForm() {
             </motion.p>
           )}
         </AnimatePresence>
+      </div>
+
+      <div>
+        <label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2 block">
+          Pro Lens Upgrade
+        </label>
+        <button
+          type="button"
+          onClick={() => setProLensUpgrade((v) => !v)}
+          className={`w-full rounded-xl border-2 px-4 py-3 text-left transition-all ${
+            proLensUpgrade
+              ? "border-[#d4a017] bg-[#d4a017]/10 shadow-[0_0_18px_rgba(212,160,23,0.18)]"
+              : "border-white/10 bg-background/40 hover:border-white/20"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className={`text-sm font-semibold ${proLensUpgrade ? "text-[#f3c75f]" : "text-white"}`}>
+                Upgrade with Pro Lens
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Professional lens correction, exposure balancing and colour cleanup with before/after approval.
+              </div>
+            </div>
+            <div className={`w-9 h-5 rounded-full transition-colors flex items-center px-0.5 shrink-0 ${proLensUpgrade ? "bg-[#d4a017]" : "bg-muted"}`}>
+              <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${proLensUpgrade ? "translate-x-4" : "translate-x-0"}`} />
+            </div>
+          </div>
+        </button>
       </div>
 
       {/* Submit */}

@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useColors } from "@/hooks/useColors";
 import type { PipelineStep } from "@workspace/api-client-react";
+import { apiFetch } from "@/lib/api";
 
 const STEP_FALLBACK_LABELS: Record<string, string> = {
   enhance_photos: "AI Photo Glow-up",
@@ -64,6 +65,7 @@ export default function JobDetailScreen() {
   const [copied, setCopied] = useState(false);
   const [copiedCaption, setCopiedCaption] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [upgradeSubmitting, setUpgradeSubmitting] = useState<"approve" | "reject" | null>(null);
 
   const shareCaption = `Just listed! ${job?.listingTitle || job?.propertyAddress || "stunning property"} — see this AI-powered property video 🏠✨\n\n#realestate #propertymarketing #lensflow`;
 
@@ -132,8 +134,26 @@ export default function JobDetailScreen() {
     await Linking.openURL(`https://wa.me/?text=${encodeURIComponent(text)}`);
   }
 
+  async function submitUpgradeDecision(decision: "approve" | "reject") {
+    if (!job?.id || upgradeSubmitting) return;
+    setUpgradeSubmitting(decision);
+    try {
+      await apiFetch(
+        `/jobs/${job.id}/${decision === "approve" ? "approve-upgrade" : "reject-upgrade"}`,
+        { method: "POST" },
+      );
+      await jobQuery.refetch();
+    } finally {
+      setUpgradeSubmitting(null);
+    }
+  }
+
   const title =
     job?.listingTitle || job?.propertyAddress || job?.listingUrl || "Property Video";
+  const showProLensReview =
+    !!job?.propertyImages?.length &&
+    !!job?.proLensImages?.length &&
+    (job?.status === "awaiting_approval" || job?.proLensApproved == null);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -306,6 +326,89 @@ export default function JobDetailScreen() {
                 </Text>
               </View>
             )
+          )}
+
+          {showProLensReview && (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+                Pro Lens Review
+              </Text>
+              <View
+                style={[
+                  styles.reviewCard,
+                  { backgroundColor: colors.card, borderColor: "#d4a01755" },
+                ]}
+              >
+                <Text style={[styles.reviewTitle, { color: "#d4a017" }]}>
+                  Compare the original and upgraded photos
+                </Text>
+                <Text style={[styles.reviewSubtitle, { color: colors.mutedForeground }]}>
+                  Approve to continue with corrected images, or reject to keep the originals.
+                </Text>
+                <View style={styles.reviewGrid}>
+                  {job.propertyImages.map((beforeUri, idx) => {
+                    const afterUri = job.proLensImages?.[idx];
+                    if (!afterUri) return null;
+                    return (
+                      <View
+                        key={`${beforeUri}-${afterUri}-${idx}`}
+                        style={[styles.reviewPair, { borderColor: colors.border }]}
+                      >
+                        <View style={styles.reviewColumn}>
+                          <Text style={[styles.reviewLabel, { color: colors.mutedForeground }]}>
+                            Before
+                          </Text>
+                          <Image source={{ uri: beforeUri }} style={styles.reviewImage} contentFit="cover" />
+                        </View>
+                        <View style={styles.reviewColumn}>
+                          <Text style={[styles.reviewLabel, { color: "#d4a017" }]}>
+                            After
+                          </Text>
+                          <Image source={{ uri: afterUri }} style={styles.reviewImage} contentFit="cover" />
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
+                <View style={styles.reviewActions}>
+                  <Pressable
+                    onPress={() => submitUpgradeDecision("reject")}
+                    disabled={upgradeSubmitting !== null}
+                    style={[
+                      styles.reviewButton,
+                      { backgroundColor: colors.background, borderColor: colors.border },
+                    ]}
+                  >
+                    {upgradeSubmitting === "reject" ? (
+                      <ActivityIndicator color={colors.foreground} size="small" />
+                    ) : (
+                      <>
+                        <Feather name="x" size={16} color={colors.foreground} />
+                        <Text style={[styles.reviewButtonText, { color: colors.foreground }]}>
+                          Reject
+                        </Text>
+                      </>
+                    )}
+                  </Pressable>
+                  <Pressable
+                    onPress={() => submitUpgradeDecision("approve")}
+                    disabled={upgradeSubmitting !== null}
+                    style={[styles.reviewButton, { backgroundColor: "#d4a017" }]}
+                  >
+                    {upgradeSubmitting === "approve" ? (
+                      <ActivityIndicator color="#1f1400" size="small" />
+                    ) : (
+                      <>
+                        <Feather name="check" size={16} color="#1f1400" />
+                        <Text style={[styles.reviewButtonText, { color: "#1f1400" }]}>
+                          Approve Pro Lens
+                        </Text>
+                      </>
+                    )}
+                  </Pressable>
+                </View>
+              </View>
+            </View>
           )}
 
           {/* Pipeline timeline — hidden for self-recorded videos */}
@@ -594,5 +697,63 @@ const styles = StyleSheet.create({
   copyActionText: {
     fontFamily: "Inter_600SemiBold",
     fontSize: 12.5,
+  },
+  reviewCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+  },
+  reviewTitle: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 15,
+  },
+  reviewSubtitle: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: 6,
+    marginBottom: 14,
+  },
+  reviewGrid: {
+    gap: 12,
+  },
+  reviewPair: {
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 10,
+    flexDirection: "row",
+    gap: 10,
+  },
+  reviewColumn: {
+    flex: 1,
+    gap: 6,
+  },
+  reviewLabel: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 11.5,
+  },
+  reviewImage: {
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: 10,
+  },
+  reviewActions: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 16,
+  },
+  reviewButton: {
+    flex: 1,
+    height: 46,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 8,
+    borderWidth: 1,
+  },
+  reviewButtonText: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 14,
   },
 });

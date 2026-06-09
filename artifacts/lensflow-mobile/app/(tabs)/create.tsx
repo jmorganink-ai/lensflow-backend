@@ -72,6 +72,7 @@ export default function CreateScreen() {
   const [musicTrack, setMusicTrack] = useState("");
   const [backgroundImageUrl, setBackgroundImageUrl] = useState("");
   const [enhancePhotos, setEnhancePhotos] = useState(false);
+  const [proLensUpgrade, setProLensUpgrade] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [uploading, setUploading] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -213,6 +214,7 @@ export default function CreateScreen() {
           voiceId: voiceId || undefined,
           voiceName: voiceName || undefined,
           musicTrack: musicTrack || undefined,
+          proLensUpgrade: mode === "photos" && proLensUpgrade ? true : undefined,
         },
       });
       queryClient.invalidateQueries({ queryKey: getListJobsQueryKey() });
@@ -240,6 +242,7 @@ export default function CreateScreen() {
           musicTrack: musicTrack || undefined,
           propertyImages: photos.map((p) => p.publicUrl),
           enhancePhotos: mode === "photos" && enhancePhotos ? true : undefined,
+          proLensUpgrade: mode === "photos" && proLensUpgrade ? true : undefined,
           outputType,
         },
       });
@@ -256,6 +259,7 @@ export default function CreateScreen() {
       setMusicTrack("");
       setBackgroundImageUrl("");
       setEnhancePhotos(false);
+      setProLensUpgrade(false);
 
       router.push(`/job/${job.id}`);
 
@@ -765,6 +769,61 @@ export default function CreateScreen() {
             </Pressable>
           </View>
         </View>
+
+        {/* Pro Lens Upgrade toggle — photo mode only */}
+        {mode === "photos" && (
+          <View style={styles.field}>
+            {label("PRO LENS UPGRADE (OPTIONAL)")}
+            <Pressable
+              onPress={() => setProLensUpgrade((v) => !v)}
+              style={[
+                styles.enhanceCard,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: proLensUpgrade ? "#d4a017" : colors.border,
+                },
+              ]}
+            >
+              <Text style={styles.enhanceEmoji}>📸</Text>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={[
+                    styles.enhanceTitle,
+                    { color: proLensUpgrade ? "#d4a017" : colors.foreground },
+                  ]}
+                >
+                  Upgrade with Pro Lens
+                </Text>
+                <Text style={[styles.enhanceDesc, { color: colors.mutedForeground }]}>
+                  Correct lens distortion, exposure, white balance and window detail before render
+                </Text>
+              </View>
+              <View
+                style={[
+                  styles.togglePill,
+                  { backgroundColor: proLensUpgrade ? "#d4a017" : colors.secondary },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.toggleThumb,
+                    { transform: [{ translateX: proLensUpgrade ? 16 : 0 }] },
+                  ]}
+                />
+              </View>
+            </Pressable>
+            <Text
+              style={[
+                styles.voiceNote,
+                { color: proLensUpgrade ? "#d4a017" : colors.mutedForeground },
+              ]}
+            >
+              {proLensUpgrade
+                ? "✓ Pro Lens will generate corrected before/after previews for approval"
+                : "No Pro Lens upgrade — original photo calibration will be used"}
+            </Text>
+          </View>
+        )}
 
         {/* AI Photo Enhancement toggle — photo mode only */}
         {mode === "photos" && (
