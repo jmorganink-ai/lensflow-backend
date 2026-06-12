@@ -283,6 +283,73 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Two-card feature section */}
+        <section className="bg-[#06080F] border-b border-white/5 py-20 px-6">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-6 md:grid-cols-2">
+
+              {/* Card 01 — Create Your AI Twin */}
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{ duration: 0.6 }}
+                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] hover:border-[#C9A84C]/30 transition-colors duration-300"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-black">
+                  <img
+                    src="/images/twin-digital.png"
+                    alt="Create your AI digital twin"
+                    className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#06080F] via-transparent to-transparent" />
+                </div>
+                <div className="p-8">
+                  <p className="mb-3 text-xs font-bold tracking-[0.2em] text-[#C9A84C] uppercase">
+                    01 ——
+                  </p>
+                  <h3 className="text-2xl font-bold text-white">
+                    Create Your AI Twin
+                  </h3>
+                  <p className="mt-3 text-base leading-7 text-gray-400">
+                    Build a hyper-realistic digital twin in minutes. Record once and your AI clone is ready to present every listing — in your face, your voice, your style.
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Card 02 — Your AI Avatar. Your Voice. */}
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] hover:border-[#C9A84C]/30 transition-colors duration-300"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-black">
+                  <img
+                    src="/images/mia-teleprompter.png"
+                    alt="AI avatar presenting your listing"
+                    className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#06080F] via-transparent to-transparent" />
+                </div>
+                <div className="p-8">
+                  <p className="mb-3 text-xs font-bold tracking-[0.2em] text-[#C9A84C] uppercase">
+                    02 ——
+                  </p>
+                  <h3 className="text-2xl font-bold text-white">
+                    Your AI Avatar. Your Voice.
+                  </h3>
+                  <p className="mt-3 text-base leading-7 text-gray-400">
+                    AI presents your listings with your script and style — reading your words, in your voice, looking straight at camera. Natural eye contact. Confident delivery. Every time.
+                  </p>
+                </div>
+              </motion.div>
+
+            </div>
+          </div>
+        </section>
+
         <section className="border-b border-white/5 bg-background py-16">
           <div className="mx-auto grid max-w-7xl gap-4 px-6 md:grid-cols-4">
             {proofPoints.map((point) => (
