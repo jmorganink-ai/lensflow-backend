@@ -84,6 +84,24 @@ uri = "file://artifacts/lensflow/public/enhancement/after-damage.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "AjkhacT9n1N-_U1U0O_S0"
+uri = "file://artifacts/lensflow-site/public/images/hero-2026.jpg"
+type = "image"
+title = "luxury home hero 2026"
+
+[[generated]]
+id = "4dknDKocWzQTEWGZzT23g"
+uri = "file://artifacts/lensflow-site/public/images/teleprompter-agent.jpg"
+type = "image"
+title = "agent holding phone teleprompter"
+
+[[generated]]
+id = "D6h9dYNqApl30fJjHHRkr"
+uri = "file://artifacts/lensflow-site/public/images/raw-listing.jpg"
+type = "image"
+title = "standard raw listing photo"
+
 [[outputs]]
 id = "GJSJTvrQG8OqI7nTZIiR7"
 uri = "file://exports/sophie-hq.jpg"
