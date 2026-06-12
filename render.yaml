@@ -3,5 +3,6 @@ services:
     name: lensflow-backend
     env: node
     plan: standard
+    root: artifacts/api-server
     buildCommand: pnpm install && pnpm run build
-    startCommand: node ./dist/index.mjs
+    startCommand: node --enable-source-maps ./dist/index.mjs
