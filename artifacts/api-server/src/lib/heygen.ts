@@ -15,7 +15,7 @@ const HEYGEN_API_BASE = "https://api.heygen.com";
 // AVATAR_* must be a valid LOOK ID (not a group ID) — group IDs cause
 // "avatar look not found" errors from HeyGen video generation. Use the first
 // look ID from each presenter group as the default. Verified 2026-06-08.
-const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? "bbed326b42fc45778ac396cdc194a0c6"; // Mia default (approved)
+const AVATAR_MIA     = process.env.HEYGEN_AVATAR_MIA     ?? "46214c5723134232b60e6783b20509f2"; // Mia professional white blouse (verified in group 2026-06-12; old bbed326b look was removed)
 const AVATAR_SOPHIE  = process.env.HEYGEN_AVATAR_SOPHIE  ?? "b1a01a6df4e141d7ab71999b95403455"; // The Elegant, Smiling Real Estate Director
 const AVATAR_OLIVER  = process.env.HEYGEN_AVATAR_OLIVER  ?? "072d3a64f1884dedaaca04d6ac6e7be7"; // Oliver in blue suite
 const AVATAR_JAMES   = process.env.HEYGEN_AVATAR_JAMES   ?? "426df1e119054477a2188b41dbca60cf"; // James Presenter in blue suit

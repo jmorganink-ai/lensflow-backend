@@ -6,11 +6,13 @@ const DID_API_BASE = "https://api.d-id.com";
  * D-ID /clips presenter IDs — trained video presenters, full natural movement.
  * Overridable per-presenter via env vars.
  *
- * Defaults chosen to best match LensFlow's Mia / Oliver / Sophie personas:
- *   mia    → Amber (warm professional female, outdoor)
- *   oliver → Matt  (Australian voice, male, outdoor) — env DID_PRESENTER_OLIVER_YOUNG
- *            Frank (older distinguished male, grey jacket) — env DID_PRESENTER_OLIVER_SENIOR
- *   sophie → Alyssa (polished female, lobby setting)
+ * D-ID has no custom-branded avatars — only ~98 stock presenters — so each
+ * LensFlow persona maps to the closest-matching stock presenter. Override any
+ * mapping with the matching env var if you create/buy a custom D-ID avatar.
+ *   mia    → Amber  (warm professional female, outdoor)        — env DID_PRESENTER_MIA
+ *   oliver → Matt   (Australian male, casual outdoor)          — env DID_PRESENTER_OLIVER
+ *   sophie → Alyssa (polished female, red suite lobby)         — env DID_PRESENTER_SOPHIE
+ *   james  → Dylan  (authoritative male, grey suit, lobby)     — env DID_PRESENTER_JAMES
  */
 const CLIP_PRESENTER_IDS: Record<string, string> = {
   mia:
@@ -22,6 +24,9 @@ const CLIP_PRESENTER_IDS: Record<string, string> = {
   sophie:
     process.env.DID_PRESENTER_SOPHIE ??
     "v2_public_Alyssa_NoHands_RedSuite_Lobby@qtzjxMSwEa",
+  james:
+    process.env.DID_PRESENTER_JAMES ??
+    "v2_public_dylan_grey_suite_lobby@veRJGS_iOD",
 };
 
 const DEFAULT_CLIP_PRESENTER_ID =
@@ -39,6 +44,9 @@ const FALLBACK_PRESENTER_IMAGES: Record<string, string> = {
   sophie:
     process.env.DID_IMAGE_SOPHIE ??
     "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=512&q=80",
+  james:
+    process.env.DID_IMAGE_JAMES ??
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=512&q=80",
 };
 
 const DEFAULT_FALLBACK_IMAGE =
