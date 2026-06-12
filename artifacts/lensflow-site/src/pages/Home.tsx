@@ -14,7 +14,6 @@ import {
   TrendingUp,
   Users,
   Video,
-  Volume2,
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -137,204 +136,107 @@ export default function Home() {
       <Navbar />
 
       <main>
-        {/* Hero Section — Cinematic Storytelling */}
-        <section className="relative min-h-screen bg-[#06080F] text-white flex flex-col overflow-hidden border-b border-white/5">
-          {/* Background glows */}
-          <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-[#C9A84C]/5 to-transparent pointer-events-none" />
-          <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#C9A84C]/8 blur-[150px] rounded-full pointer-events-none" />
+        {/* Hero Section — Luxury Gold */}
+        <section className="relative min-h-screen overflow-hidden border-b border-white/5 bg-[#0A0A0A] text-white">
+          {/* Background image & overlays */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src="/images/luxury-home-golden-hour.png"
+              alt="Luxury Australian property at sunset"
+              className="h-full w-full object-cover opacity-40"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/85 via-[#0A0A0A]/70 to-[#06080F]" />
+            <div className="absolute inset-0 bg-gradient-radial-gold" />
+          </div>
 
           {/* Main content */}
-          <div className="flex-1 flex flex-col items-center justify-start pt-36 md:pt-44 px-4 pb-20 z-10 w-full max-w-7xl mx-auto">
-            <div className="max-w-4xl w-full text-center flex flex-col items-center gap-8">
-
-              {/* Phase 1 — The Old Way */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7 }}
-                className="flex flex-col items-center gap-4"
-              >
-                <span className="px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-[#E8D5A3] bg-[#C9A84C]/10 rounded-full border border-[#C9A84C]/20 uppercase">
-                  THE OLD WAY
+          <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center px-6 pb-28 pt-36 md:pt-44">
+            {/* Headline */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="mx-auto mb-16 max-w-4xl text-center"
+            >
+              <h1 className="mb-6 font-serif text-5xl font-bold leading-tight md:text-7xl">
+                Your Digital Twin.
+                <br />
+                <span className="relative inline-block text-gradient-gold">
+                  Every Listing.
+                  <span className="absolute -bottom-2 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
                 </span>
-                <p className="text-lg md:text-xl text-gray-500 font-light tracking-wide line-through decoration-gray-700 decoration-2">
-                  Film every listing. Edit. Wait a week.
-                </p>
-              </motion.div>
-
-              {/* Phase 2 — Main headline */}
-              <motion.h1
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.15 }}
-                className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.05]"
-              >
-                YOUR DIGITAL<br />
-                <span className="text-gradient-gold">TWIN IS HERE.</span>
-              </motion.h1>
-
-              {/* Phase 3 — Subheadline */}
-              <motion.p
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3 }}
-                className="text-xl md:text-2xl text-gray-400 font-light max-w-2xl leading-relaxed tracking-wide"
-              >
-                Record once. Your AI clone presents every listing in under 2 minutes.
-              </motion.p>
+              </h1>
+              <p className="mx-auto max-w-2xl text-lg font-light leading-relaxed text-[#E8D5A3]/80 md:text-xl">
+                Real estate agents waste a full week producing a professional
+                property video. Clone yourself once, and your AI digital twin
+                presents every listing automatically in under 2 minutes.
+              </p>
 
               {/* CTAs */}
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.5 }}
-                className="flex flex-col sm:flex-row items-center gap-5 mt-4"
-              >
+              <div className="mt-10 flex flex-col items-center justify-center gap-5 sm:flex-row">
                 <Link href="/twin-avatar">
-                  <button className="w-full sm:w-auto bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] text-[#06080F] px-8 py-4 rounded-full font-bold text-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.25)] hover:scale-105 transition-all duration-300">
+                  <button className="w-full rounded-full bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] px-8 py-4 text-lg font-bold text-[#0A0A0A] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(201,168,76,0.25)] sm:w-auto">
                     Clone Yourself Free
                   </button>
                 </Link>
                 <Link href="/examples">
-                  <button className="w-full sm:w-auto group flex items-center justify-center gap-3 px-8 py-4 rounded-full font-bold text-lg text-white border border-gray-800 hover:border-gray-500 hover:bg-white/5 transition-all duration-300">
-                    <Play className="w-5 h-5 group-hover:text-[#C9A84C] transition-colors" fill="currentColor" />
+                  <button className="group flex w-full items-center justify-center gap-3 rounded-full border border-[#C9A84C]/30 px-8 py-4 text-lg font-bold text-white transition-all duration-300 hover:border-[#C9A84C]/60 hover:bg-white/5 sm:w-auto">
+                    <Play className="h-5 w-5 transition-colors group-hover:text-[#C9A84C]" fill="currentColor" />
                     Watch It Work
                   </button>
                 </Link>
-              </motion.div>
-            </div>
-
-            {/* Cinematic Video Mockup */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.7 }}
-              className="w-full mt-20 relative"
-            >
-              {/* Glow behind video */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#C9A84C]/10 blur-[120px] rounded-[100px] pointer-events-none" />
-
-              <div className="relative aspect-[16/9] md:aspect-[21/9] w-full rounded-2xl md:rounded-[2.5rem] border border-[#C9A84C]/20 overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] group bg-[#0A0D14]">
-
-                {/* Property background image */}
-                <img
-                  src="/images/luxury-home-golden-hour.png"
-                  alt="Luxury Australian property at golden hour"
-                  className="absolute inset-0 w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-[2s] ease-out opacity-80"
-                />
-
-                {/* Gradient overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#06080F] via-[#06080F]/40 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#06080F]/80 via-transparent to-transparent" />
-
-                {/* REC badge */}
-                <div className="absolute top-6 right-6 md:top-10 md:right-10 flex items-center gap-3">
-                  <div className="bg-black/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-xl flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-xs font-bold tracking-widest text-white">REC</span>
-                  </div>
-                </div>
-
-                {/* Bottom UI controls */}
-                <div className="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 md:right-10 flex flex-col md:flex-row items-end md:items-center justify-between gap-6">
-
-                  {/* AI Presenter + waveform */}
-                  <div className="flex items-center gap-5 bg-black/60 backdrop-blur-xl px-5 py-3.5 md:px-6 md:py-4 rounded-2xl border border-white/10 shadow-xl">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#E8D5A3] flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_20px_rgba(201,168,76,0.3)]">
-                      <Play className="w-5 h-5 md:w-6 md:h-6 text-black ml-1" fill="currentColor" />
-                    </div>
-                    <div className="flex flex-col gap-2.5">
-                      <div className="flex items-center gap-2.5">
-                        <span className="w-2 h-2 rounded-full bg-[#E8D5A3] animate-pulse" />
-                        <span className="text-xs md:text-sm font-semibold text-white tracking-widest uppercase">
-                          AI Presenter Active
-                        </span>
-                      </div>
-                      {/* Waveform */}
-                      <div className="flex items-end gap-[3px] h-6 md:h-8">
-                        {[...Array(32)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="w-[2px] md:w-1 bg-gradient-to-t from-[#C9A84C] to-[#E8D5A3] rounded-full waveform-bar opacity-80"
-                            style={{
-                              animationDelay: `${i * 0.05}s`,
-                              height: `${Math.max(10, Math.min(100, 20 + Math.sin(i * 0.5) * 40 + (i % 7) * 8))}%`,
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Volume + time */}
-                  <div className="hidden md:flex items-center gap-4 bg-black/60 backdrop-blur-xl px-6 py-4 rounded-2xl border border-white/10 shadow-xl">
-                    <div className="flex items-center gap-4">
-                      <Volume2 className="w-5 h-5 text-gray-400" />
-                      <div className="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                        <div className="w-2/3 h-full bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] rounded-full" />
-                      </div>
-                    </div>
-                    <div className="w-[1px] h-6 bg-white/10 mx-2" />
-                    <span className="text-sm font-medium text-gray-400 tracking-wider">0:42 / 1:55</span>
-                  </div>
-                </div>
               </div>
             </motion.div>
-          </div>
-        </section>
 
-        {/* Two-card feature section */}
-        <section className="bg-[#06080F] border-b border-white/5 py-20 px-6">
-          <div className="mx-auto max-w-7xl">
-            <div className="grid gap-6 md:grid-cols-2">
-
-              {/* Card 01 — Create Your AI Twin */}
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] hover:border-[#C9A84C]/30 transition-colors duration-300">
-                <div className="relative h-72 overflow-hidden bg-black">
+            {/* Feature cards with real human imagery */}
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.25 }}
+              className="grid w-full max-w-5xl gap-8 md:grid-cols-2"
+            >
+              {/* Card 1 — Clone Yourself Once */}
+              <div className="card-blur group overflow-hidden rounded-2xl transition-transform duration-500 hover:-translate-y-1">
+                <div className="relative h-64 overflow-hidden">
                   <img
                     src="/images/twin-create.png"
                     alt="Real estate agent recording their AI digital twin"
                     className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#06080F] via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
                 </div>
-                <div className="p-8">
-                  <p className="mb-3 text-xs font-bold tracking-[0.2em] text-[#C9A84C] uppercase">
-                    01 ——
-                  </p>
-                  <h3 className="text-2xl font-bold text-white">
-                    Create Your AI Twin
+                <div className="p-8 text-center">
+                  <h3 className="mb-3 font-serif text-2xl text-[#C9A84C]">
+                    Clone Yourself Once
                   </h3>
-                  <p className="mt-3 text-base leading-7 text-gray-400">
-                    Build a hyper-realistic digital twin in minutes. Record once and your AI clone is ready to present every listing — in your face, your voice, your style.
+                  <p className="mx-auto max-w-xs text-sm font-light leading-relaxed text-[#E8D5A3]/70">
+                    Upload a 2-minute video of yourself. We map your voice,
+                    expressions and mannerisms with stunning accuracy.
                   </p>
                 </div>
               </div>
 
-              {/* Card 02 — Your AI Avatar. Your Voice. */}
-              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] hover:border-[#C9A84C]/30 transition-colors duration-300">
-                <div className="relative h-72 overflow-hidden bg-black">
+              {/* Card 2 — AI Presenter */}
+              <div className="card-blur group overflow-hidden rounded-2xl transition-transform duration-500 hover:-translate-y-1">
+                <div className="relative h-64 overflow-hidden">
                   <img
                     src="/images/avatar-present.png"
-                    alt="AI avatar presenting your listing"
+                    alt="AI presenter delivering a property pitch"
                     className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#06080F] via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
                 </div>
-                <div className="p-8">
-                  <p className="mb-3 text-xs font-bold tracking-[0.2em] text-[#C9A84C] uppercase">
-                    02 ——
-                  </p>
-                  <h3 className="text-2xl font-bold text-white">
-                    Your AI Avatar. Your Voice.
+                <div className="p-8 text-center">
+                  <h3 className="mb-3 font-serif text-2xl text-[#C9A84C]">
+                    AI Presenter
                   </h3>
-                  <p className="mt-3 text-base leading-7 text-gray-400">
-                    AI presents your listings with your script and style — reading your words, in your voice, looking straight at camera. Natural eye contact. Confident delivery. Every time.
+                  <p className="mx-auto max-w-xs text-sm font-light leading-relaxed text-[#E8D5A3]/70">
+                    Just paste a listing URL. Your twin delivers the perfect
+                    pitch, complete with cinematic b-roll.
                   </p>
                 </div>
               </div>
-
-            </div>
+            </motion.div>
           </div>
         </section>
 
