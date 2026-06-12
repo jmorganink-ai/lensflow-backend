@@ -1,0 +1,513 @@
+{
+  "agent_toolset_mode": "codex",
+  "permission_tier": "yolo",
+  "theme": "dark",
+  "updateMode": "auto",
+  "keepAppActiveEnabled": false,
+  "useFullShellEnvironment": false,
+  "agentModels": [
+    {
+      "key": "claude-sonnet-4-6",
+      "enabled": true
+    },
+    {
+      "key": "claude-opus-4-6",
+      "enabled": true
+    },
+    {
+      "key": "gpt-5.4",
+      "enabled": true
+    },
+    {
+      "key": "gpt-5.3-codex",
+      "enabled": true
+    },
+    {
+      "key": "gemini-3.1-pro-preview",
+      "enabled": true
+    },
+    {
+      "key": "gemini-3-flash-preview",
+      "enabled": true
+    },
+    {
+      "key": "claude-sonnet-4-6-1m",
+      "enabled": true
+    },
+    {
+      "key": "claude-opus-4-6-1m",
+      "enabled": true
+    },
+    {
+      "key": "claude-opus-4-5@20251101",
+      "enabled": false
+    },
+    {
+      "key": "claude-sonnet-4-5@20250929",
+      "enabled": false
+    },
+    {
+      "key": "claude-haiku-4-5@20251001",
+      "enabled": true
+    },
+    {
+      "key": "gpt-5.2",
+      "enabled": false
+    },
+    {
+      "key": "gpt-5.1",
+      "enabled": false
+    },
+    {
+      "key": "gpt-5",
+      "enabled": false
+    },
+    {
+      "key": "gpt-5.2-codex",
+      "enabled": false
+    },
+    {
+      "key": "gpt-5-codex",
+      "enabled": false
+    },
+    {
+      "key": "MiniMax-M2.7",
+      "enabled": true
+    },
+    {
+      "key": "MiniMax-M2.5",
+      "enabled": false
+    },
+    {
+      "key": "glm-5",
+      "enabled": true
+    },
+    {
+      "key": "kimi-k2.5",
+      "enabled": true
+    },
+    {
+      "key": "kimi-k2-thinking-turbo",
+      "enabled": false
+    }
+  ],
+  "byokProviders": [
+    {
+      "id": "e4ca641d-dee8-44ee-aeef-bb4eb80174c6",
+      "type": "openai",
+      "baseUrl": "https://api.openai.com/v1",
+      "enabled": true,
+      "addedAt": 1780980774137,
+      "lastVerifiedAt": 1780980776528,
+      "status": "valid",
+      "models": [
+        {
+          "key": "byok:e4ca641d-dee8-44ee-aeef-bb4eb80174c6:gpt-5.5",
+          "modelId": "gpt-5.5",
+          "label": "GPT-5.5",
+          "displayName": "GPT-5.5",
+          "icon": "openai",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:e4ca641d-dee8-44ee-aeef-bb4eb80174c6:gpt-5.4",
+          "modelId": "gpt-5.4",
+          "label": "GPT-5.4",
+          "displayName": "GPT-5.4",
+          "icon": "openai",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:e4ca641d-dee8-44ee-aeef-bb4eb80174c6:gpt-5.3-codex",
+          "modelId": "gpt-5.3-codex",
+          "label": "GPT-5.3 Codex",
+          "displayName": "GPT-5.3 Codex",
+          "icon": "openai",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:e4ca641d-dee8-44ee-aeef-bb4eb80174c6:gpt-5.2",
+          "modelId": "gpt-5.2",
+          "label": "GPT-5.2",
+          "displayName": "GPT-5.2",
+          "icon": "openai",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:e4ca641d-dee8-44ee-aeef-bb4eb80174c6:gpt-5.2-codex",
+          "modelId": "gpt-5.2-codex",
+          "label": "GPT-5.2 Codex",
+          "displayName": "GPT-5.2 Codex",
+          "icon": "openai",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:e4ca641d-dee8-44ee-aeef-bb4eb80174c6:gpt-5.1",
+          "modelId": "gpt-5.1",
+          "label": "GPT-5.1",
+          "displayName": "GPT-5.1",
+          "icon": "openai",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:e4ca641d-dee8-44ee-aeef-bb4eb80174c6:gpt-5-codex",
+          "modelId": "gpt-5-codex",
+          "label": "GPT-5 Codex",
+          "displayName": "GPT-5 Codex",
+          "icon": "openai",
+          "enabled": true,
+          "status": "valid"
+        }
+      ]
+    },
+    {
+      "id": "45bbadc1-0dbe-442e-82f9-1b407e5d6558",
+      "type": "openrouter",
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "enabled": true,
+      "addedAt": 1780980843577,
+      "lastVerifiedAt": 1780980844927,
+      "status": "valid",
+      "models": [
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:openai/gpt-5.1",
+          "modelId": "openai/gpt-5.1",
+          "label": "GPT-5.1",
+          "displayName": "GPT-5.1",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:openai/gpt-5.2",
+          "modelId": "openai/gpt-5.2",
+          "label": "GPT-5.2",
+          "displayName": "GPT-5.2",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:openai/gpt-5.4",
+          "modelId": "openai/gpt-5.4",
+          "label": "GPT-5.4",
+          "displayName": "GPT-5.4",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:openai/gpt-5-codex",
+          "modelId": "openai/gpt-5-codex",
+          "label": "GPT-5 Codex",
+          "displayName": "GPT-5 Codex",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:openai/gpt-5.2-codex",
+          "modelId": "openai/gpt-5.2-codex",
+          "label": "GPT-5.2 Codex",
+          "displayName": "GPT-5.2 Codex",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:openai/gpt-5.3-codex",
+          "modelId": "openai/gpt-5.3-codex",
+          "label": "GPT-5.3 Codex",
+          "displayName": "GPT-5.3 Codex",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:anthropic/claude-opus-4.7",
+          "modelId": "anthropic/claude-opus-4.7",
+          "label": "Opus 4.7",
+          "displayName": "Opus 4.7",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:anthropic/claude-sonnet-4.6",
+          "modelId": "anthropic/claude-sonnet-4.6",
+          "label": "Sonnet 4.6",
+          "displayName": "Sonnet 4.6",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:anthropic/claude-opus-4.6",
+          "modelId": "anthropic/claude-opus-4.6",
+          "label": "Opus 4.6",
+          "displayName": "Opus 4.6",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:anthropic/claude-sonnet-4.5",
+          "modelId": "anthropic/claude-sonnet-4.5",
+          "label": "Sonnet 4.5",
+          "displayName": "Sonnet 4.5",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:anthropic/claude-opus-4.5",
+          "modelId": "anthropic/claude-opus-4.5",
+          "label": "Opus 4.5",
+          "displayName": "Opus 4.5",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:anthropic/claude-haiku-4.5",
+          "modelId": "anthropic/claude-haiku-4.5",
+          "label": "Haiku 4.5",
+          "displayName": "Haiku 4.5",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:google/gemini-3.1-pro-preview",
+          "modelId": "google/gemini-3.1-pro-preview",
+          "label": "Gemini 3.1 Pro",
+          "displayName": "Gemini 3.1 Pro",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:google/gemini-3-flash-preview",
+          "modelId": "google/gemini-3-flash-preview",
+          "label": "Gemini 3.0 Flash",
+          "displayName": "Gemini 3.0 Flash",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:z-ai/glm-5.1",
+          "modelId": "z-ai/glm-5.1",
+          "label": "GLM 5.1",
+          "displayName": "GLM 5.1",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:z-ai/glm-5",
+          "modelId": "z-ai/glm-5",
+          "label": "GLM 5",
+          "displayName": "GLM 5",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:moonshotai/kimi-k2.6",
+          "modelId": "moonshotai/kimi-k2.6",
+          "label": "Kimi K2.6",
+          "displayName": "Kimi K2.6",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:moonshotai/kimi-k2.5",
+          "modelId": "moonshotai/kimi-k2.5",
+          "label": "Kimi K2.5",
+          "displayName": "Kimi K2.5",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:45bbadc1-0dbe-442e-82f9-1b407e5d6558:minimax/minimax-m2.7",
+          "modelId": "minimax/minimax-m2.7",
+          "label": "MiniMax M2.7",
+          "displayName": "MiniMax M2.7",
+          "icon": "openrouter",
+          "enabled": true,
+          "status": "valid"
+        }
+      ]
+    },
+    {
+      "id": "0ff03933-6263-4028-a6e8-c774436ba037",
+      "type": "anthropic",
+      "baseUrl": "https://api.anthropic.com/v1",
+      "enabled": true,
+      "addedAt": 1780981146879,
+      "lastVerifiedAt": 1780981148874,
+      "status": "valid",
+      "models": [
+        {
+          "key": "byok:0ff03933-6263-4028-a6e8-c774436ba037:claude-opus-4-7",
+          "modelId": "claude-opus-4-7",
+          "label": "Opus 4.7",
+          "displayName": "Opus 4.7",
+          "icon": "anthropic",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:0ff03933-6263-4028-a6e8-c774436ba037:claude-opus-4-6",
+          "modelId": "claude-opus-4-6",
+          "label": "Opus 4.6",
+          "displayName": "Opus 4.6",
+          "icon": "anthropic",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:0ff03933-6263-4028-a6e8-c774436ba037:claude-sonnet-4-6",
+          "modelId": "claude-sonnet-4-6",
+          "label": "Sonnet 4.6",
+          "displayName": "Sonnet 4.6",
+          "icon": "anthropic",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:0ff03933-6263-4028-a6e8-c774436ba037:claude-opus-4-5",
+          "modelId": "claude-opus-4-5",
+          "label": "Opus 4.5",
+          "displayName": "Opus 4.5",
+          "icon": "anthropic",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:0ff03933-6263-4028-a6e8-c774436ba037:claude-haiku-4-5",
+          "modelId": "claude-haiku-4-5",
+          "label": "Haiku 4.5",
+          "displayName": "Haiku 4.5",
+          "icon": "anthropic",
+          "enabled": true,
+          "status": "valid"
+        },
+        {
+          "key": "byok:0ff03933-6263-4028-a6e8-c774436ba037:claude-sonnet-4-5",
+          "modelId": "claude-sonnet-4-5",
+          "label": "Sonnet 4.5",
+          "displayName": "Sonnet 4.5",
+          "icon": "anthropic",
+          "enabled": true,
+          "status": "valid"
+        }
+      ]
+    }
+  ],
+  "terminal": {
+    "fontSize": 12,
+    "fontFamily": "",
+    "cursorStyle": "block",
+    "cursorBlink": false,
+    "lineHeight": 1,
+    "cursorWidth": 1,
+    "letterSpacing": 0
+  },
+  "notificationInAppEnabled": true,
+  "notificationSystemEnabled": true,
+  "debugSubagentEnable": false,
+  "smartSuggestionsEnabled": true,
+  "autoIndexing": false,
+  "memoryOnboardingSummaryIdleTimeoutMs": 90000,
+  "memoryOnboardingSummaryMaxRetries": 3,
+  "editor": {
+    "fontSize": 12,
+    "tabSize": 4,
+    "theme": "pierre",
+    "autoSave": false,
+    "autoSaveDelay": 1000,
+    "showMinimap": true,
+    "showLineNumbers": true,
+    "wordWrap": false,
+    "formatOnPaste": false,
+    "formatOnType": false,
+    "renderWhitespace": "none",
+    "smoothScrolling": false,
+    "mouseWheelZoom": false,
+    "stickyScroll": false,
+    "bracketPairColorization": true,
+    "folding": true,
+    "renderLineHighlight": "line",
+    "cursorBlinking": "blink",
+    "cursorStyle": "line",
+    "highlightActiveIndentGuide": true,
+    "lineBlame": true,
+    "dirtyDiff": true
+  },
+  "diff": {
+    "viewMode": "inline",
+    "fontSize": 12,
+    "showLineNumbers": true,
+    "showMinimap": false,
+    "wordWrap": false,
+    "renderWhitespace": "selection",
+    "ignoreTrimWhitespace": false,
+    "hideUnchangedRegions": true,
+    "smoothScrolling": true,
+    "mouseWheelZoom": false,
+    "stickyScroll": true,
+    "bracketPairColorization": true
+  },
+  "reviewAgents": {
+    "userModels": [
+      "gemini-3.1-pro-preview",
+      "claude-opus-4-6",
+      "gpt-5.4"
+    ],
+    "multiModel": true,
+    "useDefault": true
+  },
+  "managerModels": {
+    "primaryModel": "claude-opus-4-6",
+    "managerAllowedModels": [
+      "claude-opus-4-6",
+      "claude-sonnet-4-6"
+    ],
+    "workerAllowedModels": [
+      "gpt-5.4",
+      "claude-sonnet-4-6",
+      "claude-opus-4-6",
+      "gpt-5.3-codex",
+      "gemini-3.1-pro-preview",
+      "gemini-3-flash-preview",
+      "claude-haiku-4-5@20251001"
+    ],
+    "workerMode": "manual"
+  },
+  "ab_params_overrides": {},
+  "cliAgents": {
+    "claudeCode": {
+      "transport": "agentSdk",
+      "command": "claude",
+      "args": [],
+      "env": {},
+      "provider": "anthropic",
+      "authMode": "api-key",
+      "enabled": true,
+      "models": {
+        "default": true
+      }
+    }
+  },
+  "lastLoggedInUserId": "749755524274454528"
+}
