@@ -292,9 +292,9 @@ export default function Home() {
               <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] hover:border-[#C9A84C]/30 transition-colors duration-300">
                 <div className="relative h-72 overflow-hidden bg-black">
                   <img
-                    src="/images/twin-digital.png"
-                    alt="Create your AI digital twin"
-                    className="h-full w-full object-cover object-bottom transition-transform duration-700 group-hover:scale-105"
+                    src="/images/twin-create.png"
+                    alt="Real estate agent recording their AI digital twin"
+                    className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#06080F] via-transparent to-transparent" />
                 </div>
@@ -315,7 +315,7 @@ export default function Home() {
               <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] hover:border-[#C9A84C]/30 transition-colors duration-300">
                 <div className="relative h-72 overflow-hidden bg-black">
                   <img
-                    src="/images/mia-teleprompter.png"
+                    src="/images/avatar-present.png"
                     alt="AI avatar presenting your listing"
                     className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                   />
