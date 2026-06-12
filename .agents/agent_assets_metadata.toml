@@ -48,6 +48,42 @@ uri = "file://artifacts/lensflow-site/public/images/avatar-present.png"
 type = "image"
 title = "ai avatar presenting"
 
+[[generated]]
+id = "lMBsyraHfC_BXSrpaCDgD"
+uri = "file://artifacts/lensflow/public/enhancement/before-declutter.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "-CXP4PdhoQHLH28N0vekh"
+uri = "file://artifacts/lensflow/public/enhancement/after-declutter.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "k23ex8Fperz0LTQZkTvl1"
+uri = "file://artifacts/lensflow/public/enhancement/before-furniture.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "60BYdvXVA9RPRIkbVOR_m"
+uri = "file://artifacts/lensflow/public/enhancement/after-furniture.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "51Kpq9o-fMVZCfusZH5Ya"
+uri = "file://artifacts/lensflow/public/enhancement/before-damage.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "sKIEqKFba-0nU4LoWnYuc"
+uri = "file://artifacts/lensflow/public/enhancement/after-damage.png"
+type = "image"
+title = "generated_image"
+
 [[outputs]]
 id = "GJSJTvrQG8OqI7nTZIiR7"
 uri = "file://exports/sophie-hq.jpg"

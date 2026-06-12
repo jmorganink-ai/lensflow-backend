@@ -30,6 +30,9 @@ const PROPERTY_IMAGES = [
   "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=900&q=82",
 ];
 
+// Resolve enhancement images from this app's public dir, respecting the base path.
+const ENH = (f: string) => `${import.meta.env.BASE_URL.replace(/\/$/, "")}/enhancement/${f}`;
+
 type Presenter = "Mia" | "Oliver" | "Sophie" | "James";
 
 const PRESENTER_GRADIENT: Record<Presenter, string> = {
@@ -234,11 +237,10 @@ export default function Dashboard() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 16 }}>
           {/* Example 1: Cluttered Room */}
           <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, overflow: "hidden", background: C.card }}>
-            <div style={{ position: "relative", aspectRatio: "16/10", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ textAlign: "center", padding: 20 }}>
-                <div style={{ fontSize: 48, marginBottom: 8 }}>👕👖🧦</div>
-                <p style={{ color: C.muted, fontSize: 12 }}>Clothes everywhere, poor lighting</p>
-              </div>
+            <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden" }}>
+              <img src={ENH("before-declutter.png")} alt="Cluttered living room with clothes scattered and poor lighting" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(7,10,20,0.9), rgba(7,10,20,0) 58%)" }} />
+              <p style={{ position: "absolute", left: 10, right: 10, bottom: 8, margin: 0, color: "#e9edf6", fontSize: 12, fontWeight: 600 }}>Clothes everywhere, poor lighting</p>
               <div style={{ position: "absolute", top: 8, left: 8, background: "#ef4444", color: "white", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>BEFORE</div>
             </div>
             <div style={{ padding: 14 }}>
@@ -249,11 +251,10 @@ export default function Dashboard() {
 
           {/* Example 2: Ugly Furniture */}
           <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, overflow: "hidden", background: C.card }}>
-            <div style={{ position: "relative", aspectRatio: "16/10", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ textAlign: "center", padding: 20 }}>
-                <div style={{ fontSize: 48, marginBottom: 8 }}>🛋️😬</div>
-                <p style={{ color: C.muted, fontSize: 12 }}>Dated couch, mismatched furniture</p>
-              </div>
+            <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden" }}>
+              <img src={ENH("before-furniture.png")} alt="Living room with dated, mismatched furniture" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(7,10,20,0.9), rgba(7,10,20,0) 58%)" }} />
+              <p style={{ position: "absolute", left: 10, right: 10, bottom: 8, margin: 0, color: "#e9edf6", fontSize: 12, fontWeight: 600 }}>Dated couch, mismatched furniture</p>
               <div style={{ position: "absolute", top: 8, left: 8, background: "#ef4444", color: "white", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>BEFORE</div>
             </div>
             <div style={{ padding: 14 }}>
@@ -264,11 +265,10 @@ export default function Dashboard() {
 
           {/* Example 3: Water Damage */}
           <div style={{ border: `1px solid ${C.line}`, borderRadius: 8, overflow: "hidden", background: C.card }}>
-            <div style={{ position: "relative", aspectRatio: "16/10", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ textAlign: "center", padding: 20 }}>
-                <div style={{ fontSize: 48, marginBottom: 8 }}>💧🚫</div>
-                <p style={{ color: C.muted, fontSize: 12 }}>Water stains, damage, poor condition</p>
-              </div>
+            <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden" }}>
+              <img src={ENH("before-damage.png")} alt="Room with water stains and wall damage" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(7,10,20,0.9), rgba(7,10,20,0) 58%)" }} />
+              <p style={{ position: "absolute", left: 10, right: 10, bottom: 8, margin: 0, color: "#e9edf6", fontSize: 12, fontWeight: 600 }}>Water stains, damage, poor condition</p>
               <div style={{ position: "absolute", top: 8, left: 8, background: "#ef4444", color: "white", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>BEFORE</div>
             </div>
             <div style={{ padding: 14 }}>
@@ -280,13 +280,16 @@ export default function Dashboard() {
 
         {/* After examples row */}
         <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 16 }}>
-          {[1, 2, 3].map((i) => (
-            <div key={i} style={{ border: `1px solid ${C.gold}50`, borderRadius: 8, overflow: "hidden", background: C.card, position: "relative" }}>
-              <div style={{ aspectRatio: "16/10", background: `linear-gradient(135deg, ${C.deep}, ${C.panel})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ textAlign: "center", padding: 20 }}>
-                  <div style={{ fontSize: 36, marginBottom: 8 }}>✨🏠</div>
-                  <p style={{ color: C.gold, fontSize: 12, fontWeight: 700 }}>LISTING-READY</p>
-                </div>
+          {[
+            { img: "after-declutter.png", label: "Decluttered & staged" },
+            { img: "after-furniture.png", label: "Premium furnishing" },
+            { img: "after-damage.png", label: "Fully restored" },
+          ].map((a) => (
+            <div key={a.img} style={{ border: `1px solid ${C.gold}50`, borderRadius: 8, overflow: "hidden", background: C.card, position: "relative" }}>
+              <div style={{ position: "relative", aspectRatio: "16/10", overflow: "hidden" }}>
+                <img src={ENH(a.img)} alt={a.label} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(7,10,20,0.85), rgba(7,10,20,0) 58%)" }} />
+                <p style={{ position: "absolute", left: 10, bottom: 8, margin: 0, color: C.goldLight, fontSize: 12, fontWeight: 700 }}>{a.label}</p>
                 <div style={{ position: "absolute", top: 8, left: 8, background: C.gold, color: C.paper, padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>AFTER</div>
               </div>
               <div style={{ padding: 14 }}>
@@ -599,7 +602,7 @@ const SAMPLE_VIDEOS = [
   { src: "/videos/sample-v1.mp4", label: "Mia · Mosman, NSW", featured: false },
   { src: "/videos/sample-v2.mp4", label: "Oliver · South Yarra, VIC", featured: false },
   { src: "/videos/sample-v3.mp4", label: "Sophie · Brighton, VIC", featured: false },
-  { src: "/videos/sample-v4.mp4", label: "Mia · Bondi, NSW", featured: false },
+  { src: "/videos/mia-reel.mp4", label: "Mia · Bondi, NSW", featured: false },
   { src: "/videos/sample-v5.mp4", label: "Sophie · Toorak, VIC", featured: false },
 ];
 

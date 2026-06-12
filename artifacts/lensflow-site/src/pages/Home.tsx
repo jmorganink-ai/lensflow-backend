@@ -46,18 +46,21 @@ const campaignOutputs = [
     title: "AI presenter video",
     detail: "Mia or Oliver introduces the property with polished, listing-aware copy.",
     video: "/videos/sample-v1.mp4",
+    poster: "/videos/sample-v1-poster.jpg",
     icon: Video,
   },
   {
     title: "Social reel package",
     detail: "Short-form clips built for Instagram, Facebook, TikTok and LinkedIn.",
     video: "/videos/sample-v3.mp4",
+    poster: "/videos/sample-v3-poster.jpg",
     icon: Film,
   },
   {
     title: "Property presentation",
     detail: "Premium visuals, captions and agent-ready story beats from the same listing.",
     video: "/videos/sample-v5.mp4",
+    poster: "/videos/sample-v5-poster.jpg",
     icon: PlayCircle,
   },
 ];
@@ -281,10 +284,12 @@ export default function Home() {
                   <div className="relative aspect-[9/13] overflow-hidden bg-black">
                     <video
                       src={item.video}
+                      poster={item.poster}
                       autoPlay
                       muted
                       loop
                       playsInline
+                      preload="metadata"
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
@@ -345,6 +350,7 @@ export default function Home() {
                       muted
                       loop
                       playsInline
+                      preload="metadata"
                       className="h-full w-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
@@ -582,10 +588,12 @@ export default function Home() {
           <div className="absolute inset-0">
             <video
               src="/videos/oliver-featured.mp4"
+              poster="/videos/oliver-featured-poster.jpg"
               autoPlay
               muted
               loop
               playsInline
+              preload="metadata"
               className="h-full w-full object-cover opacity-25"
             />
             <div className="absolute inset-0 bg-background/80" />

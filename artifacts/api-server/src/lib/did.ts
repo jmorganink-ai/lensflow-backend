@@ -33,25 +33,49 @@ const DEFAULT_CLIP_PRESENTER_ID =
   process.env.DID_PRESENTER_DEFAULT ??
   "v2_public_Matt_NoHands_GreyTshirt_Outdoor@rwE9avfhZE";
 
-/** Fallback: /talks image-warp presenter images (used only if clips fails) */
-const FALLBACK_PRESENTER_IMAGES: Record<string, string> = {
-  mia:
-    process.env.DID_IMAGE_MIA ??
-    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=512&q=80",
-  oliver:
-    process.env.DID_IMAGE_OLIVER ??
-    "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=512&q=80",
-  sophie:
-    process.env.DID_IMAGE_SOPHIE ??
-    "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=512&q=80",
-  james:
-    process.env.DID_IMAGE_JAMES ??
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=512&q=80",
+/**
+ * The 4 branded LensFlow personas. These render with their REAL branded face
+ * via D-ID /talks (an animated portrait); every other ("public") presenter uses
+ * a stock /clips presenter. This is the "4 branded, rest public" model.
+ */
+const BRANDED_PRESENTERS = new Set(["mia", "oliver", "sophie", "james"]);
+
+/**
+ * Branded presenter portraits live in object storage and are served via the
+ * app's /api/storage proxy (externally reachable in production — the same proxy
+ * the pipeline already uses to hand mirrored videos to Shotstack). Built at
+ * request time from REPLIT_DOMAINS so it resolves in both dev and production.
+ * Override any presenter with an explicit image via env DID_IMAGE_<NAME>.
+ */
+function brandedPortraitUrl(name: string): string | null {
+  const key = name.toLowerCase();
+  const override = process.env[`DID_IMAGE_${key.toUpperCase()}`];
+  if (override) return override;
+  if (!BRANDED_PRESENTERS.has(key)) return null;
+  const domain = (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim();
+  if (!domain) return null;
+  return `https://${domain}/api/storage/objects/presenters/${key}.jpg`;
+}
+
+/** Generic stock portraits — last-resort fallback only (no branded image). */
+const STOCK_FALLBACK_IMAGES: Record<string, string> = {
+  mia: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=512&q=80",
+  oliver: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=512&q=80",
+  sophie: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=512&q=80",
+  james: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=512&q=80",
 };
 
 const DEFAULT_FALLBACK_IMAGE =
   process.env.DID_PRESENTER_IMAGE_URL ??
   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=512&q=80";
+
+/** Resolve the /talks source image: branded portrait → stock → default. */
+function resolvePresenterImage(name?: string | null): string {
+  const key = (name ?? "").toLowerCase();
+  return (
+    brandedPortraitUrl(key) ?? STOCK_FALLBACK_IMAGES[key] ?? DEFAULT_FALLBACK_IMAGE
+  );
+}
 
 const DEFAULT_VOICE_ID = process.env.DID_VOICE_ID ?? "en-AU-WilliamNeural";
 
@@ -250,10 +274,7 @@ async function generateTalk(
 
   const headers = getAuthHeaders(apiKey);
 
-  const sourceImage =
-    (presenterName
-      ? FALLBACK_PRESENTER_IMAGES[presenterName.toLowerCase()]
-      : null) ?? DEFAULT_FALLBACK_IMAGE;
+  const sourceImage = resolvePresenterImage(presenterName);
 
   const targetDurationSeconds = testMode
     ? TEST_MODE_TARGET_SECONDS
@@ -349,13 +370,34 @@ async function generateTalk(
 }
 
 /**
- * Primary entry point. Tries /clips first (natural trained presenter),
- * falls back to /talks (image-warp) if clips fails.
+ * Primary entry point.
+ *
+ * Branded personas (Mia / Oliver / Sophie / James) render with their REAL face
+ * via /talks (animated branded portrait), falling back to a stock /clips
+ * presenter only if /talks fails. Every other ("public") presenter uses a stock
+ * /clips presenter first, with /talks as the fallback. This delivers the
+ * "4 branded, rest public" model without HeyGen credit.
  */
 export async function generatePresenterVideoDID(
   script: string,
   options: DIDOptions = {},
 ): Promise<DIDResult> {
+  const key = options.presenterName?.toLowerCase() ?? "";
+  const useBrandedFace = BRANDED_PRESENTERS.has(key) && !!brandedPortraitUrl(key);
+
+  if (useBrandedFace) {
+    try {
+      return await generateTalk(script, options);
+    } catch (talkErr) {
+      const reason = talkErr instanceof Error ? talkErr.message : String(talkErr);
+      logger.warn(
+        { reason, presenterName: options.presenterName },
+        "D-ID branded /talks failed — falling back to stock /clips",
+      );
+      return generateClip(script, options);
+    }
+  }
+
   try {
     return await generateClip(script, options);
   } catch (clipErr) {
