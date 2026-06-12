@@ -22,7 +22,6 @@ async function buildAll() {
     outExtension: { ".js": ".mjs" },
     logLevel: "info",
     external: [
-      "@workspace/*",
       "*.node", "sharp", "better-sqlite3", "sqlite3", "canvas", "bcrypt", 
       "argon2", "fsevents", "re2", "farmhash", "xxhash-addon", "bufferutil", 
       "utf-8-validate", "ssh2", "cpu-features", "dtrace-provider", 

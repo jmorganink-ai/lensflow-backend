@@ -111,7 +111,7 @@ app.use("/api/backgrounds", express.static(backgroundsDir, { maxAge: "7d" }));
 
 app.use("/api", router);
 app.use("/pipeline", express.static(pipelineAppDist, { index: false }));
-app.get("/pipeline/*", (_req, res) => {
+app.get("/pipeline/*path", (_req, res) => {
   res.sendFile(path.join(pipelineAppDist, "index.html"));
 });
 
