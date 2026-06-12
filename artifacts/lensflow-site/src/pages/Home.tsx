@@ -1,5 +1,6 @@
+import { useRef } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
   Bot,
@@ -254,24 +255,23 @@ const proofPoints = [
 ];
 
 export default function Home() {
+  const stripRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+  const stripInView = useInView(stripRef, { margin: "0px 0px -10% 0px" });
+  const waveActive = !reduceMotion && stripInView;
   return (
     <div className="min-h-screen overflow-hidden bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       <Navbar />
 
       <main>
-        {/* Hero */}
-        <section className="relative min-h-screen overflow-hidden border-b border-white/5 bg-[#0A0A0A] text-white">
+        {/* Hero — cinematic treatment */}
+        <section className="relative overflow-hidden border-b border-white/5 bg-[#0A0A0A] text-white">
           <div className="absolute inset-0 z-0">
-            <img
-              src="/images/hero-2026.jpg"
-              alt="Modern luxury Australian property at golden hour"
-              className="h-full w-full object-cover opacity-45"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/80 via-[#0A0A0A]/70 to-[#06080F]" />
-            <div className="absolute inset-0 bg-gradient-radial-gold" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A] via-[#0A0A0A] to-[#06080F]" />
+            <div className="absolute inset-0 bg-gradient-radial-gold opacity-70" />
           </div>
 
-          <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 pb-24 pt-36 md:pt-40">
+          <div className="relative z-10 mx-auto max-w-7xl px-6 pb-20 pt-36 md:pt-40">
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
@@ -323,6 +323,90 @@ export default function Home() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </motion.div>
+
+            {/* Cinematic strip */}
+            <motion.div
+              ref={stripRef}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.25 }}
+              className="relative mt-16 overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_40px_120px_rgba(0,0,0,0.6)]"
+            >
+              <div className="aspect-[16/10] w-full sm:aspect-[2/1] lg:aspect-[21/9]">
+                <img
+                  src="/images/hero-cinematic.jpg"
+                  alt="Luxury Australian property at golden hour, presented in a LensFlow video"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+
+              {/* Cinematic blends */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-[#0A0A0A]/30" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
+
+              {/* REC badge */}
+              <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3 py-1.5 backdrop-blur-md">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-70" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-[0.22em] text-white/90">
+                  Rec
+                </span>
+                <span className="text-xs font-medium text-white/40">4K</span>
+              </div>
+
+              {/* Property label */}
+              <div className="absolute right-5 top-5 hidden rounded-full border border-[#C9A84C]/30 bg-black/40 px-3 py-1.5 text-xs font-medium text-[#E8D5A3] backdrop-blur-md sm:block">
+                24 Hillcrest Avenue · Listed today
+              </div>
+
+              {/* AI presenter overlay */}
+              <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-6">
+                <div className="flex items-center gap-4 rounded-2xl border border-[#C9A84C]/25 bg-[#0A0A0A]/70 px-4 py-3 backdrop-blur-md sm:px-5 sm:py-4">
+                  <Link
+                    href="/examples"
+                    aria-label="Watch a presenter example"
+                    className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] text-[#0A0A0A] transition-transform duration-300 hover:scale-105"
+                  >
+                    <Play className="h-5 w-5" fill="currentColor" />
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C]" />
+                      <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#E8D5A3]/80">
+                        AI presenter active
+                      </span>
+                    </div>
+                    <div className="mt-2 flex h-6 items-end gap-[3px] overflow-hidden">
+                      {Array.from({ length: 36 }).map((_, i) => (
+                        <motion.span
+                          key={i}
+                          className="w-[3px] flex-none origin-bottom rounded-full bg-gradient-to-t from-[#C9A84C] to-[#E8D5A3]"
+                          style={{
+                            height: `${30 + Math.round(Math.abs(Math.sin(i * 0.5)) * 70)}%`,
+                          }}
+                          animate={waveActive ? { scaleY: [0.35, 1, 0.35] } : { scaleY: 0.5 }}
+                          transition={
+                            waveActive
+                              ? {
+                                  duration: 0.9 + (i % 5) * 0.12,
+                                  repeat: Infinity,
+                                  ease: "easeInOut",
+                                  delay: (i % 7) * 0.08,
+                                }
+                              : { duration: 0.3 }
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <span className="hidden flex-none text-xs font-medium text-white/50 sm:block">
+                    00:24 / 00:45
+                  </span>
+                </div>
               </div>
             </motion.div>
           </div>
