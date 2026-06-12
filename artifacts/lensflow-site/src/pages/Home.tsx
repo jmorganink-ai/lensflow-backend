@@ -289,18 +289,12 @@ export default function Home() {
             <div className="grid gap-6 md:grid-cols-2">
 
               {/* Card 01 — Create Your AI Twin */}
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{ duration: 0.6 }}
-                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] hover:border-[#C9A84C]/30 transition-colors duration-300"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden bg-black">
+              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] hover:border-[#C9A84C]/30 transition-colors duration-300">
+                <div className="relative h-72 overflow-hidden bg-black">
                   <img
                     src="/images/twin-digital.png"
                     alt="Create your AI digital twin"
-                    className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    className="h-full w-full object-cover object-bottom transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#06080F] via-transparent to-transparent" />
                 </div>
@@ -315,21 +309,15 @@ export default function Home() {
                     Build a hyper-realistic digital twin in minutes. Record once and your AI clone is ready to present every listing — in your face, your voice, your style.
                   </p>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Card 02 — Your AI Avatar. Your Voice. */}
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{ duration: 0.6, delay: 0.15 }}
-                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] hover:border-[#C9A84C]/30 transition-colors duration-300"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden bg-black">
+              <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] hover:border-[#C9A84C]/30 transition-colors duration-300">
+                <div className="relative h-72 overflow-hidden bg-black">
                   <img
                     src="/images/mia-teleprompter.png"
                     alt="AI avatar presenting your listing"
-                    className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#06080F] via-transparent to-transparent" />
                 </div>
@@ -344,7 +332,7 @@ export default function Home() {
                     AI presents your listings with your script and style — reading your words, in your voice, looking straight at camera. Natural eye contact. Confident delivery. Every time.
                   </p>
                 </div>
-              </motion.div>
+              </div>
 
             </div>
           </div>
