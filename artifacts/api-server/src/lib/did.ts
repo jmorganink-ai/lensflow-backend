@@ -32,18 +32,18 @@ const DEFAULT_CLIP_PRESENTER_ID =
 const FALLBACK_PRESENTER_IMAGES: Record<string, string> = {
   mia:
     process.env.DID_IMAGE_MIA ??
-    "https://create-images-results.d-id.com/DefaultPresenters/Noelle_f/image.jpeg",
+    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=512&q=80",
   oliver:
     process.env.DID_IMAGE_OLIVER ??
-    "https://create-images-results.d-id.com/DefaultPresenters/Noelle_f/image.jpeg",
+    "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=512&q=80",
   sophie:
     process.env.DID_IMAGE_SOPHIE ??
-    "https://create-images-results.d-id.com/DefaultPresenters/Noelle_f/image.jpeg",
+    "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=512&q=80",
 };
 
 const DEFAULT_FALLBACK_IMAGE =
   process.env.DID_PRESENTER_IMAGE_URL ??
-  "https://create-images-results.d-id.com/DefaultPresenters/Noelle_f/image.jpeg";
+  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=512&q=80";
 
 const DEFAULT_VOICE_ID = process.env.DID_VOICE_ID ?? "en-AU-WilliamNeural";
 
