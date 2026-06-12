@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: lensflow-backend
+    env: node
+    plan: standard
+    buildCommand: pnpm install && pnpm run build
+    startCommand: node ./dist/index.mjs
