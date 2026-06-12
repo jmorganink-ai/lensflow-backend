@@ -336,8 +336,8 @@ export default function Home() {
             >
               <div className="aspect-[16/10] w-full sm:aspect-[2/1] lg:aspect-[21/9]">
                 <img
-                  src="/images/hero-cinematic.jpg"
-                  alt="Luxury Australian property at golden hour, presented in a LensFlow video"
+                  src="/images/hero-cinematic-twilight.jpg"
+                  alt="Luxury Australian property at twilight, presented in a LensFlow video"
                   className="h-full w-full object-cover"
                 />
               </div>
