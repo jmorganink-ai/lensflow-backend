@@ -12,6 +12,30 @@ uri = "file://artifacts/lensflow-site/public/property-6.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "bvAxUbnT16vh6PTjM6qim"
+uri = "file://artifacts/mockup-sandbox/public/images/variant-c-hero-bg.png"
+type = "image"
+title = "luxury coastal property at sunset"
+
+[[generated]]
+id = "BT1AUk0uL8Wp3Tu0BZChg"
+uri = "file://artifacts/mockup-sandbox/public/images/luxury-home-golden-hour.png"
+type = "image"
+title = "Luxury Australian home at golden hour"
+
+[[generated]]
+id = "oZZKxX0woKFtoSTKsqee8"
+uri = "file://artifacts/mockup-sandbox/public/images/hero-bg-variant-a.png"
+type = "image"
+title = "Australian coastal property"
+
+[[generated]]
+id = "NhlhydnVRYheiouf09eBX"
+uri = "file://artifacts/mockup-sandbox/public/images/ai-presenter-variant-a.png"
+type = "image"
+title = "Professional real estate agent"
+
 [[outputs]]
 id = "GJSJTvrQG8OqI7nTZIiR7"
 uri = "file://exports/sophie-hq.jpg"
@@ -47,3 +71,15 @@ id = "gbSN_xWWRXELv-AGx7vs0"
 uri = "file://.local/outputs/LensFlow-Explainer-Deck.pdf"
 type = "pdf"
 title = "LensFlow Explainer Deck (PDF)"
+
+[[outputs]]
+id = "Kx3WJBL1D0G7EikpD3nn7"
+uri = "file://artifacts/mockup-sandbox/public/images/luxury-listing-b.jpg"
+type = "image"
+title = "Luxury modern home exterior or living room, real estate style"
+
+[[outputs]]
+id = "GCUvfu3ewR3axA8yi5Bk7"
+uri = "file://artifacts/mockup-sandbox/public/images/agent-avatar.jpg"
+type = "image"
+title = "Professional male real estate agent in a suit, modern look, confident"
