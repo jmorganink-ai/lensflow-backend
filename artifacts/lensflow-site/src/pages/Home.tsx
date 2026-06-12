@@ -5,6 +5,8 @@ import {
   CheckCircle2,
   Clock,
   Film,
+  Menu,
+  Play,
   PlayCircle,
   Shield,
   Sparkles,
@@ -12,6 +14,7 @@ import {
   TrendingUp,
   Users,
   Video,
+  Volume2,
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -134,123 +137,147 @@ export default function Home() {
       <Navbar />
 
       <main>
-        {/* Hero Section with Teleprompter */}
-        <section className="relative overflow-hidden border-b border-white/5 pt-28 lg:pt-32">
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#0a0d1a] via-[#0d1120] to-[#10162a]" />
-          </div>
+        {/* Hero Section — Cinematic Storytelling */}
+        <section className="relative min-h-screen bg-[#06080F] text-white flex flex-col overflow-hidden border-b border-white/5">
+          {/* Background glows */}
+          <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-[#C9A84C]/5 to-transparent pointer-events-none" />
+          <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#C9A84C]/8 blur-[150px] rounded-full pointer-events-none" />
 
-          <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 lg:grid-cols-[1fr_1.2fr] lg:py-20">
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={staggerContainer}
-              className="max-w-xl"
-            >
+          {/* Main content */}
+          <div className="flex-1 flex flex-col items-center justify-start pt-36 md:pt-44 px-4 pb-20 z-10 w-full max-w-7xl mx-auto">
+            <div className="max-w-4xl w-full text-center flex flex-col items-center gap-8">
+
+              {/* Phase 1 — The Old Way */}
               <motion.div
-                variants={fadeInUp}
-                className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c99a2e]/30 bg-[#c99a2e]/10 px-3 py-1.5 text-sm font-medium text-[#c99a2e]"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7 }}
+                className="flex flex-col items-center gap-4"
               >
-                <Sparkles className="h-4 w-4" />
-                LensFlow AI Teleprompter
+                <span className="px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-[#E8D5A3] bg-[#C9A84C]/10 rounded-full border border-[#C9A84C]/20 uppercase">
+                  THE OLD WAY
+                </span>
+                <p className="text-lg md:text-xl text-gray-500 font-light tracking-wide line-through decoration-gray-700 decoration-2">
+                  Film every listing. Edit. Wait a week.
+                </p>
               </motion.div>
 
+              {/* Phase 2 — Main headline */}
               <motion.h1
-                variants={fadeInUp}
-                className="font-serif text-5xl font-bold leading-[1.03] tracking-normal text-white md:text-6xl lg:text-[64px]"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.15 }}
+                className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.05]"
               >
-                Record Like a Pro with AI Teleprompter
+                YOUR DIGITAL<br />
+                <span className="text-gradient-gold">TWIN IS HERE.</span>
               </motion.h1>
 
+              {/* Phase 3 — Subheadline */}
               <motion.p
-                variants={fadeInUp}
-                className="mt-6 max-w-xl text-lg leading-8 text-[#8f99b2] md:text-xl"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                className="text-xl md:text-2xl text-gray-400 font-light max-w-2xl leading-relaxed tracking-wide"
               >
-                Scroll through your script while recording. Perfect for agents who want 
-                to deliver polished property videos without memorizing lines.
+                Record once. Your AI clone presents every listing in under 2 minutes.
               </motion.p>
 
+              {/* CTAs */}
               <motion.div
-                variants={fadeInUp}
-                className="mt-8 flex flex-col gap-3 sm:flex-row"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.5 }}
+                className="flex flex-col sm:flex-row items-center gap-5 mt-4"
               >
-                <a href="#hero-form">
-                  <Button className="h-12 rounded-full bg-[#c99a2e] px-7 text-base font-semibold text-[#0a0d1a] hover:bg-[#dfb44d]">
-                    Try Teleprompter Free
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </a>
-                <a href="/teleprompter.html" target="_blank">
-                  <Button
-                    variant="outline"
-                    className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-white hover:bg-white/10"
-                  >
-                    Watch Demo
-                  </Button>
-                </a>
+                <Link href="/twin-avatar">
+                  <button className="w-full sm:w-auto bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] text-[#06080F] px-8 py-4 rounded-full font-bold text-lg hover:shadow-[0_0_30px_rgba(201,168,76,0.25)] hover:scale-105 transition-all duration-300">
+                    Clone Yourself Free
+                  </button>
+                </Link>
+                <Link href="/examples">
+                  <button className="w-full sm:w-auto group flex items-center justify-center gap-3 px-8 py-4 rounded-full font-bold text-lg text-white border border-gray-800 hover:border-gray-500 hover:bg-white/5 transition-all duration-300">
+                    <Play className="w-5 h-5 group-hover:text-[#C9A84C] transition-colors" fill="currentColor" />
+                    Watch It Work
+                  </button>
+                </Link>
               </motion.div>
-            </motion.div>
+            </div>
 
-            {/* Teleprompter Preview */}
+            {/* Cinematic Video Mockup */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="relative"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.7 }}
+              className="w-full mt-20 relative"
             >
-              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0d1120] shadow-2xl">
-                <div className="relative aspect-video bg-gradient-to-br from-[#1a213a] to-[#0d1120]">
-                  {/* Teleprompter Interface */}
-                  <div className="absolute inset-0 flex flex-col">
-                    {/* Header */}
-                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-red-500" />
-                        <div className="h-2 w-2 rounded-full bg-yellow-500" />
-                        <div className="h-2 w-2 rounded-full bg-green-500" />
-                      </div>
-                      <span className="text-xs text-[#8f99b2]">LensFlow Teleprompter</span>
-                      <div className="w-16" />
+              {/* Glow behind video */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#C9A84C]/10 blur-[120px] rounded-[100px] pointer-events-none" />
+
+              <div className="relative aspect-[16/9] md:aspect-[21/9] w-full rounded-2xl md:rounded-[2.5rem] border border-[#C9A84C]/20 overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] group bg-[#0A0D14]">
+
+                {/* Property background image */}
+                <img
+                  src="/images/luxury-home-golden-hour.png"
+                  alt="Luxury Australian property at golden hour"
+                  className="absolute inset-0 w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-[2s] ease-out opacity-80"
+                />
+
+                {/* Gradient overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#06080F] via-[#06080F]/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#06080F]/80 via-transparent to-transparent" />
+
+                {/* REC badge */}
+                <div className="absolute top-6 right-6 md:top-10 md:right-10 flex items-center gap-3">
+                  <div className="bg-black/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-xl flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-xs font-bold tracking-widest text-white">REC</span>
+                  </div>
+                </div>
+
+                {/* Bottom UI controls */}
+                <div className="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 md:right-10 flex flex-col md:flex-row items-end md:items-center justify-between gap-6">
+
+                  {/* AI Presenter + waveform */}
+                  <div className="flex items-center gap-5 bg-black/60 backdrop-blur-xl px-5 py-3.5 md:px-6 md:py-4 rounded-2xl border border-white/10 shadow-xl">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#E8D5A3] flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_20px_rgba(201,168,76,0.3)]">
+                      <Play className="w-5 h-5 md:w-6 md:h-6 text-black ml-1" fill="currentColor" />
                     </div>
-                    
-                    {/* Script Area */}
-                    <div className="flex-1 overflow-hidden p-6">
-                      <div className="space-y-4 text-center">
-                        <p className="text-2xl font-medium text-white/90 leading-relaxed">
-                          "Welcome to 28 Harbour View..."
-                        </p>
-                        <p className="text-xl text-[#c99a2e]">
-                          A private waterfront residence designed for effortless entertaining.
-                        </p>
-                        <p className="text-lg text-white/60">
-                          With panoramic harbour views and world-class amenities...
-                        </p>
+                    <div className="flex flex-col gap-2.5">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-2 h-2 rounded-full bg-[#E8D5A3] animate-pulse" />
+                        <span className="text-xs md:text-sm font-semibold text-white tracking-widest uppercase">
+                          AI Presenter Active
+                        </span>
                       </div>
-                    </div>
-                    
-                    {/* Controls */}
-                    <div className="border-t border-white/10 px-4 py-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[#c99a2e] text-[#0a0d1a]">
-                            <PlayCircle className="h-5 w-5" />
-                          </button>
-                          <span className="text-sm text-[#8f99b2]">0:08 / 0:30</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-[#8f99b2]">Speed: 1.0x</span>
-                          <span className="text-xs text-[#8f99b2]">|</span>
-                          <span className="text-xs text-[#8f99b2]">Font: Large</span>
-                        </div>
+                      {/* Waveform */}
+                      <div className="flex items-end gap-[3px] h-6 md:h-8">
+                        {[...Array(32)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="w-[2px] md:w-1 bg-gradient-to-t from-[#C9A84C] to-[#E8D5A3] rounded-full waveform-bar opacity-80"
+                            style={{
+                              animationDelay: `${i * 0.05}s`,
+                              height: `${Math.max(10, Math.min(100, 20 + Math.sin(i * 0.5) * 40 + (i % 7) * 8))}%`,
+                            }}
+                          />
+                        ))}
                       </div>
                     </div>
                   </div>
+
+                  {/* Volume + time */}
+                  <div className="hidden md:flex items-center gap-4 bg-black/60 backdrop-blur-xl px-6 py-4 rounded-2xl border border-white/10 shadow-xl">
+                    <div className="flex items-center gap-4">
+                      <Volume2 className="w-5 h-5 text-gray-400" />
+                      <div className="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div className="w-2/3 h-full bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] rounded-full" />
+                      </div>
+                    </div>
+                    <div className="w-[1px] h-6 bg-white/10 mx-2" />
+                    <span className="text-sm font-medium text-gray-400 tracking-wider">0:42 / 1:55</span>
+                  </div>
                 </div>
-              </div>
-              
-              {/* Floating Badge */}
-              <div className="absolute -bottom-4 -right-4 rounded-xl border border-[#c99a2e]/30 bg-[#0d1120] px-4 py-2 shadow-lg">
-                <span className="text-sm font-medium text-[#c99a2e]">AI-Powered Scrolling</span>
               </div>
             </motion.div>
           </div>
