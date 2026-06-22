@@ -1,6 +1,14 @@
 import Stripe from 'stripe';
 
 async function getStripeCredentials(): Promise<{ secretKey: string; webhookSecret?: string }> {
+  const directSecret = process.env.STRIPE_SECRET_KEY?.trim();
+  if (directSecret) {
+    return {
+      secretKey: directSecret,
+      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET?.trim() || undefined,
+    };
+  }
+
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY
     ? "repl " + process.env.REPL_IDENTITY

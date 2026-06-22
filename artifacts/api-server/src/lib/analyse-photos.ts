@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { logger } from "./logger";
+import { getAllowedPublicHosts } from "./publicBaseUrl";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -39,16 +40,14 @@ export function isAllowedImageUrl(url: string): boolean {
   if (!parsed.pathname.startsWith("/api/storage/")) return false;
 
   const host = parsed.hostname.toLowerCase();
-  const allowedDomains = (process.env.REPLIT_DOMAINS ?? "")
-    .split(",")
-    .map((d) => d.trim().toLowerCase())
-    .filter(Boolean);
+  const allowedDomains = getAllowedPublicHosts();
 
   const isLocalhost = host === "localhost" || host === "127.0.0.1";
   const isAllowedDomain =
     allowedDomains.includes(host) ||
     host === "lensflow.com.au" ||
     host === "www.lensflow.com.au" ||
+    host.endsWith(".onrender.com") ||
     host.endsWith(".replit.dev") ||
     host.endsWith(".replit.app") ||
     host.endsWith(".repl.co");

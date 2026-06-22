@@ -8,6 +8,7 @@ import router from "./routes";
 import { logger } from "./lib/logger";
 import { authMiddleware } from "./middlewares/authMiddleware";
 import { WebhookHandlers } from "./webhookHandlers";
+import { getPublicBaseUrl } from "./lib/publicBaseUrl";
 
 const app: Express = express();
 
@@ -45,7 +46,12 @@ const replitDomains = (process.env["REPLIT_DOMAINS"] ?? "")
   .filter(Boolean)
   .map((d) => `https://${d}`);
 
-const ALLOWED_ORIGINS = new Set([...CUSTOM_DOMAINS, ...replitDomains]);
+const renderOrigin = getPublicBaseUrl("").trim();
+const ALLOWED_ORIGINS = new Set([
+  ...CUSTOM_DOMAINS,
+  ...replitDomains,
+  ...(renderOrigin ? [renderOrigin] : []),
+]);
 
 // CRITICAL: Stripe webhook route must be registered BEFORE express.json()
 // Stripe signature verification requires the raw Buffer body.

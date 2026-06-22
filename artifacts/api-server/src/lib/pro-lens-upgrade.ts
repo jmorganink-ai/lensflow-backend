@@ -5,6 +5,7 @@ import {
   type SupportedMediaType,
 } from "./analyse-photos";
 import { ObjectStorageService } from "./objectStorage";
+import { getPublicBaseUrl } from "./publicBaseUrl";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_LENSFLOW_API_KEY ?? process.env.GEMINI_API_KEY });
 const objectStorageService = new ObjectStorageService();
@@ -125,10 +126,7 @@ async function uploadUpgraded(buffer: Buffer, mimeType: string): Promise<string>
     throw new Error(`Failed to upload pro-lens image: ${putRes.status}`);
   }
   const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
-  const domain = (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim();
-  return domain
-    ? `https://${domain}/api/storage${objectPath}`
-    : `http://localhost:80/api/storage${objectPath}`;
+  return `${getPublicBaseUrl()}/api/storage${objectPath}`;
 }
 
 /**

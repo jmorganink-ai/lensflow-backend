@@ -6,6 +6,7 @@ import {
 } from "@workspace/api-zod";
 import { ObjectStorageService, ObjectNotFoundError } from "../lib/objectStorage";
 import { ObjectPermission } from "../lib/objectAcl";
+import { getPublicBaseUrl } from "../lib/publicBaseUrl";
 
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
@@ -35,12 +36,9 @@ router.post("/storage/uploads/request-url", async (req: Request, res: Response) 
     const uploadURL = await objectStorageService.getObjectEntityUploadURL();
     const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
 
-    // Build the fully-qualified public URL from REPLIT_DOMAINS so external services
-    // (e.g. Shotstack) can access the image without going through localhost.
-    const domain = (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim();
-    const publicUrl = domain
-      ? `https://${domain}/api/storage${objectPath}`
-      : `http://localhost:80/api/storage${objectPath}`;
+    // Build a fully-qualified public URL so external services such as Shotstack
+    // can access the image without going through localhost.
+    const publicUrl = `${getPublicBaseUrl()}/api/storage${objectPath}`;
 
     res.json(
       RequestUploadUrlResponse.parse({

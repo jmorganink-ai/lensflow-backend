@@ -16,6 +16,7 @@ import {
   SESSION_COOKIE,
   SESSION_TTL,
   ISSUER_URL,
+  OIDC_CLIENT_ID,
   type SessionData,
 } from "../lib/auth";
 import { syncUserToHubSpot } from "../lib/hubspot";
@@ -200,7 +201,7 @@ router.get("/logout", async (req: Request, res: Response) => {
   await clearSession(res, sid);
 
   const endSessionUrl = oidc.buildEndSessionUrl(config, {
-    client_id: process.env.REPL_ID!,
+    client_id: OIDC_CLIENT_ID!,
     post_logout_redirect_uri: origin,
   });
 

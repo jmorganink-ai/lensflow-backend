@@ -27,6 +27,7 @@ import { enhancePropertyPhotos } from "../lib/enhance-photos";
 import { upgradePropertyPhotos } from "../lib/pro-lens-upgrade";
 import { rescuePropertyPhotos, type RoomRescueMode } from "../lib/ai-room-rescue";
 import { getStreetViewImages } from "../lib/street-view";
+import { getPublicBaseUrl } from "../lib/publicBaseUrl";
 
 const router: IRouter = Router();
 
@@ -960,11 +961,8 @@ router.post("/jobs/self-recorded", async (req, res): Promise<void> => {
             headers: { "Content-Type": "audio/mpeg" },
           });
 
-          const prodDomain = (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim();
-          if (prodDomain) {
-            narrationUrl = `https://${prodDomain}/api/storage${objectPath}`;
-            logger.info({ jobId: id, narrationUrl }, "Narration uploaded to storage");
-          }
+          narrationUrl = `${getPublicBaseUrl()}/api/storage${objectPath}`;
+          logger.info({ jobId: id, narrationUrl }, "Narration uploaded to storage");
         } catch (err) {
           logger.warn({ err, jobId: id }, "Narration generation failed — composing without audio");
         }

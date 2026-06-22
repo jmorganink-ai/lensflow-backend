@@ -8,6 +8,7 @@ import {
   getObjectAclPolicy,
   setObjectAclPolicy,
 } from "./objectAcl";
+import { getPublicBaseUrl } from "./publicBaseUrl";
 
 const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
 
@@ -207,7 +208,7 @@ export class ObjectStorageService {
 
   /**
    * Upload a Buffer to object storage and make it publicly readable.
-   * Returns the public URL via the REPLIT_DOMAINS proxy (for Shotstack etc).
+   * Returns the public URL via the app's public base URL (for Shotstack etc).
    * objectKey is relative to PRIVATE_OBJECT_DIR, e.g. "voiceovers/jobId.mp3"
    */
   async uploadPublicAudio(buffer: Buffer, objectKey: string): Promise<string> {
@@ -216,7 +217,7 @@ export class ObjectStorageService {
 
   /**
    * Upload any Buffer to object storage and make it publicly readable.
-   * Returns the public URL via the REPLIT_DOMAINS proxy.
+   * Returns the public URL via the app's public base URL.
    * objectKey is relative to PRIVATE_OBJECT_DIR, e.g. "test-images/uuid.jpg"
    */
   async uploadPublicBuffer(
@@ -230,9 +231,7 @@ export class ObjectStorageService {
     const file = objectStorageClient.bucket(bucketName).file(objectName);
     await file.save(buffer, { contentType, resumable: false });
     await setObjectAclPolicy(file, { owner: "", visibility: "public" });
-    const domain =
-      (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim() || "localhost";
-    return `https://${domain}/api/storage/objects/${objectKey}`;
+    return `${getPublicBaseUrl()}/api/storage/objects/${objectKey}`;
   }
 }
 
