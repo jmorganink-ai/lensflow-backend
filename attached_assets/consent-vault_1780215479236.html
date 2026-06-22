@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConsentVault — Mutual Consent Documentation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<style>
+  :root { --gold: #d4af37; --red: #ef4444; --green: #22c55e; }
+  body { font-family: system-ui, sans-serif; background:#0a0f1c; color:#e2e8f0; margin:0; }
+  .container { max-width: 560px; margin:0 auto; padding:20px; }
+  .card { background:#1e2937; border:1px solid #475569; border-radius:16px; padding:24px; margin:20px 0; }
+  .stat { font-size:42px; font-weight:700; margin:8px 0; }
+  .btn { width:100%; padding:16px; border:none; border-radius:12px; font-weight:600; margin-top:12px; cursor:pointer; }
+  .btn-primary { background:var(--gold); color:#0f172a; }
+  .btn-red { background:var(--red); color:white; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header"><h1>ConsentVault</h1></div>
+
+  <!-- Prison Statistics -->
+  <div class="card">
+    <h3>Australia Prison Statistics (2025)</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:20px 0;">
+      <div>
+        <div class="stat" style="color:#ef4444;">47,379</div>
+        <div>Total people in prison</div>
+      </div>
+      <div>
+        <div class="stat" style="color:var(--gold);">92%</div>
+        <div>Are men</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <div>19,850 unsentenced (on remand)</div>
+      <div style="color:#94a3b8; font-size:13px;">Many unable to secure bail or surety</div>
+    </div>
+  </div>
+
+  <!-- Teleprompter Section (kept from previous) -->
+  <div id="teleScreen" class="card">
+    <h3>Consent Recording</h3>
+    <!-- ... teleprompter code from previous version ... -->
+  </div>
+</div>
+
+<script>
+// Previous teleprompter + face detection + jsPDF code remains here
+</script>
+
+</body>
+</html>

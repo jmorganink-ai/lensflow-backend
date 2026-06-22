@@ -1,0 +1,71 @@
+{
+  "expo": {
+    "name": "LensFlow",
+    "slug": "lensflow",
+    "version": "1.0.0",
+    "owner": "lensflow",
+    "extra": {
+      "eas": {
+        "projectId": "97dcd4e3-3b77-4a5f-88e1-d216558d2125"
+      }
+    },
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "lensflow-mobile",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "au.com.lensflow.app"
+    },
+    "android": {
+      "package": "au.com.lensflow.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#070a12"
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/icon.png"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "origin": "https://replit.com/"
+        }
+      ],
+      "expo-font",
+      "expo-web-browser",
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "LensFlow needs access to your photos so you can add property images to your listing videos."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "LensFlow needs camera access so you can film yourself presenting your listing video.",
+          "microphonePermission": "LensFlow needs microphone access to record audio while you film your listing video.",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#070a12"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

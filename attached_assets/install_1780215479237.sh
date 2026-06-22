@@ -1,0 +1,1 @@
+npm install apify-client zod openai node-fetch inngest shotstack

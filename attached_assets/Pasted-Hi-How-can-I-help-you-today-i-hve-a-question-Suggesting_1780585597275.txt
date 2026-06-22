@@ -1,0 +1,49 @@
+Hi! How can I help you today?
+
+i hve a question
+
+Suggesting options
+
+I'm here to help with your questions about ElevenLabs. What would you like to know?
+
+Something else
+
+What's on your mind? Please let me know what you'd like to ask or what you're trying to accomplish, and I'll be happy to help!
+
+well i am trying to have Ai record themselves and promoting the property on the sales rep behalf and the AI I created ARE from elevenlab and i was curious, can elevenlab be able to respond for a request from our server to have one of the avators we already created here to re do another video with different script, music, video with multiple dsifferent agents at any given trime of the day.
+
+Yes, you can absolutely automate this! ElevenLabs supports generating both the audio and the video (including talking AI avatars, background music, and sound effects) programmatically via our API.
+
+Your server can send a request at any time of the day to trigger a new generation. Here is how the workflow typically looks for your setup:
+
+Dynamic Script & Voice: Your server sends the new script to our Text to Speech API, specifying the exact cloned voice or agent voice you want to use.
+AI Avatar & Video: You can use our video and lip-sync models (such as Veed LipSync or OmniHuman) via the API to animate your custom real estate avatar's mouth and facial expressions to perfectly match the newly generated audio.
+Music & SFX: You can programmatically generate background tracks using our Music API or layer in existing audio tracks.
+Since everything is accessible via our developer API, you can run these requests concurrently for multiple different agents whenever a new property needs promoting.
+
+Would you like me to guide you to our developer documentation, or would you like to take a look at our Image & Video generation interface first to see how the avatar models work?
+
+or take the avatars asnd go to heygen or d-id
+
+That is actually a very popular and highly effective workflow! Both HeyGen and D-ID have native, direct integrations with ElevenLabs.
+
+You can easily use the ElevenLabs API to generate the high-quality voiceover on your server, and then pass that audio file directly into HeyGen's or D-ID's API to animate your custom avatar. Alternatively, you can link your ElevenLabs API key directly inside your HeyGen or D-ID developer accounts so their platforms can call your ElevenLabs voices directly when generating a video.
+
+This gives you the absolute best of both worlds: ElevenLabs' industry-leading voice realism combined with their specialized avatar video generation.
+
+Would you like some help finding your ElevenLabs API key so you can connect it to HeyGen or D-ID, or would you like to explore how to generate the audio via our API first?
+
+but they dont accept avatars from other platforms to be uploaded on therir platform and use thier public avators but i spent alot of time and money developing your avatars and are on the website for months
+
+I completely understand your frustration, especially after investing so much time and money into perfecting your specific avatars right here on ElevenLabs.
+
+If you have already built and customized your avatars on our platform, you do not need to move them to HeyGen or D-ID. You can keep your entire workflow on ElevenLabs and automate it directly from your server.
+
+Our Image & Video API allows you to programmatically generate videos using the exact avatars you have already set up in your account. Your server can send a request containing:
+
+The specific avatar you created.
+The new script/audio.
+Any background music or styling you want.
+This will generate the complete, lip-synced video automatically at any time of day, keeping all your hard work and assets in one place.
+
+Would you like me to take you to the Image & Video section so we can look at your existing avatars, or would you prefer to look at the API documentation for video generation?

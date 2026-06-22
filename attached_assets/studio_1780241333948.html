@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LENSFLOW Studio</title>
+<style>
+  :root { --gold: #c99a2e; --dark: #0a0e1a; }
+  body { font-family: system-ui, sans-serif; background: var(--dark); color: #f8f3ea; margin:0; }
+  .container { max-width: 900px; margin:0 auto; padding:40px 20px; }
+  .card { background:#1e2533; border:1px solid #444; border-radius:20px; padding:32px; margin:24px 0; }
+  .btn { padding:16px 32px; border-radius:9999px; font-weight:600; cursor:pointer; background:var(--gold); color:#0a0a0a; border:none; width:100%; margin-top:16px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1 style="text-align:center;color:var(--gold);font-size:42px">LENSFLOW Studio</h1>
+  <p style="text-align:center;color:#aaa">Create studio-quality videos with AI presenters</p>
+
+  <!-- Avatar Generator -->
+  <div class="card">
+    <h3>1. Generate Custom AI Avatar</h3>
+    <div onclick="document.getElementById('faceUpload').click()" style="border:2px dashed #555;border-radius:16px;padding:60px;text-align:center;cursor:pointer">
+      📸 Upload your face photo to create your digital twin
+      <input type="file" id="faceUpload" accept="image/*" style="display:none" onchange="generateAvatar(this)">
+    </div>
+    <div id="avatarSection" style="display:none;text-align:center;margin-top:20px">
+      <img id="avatarImg" style="width:180px;height:180px;border-radius:50%;border:4px solid var(--gold);">
+      <button onclick="useAvatar()" class="btn">Use This Avatar</button>
+    </div>
+  </div>
+
+  <!-- Recorder -->
+  <div class="card">
+    <h3>2. Record with Lip Sync</h3>
+    <div style="position:relative;height:420px;background:#000;border-radius:16px;overflow:hidden">
+      <video id="preview" autoplay playsinline style="width:100%;height:100%;object-fit:cover"></video>
+      <canvas id="lipCanvas" width="160" height="90" style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%)"></canvas>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:20px">
+      <button onclick="startRecording()" class="btn" id="startBtn">▶ Start Recording</button>
+      <button onclick="stopRecording()" class="btn" id="stopBtn" style="background:#ef4444;color:white;display:none">■ Stop Recording</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let stream, recorder;
+
+async function startRecording() {
+  stream = await navigator.mediaDevices.getUserMedia({ video: {facingMode:"user"}, audio:true });
+  document.getElementById('preview').srcObject = stream;
+  recorder = new MediaRecorder(stream);
+  recorder.start();
+  document.getElementById('startBtn').style.display = 'none';
+  document.getElementById('stopBtn').style.display = 'block';
+}
+
+function stopRecording() {
+  recorder.stop();
+  stream.getTracks().forEach(t => t.stop());
+  alert("✅ Video saved with lip sync!");
+}
+
+function generateAvatar(input) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('avatarImg').src = e.target.result;
+    document.getElementById('avatarSection').style.display = 'block';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function useAvatar() {
+  alert("✅ Custom avatar activated!");
+}
+</script>
+
+</body>
+</html>

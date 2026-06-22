@@ -1,0 +1,1426 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: LensFlow AI - Real estate video pipeline API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: jobs
+    description: Pipeline job operations
+  - name: webhooks
+    description: Webhook operations
+  - name: leads
+    description: Lead capture operations
+  - name: support
+    description: Customer support ticket operations
+  - name: anthropic
+    description: Anthropic AI chat operations (Morgan assistant)
+  - name: elevenlabs
+    description: ElevenLabs voice and TTS operations
+  - name: Auth
+    description: Browser and mobile authentication endpoints.
+  - name: settings
+    description: User avatar and preferences settings
+paths:
+  /auth/user:
+    get:
+      tags: [Auth]
+      operationId: getCurrentAuthUser
+      summary: Get the currently authenticated user
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: Auth status resolved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserEnvelope'
+  /login:
+    get:
+      tags: [Auth]
+      operationId: beginBrowserLogin
+      summary: Start the browser OIDC login flow
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to the OIDC authorization endpoint.
+  /callback:
+    get:
+      tags: [Auth]
+      operationId: handleBrowserLoginCallback
+      summary: Complete the browser OIDC login flow
+      responses:
+        '302':
+          description: Redirect to the returnTo path on success or /api/login on failure.
+  /logout:
+    get:
+      tags: [Auth]
+      operationId: logoutBrowserSession
+      summary: Clear the session and begin OIDC logout
+      responses:
+        '302':
+          description: Redirect to the OIDC provider logout URL.
+  /mobile-auth/token-exchange:
+    post:
+      tags: [Auth]
+      operationId: exchangeMobileAuthorizationCode
+      summary: Exchange a mobile OIDC code for a session token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileTokenExchangeRequest'
+      responses:
+        '200':
+          description: Session created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileTokenExchangeSuccess'
+        '400':
+          description: Missing or invalid required fields.
+        '401':
+          description: Token did not contain usable claims.
+        '500':
+          description: Token exchange failed.
+  /mobile-auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logoutMobileSession
+      summary: Delete a mobile session token
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: Logout processed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutSuccess'
+
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List all jobs
+      responses:
+        "200":
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Create a new pipeline job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobInput"
+      responses:
+        "201":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "400":
+          description: Invalid input
+
+  /jobs/generate-script:
+    post:
+      operationId: generateScript
+      tags: [jobs]
+      summary: Generate an AI listing script without running the pipeline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateScriptInput"
+      responses:
+        "200":
+          description: Generated script
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateScriptResult"
+        "400":
+          description: Invalid input
+
+  /jobs/self-recorded:
+    post:
+      operationId: createSelfRecordedJob
+      tags: [jobs]
+      summary: Save a self-recorded video as a completed job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SelfRecordedJobInput"
+      responses:
+        "201":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "400":
+          description: Invalid input
+
+  /jobs/stats:
+    get:
+      operationId: getJobStats
+      tags: [jobs]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Job statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobStats"
+
+  /jobs/{id}/simulate:
+    post:
+      operationId: simulateJob
+      tags: [jobs]
+      summary: Start pipeline simulation for a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Simulation started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulateResult"
+        "400":
+          description: Job already running or complete
+        "404":
+          description: Job not found
+
+  /jobs/{id}/approve-room-rescue:
+    post:
+      operationId: approveRoomRescue
+      tags: [jobs]
+      summary: Approve AI Room Rescue — pipeline uses transformed photos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Room Rescue approved
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message]
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: Job not found
+
+  /jobs/{id}/reject-room-rescue:
+    post:
+      operationId: rejectRoomRescue
+      tags: [jobs]
+      summary: Reject AI Room Rescue — pipeline reverts to original photos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Room Rescue rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message]
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: Job not found
+
+  /jobs/{id}/approve-upgrade:
+    post:
+      operationId: approveProLensUpgrade
+      tags: [jobs]
+      summary: Approve the Pro Lens Upgrade images — pipeline uses upgraded photos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Upgrade approved
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message]
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: Job not found
+
+  /jobs/{id}/reject-upgrade:
+    post:
+      operationId: rejectProLensUpgrade
+      tags: [jobs]
+      summary: Reject the Pro Lens Upgrade — pipeline reverts to original photos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Upgrade rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message]
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: Job not found
+
+  /jobs/{id}/matterport:
+    patch:
+      operationId: setJobMatterportUrl
+      tags: [jobs]
+      summary: Attach a Matterport Interactive Tour to a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetMatterportUrlRequest"
+      responses:
+        "200":
+          description: Matterport URL saved and embed URL returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetMatterportUrlResponse"
+        "400":
+          description: Invalid Matterport URL or Space ID
+        "404":
+          description: Job not found
+
+  /jobs/{id}/send-to-crm:
+    post:
+      operationId: sendJobToCrm
+      tags: [jobs]
+      summary: Send a completed job's video to the HubSpot CRM
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendToCrmBody"
+      responses:
+        "200":
+          description: Sent to CRM
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendToCrmResult"
+        "400":
+          description: Job not complete or invalid input
+        "404":
+          description: Job not found
+
+  /jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get job with pipeline step details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobDetail"
+        "404":
+          description: Job not found
+    delete:
+      operationId: deleteJob
+      tags: [jobs]
+      summary: Delete a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Job deleted
+        "404":
+          description: Job not found
+
+  /webhooks:
+    get:
+      operationId: listWebhooks
+      tags: [webhooks]
+      summary: List all webhooks
+      responses:
+        "200":
+          description: List of webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Webhook"
+    post:
+      operationId: createWebhook
+      tags: [webhooks]
+      summary: Create a new webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookInput"
+      responses:
+        "201":
+          description: Webhook created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Webhook"
+        "400":
+          description: Invalid input
+
+  /elevenlabs/voices:
+    get:
+      operationId: listElevenLabsVoices
+      tags: [elevenlabs]
+      summary: List available ElevenLabs voices
+      responses:
+        "200":
+          description: List of voices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ElevenLabsVoice"
+        "500":
+          description: ElevenLabs API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ElevenLabsError"
+
+  /anthropic/conversations:
+    get:
+      operationId: listAnthropicConversations
+      tags: [anthropic]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnthropicConversation"
+    post:
+      operationId: createAnthropicConversation
+      tags: [anthropic]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnthropicConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicConversation"
+  /anthropic/conversations/{id}:
+    get:
+      operationId: getAnthropicConversation
+      tags: [anthropic]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicError"
+    delete:
+      operationId: deleteAnthropicConversation
+      tags: [anthropic]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicError"
+  /anthropic/conversations/{id}/messages:
+    get:
+      operationId: listAnthropicMessages
+      tags: [anthropic]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnthropicMessage"
+    post:
+      operationId: sendAnthropicMessage
+      tags: [anthropic]
+      summary: Send a message and receive an AI response (SSE stream)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnthropicMessageInput"
+      responses:
+        "200":
+          description: SSE stream of assistant response chunks
+          content:
+            text/event-stream: {}
+
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [jobs]
+      summary: Request a presigned URL for uploading a property photo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, size, contentType]
+              properties:
+                name:
+                  type: string
+                size:
+                  type: integer
+                contentType:
+                  type: string
+      responses:
+        "200":
+          description: Presigned upload URL
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [uploadURL, objectPath, publicUrl]
+                properties:
+                  uploadURL:
+                    type: string
+                  objectPath:
+                    type: string
+                  publicUrl:
+                    type: string
+                    description: Fully-qualified HTTPS URL for accessing the uploaded file (usable by Shotstack)
+        "400":
+          description: Invalid request
+
+  /leads:
+    post:
+      operationId: captureLead
+      tags: [leads]
+      summary: Capture a new lead email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadInput"
+      responses:
+        "201":
+          description: Lead captured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadResult"
+        "400":
+          description: Invalid input
+
+  /leads/count:
+    get:
+      operationId: getLeadCount
+      tags: [leads]
+      summary: Get total lead count for urgency display
+      responses:
+        "200":
+          description: Lead count
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadCount"
+
+  /support/tickets:
+    post:
+      operationId: createSupportTicket
+      tags: [support]
+      summary: Create a support ticket from the Morgan chat widget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupportTicketInput"
+      responses:
+        "201":
+          description: Ticket created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportTicketResult"
+        "400":
+          description: Invalid input
+
+  /market/brief:
+    get:
+      operationId: getMarketBrief
+      tags: [market]
+      summary: Get Australian property market brief (Claude-generated, cached 4h)
+      responses:
+        "200":
+          description: Current market brief
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketBrief"
+        "500":
+          description: Failed to generate brief
+    post:
+      operationId: refreshMarketBrief
+      tags: [market]
+      summary: Force-refresh the market brief (busts 4h cache)
+      responses:
+        "200":
+          description: Fresh market brief
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketBrief"
+
+  /webhooks/{id}:
+    delete:
+      operationId: deleteWebhook
+      tags: [webhooks]
+      summary: Delete a webhook
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Webhook deleted
+        "404":
+          description: Webhook not found
+
+  /settings/avatar:
+    get:
+      tags: [settings]
+      operationId: getAvatarSettings
+      summary: Get the current user's saved digital-twin avatar
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: Avatar settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvatarSettings'
+        '401':
+          description: Not authenticated
+    put:
+      tags: [settings]
+      operationId: updateAvatarSettings
+      summary: Save the current user's digital-twin avatar
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvatarSettings'
+      responses:
+        '200':
+          description: Avatar settings saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvatarSettings'
+        '401':
+          description: Not authenticated
+
+components:
+  parameters:
+    AuthorizationSessionHeader:
+      name: Authorization
+      in: header
+      required: false
+      description: Opaque session token — Bearer <sid>.
+      schema:
+        type: string
+    SessionCookie:
+      name: sid
+      in: cookie
+      required: false
+      description: Browser session cookie.
+      schema:
+        type: string
+  schemas:
+    AuthUser:
+      type: object
+      required: [id, email, firstName, lastName, profileImageUrl]
+      properties:
+        id:
+          type: string
+        email:
+          type: [string, 'null']
+        firstName:
+          type: [string, 'null']
+        lastName:
+          type: [string, 'null']
+        profileImageUrl:
+          type: [string, 'null']
+    AuthUserEnvelope:
+      type: object
+      required: [user]
+      properties:
+        user:
+          oneOf:
+            - $ref: '#/components/schemas/AuthUser'
+            - type: 'null'
+    MobileTokenExchangeRequest:
+      type: object
+      required: [code, code_verifier, redirect_uri, state]
+      properties:
+        code:
+          type: string
+          minLength: 1
+        code_verifier:
+          type: string
+          minLength: 1
+        redirect_uri:
+          type: string
+          minLength: 1
+        state:
+          type: string
+          minLength: 1
+        nonce:
+          type: string
+          minLength: 1
+    MobileTokenExchangeSuccess:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+    LogoutSuccess:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Job:
+      type: object
+      required: [id, listingUrl, listingTitle, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        listingUrl:
+          type: string
+        listingTitle:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [queued, processing, complete, failed]
+        voiceId:
+          type: ["string", "null"]
+        voiceName:
+          type: ["string", "null"]
+        inputMode:
+          type: ["string", "null"]
+          enum: [url, photos, selfie, null]
+        propertyAddress:
+          type: ["string", "null"]
+        propertyImages:
+          type: array
+          items:
+            type: string
+          nullable: true
+        enhancedImages:
+          type: array
+          items:
+            type: string
+          nullable: true
+        musicTrack:
+          type: ["string", "null"]
+          description: Music preset used in the final video (uplifting, cinematic, calm, corporate)
+        backgroundImageUrl:
+          type: ["string", "null"]
+          description: URL of the virtual background image or clip used in selfie job composition
+        matterportUrl:
+          type: ["string", "null"]
+          description: Matterport share URL — embedded as an Interactive Tour on the campaign reveal page
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    JobDetail:
+      type: object
+      required: [id, listingUrl, listingTitle, status, steps, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        listingUrl:
+          type: string
+        listingTitle:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [queued, processing, complete, failed, awaiting_approval]
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/PipelineStep"
+        videoUrl:
+          type: ["string", "null"]
+        inputMode:
+          type: ["string", "null"]
+          enum: [url, photos, selfie, null]
+        propertyAddress:
+          type: ["string", "null"]
+        propertyImages:
+          type: array
+          items:
+            type: string
+          nullable: true
+        enhancedImages:
+          type: array
+          items:
+            type: string
+          nullable: true
+        proLensImages:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: Pro Lens Upgrade corrected image URLs (separate from originals)
+        proLensUpgradedCount:
+          type: ["integer", "null"]
+          description: Number of images successfully upgraded by Pro Lens
+        proLensApproved:
+          type: ["string", "null"]
+          enum: [approved, rejected, null]
+          description: Approval decision for Pro Lens Upgrade — null means awaiting review
+        roomRescueImages:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: AI Room Rescue transformed image URLs (stored separately from originals for compliance)
+        roomRescueMode:
+          type: ["string", "null"]
+          enum: [declutter, staging, null]
+          description: Room Rescue transformation mode — declutter removes clutter, staging adds furniture
+        roomRescueCount:
+          type: ["integer", "null"]
+          description: Number of images successfully transformed by AI Room Rescue
+        roomRescueApproved:
+          type: ["string", "null"]
+          enum: [approved, rejected, null]
+          description: Approval decision for AI Room Rescue — null means awaiting review
+        musicTrack:
+          type: ["string", "null"]
+          description: Music preset used in the final video (uplifting, cinematic, calm, corporate)
+        backgroundImageUrl:
+          type: ["string", "null"]
+          description: URL of the virtual background image or clip used in selfie job composition
+        voiceId:
+          type: ["string", "null"]
+        voiceName:
+          type: ["string", "null"]
+        matterportUrl:
+          type: ["string", "null"]
+          description: Matterport share URL — embedded as an Interactive Tour on the campaign reveal page
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SetMatterportUrlRequest:
+      type: object
+      required: [matterportUrl]
+      properties:
+        matterportUrl:
+          type: string
+          description: A Matterport share link (my.matterport.com/show/?m=...) or raw Space ID
+
+    SetMatterportUrlResponse:
+      type: object
+      required: [spaceId, embedUrl]
+      properties:
+        spaceId:
+          type: string
+        embedUrl:
+          type: string
+        matterportUrl:
+          type: string
+
+    PipelineStep:
+      type: object
+      required: [id, name, status, order]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          enum: [room_rescue, pro_lens_upgrade, enhance_photos, analyse_photos, scrape_listing, generate_script, create_voiceover, presenter_video, compose_video]
+        label:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, complete, failed, awaiting_approval]
+        order:
+          type: integer
+        startedAt:
+          type: ["string", "null"]
+          format: date-time
+        completedAt:
+          type: ["string", "null"]
+          format: date-time
+        errorMessage:
+          type: ["string", "null"]
+        outputUrl:
+          type: ["string", "null"]
+        outputData:
+          type: ["string", "null"]
+
+    JobInput:
+      type: object
+      properties:
+        listingUrl:
+          type: string
+        voiceId:
+          type: string
+        voiceName:
+          type: string
+        propertyImages:
+          type: array
+          items:
+            type: string
+          description: Public URLs of uploaded property photos
+        inputMode:
+          type: string
+          enum: [url, photos]
+          description: Whether job was created from a URL or uploaded photos
+        propertyAddress:
+          type: string
+          description: Property address entered manually (used in photo mode)
+        musicTrack:
+          type: string
+          description: Music preset ID for the final video (uplifting, cinematic, calm, corporate)
+        enhancePhotos:
+          type: boolean
+          description: Apply AI photo enhancement (Gemini-powered relight, colour balance, declutter) to uploaded property photos
+        proLensUpgrade:
+          type: boolean
+          description: Apply Pro Lens Upgrade (professional photographic corrections — lens distortion, exposure, colour, noise, sharpening, dynamic range) requiring before/after approval before Shotstack renders
+        roomRescue:
+          type: boolean
+          description: Apply AI Room Rescue transformation requiring before/after approval — must pair with roomRescueMode
+        roomRescueMode:
+          type: string
+          enum: [declutter, staging]
+          description: "Room Rescue mode — declutter: removes clutter/mess; staging: adds furniture/decor to empty rooms"
+        outputType:
+          type: string
+          enum: [presenter, voice_photos]
+          description: "presenter = AI avatar video (default); voice_photos = voiceover narration over professional photo slideshow"
+        lookId:
+          type: string
+          description: Optional HeyGen avatar look ID — overrides the default presenter look with a specific outfit
+
+    GenerateScriptInput:
+      type: object
+      properties:
+        inputMode:
+          type: string
+          enum: [url, photos]
+        listingUrl:
+          type: string
+        propertyAddress:
+          type: string
+        propertyImages:
+          type: array
+          items:
+            type: string
+        voiceName:
+          type: string
+          description: Presenter name (mia, sophie, oliver, james) — shapes the script tone and persona
+
+    GenerateScriptResult:
+      type: object
+      required: [script, title]
+      properties:
+        script:
+          type: string
+        title:
+          type: string
+
+    SelfRecordedJobInput:
+      type: object
+      required: [videoUrl, script]
+      properties:
+        videoUrl:
+          type: string
+          description: Public URL of the uploaded self-recorded video
+        script:
+          type: string
+        title:
+          type: string
+        inputMode:
+          type: string
+          enum: [url, photos]
+        listingUrl:
+          type: string
+        propertyAddress:
+          type: string
+        propertyImages:
+          type: array
+          items:
+            type: string
+        voiceId:
+          type: string
+          description: ElevenLabs voice ID for script narration overlay in the composed video
+        voiceName:
+          type: string
+        musicTrack:
+          type: string
+          description: Background music preset (uplifting, cinematic, calm, corporate)
+        backgroundImageUrl:
+          type: string
+          description: URL of the virtual background image or video clip
+
+    SendToCrmBody:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Optional contact email to attach the video note to in HubSpot
+
+    SendToCrmResult:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+
+    MarketKeyStat:
+      type: object
+      required: [label, value, trend]
+      properties:
+        label:
+          type: string
+        value:
+          type: string
+        trend:
+          type: string
+          enum: [up, down, neutral]
+
+    MarketBrief:
+      type: object
+      required: [generatedAt, headline, snapshot, keyStats, talkingPoints, outlook, hotMarkets]
+      properties:
+        generatedAt:
+          type: string
+        headline:
+          type: string
+        snapshot:
+          type: string
+        keyStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketKeyStat"
+        talkingPoints:
+          type: array
+          items:
+            type: string
+        outlook:
+          type: string
+        hotMarkets:
+          type: array
+          items:
+            type: string
+
+    JobStats:
+      type: object
+      required: [total, queued, processing, complete, failed, recentJobs, scriptsGenerated, timeSavedHours]
+      properties:
+        total:
+          type: integer
+        queued:
+          type: integer
+        processing:
+          type: integer
+        complete:
+          type: integer
+        failed:
+          type: integer
+        scriptsGenerated:
+          type: integer
+          description: Number of AI scripts successfully generated
+        timeSavedHours:
+          type: integer
+          description: Estimated hours saved vs. manual filming and editing
+        recentJobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Job"
+
+    Webhook:
+      type: object
+      required: [id, url, events, isActive, createdAt]
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        events:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        secret:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    SimulateResult:
+      type: object
+      required: [message, jobId]
+      properties:
+        message:
+          type: string
+        jobId:
+          type: string
+
+    WebhookInput:
+      type: object
+      required: [url, events]
+      properties:
+        url:
+          type: string
+          minLength: 1
+        events:
+          type: array
+          items:
+            type: string
+        secret:
+          type: string
+
+    AnthropicConversation:
+      type: object
+      required: [id, title, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AnthropicMessage:
+      type: object
+      required: [id, conversationId, role, content, createdAt]
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AnthropicConversationInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+    AnthropicMessageInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+    AnthropicConversationWithMessages:
+      type: object
+      required: [id, title, createdAt, messages]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnthropicMessage"
+    ElevenLabsVoice:
+      type: object
+      required: [voice_id, name, category]
+      properties:
+        voice_id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        preview_url:
+          type: string
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+    ElevenLabsError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    AnthropicError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    LeadInput:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          minLength: 1
+        name:
+          type: string
+        source:
+          type: string
+
+    LeadResult:
+      type: object
+      required: [success, message]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+
+    LeadCount:
+      type: object
+      required: [count, displayCount]
+      properties:
+        count:
+          type: integer
+        displayCount:
+          type: integer
+
+    SupportTicketInput:
+      type: object
+      required: [email, message]
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 3
+          maxLength: 254
+        message:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        name:
+          type: string
+          maxLength: 120
+        subject:
+          type: string
+          maxLength: 200
+        conversationId:
+          type: integer
+          nullable: true
+
+    SupportTicketResult:
+      type: object
+      required: [success, ticketId, message]
+      properties:
+        success:
+          type: boolean
+        ticketId:
+          type: integer
+        message:
+          type: string
+
+    AvatarSettings:
+      type: object
+      properties:
+        heygenAvatarId:
+          type: string
+          description: HeyGen custom avatar ID (digital twin)
+        heygenAvatarName:
+          type: string
+          description: Display name for this avatar (e.g. "Sarah's Twin")
+        heygenVoiceId:
+          type: string
+          description: HeyGen voice ID to use with this avatar

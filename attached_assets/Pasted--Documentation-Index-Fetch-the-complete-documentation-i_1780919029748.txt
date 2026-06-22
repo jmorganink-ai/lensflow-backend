@@ -1,0 +1,220 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://heygen-1fa696a7.mintlify.app/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Quick Start
+
+> Generate your first AI video with the HeyGen API in minutes — authenticate, send one request, and get back an MP4. Then branch into Avatar V, Video Agent, Translation, TTS, Cinematic Avatar, and HyperFrames.
+
+Generate AI video from a single API call: avatars, voices, translation, motion graphics, and more. Everything below runs on the **v3** API.
+
+<CardGroup cols={4}>
+  <Card title="Get API key" icon="key" href="https://app.heygen.com/home?from=&nav=API" horizontal />
+
+  <Card title="API Playground" icon="play" href="/reference/create-video" horizontal />
+
+  <Card title="CLI" icon="terminal" href="/cli" horizontal />
+
+  <Card title="MCP Server" icon="plug" href="/mcp/overview" horizontal />
+</CardGroup>
+
+<Info>
+  **Base URL** `https://api.heygen.com` · **Auth header** `X-Api-Key: <your-key>` · **What you'll build:** an MP4 from one text prompt.
+</Info>
+
+## Your first video
+
+<Steps>
+  <Step title="Authenticate" icon="key">
+    Create a key in [Settings → API](https://app.heygen.com/home?from=\&nav=API) and export it. See the [API Key guide](/docs/api-key) for OAuth and rotation.
+
+    ```bash theme={null}
+    export HEYGEN_API_KEY="your-api-key-here"
+    ```
+  </Step>
+
+  <Step title="Create a video" icon="wand-magic-sparkles">
+    Send a prompt to the **Video Agent** — it scripts, picks the avatar and voice, and renders. Returns a `session_id`. Full schema: [`POST /v3/video-agents`](/reference/create-video-agent-session).
+
+    <Tabs>
+      <Tab title="curl">
+        ```bash theme={null}
+        curl -X POST "https://api.heygen.com/v3/video-agents" \
+          -H "X-Api-Key: $HEYGEN_API_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{"prompt": "A presenter explaining our product launch in 30 seconds"}'
+        ```
+      </Tab>
+
+      <Tab title="Python">
+        ```python theme={null}
+        import requests
+
+        resp = requests.post(
+            "https://api.heygen.com/v3/video-agents",
+            headers={"X-Api-Key": HEYGEN_API_KEY},
+            json={"prompt": "A presenter explaining our product launch in 30 seconds"},
+        )
+        session_id = resp.json()["data"]["session_id"]
+        ```
+      </Tab>
+
+      <Tab title="Node.js">
+        ```javascript theme={null}
+        const resp = await fetch("https://api.heygen.com/v3/video-agents", {
+          method: "POST",
+          headers: {
+            "X-Api-Key": process.env.HEYGEN_API_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: "A presenter explaining our product launch in 30 seconds",
+          }),
+        });
+        const { session_id } = (await resp.json()).data;
+        ```
+      </Tab>
+    </Tabs>
+
+    ```json Response theme={null}
+    { "data": { "session_id": "sess_abc123", "status": "generating", "video_id": null } }
+    ```
+
+    <Tip>
+      Watch it build live at `https://app.heygen.com/video-agent/{session_id}`.
+    </Tip>
+  </Step>
+
+  <Step title="Get the result" icon="circle-check">
+    Generation is async. Poll the session for the `video_id`, then poll the video for its `video_url`.
+
+    <Tabs>
+      <Tab title="Python">
+        ```python theme={null}
+        import time
+
+        # 1. Wait for the video_id to be assigned
+        video_id = None
+        while not video_id:
+            sess = requests.get(
+                f"https://api.heygen.com/v3/video-agents/{session_id}",
+                headers={"X-Api-Key": HEYGEN_API_KEY},
+            ).json()["data"]
+            video_id = sess.get("video_id")
+            if not video_id:
+                time.sleep(5)
+
+        # 2. Poll the video until it's done
+        while True:
+            video = requests.get(
+                f"https://api.heygen.com/v3/videos/{video_id}",
+                headers={"X-Api-Key": HEYGEN_API_KEY},
+            ).json()["data"]
+            if video["status"] in ("completed", "failed"):
+                break
+            time.sleep(10)
+
+        print(video["video_url"])
+        ```
+      </Tab>
+
+      <Tab title="curl">
+        ```bash theme={null}
+        # 1. Session → video_id
+        curl "https://api.heygen.com/v3/video-agents/sess_abc123" \
+          -H "X-Api-Key: $HEYGEN_API_KEY"
+
+        # 2. video_id → video_url
+        curl "https://api.heygen.com/v3/videos/vid_xyz789" \
+          -H "X-Api-Key: $HEYGEN_API_KEY"
+        ```
+      </Tab>
+    </Tabs>
+
+    ```json Response (completed) theme={null}
+    { "data": { "id": "vid_xyz789", "status": "completed", "video_url": "https://files.heygen.ai/video/vid_xyz789.mp4", "duration": 32.5 } }
+    ```
+
+    <Tip>
+      **Skip polling in production.** Pass a `callback_url` in your create request to get a [webhook](/docs/webhooks) when the video is ready.
+    </Tip>
+  </Step>
+</Steps>
+
+## Pick your endpoint
+
+The Video Agent is the fastest path, but you can also drive each model directly.
+
+<CardGroup cols={3}>
+  <Card title="Video Agent" icon="wand-magic-sparkles" href="/docs/video-agent">
+    Prompt → finished video. The agent handles script, avatar, and scenes. **Flagship.**
+  </Card>
+
+  <Card title="Avatar V" icon="user" href="/generate-avatar-video">
+    Direct control: pick the avatar, voice, and script. `engine: { "type": "avatar_v" }`.
+  </Card>
+
+  <Card title="Cinematic Avatar" icon="clapperboard" href="/cinematic-avatar">
+    Prompt-driven cinematic shots from 1–3 avatar looks. No script or voice.
+  </Card>
+
+  <Card title="Video Translation" icon="language" href="/docs/video-translate">
+    Translate any video into 30+ languages with voice cloning and lip-sync.
+  </Card>
+
+  <Card title="Text to Speech" icon="waveform-lines" href="/docs/voices/speech">
+    Turn text into natural speech audio. Browse or design a [voice](/docs/voices/overview).
+  </Card>
+
+  <Card title="HyperFrames" icon="layer-group" href="/hyperframes">
+    Render HTML/CSS/JS compositions into motion-graphics video. **New.**
+  </Card>
+</CardGroup>
+
+## Build with your stack
+
+<CardGroup cols={4}>
+  <Card title="Webhooks" icon="bell" href="/docs/webhooks">
+    Get notified when renders finish — no polling.
+  </Card>
+
+  <Card title="Authentication" icon="lock" href="/docs/api-key">
+    API keys, OAuth 2.0, and request signing.
+  </Card>
+
+  <Card title="CLI" icon="terminal" href="/cli">
+    Create and translate video from your terminal.
+  </Card>
+
+  <Card title="Limits & Pricing" icon="dollar-sign" href="/docs/pricing">
+    Rate limits, usage, and per-operation cost.
+  </Card>
+</CardGroup>
+
+<Note>
+  Migrating from **v1/v2**? Those endpoints are supported until **October 31, 2026**, but all new capabilities ship on v3. See the [version comparison](/endpoint-version-comparison).
+</Note>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Video status is failed" icon="circle-xmark">
+    Inspect `failure_code` and `failure_message` on [`GET /v3/videos/{video_id}`](/reference/get-video). The full catalog is in [Error Codes](/docs/error-codes).
+  </Accordion>
+
+  <Accordion title="401 Unauthorized" icon="key">
+    Your key is missing or invalid. Confirm the `X-Api-Key` header is set and the key is active in [Settings → API](https://app.heygen.com/home?from=\&nav=API). See [Authentication](/docs/api-key).
+  </Accordion>
+
+  <Accordion title="429 Too Many Requests" icon="gauge-high">
+    You've hit a rate or concurrency limit. Respect the `Retry-After` header and back off exponentially. See [Usage Limits](/docs/usage-limits).
+  </Accordion>
+
+  <Accordion title="400 download_failed" icon="link-slash">
+    A URL you passed (video, image, audio) couldn't be fetched. Make sure it's publicly accessible and points directly at the file. See [Error Codes](/docs/error-codes).
+  </Accordion>
+</AccordionGroup>
+
+<Card title="All error codes" icon="triangle-exclamation" href="/docs/error-codes" horizontal>
+  Machine-readable codes, HTTP statuses, and how to handle each one.
+</Card>

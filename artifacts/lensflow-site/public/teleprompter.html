@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LensFlow Teleprompter</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,sans-serif}
+body{
+background:#0a0d1a;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+}
+.header{
+background:#0d1120;
+border-bottom:1px solid #1a213a;
+padding:16px 24px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+.brand{
+display:flex;
+align-items:center;
+gap:10px;
+color:#f2ecdf;
+font-size:16px;
+font-weight:700;
+}
+.brand-dot{
+width:8px;
+height:8px;
+border-radius:50%;
+background:#c99a2e;
+}
+.controls{
+display:flex;
+align-items:center;
+gap:16px;
+}
+.control-group{
+display:flex;
+align-items:center;
+gap:8px;
+color:#8f99b2;
+font-size:13px;
+}
+.control-group select{
+background:#10162a;
+border:1px solid #1a213a;
+border-radius:6px;
+padding:6px 12px;
+color:#f2ecdf;
+font-size:13px;
+cursor:pointer;
+}
+.btn{
+background:#c99a2e;
+color:#0a0d1a;
+border:none;
+border-radius:6px;
+padding:8px 16px;
+font-size:13px;
+font-weight:700;
+cursor:pointer;
+display:flex;
+align-items:center;
+gap:6px;
+}
+.btn:hover{background:#dfb44d}
+.btn-secondary{
+background:transparent;
+color:#8f99b2;
+border:1px solid #1a213a;
+}
+.btn-secondary:hover{background:#10162a}
+
+.main{
+flex:1;
+display:flex;
+overflow:hidden;
+}
+.sidebar{
+width:280px;
+background:#0d1120;
+border-right:1px solid #1a213a;
+padding:20px;
+overflow-y:auto;
+}
+.script-list{
+margin-top:16px;
+}
+.script-item{
+padding:12px;
+border-radius:8px;
+margin-bottom:8px;
+cursor:pointer;
+transition:all 0.2s;
+}
+.script-item:hover{background:#10162a}
+.script-item.active{
+background:#10162a;
+border-left:3px solid #c99a2e;
+}
+.script-item h4{
+color:#f2ecdf;
+font-size:14px;
+margin-bottom:4px;
+}
+.script-item p{
+color:#8f99b2;
+font-size:12px;
+}
+
+.teleprompter{
+flex:1;
+display:flex;
+flex-direction:column;
+background:#050713;
+position:relative;
+}
+.teleprompter-header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:12px 24px;
+background:#0d1120;
+border-bottom:1px solid #1a213a;
+}
+.teleprompter-title{
+color:#8f99b2;
+font-size:13px;
+}
+.teleprompter-actions{
+display:flex;
+gap:8px;
+}
+.script-display{
+flex:1;
+overflow-y:auto;
+padding:60px 80px;
+scroll-behavior:smooth;
+}
+.script-line{
+font-size:32px;
+line-height:1.6;
+color:#f2ecdf;
+margin-bottom:24px;
+transition:all 0.3s;
+opacity:0.4;
+}
+.script-line.active{
+opacity:1;
+color:#c99a2e;
+font-weight:600;
+}
+.script-line.completed{
+opacity:0.2;
+}
+
+.progress-bar{
+height:3px;
+background:#1a213a;
+position:relative;
+}
+.progress-fill{
+height:100%;
+background:#c99a2e;
+width:0%;
+transition:width 0.3s;
+}
+
+.bottom-bar{
+background:#0d1120;
+border-top:1px solid #1a213a;
+padding:12px 24px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+.time-display{
+color:#8f99b2;
+font-size:13px;
+font-family:monospace;
+}
+.playback-controls{
+display:flex;
+align-items:center;
+gap:16px;
+}
+.play-btn{
+width:48px;
+height:48px;
+border-radius:50%;
+background:#c99a2e;
+border:none;
+color:#0a0d1a;
+font-size:20px;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+.play-btn:hover{background:#dfb44d}
+.speed-btn{
+background:#10162a;
+border:1px solid #1a213a;
+color:#8f99b2;
+padding:6px 12px;
+border-radius:6px;
+font-size:12px;
+cursor:pointer;
+}
+.speed-btn:hover{background:#1a213a}
+
+.recording-indicator{
+display:flex;
+align-items:center;
+gap:8px;
+color:#e3483f;
+font-size:13px;
+font-weight:700;
+}
+.rec-dot{
+width:10px;
+height:10px;
+border-radius:50%;
+background:#e3483f;
+animation:pulse 1.5s infinite;
+}
+@keyframes pulse{
+0%{opacity:1}
+50%{opacity:0.4}
+100%{opacity:1}
+}
+
+.fullscreen-btn{
+background:transparent;
+border:none;
+color:#8f99b2;
+cursor:pointer;
+font-size:18px;
+}
+.fullscreen-btn:hover{color:#f2ecdf}
+
+/* Avatar preview */
+.avatar-preview{
+position:absolute;
+bottom:80px;
+right:24px;
+width:200px;
+height:150px;
+background:#0d1120;
+border:1px solid #1a213a;
+border-radius:12px;
+overflow:hidden;
+}
+.avatar-preview img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+.avatar-label{
+position:absolute;
+bottom:4px;
+left:8px;
+background:rgba(0,0,0,0.7);
+padding:2px 8px;
+border-radius:4px;
+color:#f2ecdf;
+font-size:11px;
+}
+
+@media(max-width:768px){
+.sidebar{display:none}
+.script-display{padding:40px 24px}
+.script-line{font-size:24px}
+.avatar-preview{width:120px;height:90px}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="brand">
+    <div class="brand-dot"></div>
+    LensFlow Teleprompter
+  </div>
+  <div class="controls">
+    <div class="control-group">
+      Font Size
+      <select id="fontSize">
+        <option value="24">Small</option>
+        <option value="32" selected>Medium</option>
+        <option value="40">Large</option>
+        <option value="48">Extra Large</option>
+      </select>
+    </div>
+    <div class="control-group">
+      Scroll Speed
+      <select id="scrollSpeed">
+        <option value="0.5">0.5x</option>
+        <option value="1" selected>1.0x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2">2.0x</option>
+      </select>
+    </div>
+    <button class="btn" id="recordBtn">
+      <span>●</span> Record
+    </button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <h3 style="color:#f2ecdf;font-size:14px;margin-bottom:4px;">Property Scripts</h3>
+    <p style="color:#8f99b2;font-size:12px;">Select a script to load</p>
+    <div class="script-list">
+      <div class="script-item active" data-script="harbour">
+        <h4>28 Harbour View</h4>
+        <p>Luxury waterfront, Mosman</p>
+      </div>
+      <div class="script-item" data-script="ocean">
+        <h4>11 Ocean Road</h4>
+        <p>Beachfront, Byron Bay</p>
+      </div>
+      <div class="script-item" data-script="palm">
+        <h4>7 Palm Court</h4>
+        <p>Coastal living, Noosa</p>
+      </div>
+      <div class="script-item" data-script="custom">
+        <h4>Custom Script</h4>
+        <p>Write your own</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="teleprompter">
+    <div class="teleprompter-header">
+      <span class="teleprompter-title">28 Harbour View, Mosman — Luxury Waterfront</span>
+      <div class="teleprompter-actions">
+        <button class="btn btn-secondary" style="padding:6px 12px;font-size:12px;">Edit Script</button>
+        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="script-display" id="scriptDisplay">
+      <div class="script-line active">Welcome to 28 Harbour View.</div>
+      <div class="script-line">A private waterfront residence designed for effortless entertaining.</div>
+      <div class="script-line">With panoramic harbour views from every key living space.</div>
+      <div class="script-line">The open-plan design flows seamlessly from the gourmet kitchen.</div>
+      <div class="script-line">To the outdoor terrace with its own infinity edge pool.</div>
+      <div class="script-line">Four bedrooms, each with ensuite and built-in robes.</div>
+      <div class="script-line">The master suite features a private balcony and walk-in wardrobe.</div>
+      <div class="script-line">Double garage with internal access and additional storage.</div>
+      <div class="script-line">Minutes from Mosman village and the ferry to Circular Quay.</div>
+      <div class="script-line">This is luxury harbour living at its finest.</div>
+      <div class="script-line">Contact me today to arrange your private inspection.</div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="time-display">
+        <span id="currentTime">00:00</span> / <span id="totalTime">00:45</span>
+      </div>
+      <div class="playback-controls">
+        <button class="speed-btn">◀◀</button>
+        <button class="play-btn" id="playBtn">▶</button>
+        <button class="speed-btn">▶▶</button>
+      </div>
+      <div class="recording-indicator" id="recIndicator" style="display:none;">
+        <div class="rec-dot"></div>
+        RECORDING
+      </div>
+    </div>
+
+    <div class="avatar-preview">
+      <img src="/presenters/mia-poster.jpg" alt="Mia AI Presenter" />
+      <div class="avatar-label">Mia — AI Presenter</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let isPlaying = false;
+let isRecording = false;
+let currentLine = 0;
+let scrollInterval;
+const lines = document.querySelectorAll('.script-line');
+const playBtn = document.getElementById('playBtn');
+const recordBtn = document.getElementById('recordBtn');
+const recIndicator = document.getElementById('recIndicator');
+const progressFill = document.getElementById('progressFill');
+const scriptDisplay = document.getElementById('scriptDisplay');
+
+playBtn.addEventListener('click', () => {
+  isPlaying = !isPlaying;
+  playBtn.textContent = isPlaying ? '⏸' : '▶';
+  
+  if (isPlaying) {
+    scrollInterval = setInterval(() => {
+      if (currentLine < lines.length - 1) {
+        lines[currentLine].classList.remove('active');
+        lines[currentLine].classList.add('completed');
+        currentLine++;
+        lines[currentLine].classList.add('active');
+        lines[currentLine].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        const progress = ((currentLine + 1) / lines.length) * 100;
+        progressFill.style.width = progress + '%';
+      } else {
+        isPlaying = false;
+        playBtn.textContent = '▶';
+        clearInterval(scrollInterval);
+      }
+    }, 3000);
+  } else {
+    clearInterval(scrollInterval);
+  }
+});
+
+recordBtn.addEventListener('click', () => {
+  isRecording = !isRecording;
+  if (isRecording) {
+    recordBtn.innerHTML = '<span>■</span> Stop';
+    recordBtn.style.background = '#e3483f';
+    recIndicator.style.display = 'flex';
+    if (!isPlaying) playBtn.click();
+  } else {
+    recordBtn.innerHTML = '<span>●</span> Record';
+    recordBtn.style.background = '#c99a2e';
+    recIndicator.style.display = 'none';
+  }
+});
+
+document.getElementById('fontSize').addEventListener('change', (e) => {
+  lines.forEach(line => {
+    line.style.fontSize = e.target.value + 'px';
+  });
+});
+
+document.getElementById('fullscreenBtn').addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+// Script selection
+document.querySelectorAll('.script-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.script-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

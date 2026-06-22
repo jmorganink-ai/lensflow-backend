@@ -1,0 +1,8 @@
+{
+  "short_name": "LensFlow",
+  "name": "LensFlow: Record. Read. Close.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f6efe3",
+  "theme_color": "#c99a2e"
+}

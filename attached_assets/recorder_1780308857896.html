@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LensFlow Studio</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+        #preview { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .focus-zone { position: fixed; top: 15%; width: 100%; height: 120px; background: rgba(0,255,0,0.1); border-top: 2px solid #00ff00; border-bottom: 2px solid #00ff00; z-index: 10; }
+        #script-scroll { position: relative; z-index: 5; margin-top: 100vh; padding: 0 10%; font-size: 38px; font-weight: 800; line-height: 1.4; text-align: center; text-shadow: 2px 2px 8px #000; }
+        .controls { position: fixed; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 20; }
+        button { padding: 15px 35px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; }
+        #recBtn { background: #ff0000; color: #fff; }
+        #stopBtn { background: #fff; color: #000; display: none; }
+    </style>
+</head>
+<body>
+    <video id="preview" autoplay muted playsinline></video>
+    <div class="focus-zone"></div>
+    <div id="script-scroll">Ready to record? Your script will appear here. Hit Start to begin your 4K luxury listing walkthrough.</div>
+    <div class="controls">
+        <button id="recBtn" onclick="startRecording()">START 4K RECORDING</button>
+        <button id="stopBtn" onclick="stopRecording()">STOP & SAVE</button>
+    </div>
+
+    <script>
+        let speed = 2; let pos = 0; let scrollActive = false; let recorder; let chunks = [];
+        async function startRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 3840, height: 2160 }, audio: true });
+            document.getElementById('preview').srcObject = stream;
+            recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+            recorder.ondataavailable = e => chunks.push(e.data);
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = 'LensFlow_4K.webm'; a.click();
+            };
+            recorder.start();
+            scrollActive = true; scroll();
+            document.getElementById('recBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'block';
+        }
+        function scroll() { if(!scrollActive) return; pos -= speed; document.getElementById('script-scroll').style.transform = `translateY(${pos}px)`; requestAnimationFrame(scroll); }
+        function stopRecording() { recorder.stop(); scrollActive = false; document.getElementById('preview').srcObject.getTracks().forEach(t => t.stop()); }
+    </script>
+</body>
+</html>

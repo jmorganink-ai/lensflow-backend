@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LensFlow 10/10 Landing Page Concept</title>
+  <style>
+    :root {
+      --navy: #0a0d1a;
+      --panel: #0d1120;
+      --panel-2: #10162a;
+      --line: #1a213a;
+      --cream: #f9f3ea;
+      --text: #f2ecdf;
+      --muted: #8f99b2;
+      --gold: #c99a2e;
+      --gold-light: #dfb44d;
+      --gold-dark: #8d6c20;
+      --blue: #1269cf;
+      --cyan: #02baf2;
+      --silver: #dfe6f1;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--navy);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid rgba(249, 243, 234, 0.08);
+      background: rgba(10, 13, 26, 0.84);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 13px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .brand img {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius);
+      object-fit: cover;
+      border: 1px solid rgba(201, 154, 46, 0.36);
+    }
+
+    .brand strong {
+      display: block;
+      color: var(--cream);
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .button {
+      border: 0;
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-weight: 850;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 44px;
+      white-space: nowrap;
+    }
+
+    .button.primary {
+      color: #0a0d1a;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold) 54%, var(--gold-dark));
+      box-shadow: 0 16px 34px rgba(201, 154, 46, 0.22);
+    }
+
+    .button.secondary {
+      color: var(--cream);
+      background: rgba(249, 243, 234, 0.08);
+      border: 1px solid rgba(249, 243, 234, 0.14);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 88svh;
+      isolation: isolate;
+      display: grid;
+      align-items: end;
+      padding: 80px 20px 42px;
+      background:
+        linear-gradient(90deg, rgba(10, 13, 26, 0.94) 0%, rgba(10, 13, 26, 0.82) 46%, rgba(10, 13, 26, 0.34) 100%),
+        url("https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=2000&q=86");
+      background-position: center;
+      background-size: cover;
+    }
+
+    .hero-inner {
+      max-width: 1180px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 410px;
+      gap: 34px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gold-light);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 2px;
+      background: var(--gold);
+    }
+
+    h1, h2, h3, p {
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin: 0;
+      color: var(--cream);
+      font-size: clamp(44px, 7vw, 86px);
+      line-height: 0.94;
+    }
+
+    .hero-copy p {
+      max-width: 680px;
+      margin: 18px 0 0;
+      color: rgba(249, 243, 234, 0.76);
+      font-size: clamp(17px, 2vw, 21px);
+      line-height: 1.55;
+    }
+
+    .hero-form {
+      margin-top: 26px;
+      max-width: 760px;
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 10px;
+      padding: 8px;
+      border: 1px solid rgba(249, 243, 234, 0.14);
+      border-radius: var(--radius);
+      background: rgba(13, 17, 32, 0.82);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-form input {
+      width: 100%;
+      min-height: 52px;
+      border: 0;
+      outline: none;
+      border-radius: var(--radius);
+      padding: 0 15px;
+      color: var(--cream);
+      background: rgba(249, 243, 234, 0.08);
+    }
+
+    .hero-form input::placeholder {
+      color: rgba(249, 243, 234, 0.52);
+    }
+
+    .hero-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .hero-proof {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .proof-pill {
+      border: 1px solid rgba(249, 243, 234, 0.14);
+      border-radius: 999px;
+      padding: 9px 12px;
+      color: var(--silver);
+      background: rgba(10, 13, 26, 0.54);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .demo-panel {
+      border: 1px solid rgba(249, 243, 234, 0.12);
+      border-radius: var(--radius);
+      background: rgba(13, 17, 32, 0.86);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .demo-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-bottom: 1px solid rgba(249, 243, 234, 0.1);
+    }
+
+    .live-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gold-light);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .live-dot::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 6px rgba(201, 154, 46, 0.14);
+    }
+
+    .phone-preview {
+      width: min(100%, 310px);
+      margin: 20px auto;
+      border-radius: 28px;
+      padding: 12px;
+      background: #050713;
+      border: 1px solid rgba(249, 243, 234, 0.12);
+    }
+
+    .phone-screen {
+      position: relative;
+      min-height: 520px;
+      border-radius: 20px;
+      overflow: hidden;
+      background:
+        linear-gradient(0deg, rgba(10, 13, 26, 0.95) 0%, rgba(10, 13, 26, 0.16) 62%, rgba(10, 13, 26, 0.42) 100%),
+        url("https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=900&q=84");
+      background-position: center;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+      color: white;
+    }
+
+    .caption-lockup {
+      display: grid;
+      gap: 10px;
+    }
+
+    .caption-lockup strong {
+      font-size: 29px;
+      line-height: 1.02;
+      text-shadow: 0 3px 20px rgba(0, 0, 0, 0.45);
+    }
+
+    .presenter-strip {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 14px;
+      border-top: 1px solid rgba(249, 243, 234, 0.1);
+    }
+
+    .presenter-choice {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid rgba(249, 243, 234, 0.12);
+      border-radius: var(--radius);
+      padding: 8px;
+      background: rgba(249, 243, 234, 0.05);
+    }
+
+    .presenter-choice.active {
+      border-color: rgba(201, 154, 46, 0.72);
+      background: rgba(201, 154, 46, 0.12);
+    }
+
+    .presenter-choice img {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius);
+      object-fit: cover;
+    }
+
+    .presenter-choice strong {
+      display: block;
+      color: var(--cream);
+      font-size: 13px;
+    }
+
+    .presenter-choice span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    section {
+      padding: 82px 20px;
+      border-top: 1px solid rgba(249, 243, 234, 0.08);
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 22px;
+      margin-bottom: 26px;
+    }
+
+    .section-head h2 {
+      max-width: 720px;
+      margin: 0;
+      color: var(--cream);
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1;
+    }
+
+    .section-head p {
+      max-width: 420px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .outputs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .output-card {
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid rgba(249, 243, 234, 0.12);
+      background: var(--panel);
+    }
+
+    .output-image {
+      min-height: 260px;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: end;
+      padding: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(249, 243, 234, 0.18);
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(10, 13, 26, 0.7);
+      color: var(--cream);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .output-body {
+      padding: 16px;
+    }
+
+    .output-body h3 {
+      margin: 0;
+      color: var(--cream);
+      font-size: 20px;
+    }
+
+    .output-body p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .presenter-feature {
+      display: grid;
+      grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+      gap: 28px;
+      align-items: center;
+    }
+
+    .presenter-large {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .person-card {
+      position: relative;
+      min-height: 520px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid rgba(249, 243, 234, 0.12);
+      background: var(--panel);
+    }
+
+    .person-card img {
+      width: 100%;
+      height: 100%;
+      min-height: 520px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .person-copy {
+      position: absolute;
+      inset: auto 0 0;
+      padding: 18px;
+      background: linear-gradient(0deg, rgba(10, 13, 26, 0.94), rgba(10, 13, 26, 0));
+    }
+
+    .person-copy h3 {
+      margin: 0;
+      color: var(--cream);
+      font-size: 28px;
+    }
+
+    .person-copy p {
+      margin: 6px 0 0;
+      color: rgba(249, 243, 234, 0.76);
+      line-height: 1.4;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .feature-line {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 15px;
+      border: 1px solid rgba(249, 243, 234, 0.12);
+      border-radius: var(--radius);
+      background: rgba(249, 243, 234, 0.04);
+    }
+
+    .number {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      color: var(--navy);
+      background: var(--gold);
+      font-weight: 950;
+    }
+
+    .feature-line h3 {
+      margin: 0;
+      color: var(--cream);
+      font-size: 18px;
+    }
+
+    .feature-line p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .step {
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid rgba(249, 243, 234, 0.12);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: var(--panel);
+    }
+
+    .step h3 {
+      margin: 18px 0 8px;
+      color: var(--cream);
+      font-size: 21px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.48;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .compare-card {
+      border-radius: var(--radius);
+      border: 1px solid rgba(249, 243, 234, 0.12);
+      background: var(--panel);
+      padding: 22px;
+    }
+
+    .compare-card.lensflow {
+      border-color: rgba(201, 154, 46, 0.5);
+      background:
+        linear-gradient(135deg, rgba(201, 154, 46, 0.12), transparent 48%),
+        var(--panel);
+    }
+
+    .compare-card h3 {
+      margin: 0 0 16px;
+      color: var(--cream);
+      font-size: 26px;
+    }
+
+    .value-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(249, 243, 234, 0.1);
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .value-row strong {
+      color: var(--cream);
+      text-align: right;
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .price-card {
+      min-height: 390px;
+      border: 1px solid rgba(249, 243, 234, 0.12);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-card.featured {
+      border-color: rgba(201, 154, 46, 0.58);
+      box-shadow: var(--shadow);
+    }
+
+    .price-card h3 {
+      margin: 0;
+      color: var(--cream);
+      font-size: 22px;
+    }
+
+    .price {
+      margin: 18px 0 10px;
+      color: var(--cream);
+      font-size: 42px;
+      font-weight: 950;
+    }
+
+    .price small {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .price-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .price-card ul {
+      list-style: none;
+      margin: 18px 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+      color: var(--silver);
+      line-height: 1.35;
+      font-size: 14px;
+    }
+
+    .price-card li::before {
+      content: "+";
+      color: var(--gold-light);
+      font-weight: 900;
+      margin-right: 8px;
+    }
+
+    .price-card .button {
+      margin-top: auto;
+      width: 100%;
+    }
+
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .quote {
+      border: 1px solid rgba(249, 243, 234, 0.12);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 20px;
+    }
+
+    .quote p {
+      margin: 0;
+      color: var(--silver);
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    .quote strong {
+      display: block;
+      margin-top: 18px;
+      color: var(--cream);
+    }
+
+    .quote span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .final-cta {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      padding: 44px;
+      background:
+        linear-gradient(90deg, rgba(10, 13, 26, 0.95), rgba(10, 13, 26, 0.62)),
+        url("https://images.unsplash.com/photo-1600607687644-c7171b42498b?auto=format&fit=crop&w=1600&q=86");
+      background-size: cover;
+      background-position: center;
+      border: 1px solid rgba(249, 243, 234, 0.12);
+      box-shadow: var(--shadow);
+    }
+
+    .final-cta h2 {
+      max-width: 720px;
+      margin: 0;
+      color: var(--cream);
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 1;
+    }
+
+    .final-cta p {
+      max-width: 610px;
+      margin: 16px 0 24px;
+      color: rgba(249, 243, 234, 0.78);
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    footer {
+      padding: 28px 20px 42px;
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      border-top: 1px solid rgba(249, 243, 234, 0.08);
+      padding-top: 22px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1020px) {
+      .nav-links { display: none; }
+
+      .hero-inner,
+      .presenter-feature {
+        grid-template-columns: 1fr;
+      }
+
+      .demo-panel {
+        max-width: 520px;
+      }
+
+      .outputs-grid,
+      .testimonial-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .steps,
+      .price-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .nav {
+        padding: 10px 14px;
+      }
+
+      .nav-actions .secondary {
+        display: none;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 64px 14px 34px;
+      }
+
+      .hero-form {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 58px 14px;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .section-head p {
+        margin-top: 12px;
+      }
+
+      .presenter-large,
+      .steps,
+      .compare,
+      .price-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .person-card,
+      .person-card img {
+        min-height: 420px;
+      }
+
+      .phone-preview {
+        width: 100%;
+      }
+
+      .phone-screen {
+        min-height: 470px;
+      }
+
+      .final-cta {
+        padding: 28px;
+      }
+
+      .footer-inner {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav">
+      <a class="brand" href="#top" aria-label="LensFlow home">
+        <img src="lensflow-template-assets/lensflow-logo.png" alt="LensFlow logo" />
+        <span>
+          <strong>LensFlow</strong>
+          <span>AI Real Estate Media Studio</span>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#examples">Examples</a>
+        <a href="#presenters">Presenters</a>
+        <a href="#workflow">How it works</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="button secondary" href="#examples">Watch Examples</a>
+        <a class="button primary" href="#top">Create Video</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-label="LensFlow hero">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <div class="eyebrow">For prestige real estate agents</div>
+          <h1>Turn any listing into an AI presenter video in minutes.</h1>
+          <p>Paste a property URL, choose Mia or Oliver, and LensFlow creates a presenter-led listing video, reel and campaign assets ready to publish.</p>
+
+          <form class="hero-form" onsubmit="return false;">
+            <input aria-label="Listing URL" placeholder="Paste realestate.com.au, Domain or agency listing URL" />
+            <button class="button primary" type="submit">Generate My Video</button>
+          </form>
+
+          <div class="hero-note">No filming. No editing crew. No awkward retakes. Start with a sample listing in under 10 seconds.</div>
+
+          <div class="hero-proof" aria-label="Product proof">
+            <span class="proof-pill">Presenter included</span>
+            <span class="proof-pill">Social-ready exports</span>
+            <span class="proof-pill">Built for Australian listings</span>
+            <span class="proof-pill">From $79/month</span>
+          </div>
+        </div>
+
+        <aside class="demo-panel" aria-label="Video preview">
+          <div class="demo-top">
+            <span class="live-dot">Live preview</span>
+            <span class="badge">Mia selected</span>
+          </div>
+
+          <div class="phone-preview">
+            <div class="phone-screen">
+              <span class="badge">28 Harbour View</span>
+              <div class="caption-lockup">
+                <span class="badge">AI presenter reel</span>
+                <strong>A private waterfront residence designed for effortless entertaining.</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="presenter-strip">
+            <div class="presenter-choice active">
+              <img src="lensflow-template-assets/mia-poster.jpg" alt="Mia AI presenter" />
+              <div><strong>Mia</strong><span>Luxury lifestyle</span></div>
+            </div>
+            <div class="presenter-choice">
+              <img src="lensflow-template-assets/oliver-poster.jpg" alt="Oliver AI presenter" />
+              <div><strong>Oliver</strong><span>Investment authority</span></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="examples">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Real listing videos, not another software promise.</h2>
+          <p>Lead with proof. Show the agent exactly what they get from one listing URL: presenter video, reel, captions and campaign copy.</p>
+        </div>
+
+        <div class="outputs-grid">
+          <article class="output-card">
+            <div class="output-image" style="background-image:linear-gradient(0deg, rgba(10,13,26,.85), rgba(10,13,26,.08)), url('https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=900&q=84');">
+              <span class="badge">Mia - Mosman, NSW</span>
+            </div>
+            <div class="output-body">
+              <h3>Luxury waterfront reel</h3>
+              <p>45-second presenter video with polished hook, captions and premium inspection call-to-action.</p>
+            </div>
+          </article>
+
+          <article class="output-card">
+            <div class="output-image" style="background-image:linear-gradient(0deg, rgba(10,13,26,.85), rgba(10,13,26,.08)), url('https://images.unsplash.com/photo-1600607687644-c7171b42498b?auto=format&fit=crop&w=900&q=84');">
+              <span class="badge">Oliver - South Yarra, VIC</span>
+            </div>
+            <div class="output-body">
+              <h3>Investment apartment campaign</h3>
+              <p>Authority-led narrative for investors, downsizers and executive buyers in under five minutes.</p>
+            </div>
+          </article>
+
+          <article class="output-card">
+            <div class="output-image" style="background-image:linear-gradient(0deg, rgba(10,13,26,.85), rgba(10,13,26,.08)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=84');">
+              <span class="badge">Sophie - Brighton, VIC</span>
+            </div>
+            <div class="output-body">
+              <h3>Family home launch pack</h3>
+              <p>Listing video, reel copy, email teaser and social captions generated from the property details.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="presenters">
+      <div class="wrap presenter-feature">
+        <div>
+          <div class="eyebrow">Your AI marketing department</div>
+          <h2 style="margin:0;color:var(--cream);font-size:clamp(36px,5vw,62px);line-height:1;">Mia and Oliver are the product moat.</h2>
+          <p style="margin:18px 0 0;color:var(--muted);font-size:18px;line-height:1.55;">Agents should not feel like they are using a dashboard. They should feel like a presenter, copywriter and editor just joined the team.</p>
+
+          <div class="feature-list">
+            <div class="feature-line">
+              <div class="number">01</div>
+              <div><h3>Presenter-led listing videos</h3><p>Mia or Oliver reads the property story with a polished real estate delivery style.</p></div>
+            </div>
+            <div class="feature-line">
+              <div class="number">02</div>
+              <div><h3>Campaign assets from one input</h3><p>Video, reels, captions, listing summary, email copy and social hooks from the same property URL.</p></div>
+            </div>
+            <div class="feature-line">
+              <div class="number">03</div>
+              <div><h3>Luxury positioning by default</h3><p>The product should make every agent look better, faster and more expensive.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="presenter-large">
+          <article class="person-card">
+            <img src="lensflow-template-assets/mia-poster.jpg" alt="Mia AI presenter" />
+            <div class="person-copy">
+              <h3>Mia</h3>
+              <p>Waterfront, lifestyle and prestige residential campaigns.</p>
+            </div>
+          </article>
+          <article class="person-card">
+            <img src="lensflow-template-assets/oliver-poster.jpg" alt="Oliver AI presenter" />
+            <div class="person-copy">
+              <h3>Oliver</h3>
+              <p>Inner-city, investment and high-net-worth authority.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Paste. Choose. Generate. Publish.</h2>
+          <p>The public website should make the workflow feel obvious before the user has time to hesitate.</p>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <div class="number">1</div>
+            <div><h3>Paste the URL</h3><p>Drop in a realestate.com.au, Domain or agency listing link.</p></div>
+          </article>
+          <article class="step">
+            <div class="number">2</div>
+            <div><h3>Choose presenter</h3><p>Select Mia, Oliver or another presenter matched to the property.</p></div>
+          </article>
+          <article class="step">
+            <div class="number">3</div>
+            <div><h3>Generate campaign</h3><p>LensFlow writes the script, creates voiceover and builds the video assets.</p></div>
+          </article>
+          <article class="step">
+            <div class="number">4</div>
+            <div><h3>Publish everywhere</h3><p>Download social-ready formats for Reels, listings, emails and vendor updates.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Make the money obvious.</h2>
+          <p>Agents buy speed, vendor confidence and content that helps them win more listings.</p>
+        </div>
+
+        <div class="compare">
+          <article class="compare-card">
+            <h3>Traditional campaign</h3>
+            <div class="value-row"><span>Videographer</span><strong>$800-$1,500</strong></div>
+            <div class="value-row"><span>Script and voiceover</span><strong>$250</strong></div>
+            <div class="value-row"><span>Social edits</span><strong>$300</strong></div>
+            <div class="value-row"><span>Turnaround</span><strong>3-5 days</strong></div>
+            <div class="value-row"><span>Agent effort</span><strong>High</strong></div>
+          </article>
+
+          <article class="compare-card lensflow">
+            <h3>LensFlow AI Studio</h3>
+            <div class="value-row"><span>AI presenter video</span><strong>Included</strong></div>
+            <div class="value-row"><span>Campaign script</span><strong>Included</strong></div>
+            <div class="value-row"><span>Social-ready assets</span><strong>Included</strong></div>
+            <div class="value-row"><span>Turnaround</span><strong>Minutes</strong></div>
+            <div class="value-row"><span>From</span><strong>$79/month</strong></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Simple pricing for agents who want leverage.</h2>
+          <p>Use one consistent package structure everywhere: website, signup, dashboard and billing.</p>
+        </div>
+
+        <div class="price-grid">
+          <article class="price-card">
+            <h3>Starter</h3>
+            <div class="price">$79<small>/month</small></div>
+            <p>For agents testing AI listing videos.</p>
+            <ul>
+              <li>Presenter-led listing videos</li>
+              <li>Basic social captions</li>
+              <li>Watermarked trial access</li>
+            </ul>
+            <a class="button secondary" href="#top">Start Starter</a>
+          </article>
+
+          <article class="price-card featured">
+            <h3>Elite</h3>
+            <div class="price">$199<small>/month</small></div>
+            <p>For active agents publishing every week.</p>
+            <ul>
+              <li>Mia and Oliver access</li>
+              <li>Social-ready video exports</li>
+              <li>Campaign copy and hooks</li>
+              <li>Listing URL workflow</li>
+            </ul>
+            <a class="button primary" href="#top">Choose Elite</a>
+          </article>
+
+          <article class="price-card">
+            <h3>Concierge</h3>
+            <div class="price">$399<small>/month</small></div>
+            <p>For teams who want a stronger campaign engine.</p>
+            <ul>
+              <li>Priority generation</li>
+              <li>Brand styling support</li>
+              <li>Advanced presenter workflows</li>
+            </ul>
+            <a class="button secondary" href="#top">Start Concierge</a>
+          </article>
+
+          <article class="price-card">
+            <h3>Done-for-You</h3>
+            <div class="price">$1,790<small>/listing</small></div>
+            <p>For prestige campaigns that need managed delivery.</p>
+            <ul>
+              <li>Hands-on campaign setup</li>
+              <li>Premium review process</li>
+              <li>Launch-ready content pack</li>
+            </ul>
+            <a class="button secondary" href="#top">Book Campaign</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Vendors see polish. Agents get time back.</h2>
+          <p>The testimonials should reinforce speed, vendor trust and premium output.</p>
+        </div>
+
+        <div class="testimonial-grid">
+          <article class="quote">
+            <p>"It makes every listing feel like it has a media team behind it."</p>
+            <strong>Sarah Mitchell</strong>
+            <span>Principal agent, Sydney</span>
+          </article>
+          <article class="quote">
+            <p>"Mia gave us a campaign video before the photographer had even finished editing."</p>
+            <strong>James Okafor</strong>
+            <span>Prestige sales, Mosman</span>
+          </article>
+          <article class="quote">
+            <p>"The vendor reaction is the sell. They see a presenter video and immediately get it."</p>
+            <strong>Priya Sharma</strong>
+            <span>Agency director, Melbourne</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="final-cta">
+          <h2>Your next listing can have a presenter before lunch.</h2>
+          <p>Paste the listing URL. Choose Mia or Oliver. Generate the campaign assets your vendor expected from a full production team.</p>
+          <a class="button primary" href="#top">Create My First Video</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>LensFlow - AI Real Estate Media Studio</span>
+      <span>Landing page concept for website redesign direction</span>
+    </div>
+  </footer>
+</body>
+</html>

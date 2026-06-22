@@ -1,0 +1,102 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://heygen-1fa696a7.mintlify.app/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Choosing the Right Video API
+
+> Compare HeyGen's video APIs - Video Agent, Direct Video, and Cinematic Avatar. Pick the right endpoint for your use case in this side-by-side decision.
+
+HeyGen offers three ways to create videos programmatically. The right choice depends on how much control you need and whether you want a spoken script or a prompt-composed cinematic shot.
+
+|                           | Video Agent                   | Direct Video      | Cinematic Avatar                               |
+| ------------------------- | ----------------------------- | ----------------- | ---------------------------------------------- |
+| **Endpoint**              | `POST /v3/video-agents`       | `POST /v3/videos` | `POST /v3/videos` (`type: "cinematic_avatar"`) |
+| **Input**                 | Natural language prompt       | Structured JSON   | Prompt + 1–3 avatar looks                      |
+| **Script writing**        | Agent writes it               | You write it      | None — motion driven by the prompt             |
+| **Avatar selection**      | Agent picks (or you override) | You specify       | You specify 1–3 looks                          |
+| **Voice selection**       | Agent picks (or you override) | You specify       | None — no spoken voice                         |
+| **Interactive iteration** | ✅ Via chat mode               | ❌                 | ❌                                              |
+| **Webhook support**       | ✅ `callback_url`              | ✅ `callback_url`  | ✅ `callback_url`                               |
+| **Control level**         | Low (prompt-driven)           | High (explicit)   | Medium (prompt + your looks)                   |
+
+## Video Agent — best for speed
+
+Send a text prompt, get a video. The agent handles scripting, avatar selection, and scene composition automatically.
+
+```bash theme={null}
+curl -X POST "https://api.heygen.com/v3/video-agents" \
+  -H "X-Api-Key: $HEYGEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "A 60-second onboarding video for our SaaS product. Friendly tone.",
+    "callback_url": "https://yourapp.com/webhook/heygen"
+  }'
+```
+
+**Use when:**
+
+* You want a video fast without managing avatars or scripts
+* You're building a product where end users describe videos in natural language
+* You want to iterate interactively — use `mode: "chat"` to review the storyboard before rendering
+
+**Trade-off:** Less control over exact scene composition and creative choices.
+
+## Direct Video — best for control
+
+Explicitly specify the avatar, voice, and script. Predictable, repeatable output for automated pipelines.
+
+```bash theme={null}
+curl -X POST "https://api.heygen.com/v3/videos" \
+  -H "X-Api-Key: $HEYGEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "avatar",
+    "avatar_id": "your_look_id",
+    "voice_id": "your_voice_id",
+    "script": "Hi there! This video was created just for you.",
+    "aspect_ratio": "auto",
+    "resolution": "1080p",
+    "callback_url": "https://yourapp.com/webhook/heygen"
+  }'
+```
+
+**Use when:**
+
+* Building automated pipelines (personalized sales videos, daily reports)
+* You need exact control over avatar, voice, and script
+* Generating videos programmatically from data (CRM records, form submissions)
+
+**Trade-off:** You handle all creative decisions — avatar IDs and voice IDs must be known upfront.
+
+## Cinematic Avatar — best for cinematic shots
+
+A prompt-driven variant of `POST /v3/videos`. Hand HeyGen 1–3 avatar looks plus a natural-language prompt and the Seedance pipeline composes the scene, motion, and framing — no script or voice. See the full [Cinematic Avatar guide](/cinematic-avatar).
+
+```bash theme={null}
+curl -X POST "https://api.heygen.com/v3/videos" \
+  -H "X-Api-Key: $HEYGEN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "cinematic_avatar",
+    "prompt": "A founder walks through a sunlit startup office, gesturing toward a whiteboard, shot handheld in a documentary style.",
+    "avatar_id": ["your_look_id"],
+    "aspect_ratio": "16:9",
+    "resolution": "1080p",
+    "duration": 10,
+    "callback_url": "https://yourapp.com/webhook/heygen"
+  }'
+```
+
+**Use when:**
+
+* You want cinematic b-roll or motion of an avatar rather than a talking-head script
+* You want to feature up to three looks in one composed shot
+* You want to steer style and motion with your own reference videos and images
+
+**Trade-off:** No spoken script or voice, and output is capped at **720p / 1080p** (4K is not supported). Clips run 4–15 seconds.
+
+## Not sure which to pick?
+
+Start with Video Agent. If you need precise control over the script, avatar, or timing, switch to `POST /v3/videos`. If you want a prompt-composed cinematic shot with no script, reach for [Cinematic Avatar](/cinematic-avatar).
+
+You can also combine them — use Video Agent to explore ideas and find the right style, then recreate with explicit parameters for the final production version.

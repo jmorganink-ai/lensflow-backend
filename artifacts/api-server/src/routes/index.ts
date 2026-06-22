@@ -1,0 +1,36 @@
+import { Router, type IRouter } from "express";
+import healthRouter from "./health";
+import authRouter from "./auth";
+import jobsRouter from "./jobs";
+import webhooksRouter from "./webhooks";
+import leadsRouter from "./leads";
+import supportRouter from "./support";
+import anthropicRouter from "./anthropic";
+import elevenlabsRouter from "./elevenlabs";
+import storageRouter from "./storage";
+import marketRouter from "./market";
+import settingsRouter from "./settings";
+import heygenRouter from "./heygen";
+import morganMarketingRouter from "./morgan-marketing";
+import stripeRouter from "./stripe";
+import devRouter from "./dev";
+
+const router: IRouter = Router();
+
+router.use(devRouter);
+router.use(healthRouter);
+router.use(authRouter);
+router.use(jobsRouter);
+router.use(webhooksRouter);
+router.use(leadsRouter);
+router.use(supportRouter);
+router.use(anthropicRouter);
+router.use(elevenlabsRouter);
+router.use(storageRouter);
+router.use(marketRouter);
+router.use(settingsRouter);
+router.use(heygenRouter);
+router.use(morganMarketingRouter);
+router.use(stripeRouter);
+
+export default router;

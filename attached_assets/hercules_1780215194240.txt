@@ -1,0 +1,15 @@
+I'll build a single self-contained HTML file you can open in any browser — it'll display all 8 scripts with syntax highlighting, copy buttons, and the setup guide.
+
+Now I'll build the full HTML reference document:
+
+That looks excellent. The HTML reference document is live at [lensflow-scripts.html](link://lensflow-scripts.html).
+
+Here's what's in it:
+
+- **Dark-themed sidebar** with jump links to every section and script
+- **Pipeline flow diagram** showing all 5 stages in order
+- **7-step setup guide** including the Blueprint fix for Render
+- **All 9 files** with syntax-highlighted code and one-click **Copy** buttons
+- **Environment variables table** with required vs optional flags
+
+**To download it:** click **"..."** in the top-right of the App Builder → **Download code** — the HTML file will be inside the `public/` folder. You can open it directly in any browser, no server needed, just double-click the file.

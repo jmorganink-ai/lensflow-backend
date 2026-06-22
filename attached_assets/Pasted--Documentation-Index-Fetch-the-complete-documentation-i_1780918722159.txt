@@ -1,0 +1,176 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://heygen-1fa696a7.mintlify.app/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Image to Video
+
+> Animate any image into video with the HeyGen Image to Video API. Add motion, effects, and avatar-led narration to still images programmatically at scale.
+
+## Prerequisites
+
+<Check>
+  An image of a person (PNG or JPEG) — accessible via a public URL or uploaded as an asset
+</Check>
+
+<Check>
+  A `voice_id` for the voice you want. Use `GET /v3/voices` to browse options.
+</Check>
+
+## Step 1 — Generate the video
+
+Use `POST /v3/videos` with `type: "image"` and an `image` object instead of `avatar_id`:
+
+<Tabs>
+  <Tab title="From image URL">
+    ```bash theme={null}
+    curl -X POST "https://api.heygen.com/v3/videos" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "type": "image",
+        "image": {
+          "type": "url",
+          "url": "https://example.com/person.jpg"
+        },
+        "script": "Hello! This video was generated directly from a photo, with no avatar setup needed.",
+        "voice_id": "YOUR_VOICE_ID",
+        "title": "Image to Video Demo",
+        "resolution": "1080p",
+        "aspect_ratio": "auto"
+      }'
+    ```
+  </Tab>
+
+  <Tab title="From uploaded asset">
+    First upload via `POST /v3/assets`, then reference the returned `asset_id`:
+
+    ```bash theme={null}
+    # Upload the image
+    curl -X POST "https://api.heygen.com/v3/assets" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -F "file=@person.jpg"
+
+    # Generate the video
+    curl -X POST "https://api.heygen.com/v3/videos" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "type": "image",
+        "image": {
+          "type": "asset_id",
+          "asset_id": "RETURNED_ASSET_ID"
+        },
+        "script": "This video was created from an uploaded image asset.",
+        "voice_id": "YOUR_VOICE_ID",
+        "title": "Image to Video Demo"
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  `type: "image"` and `type: "avatar"` are mutually exclusive — use exactly one.
+</Note>
+
+## Step 2 — Poll for completion
+
+Video generation is asynchronous. Poll `GET /v3/videos/{video_id}` until the status reaches `completed`:
+
+```bash theme={null}
+curl -X GET "https://api.heygen.com/v3/videos/YOUR_VIDEO_ID" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+| Status       | Meaning                          |
+| ------------ | -------------------------------- |
+| `pending`    | Queued for processing            |
+| `processing` | Video is being generated         |
+| `completed`  | Ready — `video_url` is available |
+| `failed`     | Something went wrong             |
+
+## Full example
+
+```python theme={null}
+import requests
+import time
+
+API_KEY = "YOUR_API_KEY"
+BASE = "https://api.heygen.com"
+HEADERS = {"x-api-key": API_KEY, "Content-Type": "application/json"}
+
+# 1. Generate video from an image URL
+resp = requests.post(f"{BASE}/v3/videos", headers=HEADERS, json={
+    "type": "image",
+    "image": {
+        "type": "url",
+        "url": "https://example.com/person.jpg"
+    },
+    "script": "Welcome! This entire video was created from a single photograph.",
+    "voice_id": "YOUR_VOICE_ID",
+    "title": "Image-to-Video Example",
+    "resolution": "1080p",
+    "aspect_ratio": "auto"
+})
+video_id = resp.json()["data"]["video_id"]
+print(f"Video created: {video_id}")
+
+# 2. Poll until done
+while True:
+    status_resp = requests.get(f"{BASE}/v3/videos/{video_id}", headers=HEADERS)
+    data = status_resp.json()["data"]
+    print(f"Status: {data['status']}")
+    if data["status"] == "completed":
+        print(f"Download: {data['video_url']}")
+        break
+    elif data["status"] == "failed":
+        print(f"Error: {data.get('failure_message')}")
+        break
+    time.sleep(10)
+```
+
+## Using audio instead of a script
+
+You can lip-sync to a custom audio file instead of generating speech from text. Pass `audio_url` or `audio_asset_id` instead of `script` + `voice_id`:
+
+```json theme={null}
+{
+  "type": "image",
+  "image": {
+    "type": "url",
+    "url": "https://example.com/person.jpg"
+  },
+  "audio_url": "https://example.com/narration.mp3",
+  "title": "Image-to-Video with custom audio"
+}
+```
+
+<Warning>
+  `script` and `audio_url`/`audio_asset_id` are mutually exclusive. If you provide a `script`, you must also provide a `voice_id`.
+</Warning>
+
+## Optional parameters
+
+| Parameter           | Type    | Description                                                                                                     |
+| ------------------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| `title`             | string  | Display name in the HeyGen dashboard                                                                            |
+| `resolution`        | string  | `4k`, `1080p` (recommended), or `720p`                                                                          |
+| `aspect_ratio`      | string  | `auto` (recommended — matches the source image, falling back to `16:9`), `16:9`, `9:16`, `4:5`, `5:4`, or `1:1` |
+| `remove_background` | boolean | Remove the image background from the video                                                                      |
+| `background`        | object  | Set a solid color or image background                                                                           |
+| `voice_settings`    | object  | Adjust `speed` (0.5–1.5), `pitch` (-50 to +50), `locale`                                                        |
+| `callback_url`      | string  | Webhook URL for completion notification                                                                         |
+| `callback_id`       | string  | Your own ID echoed back in the webhook payload                                                                  |
+
+## Image-to-video vs. Photo Avatar
+
+| Criteria           | Image-to-Video                    | Photo Avatar                                |
+| ------------------ | --------------------------------- | ------------------------------------------- |
+| **Setup**          | None — use `type: "image"` and go | Requires `POST /v3/avatars` first           |
+| **Reusability**    | One-off per request               | Reusable across many videos via `avatar_id` |
+| **Motion prompt**  | Not supported                     | Supported                                   |
+| **Expressiveness** | Not supported                     | `high` / `medium` / `low`                   |
+| **Best for**       | Quick tests, one-off content      | Recurring brand content                     |
+
+<Tip>
+  If you plan to generate multiple videos with the same person, create a Photo Avatar once and reuse its `avatar_id`. This saves processing time and unlocks motion and expressiveness controls.
+</Tip>
