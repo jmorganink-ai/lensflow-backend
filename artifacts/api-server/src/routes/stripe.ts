@@ -73,6 +73,12 @@ router.post("/stripe/checkout", async (req: Request, res: Response) => {
     const dbUser = await stripeStorage.getUser(user.id);
 
     let customerId = dbUser?.stripeCustomerId ?? null;
+    // Guard against a stored customer id that doesn't exist in the active Stripe
+    // account (e.g. created under the test/sandbox account before switching to live).
+    // Drop it so a fresh customer is created in the current account.
+    if (customerId && !(await stripeService.customerExists(customerId))) {
+      customerId = null;
+    }
     if (!customerId) {
       const customer = await stripeService.createCustomer(
         dbUser?.email ?? user.email ?? "",

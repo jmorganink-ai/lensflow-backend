@@ -40,6 +40,33 @@ whack-a-mole.
 - The live account has lots of legacy clutter (Lumen hours, MORGAN46 Credit, $1,790
   Concierge, $1,199 Elite Package, etc.), some recurring, some one-time.
 
+# Wiring production to the live account
+
+`getStripeCredentials` (stripeClient.ts) returns the **live** key
+(`STRIPE_LIVE_SECRET_KEY`) only when `isDeploymentEnv()` is true; otherwise it uses the
+connector (test). `isDeploymentEnv()` checks **`WEB_REPL_RENEWAL` only** — NOT
+`NODE_ENV`.
+
+**Why:** Secrets are global across dev and prod. If the gate also keyed on
+`NODE_ENV==='production'`, any dev/preview process started with that env var would silently
+use the live key and touch real money. `WEB_REPL_RENEWAL` is the deployment auth token and
+is absent in the dev workflow, so it is the safe production signal. `REPL_IDENTITY` (set in
+dev) is the connector's dev token.
+
+**How to apply:** Gate any "use live/real resource in prod only" decision on
+`WEB_REPL_RENEWAL`, never on `NODE_ENV`, in this repo.
+
+Two consequences of the account switch that need guards:
+- **Webhooks must fail closed in deployment.** If `STRIPE_WEBHOOK_SECRET` is missing in a
+  deployment, the handler throws instead of parsing unsigned payloads (which could forge
+  subscription events). Unsigned parsing is allowed only in non-deployment dev. A LIVE
+  Stripe webhook endpoint → `/api/stripe/webhook` and its signing secret in
+  `STRIPE_WEBHOOK_SECRET` are required for prod subscriptions to sync.
+- **Stale customer ids.** A `stripeCustomerId` stored under the old test account won't
+  exist in the live account. Checkout calls `stripeService.customerExists` (treats only
+  `resource_missing`/404 as missing, rethrows other errors) and creates a fresh customer
+  if stale.
+
 # Subscription-only billing invariant
 
 `createCheckoutSession` uses `mode:'subscription'`, so both the billing UI
