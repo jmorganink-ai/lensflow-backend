@@ -1,4 +1,5 @@
 - [Morgan AI setup](morgan-ai-setup.md) — Anthropic SDK used directly with ANTHROPIC_API_KEY, not via integrations proxy; model is claude-sonnet-4-6.
+- [Morgan SSE tool streaming](morgan-sse-tooling.md) — never hand-parse input_json_delta (crashes on 2+ tools); use finalMessage() + bounded multi-round loop, last round tool-less.
 - [HubSpot connector pattern](hubspot-connector.md) — Uses ReplitConnectors.proxy(), connection id conn_hubspot_01KSYB2VWDD2DRFF5DDN92TJ1X; search before create to avoid duplicates.
 - [DB table names](db-table-names.md) — Tables export as `conversations` and `messages` (not *Table suffix); always grep schema exports before using.
 - [Orval codegen collision fix](orval-codegen-fix.md) — Removed `schemas` option from orval zod config; hand-written types live in `lib/api-zod/src/types.ts`; patch-zod-index.mjs strips the stale types re-export after each codegen run.
