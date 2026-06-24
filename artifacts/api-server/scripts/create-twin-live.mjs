@@ -107,16 +107,10 @@ for (const tier of TIERS) {
   const dollars = "A$" + (tier.amount / 100).toFixed(0) + (tier.recurring ? "/mo" : " one-time");
   if (!existing) {
     actions.push({ tier, type: "create-product" });
-    console.log(`  ${tier.name}: MISSING → would create product + ${dollars} price`);
+    console.log(`  ${tier.name}: MISSING → will create product + ${dollars} price`);
   } else {
-    const prices = (await stripe.prices.list({ product: existing.id, active: true, limit: 100 })).data;
-    const match = prices.find((pr) => priceMatches(pr, tier));
-    if (match) {
-      console.log(`  ${tier.name}: OK (exists: ${existing.id}, price ${match.id} = ${dollars})`);
-    } else {
-      actions.push({ tier, type: "create-price", productId: existing.id });
-      console.log(`  ${tier.name}: product exists (${existing.id}) but NO ${dollars} price → would add price`);
-    }
+    // Existing products keep their own pricing — never touch them.
+    console.log(`  ${tier.name}: already exists (${existing.id}) — leaving untouched`);
   }
 }
 
