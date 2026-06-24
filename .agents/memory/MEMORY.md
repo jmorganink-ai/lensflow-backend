@@ -23,5 +23,6 @@
 - [Morgan marketing tab](morgan-marketing-tab.md) — POST /api/morgan/marketing-pack generates Instagram/Facebook/LinkedIn/email pack; page at /morgan in pipeline app; uses useListJobs (not useGetJobs) which returns Job[] directly.
 - [Stripe account identity](stripe-account.md) — Stripe conn is owned by admin@lensflow.com.au (business); user's personal Replit login is jmorganink@gmail.com — do not conflate.
 - [D-ID pipeline integration](did-pipeline.md) — D-ID is primary presenter provider; pre-signed S3 URLs must be mirrored to object storage before passing to Shotstack.
+- [Stripe live catalog & connector split](stripe-live-catalog.md) — app reads Stripe via connector (test acct in dev), NOT the live key; use sk_live for catalog writes; live Starter is one-time $79; self-serve checkout is monthly-recurring-only.
 - [lensflow-site build env](lensflow-site-build-env.md) — vite.config throws without PORT even for `vite build`; build with `PORT=5000 BASE_PATH=/`.
 - [Prod static asset routing & size limit](prod-static-asset-routing.md) — platform static handler 500s on files >~20-25MB (=black tiles); root-absolute media resolves to ROOT artifact (site), so pipeline shares site/public; pipeline-only assets need BASE_URL-aware paths.

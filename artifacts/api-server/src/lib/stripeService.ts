@@ -129,6 +129,11 @@ export class StripeService {
       return_url: returnUrl,
     });
   }
+
+  async getPrice(priceId: string): Promise<Stripe.Price> {
+    const stripe = await getUncachableStripeClient();
+    return await stripe.prices.retrieve(priceId);
+  }
 }
 
 export const stripeService = new StripeService();

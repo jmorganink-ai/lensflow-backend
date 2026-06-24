@@ -1,4 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
+import type Stripe from "stripe";
 import { stripeStorage, stripeService } from "../lib/stripeService";
 import { logger } from "../lib/logger";
 
@@ -55,6 +56,20 @@ router.post("/stripe/checkout", async (req: Request, res: Response) => {
   if (!priceId) { res.status(400).json({ error: "priceId is required" }); return; }
 
   try {
+    // Self-serve checkout is subscription-only: validate the price is an active,
+    // monthly recurring price before creating a session. This prevents subscribing
+    // to one-time prices (e.g. Enterprise) or arbitrary priceIds via the API.
+    let price: Stripe.Price;
+    try {
+      price = await stripeService.getPrice(priceId);
+    } catch {
+      res.status(400).json({ error: "Invalid plan selected." }); return;
+    }
+    if (!price.active || price.recurring?.interval !== "month") {
+      res.status(400).json({ error: "This plan isn't available for self-serve subscription." });
+      return;
+    }
+
     const dbUser = await stripeStorage.getUser(user.id);
 
     let customerId = dbUser?.stripeCustomerId ?? null;
