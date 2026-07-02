@@ -577,7 +577,10 @@ export async function runSimulation(jobId: string): Promise<void> {
             );
             const didResult = await generatePresenterVideoDID(script, {
               presenterName: job.voiceName ?? undefined,
-              audioUrl: voiceoverPublicUrl ?? null,
+              // In dev/test mode the voiceover lives on a Replit dev-proxy URL
+              // (*.sisko.replit.dev) that external APIs cannot reach — omit it
+              // so D-ID falls back to its own TTS instead of rejecting the call.
+              audioUrl: didTestMode ? null : (voiceoverPublicUrl ?? null),
               timeoutMs: 420_000, // clips take ~5 min; 7 min ceiling
               testMode: didTestMode,
             });

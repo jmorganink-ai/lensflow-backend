@@ -225,6 +225,52 @@ You are available 24/7, but some things need a human on our team: billing disput
 - Keep responses concise — most users are on mobile
 - When sharing pricing links, always remind them it's a 7-day free trial with no credit card risk`;
 
+type MorganLogger = { warn: (obj: Record<string, unknown>, msg: string) => void };
+
+// Execute a single Morgan tool call and return a JSON string tool_result.
+// Each tool wraps its own failure so one bad call never crashes the chat stream.
+async function executeMorganTool(
+  toolName: string,
+  toolInput: Record<string, unknown>,
+  log: MorganLogger,
+): Promise<string> {
+  try {
+    if (toolName === "search_properties") {
+      const result = await searchProperties(toolInput as unknown as PropertySearchCriteria);
+      return JSON.stringify(result);
+    }
+    if (toolName === "get_suburb_stats") {
+      const suburb = toolInput.suburb as string;
+      const state = toolInput.state as string;
+      const propertyCategory = (toolInput.propertyCategory as "house" | "unit" | undefined) ?? "house";
+      const stats = await getSuburbPerformance(suburb, state, propertyCategory);
+      return stats
+        ? JSON.stringify(stats)
+        : JSON.stringify({ error: `No market data found for ${suburb} ${state}` });
+    }
+    if (toolName === "get_recent_sales") {
+      const state = toolInput.state as string;
+      const sales = await getRecentSalesResults(state);
+      return JSON.stringify({ state, count: sales.length, results: sales });
+    }
+    if (toolName === "get_property_estimate") {
+      const propertyId = toolInput.propertyId as string;
+      const estimate = await getPropertyEstimate(propertyId);
+      return estimate
+        ? JSON.stringify(estimate)
+        : JSON.stringify({ error: `No price estimate available for property ${propertyId}` });
+    }
+    return JSON.stringify({ error: "Unknown tool" });
+  } catch (err) {
+    log.warn({ err, toolName }, "Domain tool execution failed");
+    const msg =
+      err instanceof Error && err.message.startsWith("SANDBOX_ONLY")
+        ? "This data is only available once the Domain.com.au API credentials are upgraded to production access. The production upgrade is pending — this will work automatically once it's approved."
+        : "Data unavailable — please try again";
+    return JSON.stringify({ error: msg });
+  }
+}
+
 // GET /api/anthropic/conversations
 router.get("/anthropic/conversations", async (_req, res) => {
   try {
@@ -381,131 +427,75 @@ router.post("/anthropic/conversations/:id/messages", async (req, res) => {
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    // --- Phase 1: stream initial response, collect any tool_use block ---
-    const stream = anthropic.messages.stream({
-      model: "claude-sonnet-4-6",
-      max_tokens: 8192,
-      system: MORGAN_SYSTEM_PROMPT,
-      tools: MORGAN_TOOLS,
-      messages: chatMessages,
-    });
+    // Status indicators streamed to the user while each tool runs.
+    const INDICATORS: Record<string, string> = {
+      search_properties: "\n\n🔍 *Searching listings for your client…*\n\n",
+      get_suburb_stats: "\n\n📊 *Pulling live suburb data from Domain…*\n\n",
+      get_recent_sales: "\n\n🏠 *Fetching recent sales results from Domain…*\n\n",
+      get_property_estimate: "\n\n💰 *Retrieving property price estimate from Domain…*\n\n",
+    };
 
-    let preToolText = "";
-    let toolUseId = "";
-    let toolUseName = "";
-    let toolInputJson = "";
-    let stopReason = "";
+    // Agentic loop: stream text, run any requested tools, feed results back, repeat.
+    // Tool calls are parsed from finalMessage() (never from raw input_json_delta),
+    // so multiple tool calls in one turn can't corrupt the JSON. The loop also lets
+    // Morgan chain tools (e.g. suburb stats → recent sales) instead of dead-ending.
+    // The final round runs without tools so Claude is forced to deliver a text answer.
+    const MAX_TOOL_ROUNDS = 4;
+    const convoMessages: Anthropic.MessageParam[] = [...chatMessages];
+    let assembledText = "";
 
-    for await (const event of stream) {
-      if (event.type === "content_block_start" && event.content_block.type === "tool_use") {
-        toolUseId = event.content_block.id;
-        toolUseName = event.content_block.name;
-      } else if (event.type === "content_block_delta") {
-        if (event.delta.type === "text_delta") {
-          preToolText += event.delta.text;
-          res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
-        } else if (event.delta.type === "input_json_delta") {
-          toolInputJson += event.delta.partial_json;
-        }
-      } else if (event.type === "message_delta") {
-        stopReason = event.delta.stop_reason ?? "";
-      }
-    }
-
-    // --- Phase 2: if tool called, execute it and stream the final answer ---
-    if (stopReason === "tool_use" && toolUseName) {
-      const INDICATORS: Record<string, string> = {
-        search_properties: "\n\n🔍 *Searching listings for your client…*\n\n",
-        get_suburb_stats: "\n\n📊 *Pulling live suburb data from Domain…*\n\n",
-        get_recent_sales: "\n\n🏠 *Fetching recent sales results from Domain…*\n\n",
-        get_property_estimate: "\n\n💰 *Retrieving property price estimate from Domain…*\n\n",
-      };
-      const indicator = INDICATORS[toolUseName] ?? "\n\n⏳ *Looking that up…*\n\n";
-      res.write(`data: ${JSON.stringify({ content: indicator })}\n\n`);
-
-      let toolResult: string;
-      try {
-        const toolInput = JSON.parse(toolInputJson) as Record<string, unknown>;
-        if (toolUseName === "search_properties") {
-          const result = await searchProperties(toolInput as unknown as PropertySearchCriteria);
-          toolResult = JSON.stringify(result);
-        } else if (toolUseName === "get_suburb_stats") {
-          const suburb = toolInput.suburb as string;
-          const state = toolInput.state as string;
-          const propertyCategory = (toolInput.propertyCategory as "house" | "unit" | undefined) ?? "house";
-          const stats = await getSuburbPerformance(suburb, state, propertyCategory);
-          toolResult = stats
-            ? JSON.stringify(stats)
-            : JSON.stringify({ error: `No market data found for ${suburb} ${state}` });
-        } else if (toolUseName === "get_recent_sales") {
-          const state = toolInput.state as string;
-          const sales = await getRecentSalesResults(state);
-          toolResult = JSON.stringify({ state, count: sales.length, results: sales });
-        } else if (toolUseName === "get_property_estimate") {
-          const propertyId = toolInput.propertyId as string;
-          const estimate = await getPropertyEstimate(propertyId);
-          toolResult = estimate
-            ? JSON.stringify(estimate)
-            : JSON.stringify({ error: `No price estimate available for property ${propertyId}` });
-        } else {
-          toolResult = JSON.stringify({ error: "Unknown tool" });
-        }
-      } catch (err) {
-        req.log.warn({ err, toolUseName }, "Domain tool execution failed");
-        const msg = err instanceof Error && err.message.startsWith("SANDBOX_ONLY")
-          ? "This data is only available once the Domain.com.au API credentials are upgraded to production access. The production upgrade is pending — this will work automatically once it's approved."
-          : "Data unavailable — please try again";
-        toolResult = JSON.stringify({ error: msg });
-      }
-
-      const toolResultMessages: Anthropic.MessageParam[] = [
-        ...chatMessages,
-        {
-          role: "assistant",
-          content: [
-            ...(preToolText ? [{ type: "text" as const, text: preToolText }] : []),
-            {
-              type: "tool_use" as const,
-              id: toolUseId,
-              name: toolUseName,
-              input: JSON.parse(toolInputJson) as Record<string, unknown>,
-            },
-          ],
-        },
-        {
-          role: "user",
-          content: [{ type: "tool_result" as const, tool_use_id: toolUseId, content: toolResult }],
-        },
-      ];
-
-      const finalStream = anthropic.messages.stream({
+    for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+      const toolsEnabled = round < MAX_TOOL_ROUNDS;
+      const roundStream = anthropic.messages.stream({
         model: "claude-sonnet-4-6",
         max_tokens: 8192,
         system: MORGAN_SYSTEM_PROMPT,
-        messages: toolResultMessages,
+        ...(toolsEnabled ? { tools: MORGAN_TOOLS } : {}),
+        messages: convoMessages,
       });
 
-      let finalText = "";
-      for await (const event of finalStream) {
+      for await (const event of roundStream) {
         if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-          finalText += event.delta.text;
+          assembledText += event.delta.text;
           res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
         }
       }
 
-      await db.insert(messages).values({
-        conversationId,
-        role: "assistant",
-        content: preToolText + indicator + finalText,
-      });
-    } else {
-      // No tool use — save the streamed text directly
-      await db.insert(messages).values({
-        conversationId,
-        role: "assistant",
-        content: preToolText,
-      });
+      const roundMessage = await roundStream.finalMessage();
+      const toolUseBlocks = roundMessage.content.filter(
+        (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+      );
+
+      // Done as soon as Claude answers without requesting more tools.
+      if (roundMessage.stop_reason !== "tool_use" || toolUseBlocks.length === 0) break;
+
+      // One status indicator per distinct tool being called this round.
+      for (const name of new Set(toolUseBlocks.map((b) => b.name))) {
+        const ind = INDICATORS[name] ?? "\n\n⏳ *Looking that up…*\n\n";
+        assembledText += ind;
+        res.write(`data: ${JSON.stringify({ content: ind })}\n\n`);
+      }
+
+      // Execute every tool_use block and pair each with a tool_result by id.
+      const toolResultBlocks: Anthropic.ToolResultBlockParam[] = [];
+      for (const block of toolUseBlocks) {
+        const result = await executeMorganTool(
+          block.name,
+          block.input as Record<string, unknown>,
+          req.log,
+        );
+        toolResultBlocks.push({ type: "tool_result", tool_use_id: block.id, content: result });
+      }
+
+      convoMessages.push({ role: "assistant", content: roundMessage.content });
+      convoMessages.push({ role: "user", content: toolResultBlocks });
     }
+
+    await db.insert(messages).values({
+      conversationId,
+      role: "assistant",
+      content: assembledText,
+    });
 
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
     res.end();

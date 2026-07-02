@@ -12,6 +12,96 @@ uri = "file://artifacts/lensflow-site/public/property-6.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "bvAxUbnT16vh6PTjM6qim"
+uri = "file://artifacts/mockup-sandbox/public/images/variant-c-hero-bg.png"
+type = "image"
+title = "luxury coastal property at sunset"
+
+[[generated]]
+id = "BT1AUk0uL8Wp3Tu0BZChg"
+uri = "file://artifacts/mockup-sandbox/public/images/luxury-home-golden-hour.png"
+type = "image"
+title = "Luxury Australian home at golden hour"
+
+[[generated]]
+id = "oZZKxX0woKFtoSTKsqee8"
+uri = "file://artifacts/mockup-sandbox/public/images/hero-bg-variant-a.png"
+type = "image"
+title = "Australian coastal property"
+
+[[generated]]
+id = "NhlhydnVRYheiouf09eBX"
+uri = "file://artifacts/mockup-sandbox/public/images/ai-presenter-variant-a.png"
+type = "image"
+title = "Professional real estate agent"
+
+[[generated]]
+id = "zOebTiKkve2liPuIKcwQi"
+uri = "file://artifacts/lensflow-site/public/images/twin-create.png"
+type = "image"
+title = "create ai twin"
+
+[[generated]]
+id = "TF1z-IFB0xe6KWsfR8MO_"
+uri = "file://artifacts/lensflow-site/public/images/avatar-present.png"
+type = "image"
+title = "ai avatar presenting"
+
+[[generated]]
+id = "lMBsyraHfC_BXSrpaCDgD"
+uri = "file://artifacts/lensflow/public/enhancement/before-declutter.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "-CXP4PdhoQHLH28N0vekh"
+uri = "file://artifacts/lensflow/public/enhancement/after-declutter.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "k23ex8Fperz0LTQZkTvl1"
+uri = "file://artifacts/lensflow/public/enhancement/before-furniture.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "60BYdvXVA9RPRIkbVOR_m"
+uri = "file://artifacts/lensflow/public/enhancement/after-furniture.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "51Kpq9o-fMVZCfusZH5Ya"
+uri = "file://artifacts/lensflow/public/enhancement/before-damage.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "sKIEqKFba-0nU4LoWnYuc"
+uri = "file://artifacts/lensflow/public/enhancement/after-damage.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "AjkhacT9n1N-_U1U0O_S0"
+uri = "file://artifacts/lensflow-site/public/images/hero-2026.jpg"
+type = "image"
+title = "luxury home hero 2026"
+
+[[generated]]
+id = "4dknDKocWzQTEWGZzT23g"
+uri = "file://artifacts/lensflow-site/public/images/teleprompter-agent.jpg"
+type = "image"
+title = "agent holding phone teleprompter"
+
+[[generated]]
+id = "D6h9dYNqApl30fJjHHRkr"
+uri = "file://artifacts/lensflow-site/public/images/raw-listing.jpg"
+type = "image"
+title = "standard raw listing photo"
+
 [[outputs]]
 id = "GJSJTvrQG8OqI7nTZIiR7"
 uri = "file://exports/sophie-hq.jpg"
@@ -47,3 +137,15 @@ id = "gbSN_xWWRXELv-AGx7vs0"
 uri = "file://.local/outputs/LensFlow-Explainer-Deck.pdf"
 type = "pdf"
 title = "LensFlow Explainer Deck (PDF)"
+
+[[outputs]]
+id = "Kx3WJBL1D0G7EikpD3nn7"
+uri = "file://artifacts/mockup-sandbox/public/images/luxury-listing-b.jpg"
+type = "image"
+title = "Luxury modern home exterior or living room, real estate style"
+
+[[outputs]]
+id = "GCUvfu3ewR3axA8yi5Bk7"
+uri = "file://artifacts/mockup-sandbox/public/images/agent-avatar.jpg"
+type = "image"
+title = "Professional male real estate agent in a suit, modern look, confident"

@@ -1,42 +1,57 @@
+import { useRef } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
+  Bot,
+  CalendarCheck,
   CheckCircle2,
   Clock,
+  Eye,
+  FileText,
   Film,
+  Link2,
+  MapPin,
+  Play,
   PlayCircle,
   Shield,
+  Smartphone,
   Sparkles,
   Star,
   TrendingUp,
   Users,
   Video,
-  Zap,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SubmitForm } from "@/components/SubmitForm";
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 },
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12 },
-  },
-};
-
 const heroMetrics = [
-  { label: "Campaigns created", value: "4 assets" },
-  { label: "Listings processed", value: "1 URL" },
-  { label: "Time saved", value: "5+ hrs" },
-  { label: "Estimated reach", value: "Social ready" },
+  { label: "From one", value: "Listing URL" },
+  { label: "You get", value: "4 assets" },
+  { label: "Turnaround", value: "Same day" },
+  { label: "Built for", value: "AU agents" },
+];
+
+const beforeAfter = [
+  {
+    badge: "Before — raw listing",
+    title: "Standard listing photo",
+    detail:
+      "What every agent has. A decent photo with zero engagement when it is posted to socials.",
+    image: "/images/raw-listing.jpg",
+    muted: true,
+  },
+  {
+    badge: "LensFlow output",
+    title: "AI presenter campaign",
+    detail:
+      "A branded presenter video, social reels and captions from the same listing — same day.",
+    image: "/mia-portrait.jpg",
+    muted: false,
+  },
 ];
 
 const campaignOutputs = [
@@ -44,19 +59,78 @@ const campaignOutputs = [
     title: "AI presenter video",
     detail: "Mia or Oliver introduces the property with polished, listing-aware copy.",
     video: "/videos/sample-v1.mp4",
+    poster: "/videos/sample-v1-poster.jpg",
     icon: Video,
   },
   {
     title: "Social reel package",
     detail: "Short-form clips built for Instagram, Facebook, TikTok and LinkedIn.",
     video: "/videos/sample-v3.mp4",
+    poster: "/videos/sample-v3-poster.jpg",
     icon: Film,
   },
   {
     title: "Property presentation",
     detail: "Premium visuals, captions and agent-ready story beats from the same listing.",
     video: "/videos/sample-v5.mp4",
+    poster: "/videos/sample-v5-poster.jpg",
     icon: PlayCircle,
+  },
+];
+
+const teleprompterScript = [
+  { text: "Welcome to this ", gold: false },
+  { text: "stunning waterfront", gold: true },
+  { text: " masterpiece. Designed for ", gold: false },
+  { text: "luxury living", gold: true },
+  { text: " and effortless entertaining, this home offers breathtaking views and exceptional finishes throughout.", gold: false },
+];
+
+const platformFeatures = [
+  {
+    icon: Video,
+    title: "AI presenter videos",
+    detail: "Mia or Oliver introduce every listing with polished, listing-aware delivery.",
+  },
+  {
+    icon: Smartphone,
+    title: "Eye-contact teleprompter",
+    detail: "Read your script while looking straight down the lens for natural delivery.",
+  },
+  {
+    icon: Users,
+    title: "Become your own twin",
+    detail: "Clone yourself once and let your AI digital twin present every listing.",
+  },
+  {
+    icon: Wand2,
+    title: "Property enhancement studio",
+    detail: "Turn ordinary listing photos into bright, magazine-grade visuals.",
+  },
+  {
+    icon: Film,
+    title: "Social reel packages",
+    detail: "Short-form clips formatted for Instagram, Facebook, TikTok and LinkedIn.",
+  },
+  {
+    icon: FileText,
+    title: "Listing-aware scripts",
+    detail: "Copy written from the real listing — features, suburb, lifestyle and price.",
+  },
+  {
+    icon: Bot,
+    title: "Morgan AI assistant",
+    detail: "Your in-app marketing strategist for captions, hooks and campaign ideas.",
+  },
+  {
+    icon: CalendarCheck,
+    title: "Same-day campaign kit",
+    detail: "Video, reels, captions and a presentation ready to publish the same day.",
+  },
+  {
+    icon: MapPin,
+    title: "Market briefs",
+    detail: "Suburb insight and selling points to back every campaign you launch.",
   },
 ];
 
@@ -77,21 +151,73 @@ const presenters = [
   },
 ];
 
-const workflow = [
+const flowSteps = [
   {
-    title: "Paste the listing",
-    detail: "Start with a property URL, upload photos, add video or use the teleprompter.",
-    icon: Sparkles,
+    icon: Link2,
+    step: "01",
+    title: "Paste the listing URL",
+    detail: "Drop in a realestate.com.au or Domain link, or upload your own photos and video.",
   },
   {
-    title: "Choose the presenter",
-    detail: "Select Mia, Oliver or another LensFlow voice to match the listing style.",
+    icon: FileText,
+    step: "02",
+    title: "AI writes the script",
+    detail: "LensFlow reads the listing and drafts a listing-aware script in your tone.",
+  },
+  {
+    icon: Wand2,
+    step: "03",
+    title: "Enhance the visuals",
+    detail: "The Enhancement Studio lifts ordinary photos into magazine-grade frames.",
+  },
+  {
+    icon: Smartphone,
+    step: "04",
+    title: "Present it your way",
+    detail: "Pick Mia or Oliver, or read it yourself with the eye-contact teleprompter.",
+  },
+  {
+    icon: Video,
+    step: "05",
+    title: "AI records in 4K",
+    detail: "Your presenter delivers the pitch with cinematic b-roll and clean audio.",
+  },
+  {
+    icon: Film,
+    step: "06",
+    title: "Package the socials",
+    detail: "Reels, captions and a property presentation are formatted for every channel.",
+  },
+  {
+    icon: CalendarCheck,
+    step: "07",
+    title: "Launch — same day",
+    detail: "The full campaign kit lands ready to publish while the listing is still fresh.",
+  },
+];
+
+const adminPoints = [
+  "Campaign created first — listing URL in, assets out",
+  "AI presenter video, not just a script",
+  "Social reels packaged and ready to post",
+  "Marketing value shown in dollars, not credits",
+];
+
+const calmCards = [
+  {
+    icon: Shield,
+    title: "Brand safe",
+    detail: "Property-first copy and a professional presenter tone on every listing.",
+  },
+  {
+    icon: Clock,
+    title: "Same-day delivery",
+    detail: "From listing URL to a finished campaign in minutes, not days.",
+  },
+  {
     icon: Users,
-  },
-  {
-    title: "Launch the campaign",
-    detail: "Get the video, script, captions and presentation assets ready to publish.",
-    icon: Zap,
+    title: "Built for agents",
+    detail: "Designed around how Australian real estate agents actually work.",
   },
 ];
 
@@ -129,133 +255,202 @@ const proofPoints = [
 ];
 
 export default function Home() {
+  const stripRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+  const stripInView = useInView(stripRef, { margin: "0px 0px -10% 0px" });
+  const waveActive = !reduceMotion && stripInView;
   return (
     <div className="min-h-screen overflow-hidden bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       <Navbar />
 
       <main>
-        {/* Hero Section with Teleprompter */}
-        <section className="relative overflow-hidden border-b border-white/5 pt-28 lg:pt-32">
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#0a0d1a] via-[#0d1120] to-[#10162a]" />
+        {/* Hero — cinematic treatment */}
+        <section className="relative overflow-hidden border-b border-white/5 bg-[#0A0A0A] text-white">
+          <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A] via-[#0A0A0A] to-[#06080F]" />
+            <div className="absolute inset-0 bg-gradient-radial-gold opacity-70" />
           </div>
 
-          <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 lg:grid-cols-[1fr_1.2fr] lg:py-20">
+          <div className="relative z-10 mx-auto max-w-7xl px-6 pb-20 pt-36 md:pt-40">
             <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={staggerContainer}
-              className="max-w-xl"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="max-w-3xl"
             >
-              <motion.div
-                variants={fadeInUp}
-                className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c99a2e]/30 bg-[#c99a2e]/10 px-3 py-1.5 text-sm font-medium text-[#c99a2e]"
-              >
-                <Sparkles className="h-4 w-4" />
-                LensFlow AI Teleprompter
-              </motion.div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-4 py-2 text-sm font-medium text-[#E8D5A3]">
+                <Sparkles className="h-4 w-4 text-[#C9A84C]" />
+                Australia's AI real estate video platform
+              </span>
 
-              <motion.h1
-                variants={fadeInUp}
-                className="font-serif text-5xl font-bold leading-[1.03] tracking-normal text-white md:text-6xl lg:text-[64px]"
-              >
-                Record Like a Pro with AI Teleprompter
-              </motion.h1>
+              <h1 className="mt-8 font-serif text-5xl font-bold leading-[1.05] md:text-7xl">
+                Your listing goes live.
+                <br />
+                <span className="relative inline-block text-gradient-gold">
+                  Your video should too.
+                  <span className="absolute -bottom-2 left-0 h-[2px] w-full bg-gradient-to-r from-[#C9A84C] via-[#C9A84C] to-transparent" />
+                </span>
+              </h1>
 
-              <motion.p
-                variants={fadeInUp}
-                className="mt-6 max-w-xl text-lg leading-8 text-[#8f99b2] md:text-xl"
-              >
-                Scroll through your script while recording. Perfect for agents who want 
-                to deliver polished property videos without memorizing lines.
-              </motion.p>
+              <p className="mt-8 max-w-2xl text-lg font-light leading-relaxed text-[#E8D5A3]/80 md:text-xl">
+                Real estate agents lose their listing's peak 48-hour traffic
+                window waiting on a videographer. LensFlow turns your listing URL
+                into a professional AI presenter video, social reels and a full
+                campaign kit — same day.
+              </p>
 
-              <motion.div
-                variants={fadeInUp}
-                className="mt-8 flex flex-col gap-3 sm:flex-row"
-              >
+              <div className="mt-10 flex flex-col gap-5 sm:flex-row">
                 <a href="#hero-form">
-                  <Button className="h-12 rounded-full bg-[#c99a2e] px-7 text-base font-semibold text-[#0a0d1a] hover:bg-[#dfb44d]">
-                    Try Teleprompter Free
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                  <button className="flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] px-8 py-4 text-lg font-bold text-[#0A0A0A] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(201,168,76,0.25)] sm:w-auto">
+                    Generate Campaign Now
+                    <ArrowRight className="h-5 w-5" />
+                  </button>
                 </a>
-                <a href="/teleprompter.html" target="_blank">
-                  <Button
-                    variant="outline"
-                    className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-white hover:bg-white/10"
-                  >
-                    Watch Demo
-                  </Button>
-                </a>
-              </motion.div>
-            </motion.div>
+                <Link href="/examples">
+                  <button className="group flex w-full items-center justify-center gap-3 rounded-full border border-[#C9A84C]/30 px-8 py-4 text-lg font-bold text-white transition-all duration-300 hover:border-[#C9A84C]/60 hover:bg-white/5 sm:w-auto">
+                    <Play className="h-5 w-5 transition-colors group-hover:text-[#C9A84C]" fill="currentColor" />
+                    Watch Example
+                  </button>
+                </Link>
+              </div>
 
-            {/* Teleprompter Preview */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0d1120] shadow-2xl">
-                <div className="relative aspect-video bg-gradient-to-br from-[#1a213a] to-[#0d1120]">
-                  {/* Teleprompter Interface */}
-                  <div className="absolute inset-0 flex flex-col">
-                    {/* Header */}
-                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-red-500" />
-                        <div className="h-2 w-2 rounded-full bg-yellow-500" />
-                        <div className="h-2 w-2 rounded-full bg-green-500" />
-                      </div>
-                      <span className="text-xs text-[#8f99b2]">LensFlow Teleprompter</span>
-                      <div className="w-16" />
-                    </div>
-                    
-                    {/* Script Area */}
-                    <div className="flex-1 overflow-hidden p-6">
-                      <div className="space-y-4 text-center">
-                        <p className="text-2xl font-medium text-white/90 leading-relaxed">
-                          "Welcome to 28 Harbour View..."
-                        </p>
-                        <p className="text-xl text-[#c99a2e]">
-                          A private waterfront residence designed for effortless entertaining.
-                        </p>
-                        <p className="text-lg text-white/60">
-                          With panoramic harbour views and world-class amenities...
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Controls */}
-                    <div className="border-t border-white/10 px-4 py-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[#c99a2e] text-[#0a0d1a]">
-                            <PlayCircle className="h-5 w-5" />
-                          </button>
-                          <span className="text-sm text-[#8f99b2]">0:08 / 0:30</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-[#8f99b2]">Speed: 1.0x</span>
-                          <span className="text-xs text-[#8f99b2]">|</span>
-                          <span className="text-xs text-[#8f99b2]">Font: Large</span>
-                        </div>
-                      </div>
+              <div className="mt-14 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4">
+                {heroMetrics.map((metric) => (
+                  <div key={metric.label}>
+                    <div className="text-xl font-semibold text-white">{metric.value}</div>
+                    <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[#E8D5A3]/50">
+                      {metric.label}
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-              
-              {/* Floating Badge */}
-              <div className="absolute -bottom-4 -right-4 rounded-xl border border-[#c99a2e]/30 bg-[#0d1120] px-4 py-2 shadow-lg">
-                <span className="text-sm font-medium text-[#c99a2e]">AI-Powered Scrolling</span>
+            </motion.div>
+
+            {/* Cinematic strip */}
+            <motion.div
+              ref={stripRef}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.25 }}
+              className="relative mt-16 overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_40px_120px_rgba(0,0,0,0.6)]"
+            >
+              <div className="aspect-[16/10] w-full sm:aspect-[2/1] lg:aspect-[21/9]">
+                <img
+                  src="/images/hero-cinematic-twilight.jpg"
+                  alt="Luxury Australian property at twilight, presented in a LensFlow video"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+
+              {/* Cinematic blends */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-[#0A0A0A]/30" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
+
+              {/* REC badge */}
+              <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3 py-1.5 backdrop-blur-md">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-70" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-[0.22em] text-white/90">
+                  Rec
+                </span>
+                <span className="text-xs font-medium text-white/40">4K</span>
+              </div>
+
+              {/* Property label */}
+              <div className="absolute right-5 top-5 hidden rounded-full border border-[#C9A84C]/30 bg-black/40 px-3 py-1.5 text-xs font-medium text-[#E8D5A3] backdrop-blur-md sm:block">
+                24 Hillcrest Avenue · Listed today
+              </div>
+
+              {/* AI presenter overlay */}
+              <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-6">
+                <div className="flex items-center gap-4 rounded-2xl border border-[#C9A84C]/25 bg-[#0A0A0A]/70 px-4 py-3 backdrop-blur-md sm:px-5 sm:py-4">
+                  <Link
+                    href="/examples"
+                    aria-label="Watch a presenter example"
+                    className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] text-[#0A0A0A] transition-transform duration-300 hover:scale-105"
+                  >
+                    <Play className="h-5 w-5" fill="currentColor" />
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C]" />
+                      <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#E8D5A3]/80">
+                        AI presenter active
+                      </span>
+                    </div>
+                    <div className="mt-2 flex h-6 items-end gap-[3px] overflow-hidden">
+                      {Array.from({ length: 36 }).map((_, i) => (
+                        <motion.span
+                          key={i}
+                          className="w-[3px] flex-none origin-bottom rounded-full bg-gradient-to-t from-[#C9A84C] to-[#E8D5A3]"
+                          style={{
+                            height: `${30 + Math.round(Math.abs(Math.sin(i * 0.5)) * 70)}%`,
+                          }}
+                          animate={waveActive ? { scaleY: [0.35, 1, 0.35] } : { scaleY: 0.5 }}
+                          transition={
+                            waveActive
+                              ? {
+                                  duration: 0.9 + (i % 5) * 0.12,
+                                  repeat: Infinity,
+                                  ease: "easeInOut",
+                                  delay: (i % 7) * 0.08,
+                                }
+                              : { duration: 0.3 }
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <span className="hidden flex-none text-xs font-medium text-white/50 sm:block">
+                    00:24 / 00:45
+                  </span>
+                </div>
               </div>
             </motion.div>
           </div>
         </section>
 
+        {/* Start your campaign — funnel form */}
+        <section
+          id="hero-form"
+          className="scroll-mt-24 border-b border-white/5 bg-background py-20 lg:py-24"
+        >
+          <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-[1fr_0.9fr]">
+            <div>
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                Start your campaign
+              </p>
+              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                Paste your listing. Get your campaign.
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-muted-foreground">
+                Drop in a listing URL, choose your presenter and add photos if
+                you have them. LensFlow builds the presenter video, social reels
+                and captions — same day.
+              </p>
+              <div className="mt-8 space-y-3">
+                {[
+                  "Takes 10 seconds to start",
+                  "No credit card required",
+                  "Built for Australian agents",
+                ].map((point) => (
+                  <div key={point} className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 flex-none text-primary" />
+                    {point}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-white/10 bg-card p-6 sm:p-8">
+              <SubmitForm />
+            </div>
+          </div>
+        </section>
+
+        {/* Proof points */}
         <section className="border-b border-white/5 bg-background py-16">
           <div className="mx-auto grid max-w-7xl gap-4 px-6 md:grid-cols-4">
             {proofPoints.map((point) => (
@@ -270,7 +465,56 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="examples" className="bg-background py-24 lg:py-28">
+        {/* Before / After */}
+        <section className="bg-background py-24 lg:py-28">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-12 max-w-2xl">
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                The difference
+              </p>
+              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                Same listing. A completely different result.
+              </h2>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {beforeAfter.map((card) => (
+                <motion.article
+                  key={card.title}
+                  whileHover={{ y: -6 }}
+                  className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-card"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-black">
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      className={`h-full w-full object-cover ${card.muted ? "saturate-[0.8]" : ""}`}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                    <span
+                      className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold ${
+                        card.muted
+                          ? "bg-black/60 text-white"
+                          : "bg-primary text-primary-foreground"
+                      }`}
+                    >
+                      {card.badge}
+                    </span>
+                  </div>
+                  <div className="p-7">
+                    <h3 className="text-xl font-semibold">{card.title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                      {card.detail}
+                    </p>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Campaign outputs */}
+        <section id="examples" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
           <div className="mx-auto max-w-7xl px-6">
             <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
               <div className="max-w-2xl">
@@ -282,8 +526,8 @@ export default function Home() {
                 </h2>
               </div>
               <p className="max-w-md text-base leading-7 text-muted-foreground">
-                LensFlow should feel like an AI marketing department. That means
-                video, social, presenter and campaign assets in one flow.
+                LensFlow should feel like an AI marketing department — video,
+                social, presenter and campaign assets in one flow.
               </p>
             </div>
 
@@ -297,10 +541,12 @@ export default function Home() {
                   <div className="relative aspect-[9/13] overflow-hidden bg-black">
                     <video
                       src={item.video}
+                      poster={item.poster}
                       autoPlay
                       muted
                       loop
                       playsInline
+                      preload="metadata"
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
@@ -323,7 +569,129 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="presenters" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
+        {/* Teleprompter showcase */}
+        <section id="teleprompter" className="relative overflow-hidden bg-background py-24 lg:py-28">
+          <div className="absolute inset-0 bg-gradient-radial-gold opacity-60" />
+          <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-6 lg:grid-cols-2">
+            <div>
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                Eye-contact teleprompter
+              </p>
+              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                Luxury property videos in minutes.
+                <br />
+                <span className="text-gradient-gold">Read. Record. Connect.</span>
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-muted-foreground">
+                LensFlow's intelligent teleprompter lets you read your script
+                while looking directly at the camera — natural eye contact,
+                confident delivery and cinematic 4K quality, every time.
+              </p>
+
+              <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+                <Link href="/twin-avatar">
+                  <button className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] px-7 py-3.5 font-bold text-[#0A0A0A] transition-all duration-300 hover:scale-105 sm:w-auto">
+                    <Users className="h-5 w-5" />
+                    Upload Your Face
+                  </button>
+                </Link>
+                <a href="/pipeline/">
+                  <button className="flex w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-7 py-3.5 font-bold text-foreground transition-all duration-300 hover:bg-white/10 sm:w-auto">
+                    <Video className="h-5 w-5 text-primary" />
+                    Start Recording
+                  </button>
+                </a>
+              </div>
+
+              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+                {[
+                  { icon: Eye, label: "Eye-contact teleprompter" },
+                  { icon: Users, label: "Become Mia or Oliver" },
+                  { icon: Wand2, label: "Property enhancement studio" },
+                ].map((feature) => (
+                  <div
+                    key={feature.label}
+                    className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4"
+                  >
+                    <feature.icon className="h-5 w-5 flex-none text-primary" />
+                    <span className="text-sm leading-5 text-muted-foreground">
+                      {feature.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-2xl">
+                <img
+                  src="/images/teleprompter-agent.jpg"
+                  alt="Agent reading a script from the LensFlow teleprompter"
+                  className="aspect-[4/5] w-full object-cover sm:aspect-[4/3] lg:aspect-[4/5]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              </div>
+
+              {/* Teleprompter overlay card */}
+              <div className="absolute -bottom-6 left-4 right-4 rounded-2xl border border-[#C9A84C]/30 bg-[#0A0A0A]/90 p-4 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-md sm:left-8 sm:right-8 lg:-left-8 lg:right-8">
+                <div className="mb-3 flex items-center justify-between border-b border-white/10 pb-2.5">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Play className="h-4 w-4" fill="currentColor" />
+                    <span className="text-xs font-medium text-white/70">00:12</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">
+                      Teleprompter
+                    </span>
+                  </div>
+                </div>
+                <p className="text-sm leading-6 text-white/85">
+                  {teleprompterScript.map((part, index) => (
+                    <span key={index} className={part.gold ? "font-semibold text-[#E8D5A3]" : ""}>
+                      {part.text}
+                    </span>
+                  ))}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Full platform feature grid */}
+        <section id="features" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-12 max-w-2xl">
+              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
+                Everything in one platform
+              </p>
+              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                Not one feature. A whole marketing department.
+              </h2>
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {platformFeatures.map((feature) => (
+                <motion.div
+                  key={feature.title}
+                  whileHover={{ y: -4 }}
+                  className="rounded-[1.5rem] border border-white/10 bg-background p-7"
+                >
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                    <feature.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-lg font-semibold">{feature.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {feature.detail}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Presenters */}
+        <section id="presenters" className="bg-background py-24 lg:py-28">
           <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
             <div>
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
@@ -361,6 +729,7 @@ export default function Home() {
                       muted
                       loop
                       playsInline
+                      preload="metadata"
                       className="h-full w-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
@@ -382,51 +751,94 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="how-it-works" className="bg-background py-24 lg:py-28">
+        {/* 2026 flowchart */}
+        <section id="process" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
           <div className="mx-auto max-w-7xl px-6">
-            <div className="mb-12 max-w-2xl">
+            <div className="mb-14 max-w-2xl">
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
-                How It Works
+                The 2026 workflow
               </p>
               <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
-                Built around the first action an agent should take.
+                How LensFlow produces the best videos.
               </h2>
+              <p className="mt-5 text-lg leading-8 text-muted-foreground">
+                Seven steps from a cold listing URL to a published campaign — the
+                modern way to market property.
+              </p>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-3">
-              {workflow.map((step, index) => (
-                <div
-                  key={step.title}
-                  className="rounded-[1.75rem] border border-white/10 bg-card p-7"
-                >
-                  <div className="mb-8 flex items-center justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-                      <step.icon className="h-5 w-5" />
+            <div className="relative mx-auto max-w-3xl">
+              {/* vertical line */}
+              <div className="absolute bottom-4 left-[27px] top-4 w-[2px] bg-gradient-to-b from-[#C9A84C] via-[#C9A84C]/40 to-transparent md:left-[31px]" />
+
+              <div className="space-y-6">
+                {flowSteps.map((stage) => (
+                  <motion.div
+                    key={stage.step}
+                    initial={{ opacity: 0, x: -16 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.45 }}
+                    className="relative flex gap-6"
+                  >
+                    <div className="relative z-10 flex h-14 w-14 flex-none items-center justify-center rounded-full border border-[#C9A84C]/40 bg-[#0A0A0A] text-primary shadow-[0_0_24px_rgba(201,168,76,0.18)]">
+                      <stage.icon className="h-5 w-5" />
                     </div>
-                    <span className="font-serif text-5xl text-white/10">
-                      0{index + 1}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-semibold">{step.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                    {step.detail}
-                  </p>
-                </div>
-              ))}
+                    <div className="flex-1 rounded-[1.5rem] border border-white/10 bg-background p-6">
+                      <div className="flex items-center gap-3">
+                        <span className="font-serif text-2xl text-primary">{stage.step}</span>
+                        <h3 className="text-lg font-semibold">{stage.title}</h3>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                        {stage.detail}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        <section id="compare" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
-          <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[1fr_0.85fr] lg:items-start">
+        {/* Admin software -> AI marketing team */}
+        <section className="bg-background py-24 lg:py-28">
+          <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[1fr_0.85fr] lg:items-start">
+            <div className="rounded-[1.75rem] border border-primary/25 bg-primary/10 p-8">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+                <TrendingUp className="h-5 w-5" />
+              </div>
+              <h3 className="font-serif text-3xl font-semibold">
+                From admin software to an AI marketing team.
+              </h3>
+              <p className="mt-4 leading-7 text-muted-foreground">
+                Most platforms show you job logs. LensFlow shows you finished
+                marketing assets. Every screen answers the agent's real question:
+                what did this create for me today?
+              </p>
+              <div className="mt-7 space-y-3">
+                {adminPoints.map((item) => (
+                  <div key={item} className="flex items-start gap-3 text-sm text-foreground">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-primary" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+              <a href="#hero-form" className="mt-8 inline-block">
+                <button className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] px-7 py-3.5 font-bold text-[#0A0A0A] transition-all duration-300 hover:scale-105">
+                  Start Free — No Credit Card
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+              </a>
+            </div>
+
             <div>
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
                 Marketing Value
               </p>
               <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
-                Show agents what LensFlow creates for them.
+                See the value, in dollars.
               </h2>
-              <div className="mt-8 overflow-hidden rounded-[1.75rem] border border-white/10 bg-background">
+              <div className="mt-8 overflow-hidden rounded-[1.75rem] border border-white/10 bg-card">
                 {valueItems.map((item) => (
                   <div
                     key={item.label}
@@ -442,77 +854,42 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
-            <div className="rounded-[1.75rem] border border-primary/25 bg-primary/10 p-7">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-              <h3 className="font-serif text-3xl font-semibold">
-                From admin software to operating system.
-              </h3>
-              <p className="mt-4 leading-7 text-muted-foreground">
-                The experience should open with campaign creation, not market
-                briefs or job logs. Every screen should answer the agent's real
-                question: what marketing did this create for me today?
-              </p>
-              <div className="mt-7 space-y-3">
-                {[
-                  "Generate campaign first",
-                  "Recent campaigns instead of recent jobs",
-                  "Presenter status visible",
-                  "Marketing value shown in dollars",
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-3 text-sm text-foreground">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
 
-        <section className="bg-background py-24 lg:py-28">
-          <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-            <div>
+        {/* A calm, premium system */}
+        <section className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-12 text-center">
               <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
-                Output Quality
+                Built for agents
               </p>
-              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
-                Premium enough for luxury listings. Fast enough for every week.
+              <h2 className="mx-auto max-w-3xl font-serif text-4xl font-semibold leading-tight md:text-5xl">
+                A calm, premium system agents can rely on.
               </h2>
-              <p className="mt-6 text-lg leading-8 text-muted-foreground">
-                LensFlow should lead with finished marketing assets: polished
-                video, clean listing story, confident presenter and social-ready
-                format.
-              </p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
-              {[
-                { src: "/quality-before.jpg", label: "Listing media" },
-                { src: "/quality-presenter.jpg", label: "AI presenter" },
-                { src: "/quality-after.jpg", label: "Campaign output" },
-              ].map((image) => (
+            <div className="grid gap-5 md:grid-cols-3">
+              {calmCards.map((card) => (
                 <div
-                  key={image.label}
-                  className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-card"
+                  key={card.title}
+                  className="rounded-[1.75rem] border border-white/10 bg-background p-8"
                 >
-                  <img
-                    src={image.src}
-                    alt={image.label}
-                    className="aspect-[4/5] w-full object-cover"
-                  />
-                  <div className="p-4 text-sm font-medium text-muted-foreground">
-                    {image.label}
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                    <card.icon className="h-5 w-5" />
                   </div>
+                  <h3 className="text-xl font-semibold">{card.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {card.detail}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="pricing" className="border-y border-white/5 bg-card/40 py-24 lg:py-28">
+        {/* Pricing highlights */}
+        <section id="pricing" className="bg-background py-24 lg:py-28">
           <div className="mx-auto max-w-7xl px-6">
             <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
               <div className="max-w-2xl">
@@ -541,7 +918,7 @@ export default function Home() {
                   className={`rounded-[1.75rem] border p-7 ${
                     plan.featured
                       ? "border-primary/50 bg-primary/10"
-                      : "border-white/10 bg-background"
+                      : "border-white/10 bg-card"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -557,80 +934,38 @@ export default function Home() {
                       </span>
                     )}
                   </div>
-                  <div className="mt-8 font-serif text-4xl font-semibold">
-                    {plan.price}
-                  </div>
+                  <div className="mt-6 text-3xl font-bold text-foreground">{plan.price}</div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="bg-background py-24 lg:py-28">
-          <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-            <div>
-              <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
-                Trust Layer
-              </p>
-              <h2 className="font-serif text-4xl font-semibold leading-tight md:text-5xl">
-                A calm, premium system agents can trust.
-              </h2>
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              {[
-                { icon: Shield, title: "Brand safe", detail: "Property-first copy and professional presenter tone." },
-                { icon: Clock, title: "Fast turnaround", detail: "Campaign creation starts from a listing URL." },
-                { icon: Users, title: "Team friendly", detail: "Built for agents, agencies and premium vendors." },
-              ].map((item) => (
-                <div key={item.title} className="rounded-[1.5rem] border border-white/10 bg-card p-6">
-                  <item.icon className="h-5 w-5 text-primary" />
-                  <h3 className="mt-5 font-semibold">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    {item.detail}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="relative overflow-hidden bg-card py-20">
-          <div className="absolute inset-0">
-            <video
-              src="/videos/oliver-featured.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="h-full w-full object-cover opacity-25"
-            />
-            <div className="absolute inset-0 bg-background/80" />
-          </div>
-          <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-            <p className="mb-3 text-sm uppercase tracking-[0.24em] text-primary">
-              Ready To Build
+        {/* Final CTA */}
+        <section className="relative overflow-hidden border-t border-white/5 bg-[#0A0A0A] py-28 text-white">
+          <div className="absolute inset-0 bg-gradient-radial-gold opacity-70" />
+          <div className="relative mx-auto max-w-3xl px-6 text-center">
+            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-primary">
+              Ready to start
             </p>
-            <h2 className="font-serif text-4xl font-semibold leading-tight md:text-6xl">
-              Make LensFlow feel like the marketing department agents wish they had.
+            <h2 className="font-serif text-4xl font-bold leading-tight md:text-6xl">
+              The marketing department agents wish they had.
             </h2>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-[#E8D5A3]/75">
               Start with the campaign, show the presenter, prove the output and
-              make the value obvious.
+              make the value obvious — same day, every listing.
             </p>
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <a href="#hero-form">
-                <Button className="h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground hover:bg-primary/90">
-                  Generate Property Campaign
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+                <button className="flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#C9A84C] to-[#E8D5A3] px-9 py-4 text-lg font-bold text-[#0A0A0A] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(201,168,76,0.25)] sm:w-auto">
+                  Start Free — No Credit Card
+                  <ArrowRight className="h-5 w-5" />
+                </button>
               </a>
               <Link href="/pricing">
-                <Button
-                  variant="outline"
-                  className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-base text-foreground hover:bg-white/10"
-                >
+                <button className="w-full rounded-full border border-white/15 bg-white/5 px-9 py-4 text-lg font-bold text-white transition-all duration-300 hover:bg-white/10 sm:w-auto">
                   Compare Packages
-                </Button>
+                </button>
               </Link>
             </div>
           </div>

@@ -129,6 +129,28 @@ export class StripeService {
       return_url: returnUrl,
     });
   }
+
+  async getPrice(priceId: string): Promise<Stripe.Price> {
+    const stripe = await getUncachableStripeClient();
+    return await stripe.prices.retrieve(priceId);
+  }
+
+  // Returns false if the customer does not exist (or is deleted) in the active
+  // Stripe account — e.g. a customer id stored under the old test/sandbox account
+  // after switching the app to the live account.
+  async customerExists(customerId: string): Promise<boolean> {
+    try {
+      const stripe = await getUncachableStripeClient();
+      const customer = await stripe.customers.retrieve(customerId);
+      return !(customer as Stripe.DeletedCustomer).deleted;
+    } catch (err) {
+      // Only a genuine "no such customer" means missing. Rethrow transient/auth errors
+      // so we don't orphan a valid customer id and silently create a duplicate.
+      const e = err as { code?: string; statusCode?: number };
+      if (e?.code === 'resource_missing' || e?.statusCode === 404) return false;
+      throw err;
+    }
+  }
 }
 
 export const stripeService = new StripeService();

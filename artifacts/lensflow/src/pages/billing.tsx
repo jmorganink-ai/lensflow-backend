@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useSearch } from "wouter";
 import { Layout } from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, CreditCard, Loader2, Sparkles, Film, Video, ExternalLink, AlertCircle } from "lucide-react";
+import { CheckCircle2, CreditCard, Loader2, Sparkles, Film, Video, ExternalLink, AlertCircle, Crown } from "lucide-react";
 import { toast } from "sonner";
 
 interface Plan {
@@ -10,7 +10,7 @@ interface Plan {
   name: string;
   description: string;
   metadata: Record<string, string>;
-  prices: Array<{ id: string; unit_amount: number; currency: string }>;
+  prices: Array<{ id: string; unit_amount: number; currency: string; recurring?: { interval: string } | null }>;
 }
 
 interface Subscription {
@@ -19,10 +19,17 @@ interface Subscription {
 }
 
 const PLAN_META: Record<string, { icon: typeof Film; color: string; highlight: boolean }> = {
-  Starter:   { icon: Film,     color: "text-muted-foreground", highlight: false },
-  Elite:     { icon: Video,    color: "text-primary",          highlight: true  },
-  Concierge: { icon: Sparkles, color: "text-amber-400",        highlight: false },
+  Starter:                { icon: Film,     color: "text-muted-foreground", highlight: false },
+  Elite:                  { icon: Video,    color: "text-primary",          highlight: true  },
+  Concierge:              { icon: Sparkles, color: "text-amber-400",        highlight: false },
+  "Twin Avatar Solution": { icon: Crown,    color: "text-amber-300",        highlight: true  },
 };
+
+// Self-serve billing only handles monthly subscriptions. One-time prices (e.g. Enterprise,
+// legacy packages) and non-monthly intervals can't be used with this page's
+// mode:'subscription' checkout, so we ignore them.
+const recurringPriceOf = (p: Plan) =>
+  p.prices.find((pr) => pr.recurring?.interval === "month") ?? null;
 
 export default function Billing() {
   const search = useSearch();
@@ -179,12 +186,12 @@ export default function Billing() {
             <div className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">
               {currentPlan ? "Change Plan" : "Choose a Plan"}
             </div>
-            <div className="grid sm:grid-cols-3 gap-5">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {plans
-                .filter((p) => p.prices.length > 0)
-                .sort((a, b) => (a.prices[0]?.unit_amount ?? 0) - (b.prices[0]?.unit_amount ?? 0))
+                .filter((p) => recurringPriceOf(p))
+                .sort((a, b) => (recurringPriceOf(a)?.unit_amount ?? 0) - (recurringPriceOf(b)?.unit_amount ?? 0))
                 .map((plan) => {
-                  const price = plan.prices[0];
+                  const price = recurringPriceOf(plan)!;
                   const meta = PLAN_META[plan.name] ?? PLAN_META["Starter"];
                   const Icon = meta.icon;
                   const isCurrent = plan.metadata?.plan === currentPlan || plan.name.toLowerCase() === currentPlan?.toLowerCase();

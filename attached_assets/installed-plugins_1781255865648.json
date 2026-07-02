@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "plugins": {
+    "github@verdent-official": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\User\\.verdent\\plugins\\cache\\verdent-official\\github\\9b88a8a037dab4da00123521fd2b31eaa203",
+        "revision": "9b88a8a037dab4da00123521fd2b31eaa203",
+        "zipSha256": "9b88a8a037dab4da00123521fd2b31eaa2039dd3db1af908d9e3cff22da37cb9",
+        "manifestVersion": "0.1.1",
+        "installedAt": "2026-06-09T18:47:18.697Z",
+        "lastUpdated": "2026-06-09T18:47:18.697Z",
+        "runtimeBindings": {
+          "activatedAt": "2026-06-09T18:47:18.556Z"
+        }
+      }
+    ]
+  }
+}

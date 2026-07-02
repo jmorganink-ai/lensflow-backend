@@ -1,4 +1,4 @@
-import { getStripeClient, getStripeWebhookSecret } from './lib/stripeClient';
+import { getStripeClient, getStripeWebhookSecret, isDeploymentEnv } from './lib/stripeClient';
 import { stripeStorage } from './lib/stripeService';
 import { logger } from './lib/logger';
 import type Stripe from 'stripe';
@@ -7,13 +7,20 @@ const PLAN_NAME_MAP: Record<string, string> = {
   starter: 'Starter',
   elite: 'Elite',
   concierge: 'Concierge',
+  twin: 'Twin Avatar Solution',
+  enterprise: 'Enterprise',
 };
 
 function extractPlanName(subscription: Stripe.Subscription): string | null {
   const item = subscription.items.data[0];
   if (!item) return null;
-  const meta = (item.price.product as Stripe.Product | null)?.metadata?.plan_id
-    ?? (item.price.metadata?.plan_id ?? '');
+  const product = item.price.product as Stripe.Product | null;
+  // Prefer metadata.plan (set on the live catalog), fall back to legacy plan_id.
+  const meta = product?.metadata?.plan
+    ?? product?.metadata?.plan_id
+    ?? item.price.metadata?.plan
+    ?? item.price.metadata?.plan_id
+    ?? '';
   return PLAN_NAME_MAP[meta] ?? item.price.nickname ?? null;
 }
 
@@ -67,8 +74,15 @@ export class WebhookHandlers {
     if (webhookSecret) {
       const stripe = await getStripeClient();
       event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+    } else if (isDeploymentEnv()) {
+      // Fail closed in production: never trust unsigned webhook payloads, which could be
+      // used to forge subscription events. A LIVE Stripe webhook signing secret is required.
+      throw new Error(
+        'STRIPE_WEBHOOK_SECRET is not set in this deployment. Configure a LIVE Stripe webhook ' +
+        'endpoint for /api/stripe/webhook and set its signing secret before accepting webhooks.'
+      );
     } else {
-      logger.warn('STRIPE_WEBHOOK_SECRET not set — skipping signature verification (sandbox only)');
+      logger.warn('STRIPE_WEBHOOK_SECRET not set — skipping signature verification (dev/sandbox only)');
       event = JSON.parse(payload.toString()) as Stripe.Event;
     }
 

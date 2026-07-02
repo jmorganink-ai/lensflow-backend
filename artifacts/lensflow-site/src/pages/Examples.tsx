@@ -34,7 +34,7 @@ const campaigns = [
     title: "Oliver — Investment Presenter",
     subtitle: "Pyrmont, NSW · Apartments · Off-the-plan",
     detail: "Oliver positions the property around yield, lifestyle upside and capital growth — exactly how investors actually think. Confident tone, data-aware delivery.",
-    video: "/videos/oliver-sample.mp4",
+    video: "/videos/oliver-presenter.mp4",
     poster: "/presenters/oliver-poster.jpg",
     icon: Video,
     tag: "Investment ready",

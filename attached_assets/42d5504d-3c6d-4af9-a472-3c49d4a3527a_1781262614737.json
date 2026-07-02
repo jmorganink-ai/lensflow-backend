@@ -1,0 +1,12 @@
+[
+  {
+    "content": "Build new homepage with black/gold luxury brand direction",
+    "note": "Complete rebuild of index.html with Tailwind CDN, black bg, gold accents, presenter as star",
+    "status": "completed"
+  },
+  {
+    "content": "Open in browser to verify",
+    "note": "Verified all sections render correctly: hero with Mia as star + dashboard mockup, Twin Avatar, Video Showcase, How It Works (Paste/Generate/Publish), Presenters (Oliver & Mia cards), CTA, Footer",
+    "status": "completed"
+  }
+]
